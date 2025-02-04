@@ -1,37 +1,32 @@
-import { getProtoMessages } from '../../init/loadProtos.js';
-import { getProtoTypeNameByHandlerId } from '../../handlers/index.js';
-import CustomError from '../error/customError.js';
-import { ErrorCodes } from '../error/errorCodes.js';
 
-export const packetParser = (data, packetType) => {
-  const protoMessages = getProtoMessages();
+// MSS(Maximum Segment Size)는 TCP 연결에서 한 번에 전송할 수 있는 최대 데이터 크기
+// 보통은 1460바이트로 설정되며, 네트워크의 MTU(Maximum Transmission Unit)에 따라 결정
+const MSS = 1460; // MSS를 설정 (예: 1460바이트)
 
-  const protoTypeName = getProtoTypeNameByHandlerId(packetType);
-  if (!protoTypeName) {
-    throw new CustomError(ErrorCodes.UNKNOWN_HANDLER_ID, `알 수 없는 패킷 타입: ${packetType}`);
-  }
-  const [namespace, typeName] = protoTypeName.split('.');
-  const struct = protoMessages[namespace][typeName];
-  let packet;
+export const packetParser = (socket) => {
+  // 1. 오프셋 초기화
+  let offset = 0;
 
-  try {
-    packet = struct.decode(data);
-  } catch (e) {
-    console.log(e);
-    throw new CustomError(ErrorCodes.PACKET_DECODE_ERROR, '패킷 디코딩 중 오류가 발생했습니다.');
+  // 2. 패킷 사이즈 (4 바이트, 리틀 엔디안)
+  const packetSize = socket.buffer.readUInt32LE(offset);
+  offset += 4;
+
+  // 3. packetSize와 MSS를 비교 (패킷 사이즈 검증.)
+  if (packetSize > MSS) {
+    console.log('패킷 사이즈가 넘었습니다. ');
   }
 
-  // 필드가 비어있는 경우 = 필수 필드가 누락된 경우
-  const expectedFields = Object.keys(struct.fields);
-  const actualFields = Object.keys(packet);
-  const missingFields = expectedFields.filter((field) => !actualFields.includes(field));
+  // 4. 패킷 ID (1 바이트)
+  const packetId = socket.buffer.readUInt8(offset);
+  offset += 1;
 
-  if (missingFields.length > 0) {
-    throw new CustomError(
-      ErrorCodes.MISSING_FIELDS,
-      `필수 필드가 누락되었습니다: ${missingFields.join(', ')}`,
-    );
-  }
+  // 5. 남은 데이터 (PacketData)
+  // 패킷 사이즈가 전체 데이터라고 가정하고 만들었습니다.
+  // 아니라면 주석 풀어주세요..
+  const packetData = socket.buffer.slice(offset, offset + packetSize - 5);
+  // const packetDataSize = packetData.length;
+  // offset += packetDataSize;
 
-  return { ...packet };
+  return { packetSize, packetId, packetData };
+  // return { offset, packetId, packetData };
 };
