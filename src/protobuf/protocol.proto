@@ -1,0 +1,128 @@
+syntax = 'proto3';
+
+package game;
+
+// 패킷에 아래 정보가 있다면 참고해서 전달 범위를 정합니다.
+
+// MINE - 요청을 보낸 플레이어만
+// ALL - 요청을 보낸 플레이어 포함하여 방에 있는 모든 플레이어
+// OTHERS - 요청을 보낸 플레이어를 제외한 방에 있는 플레이어
+
+// 응답 패킷 - S_Enter, S_Spawn
+message C_Enter{
+  string nickname = 1;
+  int32 class = 2;
+}
+
+// MINE
+message S_Enter {
+  PlayerInfo player = 1;
+}
+
+// OTHERS
+message S_Spawn {
+  repeated PlayerInfo players = 1;
+}
+
+
+
+// 접속상태를 서버에서 판단해서 끊기도 다른 플레이어들 정보 전달
+// 응답 패킷 - S_Leave, S_Despawn
+message C_Leave{
+
+}
+
+// MINE
+message S_Leave {
+
+}
+
+// OTHERS
+message S_Despawn {
+  repeated int32 playerIds = 1; // PlayerInfo 전부 말고 아이디만 받는다.
+}
+
+
+// 응답 패킷 - S_Move
+message C_Move {
+  TransformInfo posInfo = 1;
+}
+
+// ALL
+message S_Move {
+  int32 playerId = 1;
+  TransformInfo posInfo = 2;
+}
+
+// 응답 패킷 - S_Animation
+message C_Animation {
+  int32 animCode = 1;
+}
+
+// ALL
+message S_Animation {
+  int32 playerId = 1;
+  int32 animCode = 2;
+}
+
+// 응답 패킷 - S_ChangeCostume
+message C_ChangeCostume{
+  CostumeInfo costume = 1;
+}
+
+// ALL
+message S_ChangeCostume{
+  int32 playerId = 1;
+  CostumeInfo costume = 2;
+}
+
+// 응답 패킷 - C_Chat
+message S_Chat{
+  int32 playerId = 1;
+  string chatMsg = 2;
+}
+
+// ALL
+message C_Chat{
+  int32 playerId = 1;
+  string senderName = 2;
+  string chatMsg = 3;
+}
+
+// 정보 구조체
+message PlayerInfo {
+  int32 playerId = 1;  // 입장할때 서버 내부에서 생성한 관리코드
+  string nickname = 2;  // C_EnterGame 에서 지정한 이름
+  int32 class = 3;  // C_EnterGame 에서 지정한 직업 정보, 이 정보를 통해 Stat 이 결정
+  TransformInfo transform = 4;
+  StatInfo statInfo = 5;
+}
+
+// C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
+// C_Move 를 통해 전달된 데이터는 그대로 다른 사용자에게 릴레이
+message TransformInfo {
+  float posX = 1; // 기본값 : -9 ~ 9
+  float posY = 2; // 기본값 : 1
+  float posZ = 3; // 기본값 : -8 ~ 8
+  float rot = 4; // 기본값 : 0~360
+}
+
+message StatInfo {
+  int32 level = 1;  // 1로 고정 - 사냥이 없음.
+  float hp = 2;
+  float maxHp = 3;  // 캐릭터 테이블 정보를 따라갈 예정 (PlayerInfo - class 참조)
+  float mp = 4;
+  float maxMp = 5;  // 테이블 정보
+  float atk = 6;   // 테이블 정보
+  float def = 7;   // 테이블 정보
+  float magic = 8;   // 테이블 정보
+  float speed = 9;   // 테이블 정보
+  CostumeInfo costume = 10;
+}
+
+
+// [0,0,0,0,0,0] 6개짜리 인트 배열 - 피부, 상의, 하의, 신발, 악세1, 악세2
+// 기본값은 0, 아이템이 없는 슬롯은 0 으로 유지
+message CostumeInfo {
+  repeated int32 costume = 1;
+}
