@@ -3,33 +3,31 @@ import { PACKET_TYPE } from '../constants/header.js';
 import { packetParser } from '../utils/parser/packetParser.js';
 import { getHandlerById } from '../handlers/index.js';
 import { handlerError } from '../utils/error/errorHandler.js';
-import readLittleEndianPacket from '../utils/readLittleEndianPacket.js';
 
 export const onData = (socket) => async (data) => {
+  if (!data) {
+    console.log('Data is undefined or null');
+    return;
+  }
+
   socket.buffer = Buffer.concat([socket.buffer, data]);
 
-  const totalHeaderLength = config.packet.totalLength + config.packet.typeLength;
+  while (socket.buffer.length > 0) {
+    // 패킷 파서
+    const { packetSize, packetId, packetData } = packetParser(socket);
+    socket.buffer = socket.buffer.slice(packetSize);
 
-  while (socket.buffer.length >= totalHeaderLength) {
-    const { length, packetType } = readLittleEndianPacket(socket.buffer);
-    // const length = socket.buffer.readUInt32BE(0);
-    // const packetType = socket.buffer.readUInt8(config.packet.totalLength);
+    // 패킷 사이즈가 전체 패킷 사이즈가 아닐경우.
+    // const { offset, packetId, packetData } = packetParser(socket, data);
+    // socket.buffer = socket.buffer.slice(offset);
 
-    if (socket.buffer.length >= length) {
-      const packet = socket.buffer.slice(totalHeaderLength, length);
-      socket.buffer = socket.buffer.slice(length);
+    try {
+      const handler = getHandlerById(packetId);
 
-      try {
-        const reqData = packetParser(packet, packetType);
-        const handler = getHandlerById(packetType);
-
-        handler(socket, reqData);
-      } catch (e) {
-        handlerError(socket, e);
-      }
-    } else {
-      // 아직 전체 패킷이 도착않았음
-      break;
+      // 각 핸들러 동작.
+      // await handler(socket, packetData);
+    } catch (e) {
+      handlerError(socket, e);
     }
   }
 };

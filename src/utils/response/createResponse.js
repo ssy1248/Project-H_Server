@@ -1,20 +1,24 @@
 import { getProtoMessages } from '../../init/loadProtos.js';
-import { config } from '../../config/config.js';
 
-export const createResponse = (type, packageName, structName, data = null) => {
+const PACKET_SIZE = 4;
+const PACKET_ID = 1;
+
+export const createResponse = (packageName, structName, packetId, packetData) => {
+  // 1. 패킷 데이터 직렬화
   const protoMessages = getProtoMessages();
   const Response = protoMessages[packageName][structName];
+  const packet = Response.encode(packetData).finish();
 
-  const buffer = Response.encode(data).finish();
+  // 2. 패킷 사이즈 계산
+  const packetSize = packet.length + PACKET_SIZE + PACKET_ID;
 
-  const packetLength = Buffer.alloc(config.packet.totalLength);
-  packetLength.writeUInt32BE(
-    buffer.length + config.packet.totalLength + config.packet.typeLength,
-    0,
-  );
+  // 3. 패킷 사이즈를 빅 엔디안으로 작성 
+  const length = Buffer.alloc(PACKET_SIZE);
+  length.writeUInt32BE(packetSize, 0); // 빅 엔디안 방식
 
-  const packetType = Buffer.alloc(config.packet.typeLength);
-  packetType.writeUInt8(type, 0);
+  // 4. 패킷 ID (1바이트)
+  const id = Buffer.alloc(PACKET_ID);
+  id.writeUInt8(packetId, 0);
 
-  return Buffer.concat([packetLength, packetType, buffer]);
+  return Buffer.concat([length, id, packet]);
 };
