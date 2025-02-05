@@ -14,7 +14,7 @@ export const onData = (socket) => async (data) => {
 
   while (socket.buffer.length > 0) {
     // 패킷 파서
-    const { packetSize, packetId, packetData } = packetParser(socket, data);
+    const { packetSize, packetId, packetData } = packetParser(socket);
     socket.buffer = socket.buffer.slice(packetSize);
 
     // 패킷 사이즈가 전체 패킷 사이즈가 아닐경우.
