@@ -21,7 +21,7 @@ export const packetParser = (socket) => {
   offset += 1;
 
   // 5. 남은 데이터 (PacketData)
-  // 패킷 사이즈가 전체 데이터라고 가정하고 만들었습니다.
+  // 패킷 사이즈가 전체 데이터 사이즈 라고 가정하고 만들었습니다.
   // 아니라면 주석 풀어주세요..
   const packetData = socket.buffer.slice(offset, offset + packetSize - 5);
   // const packetDataSize = packetData.length;
