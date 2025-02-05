@@ -15,12 +15,19 @@ export const config = {
     typeLength: PACKET_TYPE_LENGTH,
   },
   databases: {
+    GAME_DB: {
+      name: DB1_NAME || 'game_db',
+      user: DB1_USER || 'root',
+      password: DB1_PASSWORD || '1234',
+      host: DB1_HOST || 'localhost',
+      port: parseInt(DB1_PORT) || 3306,
+    },
     USER_DB: {
-      name: DB1_NAME,
-      user: DB1_USER,
-      password: DB1_PASSWORD,
-      host: DB1_HOST,
-      port: DB1_PORT,
+      name: DB2_NAME,
+      user: DB2_USER,
+      password: DB2_PASSWORD,
+      host: DB2_HOST,
+      port: parseInt(DB2_PORT),
     },
   },
 };
