@@ -2,8 +2,6 @@ import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
 class Party {
   constructor(id, partyName) {
-    // 방장이 나가면 어떤식으로? -> 방장의 인덱스는 0이 고정 그러니 splice를 통해서 0번 짜르고 다음 인덱스에서 리더 부여?
-    // 추방은 방장만! 방장은 파티 해체를 가능하게 해체를 하면 어떤식?
     // 파티 아이디
     this.id = id;
     // 파티 이름
@@ -14,6 +12,8 @@ class Party {
     this.partyLeader = null;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
   }
+
+  // 파티장 변경도 가능하게 따로 설정하는 함수로 사용하는게 좋겠다.
 
   // 파티 인원 추가
   addPartyMember(member) {
@@ -30,6 +30,28 @@ class Party {
       this.partyLeader = this.partyMembers[0];
     }
   }
+  
+  // 파티 초대
+  inviteParty(requester, member) {
+    const index = this.partyMembers.indexOf(requester);
+
+    if(index === -1) {
+        console.log('파티에 속해있지 않습니다.');
+        return;
+    }
+
+    if(this.partyMembers.length >= MAX_PARTY_MEMBER) {
+        console.log('파티 인원 초과');
+        return;
+    }
+
+    // 생각나는 예외 사항
+    // 초대한 멤버가 거절을 했을 경우?
+    // 초대한 멤버가 이미 다른 파티에 속해있을 경우?
+    // 초대한 멤버가 잠수일 경우
+    // n명 이상의 플레이어에게 초대를 보냈는데 한명의 플레이어가 수락을 했는데 풀방이 되었는데 남은 한명이 수락을 눌렀을떄?
+    
+  }
 
   // 파티 탈퇴
   exitPartyMember(member) {
@@ -43,6 +65,7 @@ class Party {
 
     // 멤버가 파티에 단 한 명만 있을 경우
     if (this.partyMembers.length === 1) {
+        // 세션 지우기
       this.partyMembers = [];
       this.partyLeader = null;
       return;
@@ -82,6 +105,22 @@ class Party {
     this.partyMembers.splice(index, 1);
 
     console.log(`${memberToExpel} 님이 파티에서 추방되었습니다.`);
+  }
+
+  // 방장은 파티 해체를 가능하게 해체를 하면 어떤식?
+  PartyBreakUp(requester) {
+    // 요청자가 리더가 아니라면 해체 불가
+    if (this.partyLeader !== requester) {
+      console.log('파티 해체는 리더만 할 수 있습니다.');
+      return;
+    }
+
+    // 파티 해체
+    // 세션도 삭제 해줘야 함
+    this.partyMembers = [];
+    this.partyLeader = null;
+
+    console.log('파티가 해체되었습니다.');
   }
 }
 
