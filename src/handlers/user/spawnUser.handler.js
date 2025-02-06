@@ -1,5 +1,5 @@
-import { addUser } from '../../session/user.session.js'
-import { User } from '../../classes/models/user.class.js'
+import {getUserByNickname, getOtherUserSockets} from "../../session/user.session.js"
+import User from "../../classes/models/user.class.js";
 
 const spawnUserHandler = async (socket, packetData) => {
   console.log('테스트');
@@ -8,6 +8,32 @@ const spawnUserHandler = async (socket, packetData) => {
   // 구조 분해 할당 (class → characterClass로 변경);
   // class는 예약어라 변수명 그대로 사용불가, 대채 이름을 설정해서 사용해야함.
   const { nickname, class: characterClass } = packetData;
+
+
+  // 닉네임으로 유저를 찾는다. 
+  const user = getUserByNickname(nickname);
+
+  // 검증.
+  if(!user) {
+    return console.log("해당 유저는 존재하지 않습니다.");
+  }
+
+  // 유저를 초기화 해주자. 
+  // 1. 캐릭터 클래스
+  // 2. 클래스 디폴트 능력치. 
+  // 3. 만들어졌던 클래스 라면 db에서 가져오기. 
+  // 흠..
+  user.init(characterClass, )
+
+
+
+
+
+
+
+
+
+
 
   // 유저가 만들어지는 시점은 언제인가.? 
   // 만약에 케릭터 이전에 만들어진다면.
