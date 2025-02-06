@@ -16,6 +16,7 @@ export default class User {
       level : 0,
       exp : 0,
       isMove: false,
+      isSpawn: false,
       // 정보 추가
     }
 
@@ -97,6 +98,10 @@ export default class User {
   // Set 
   setIsMove(isMove) {
     this.playerInfo.isMove = isMove;
+  }
+
+  setIsSpawn(isSpawn) {
+    this.playerInfo.isSpawn = isSpawn;
   }
 
   setPlayerInfo(playerInfo) {
