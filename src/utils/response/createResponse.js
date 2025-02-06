@@ -14,7 +14,12 @@ export const createResponse = (packageName, structName, packetId, packetData) =>
 
   // 3. 패킷 사이즈를 빅 엔디안으로 작성 
   const length = Buffer.alloc(PACKET_SIZE);
-  length.writeUInt32BE(packetSize, 0); // 빅 엔디안 방식
+  
+  // [수정 전] 빅엔디안
+  //length.writeUInt32BE(packetSize, 0); 
+
+  // [수정 후] 리틀엔디안
+  length.writeUInt32LE(packetSize, 0); 
 
   // 4. 패킷 ID (1바이트)
   const id = Buffer.alloc(PACKET_ID);

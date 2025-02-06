@@ -70,6 +70,7 @@ message C_SelectCharacterRequest{
 // 자신 캐릭터 선택
 message S_Enter {
     PlayerInfo player = 1;
+    repeated ItemInfo storeList = 2; 
 }
 // 모두에게 캐릭터 정보 넣어주기
 message S_Spawn {
@@ -308,4 +309,8 @@ message S_PartyResponse{
     int32 partyId = 1 ;
     int32 maximum = 2;
     repeated PlayerStatus Players = 3;
+  }
+  message ItemInfo{
+    int32 itemId =1;
+    int32 price = 2;
   }
