@@ -50,4 +50,5 @@ export const getAllUserSockets = () => {
   return userSessions.filter((user) => user.playerInfo.isSpawn === true).map((user) => user.userInfo.socket);
 };
 
+// 브로드캐스트 만들자.
 //,,

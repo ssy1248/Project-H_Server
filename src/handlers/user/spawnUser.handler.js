@@ -59,7 +59,7 @@ const spawnUserHandler = async (socket, packetData) => {
 
   // 4. 메세지 전송.
   try {
-    // 4-1. 클라이언트 에게 매세지 전달. (S_Enter)
+    // 4-1. 클라이언트 에게 매세지 전달. (S_Enter -> 모두에게)
     const data = {
       player: createPlayerInfoPacketData(),
       storeList: testItemList(),
@@ -70,7 +70,7 @@ const spawnUserHandler = async (socket, packetData) => {
     await socket.write(initialResponse);
     user.setIsSpawn(true);
 
-    // 4-2. 브로드 캐스트 (S_Spawn)
+    // 4-2. 브로드 캐스트 (S_Spawn -> 본인)
     const sockets = getOtherUserSockets(socket);
 
     const data2 = {
@@ -93,7 +93,7 @@ const spawnUserHandler = async (socket, packetData) => {
   // 2. 내가 스폰하고 유저들의 정보를 내가 받는다.?
 };
 
-// 케릭터 초기화 정보.
+// 케릭터 초기화 정보. (수정)
 const initializeCharacter = (result, characterClass, isNewCharacter = false) => {
   const playerInfo = {
     playerClass: characterClass,
@@ -163,8 +163,11 @@ const createPlayerInfoPacketData = (user) => {
 
 export default spawnUserHandler;
 
-
-
+// 내일 해야할 것 (오전).
+// 0. 프로토콜 수정해야함. 
+// 1. S_Enter(브로드캐스트), S_Spawn(본인) 역활이 반대임.
+// 2. 케릭터의 원본데이터 디폴트값이 있다.  
+// 3. 브로드캐스트를 유저 세션에서 만들자. 
 
 
   /*
