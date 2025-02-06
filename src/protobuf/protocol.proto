@@ -67,11 +67,13 @@ message S_LoginResponse {
 message C_SelectCharacterRequest{
     int32 class = 2;
 }
+
 // 자신 캐릭터 선택
 message S_Enter {
     PlayerInfo player = 1;
     repeated ItemInfo storeList = 2; 
 }
+
 // 모두에게 캐릭터 정보 넣어주기
 message S_Spawn {
     repeated PlayerInfo players = 1;
