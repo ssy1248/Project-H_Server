@@ -2,19 +2,21 @@ import Dungeon from '../classes/models/dungeon.class.js';
 import { dungeonSessions } from './sessions.js';
 
 //던전 세션 추가
-export const addDungeonSession = (id) => {
-  const session = new Dungeon(id);
+export const addDungeonSession = (id, index) => {
+  const session = new Dungeon(id, index);
   dungeonSessions.push(session);
   return session;
 };
 
 //던전세션 제거
-export const removeDungeonSession = () => {
-  //이 dungeonSessions은 던전 고유 아이디를 받아서 삭제 해야한다.
-  //아마 마지막 한명이 던전을 나갈떄 던전 고유 아이디를 받아서 삭제 시키면 될것 같다. 
+export const removeDungeonSession = (id) => {
+  const index = dungeonSessions.findIndex((session) => session.id === id);
+  if (index !== -1) {
+    return gameSessions.splice(index, 1)[0];
+  }
 };
 
 //특정 던전세션 찾기
-export const getDungeonSession = () => {
-  return dungeonSessions[0];
+export const getDungeonSession = (id) => {
+  return dungeonSessions.find((session) => session.id === id);
 };
