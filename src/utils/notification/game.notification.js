@@ -43,11 +43,11 @@ export const createAnimationPacket = (playerId, animCode) => {
   return makeNotification(animationPacket, PACKET_TYPE.S_ANIMATION);
 };
 
-export const createChatPacket = (playerId, chatMsg) => {
+export const createChatPacket = (playerId, type, errorType, chatMsg) => {
   const protoMessage = getProtoMessages();
   const chat = protoMessage.game.S_Chat;
 
-  const message = chat.create({ playerId, chatMsg });
-  const animationPacket = chat.encode(message).finish();
-  return makeNotification(animationPacket, PACKET_TYPE.S_CHAT);
+  const message = chat.create({ playerId, type, errorType, chatMsg });
+  const encodedPacket = chat.encode(message).finish();
+  return makeNotification(encodedPacket, PACKET_TYPE.S_CHAT);
 };
