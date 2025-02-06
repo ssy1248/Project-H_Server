@@ -2,9 +2,8 @@ import pools from '../database.js';
 import { SQL_QUERIES } from './user.queries.js';
 import { toCamelCase } from '../../utils/transformCase.js';
 
-export const findUserByDeviceID = async (deviceId) => {
-  const [rows] = await pools.USER_DB.query(SQL_QUERIES.FIND_USER_BY_DEVICE_ID, [deviceId]);
-  return toCamelCase(rows[0]);
+export const findUserEmail = async (email) => {
+  return await pools.USER_DB.query(SQL_QUERIES.FIND_USER_BY_DEVICE_ID, [email]);
 };
 
 export const createUser = async (email, nickname, password) => {
@@ -29,7 +28,7 @@ export const createUser = async (email, nickname, password) => {
   } catch (error) {
     // 에러 발생 시 롤백
     await connection.rollback();
-    throw error; // 에러를 다시 던져서 처리할 수 있도록 함
+    return { success: false };
   } finally {
     // 연결을 반환하여 연결 풀에서 사용할 수 있도록 함
     connection.release();
