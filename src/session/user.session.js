@@ -20,7 +20,7 @@ export const getUserById = (id) => {
 
 // 소캣으로 유저 찾기.
 export const getUserBySocket = (socket) => {
-  return userSessions.find((user) => user.socket === socket);
+  return userSessions.find((user) => user.playerInfo.socket === socket);
 };
 
 // 닉네임으로 유저 찾기.
