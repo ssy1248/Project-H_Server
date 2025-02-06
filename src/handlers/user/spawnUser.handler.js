@@ -16,4 +16,4 @@ const spawnUserHandler = async (socket, packetData) => {
   // 플레이어 정보. 
 };
 
-export default spawnMonsterHandler;
+export default spawnUserHandler;
