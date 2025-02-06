@@ -1,6 +1,7 @@
 import { config } from '../../config/config.js';
 import { getProtoMessages } from '../../init/loadProtos.js';
 import { PACKET_TYPE } from '../../constants/header.js';
+import { createResponse } from '../response/createResponse.js';
 
 const makeNotification = (message, type) => {
   const packetLength = Buffer.alloc(config.packet.totalLength);
@@ -51,3 +52,9 @@ export const createChatPacket = (playerId, chatMsg) => {
   const animationPacket = chat.encode(message).finish();
   return makeNotification(animationPacket, PACKET_TYPE.S_CHAT);
 };
+
+// 파티 생성 패킷 
+export const createPartyPacket = (partyId, partyName) => {
+
+  //return createResponse
+}
