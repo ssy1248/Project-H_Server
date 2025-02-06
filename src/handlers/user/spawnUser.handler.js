@@ -1,5 +1,9 @@
 import { getUserByNickname, getOtherUserSockets } from '../../session/user.session.js';
-import { findCharacterByUserId, findCharacterStatsById } from '../../db/user/user.db.js';
+import {
+  findCharacterByUserId,
+  findCharacterStatsById,
+  createCharacter,
+} from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { packetNames } from '../../protobuf/packetNames.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -35,6 +39,14 @@ const spawnUserHandler = async (socket, packetData) => {
       }
 
       characterData = initializeCharacter(newCharacter, characterClass, true);
+
+      // DB에 새로 생성.
+      const { playerClass, gold, level, exp } = characterData;
+      const result = await createCharacter(userInfo.userId, playerClass, gold, level, exp);
+
+      if (!result) {
+        return console.log('DB에 저장실패.');
+      }
     } else {
       characterData = initializeCharacter(character, characterClass);
     }
@@ -43,39 +55,42 @@ const spawnUserHandler = async (socket, packetData) => {
     user.init(characterClass, characterData.playerInfo, characterData.playerStatInfo);
   } catch (error) {
     console.error('에러 :', error);
-    console.log(' 케릭터 초기화 부분에러.');
   }
 
-  // 4. 클라이언트 에게 매세지 전달. (S_Enter)
-  const data = {
-    player : createPlayerInfoPacketData(),
-    storeList : testItemList(),
-  };
+  // 4. 메세지 전송.
+  try {
+    // 4-1. 클라이언트 에게 매세지 전달. (S_Enter)
+    const data = {
+      player: createPlayerInfoPacketData(),
+      storeList: testItemList(),
+    };
 
-  const initialResponse = createResponse(
-    packetNames.game.S_Enter,
-    PACKET_TYPE.S_ENTER,
-    data
-  );
+    const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, data);
 
-  await socket.write(initialResponse);
-  user.setIsSpawn(true);
+    await socket.write(initialResponse);
+    user.setIsSpawn(true);
 
-  // 4. 브로드 캐스트 (S_Spawn)
-  const users = getOtherUsers(socket);
-  const userInfo = user.getUserInfo();
+    // 4-2. 브로드 캐스트 (S_Spawn)
+    const sockets = getOtherUserSockets(socket);
 
-  const data2 = {
-    playerId: userInfo.userId,
+    const data2 = {
+      players: createPlayerInfoPacketData(),
+    };
 
+    const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, data2);
+
+    // Promise.all을 사용한 병렬 처리
+    const sendPromises = sockets.map((userSocket) => userSocket.write(initialResponse2));
+    await Promise.all(sendPromises);
+  } catch (error) {
+    console.error('에러 :', error);
   }
 
-  /*
- message S_Spawn {
-    repeated PlayerInfo players = 1;
-}
-  */
-  
+  // 1. 내가 스폰된 정보를 다른 유저들에게 뿌려야하는가.?
+  // 2. 다른사람의 정보를 나에게 뿌려야하는가?
+
+  // 1. 내가 스폰하고 내정보를 브로드 캐스트.?
+  // 2. 내가 스폰하고 유저들의 정보를 내가 받는다.?
 };
 
 // 케릭터 초기화 정보.
@@ -138,13 +153,25 @@ const createPlayerInfoPacketData = (user) => {
       maxMp: playerStatInfo.maxMp,
       atk: playerStatInfo.atk,
       def: playerStatInfo.def,
-      magic: 0, // DB 기준엔 없다.. 
+      magic: 0, // DB 기준엔 없다..
       speed: playerStatInfo.speed,
     },
   };
 
   return packetData;
 };
+
+export default spawnUserHandler;
+
+
+
+
+
+  /*
+ message S_Spawn {
+    repeated PlayerInfo players = 1;
+}
+  */
 
 /**
  *   message PlayerInfo {
@@ -179,5 +206,3 @@ const createPlayerInfoPacketData = (user) => {
   }
   }
  */
-
-export default spawnUserHandler;
