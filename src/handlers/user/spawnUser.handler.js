@@ -1,11 +1,10 @@
 import {
-  getUserByNickname,
+  getUserBySocket,
   getOtherUsers,
   broadcastToUsersAsync,
 } from '../../session/user.session.js';
 import { findCharacterByUserAndStatId, createCharacter } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
-import { packetNames } from '../../protobuf/packetNames.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
 
@@ -15,10 +14,10 @@ const spawnUserHandler = async (socket, packetData) => {
   // 1. C_SelectCharacterRequest 패킷을 받는다
   // 구조 분해 할당 (class → characterClass로 변경);
   // class는 예약어라 변수명 그대로 사용불가, 대채 이름을 설정해서 사용해야함.
-  const { nickname, class: characterClass } = packetData;
+  const { class: characterClass } = packetData;
 
-  // 2. 닉네임으로 유저 찾기.
-  const user = getUserByNickname(nickname);
+  // 2. 소켓으로 유저 찾기.
+  const user = getUserBySocket(socket);
   if (!user) {
     return console.log('해당 유저는 존재하지 않습니다.');
   }
@@ -70,7 +69,7 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // S_Enter 패킷 생성 후 전송 (본인의 게임 시작 처리)
-    const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, sSpawn);
+    const initialResponse = createResponse('user','S_Spawn', PACKET_TYPE.S_SPAWN, sSpawn);
     await socket.write(initialResponse);
 
     // 본인을 스폰된 상태로 설정
@@ -82,7 +81,7 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
-    const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, sEnter);
+    const initialResponse2 = createResponse('user','S_Enter' , PACKET_TYPE.S_ENTER, sEnter);
     broadcastToUsersAsync(socket, initialResponse2);
   } catch (error) {
     // 에러 발생 시 null 반환
