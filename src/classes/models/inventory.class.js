@@ -1,6 +1,6 @@
-class Inventory{
+export default class Inventory{
     constructor(){
-        this.ineventory = []; // 소지중인 아이템 인벤토리
+        this.inventory = []; // 소지중인 아이템 인벤토리
         this.equipment = []; // 장비중인 아이템 인벤토리
     }
 
