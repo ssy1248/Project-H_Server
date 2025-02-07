@@ -1,16 +1,11 @@
 import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import {
-  addDungeonSession,
-  getDungeonSession,
-  getDungeonUser,
-} from '../../../session/dungeon.session.js';
+import { getDungeonSession, getDungeonUser } from '../../../session/dungeon.session.js';
 import { getGameSession } from '../../../session/game.session.js';
 import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
 import { getUserById } from '../../../session/user.session.js';
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const dungeonEnter = (socket, packetData) => {
   try {
@@ -27,7 +22,7 @@ const dungeonEnter = (socket, packetData) => {
    7. 클라이언트에게 완료코드를 보낸다.
     */
 
-    // 아직 에로 코드는 안적었다.
+    // 아직 에러 코드는 안적었다.
 
     //받아온 players의 playerinfo에서 id만 추출
     const playerId = players.playerId;
@@ -90,7 +85,13 @@ const dungeonEnter = (socket, packetData) => {
     */
 
     const dungeonEnterPayload = { players, dungeonId };
-    const dungeonEnterResponse = createResponse(PACKET_TYPE.S_ENTERDUNGEON, dungeonEnterPayload);
+    //createResponse
+    const dungeonEnterResponse = createResponse(
+      'dungeon',
+      S_EnterDungeon,
+      PACKET_TYPE.S_ENTERDUNGEON,
+      dungeonEnterPayload,
+    );
 
     socket.write(dungeonEnterResponse);
   } catch (e) {
