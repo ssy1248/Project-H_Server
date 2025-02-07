@@ -161,7 +161,7 @@ const createPlayerInfoPacketData = (user) => {
       maxMp: playerStatInfo.maxMp,
       atk: playerStatInfo.atk,
       def: playerStatInfo.def,
-      magic: 0, // DB 기준엔 없다..
+      //magic: 0, // DB 기준엔 없다..
       speed: playerStatInfo.speed,
     },
   };
@@ -172,11 +172,14 @@ const createPlayerInfoPacketData = (user) => {
 export default spawnUserHandler;
 
 // 내일 해야할 것 (오전).
-// 0. 프로토콜 수정해야함. 
+// 0. 프로토콜 수정해야함. (완료)
 // 1. S_Enter(브로드캐스트), S_Spawn(본인) 역활이 반대임. (완료)
 // 2. 케릭터의 원본데이터 디폴트값이 있다. (물어봐야함.) 
 // 3. 브로드캐스트를 유저 세션에서 만들자. (완료.)
 
+
+// 1. 원본 테이블 케릭터 디폴트 값 있습니다.
+// 2. 현재 한유저가 여러 플레이어 
 
   /*
  message S_Spawn {
