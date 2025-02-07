@@ -179,7 +179,8 @@ export default spawnUserHandler;
 
 
 // 1. 원본 테이블 케릭터 디폴트 값 있습니다.
-// 2. 현재 한유저가 여러 플레이어 
+// 2. 현재 한유저가 여러 플레이어를 플래이했을경우 케릭터 검증. 
+// 3. 
 
   /*
  message S_Spawn {
