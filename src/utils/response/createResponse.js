@@ -3,9 +3,12 @@ import { getProtoMessages } from '../../init/loadProtos.js';
 const PACKET_SIZE = 4;
 const PACKET_ID = 1;
 
-export const createResponse = (packageName, structName, packetId, packetData) => {
+// createResponse 함수 개선
+export const createResponse = (packetName, packetId, packetData) => {
   // 1. 패킷 데이터 직렬화
   const protoMessages = getProtoMessages();
+  // [수정] packetName을 가지고 packageName, structName을 구한다.
+  const [packageName, structName] = packetName.split('.');
   const Response = protoMessages[packageName][structName];
   const packet = Response.encode(packetData).finish();
 

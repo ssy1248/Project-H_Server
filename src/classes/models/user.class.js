@@ -1,26 +1,33 @@
 export default class User {
   // 생성자.
-  constructor(socket, playerId, nickname ) {
+  constructor(socket, userId, nickname ) {
+    // 유저 정보.
+    this.userInfo = {
+      socket : socket,
+      userId : userId,
+      nickname : nickname,
+      // 정보 추가.
+    }
+
     // 플레이어 정보.
     this.playerInfo = {
-      socket : socket,
-      playerId : playerId,
-      nickname : nickname,
       playerClass : "", 
+      gold : 0,
+      level : 0,
+      exp : 0,
       isMove: false,
-      // 정보 추가.
+      isSpawn: false,
+      // 정보 추가
     }
 
     // 플레이어 스텟 정보.
     this.playerStatInfo = {
-      level: 0,
       hp: 0,
       maxHp: 0,
       mp: 0,
       maxMp: 0,
       atk: 0,
       def: 0,
-      magic: 0, 
       speed: 0,
     }
   
@@ -35,14 +42,17 @@ export default class User {
   }
 
   // 초기화 
-  init(playerClass, StatInfo) {
+  init(playerClass, playerInfo, statInfo ) {
     // 플레이어 클래스가 정해지지 않았으면 플레이어 클래스 지정.
     if(this.playerInfo.playerClass === "") {
       this.playerInfo.playerClass = playerClass;
+    } else {
+      return console.log("이미 초기화 했습니다.");
     }
 
-    // 스텟정보 변경.
-    this.setPlayerStatInfo(StatInfo);
+    // 플레이어 정보, 스텟 초기화.
+    this.setPlayerInfo(playerInfo);
+    this.setPlayerStatInfo(statInfo);
 
     // 플레이어 생성 좌표 랜덤으로 부여 
     // X 좌표 → 기본값 : -9 ~ 9
@@ -68,7 +78,11 @@ export default class User {
 
 
   // Get
-  getPlayerInfo() {
+  getUserInfo() {
+    return this.userInfo;
+  }
+
+  getPlayerInfo(){
     return this.playerInfo;
   }
 
@@ -86,23 +100,35 @@ export default class User {
     this.playerInfo.isMove = isMove;
   }
 
+  setIsSpawn(isSpawn) {
+    this.playerInfo.isSpawn = isSpawn;
+  }
+
+  setPlayerInfo(playerInfo) {
+    this.playerInfo = {
+      playerClass : playerInfo.playerClass, 
+      gold : playerInfo.gold,
+      level : playerInfo.level,
+      exp : playerInfo.exp,
+      isMove: false,
+    }
+  }
   
+  // 수정 해야함.
   setPlayerStatInfo(statInfo) {
     this.playerStatInfo = {
-      level: statInfo.level,
       hp: statInfo.hp,
-      maxHp: statInfo.maxHp,
+      maxHp: statInfo.hp,
       mp: statInfo.mp,
-      maxMp: statInfo.maxMp,
+      maxMp: statInfo.mp,
       atk: statInfo.atk,
       def: statInfo.def,
-      magic: statInfo.magic,
       speed: statInfo.speed,
     }
   }
 
   setLevel(level) {
-    this.playerStatInfo.level = level;
+    this.playerInfo.level = level;
   }
 
   setHp(hp) {
