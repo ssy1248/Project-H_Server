@@ -7,7 +7,7 @@ import animationHandler from './game/animation.handler.js';
 import chatHandler from './game/chat.handler.js';
 
 const handlers = {
-  [PACKET_TYPE.C_ENTER]: {
+  [PACKET_TYPE.S_ENTER]: {
     handler: initialHandler,
     protoType: 'game.C_Enter',
   },
