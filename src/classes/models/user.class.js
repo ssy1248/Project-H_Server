@@ -42,13 +42,7 @@ export default class User {
   }
 
   // 초기화 
-  init(playerClass, playerInfo, statInfo ) {
-    // 플레이어 클래스가 정해지지 않았으면 플레이어 클래스 지정.
-    if(this.playerInfo.playerClass === "") {
-      this.playerInfo.playerClass = playerClass;
-    } else {
-      return console.log("이미 초기화 했습니다.");
-    }
+  init(playerInfo, statInfo ) {
 
     // 플레이어 정보, 스텟 초기화.
     this.setPlayerInfo(playerInfo);
