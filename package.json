@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
-    "migrate": "node src/db/migrations/createSchemas.js"
+    "migrate": "node src/db/migrations/createSchemas.js",
+    "web": "node src/utils/web/server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,7 +16,9 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "chalk": "^5.4.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.1",
+    "express": "^4.21.2",
     "lodash": "^4.17.21",
     "long": "^5.2.3",
     "mysql2": "^3.9.7",

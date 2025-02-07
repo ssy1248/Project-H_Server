@@ -5,7 +5,7 @@ import { toCamelCase } from '../../utils/transformCase.js';
 export const getInventoryFromCharId = async (charId) => {
   try {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_INVENTORY_FROM_CHAR_ID, [charId]);
-    return toCamelCase(rows);
+    return toCamelCase(rows[0]);
   } catch (error) {
     console.log(error);
     return null;

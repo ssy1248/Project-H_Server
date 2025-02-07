@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Items Management</h1>
+    
+    <form id="item-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="itemType">Item Type:</label>
+        <input type="number" id="itemType" name="itemType" required>
+        <label for="stat">Stat:</label>
+        <input type="number" id="stat" name="stat" required>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required>
+        <button type="submit">Add Item</button>
+    </form>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Item Type</th>
+                <th>Stat</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody id="items-table-body">
+            <!-- 데이터가 여기에 추가됩니다 -->
+        </tbody>
+    </table>
+
+    <script src = "./index.js"></script>
+</body>
+</html>
