@@ -1,13 +1,10 @@
-import { ChatErrorCodes, ChatType } from '../../constants/chatType.js';
+import { ChatErrorCodes, ChatType } from '../../constants/constants.js';
 import { packetNames } from '../../protobuf/packetNames.js';
 import { getGameSession } from '../../session/game.session.js';
 import CustomError from '../../utils/error/customError.js';
 import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
-import {
-  createAnimationPacket,
-  createChatPacket,
-} from '../../utils/notification/game.notification.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 
 const chatHandler = (socket, { playerId, type, senderName, chatMsg }) => {
   try {
@@ -22,78 +19,70 @@ const chatHandler = (socket, { playerId, type, senderName, chatMsg }) => {
       throw new CustomError(ErrorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
     }
 
+    // 채팅 응답 패킷 생성 함수
+    const createChatResponse = (errorType, message) => {
+      return createResponse(packetNames.chat.S_Chat, 0, {
+        playerId,
+        type,
+        errorType,
+        chatMsg: message,
+      });
+    };
+
+    // 감정표현 응답 패킷 생성 함수 (S_Animation 사용)
+    const createEmoteResponse = (animationId) => {
+      return createResponse(packetNames.town.S_Animation, 0, {
+        playerId,
+        // 감정표현 ID
+        animationId,
+      });
+    };
+
     switch (type) {
       // 전체 채팅
       case ChatType.GLOBAL:
-        const globalChatPacket = createChatPacket(playerId, type, 0, chatMsg);
-        gameSession.broadcast({
-          packet: packetNames.game.S_Chat,
-          data: globalChatPacket,
-        });
+        gameSession.broadcast(createChatResponse(0, chatMsg));
         break;
 
       // 공지사항
       case ChatType.ANNOUNCEMENT:
         if (!user.isAdmin) {
-          const noPermissionPacket = createChatPacket(
-            playerId,
-            type,
-            ChatErrorCodes.NO_PERMISSION,
-            '공지사항은 관리자만 보낼 수 있습니다.',
+          socket.emit(
+            createChatResponse(
+              ChatErrorCodes.NO_PERMISSION,
+              '공지사항은 관리자만 보낼 수 있습니다.',
+            ),
           );
-          socket.emit(packetNames.game.S_Chat, noPermissionPacket);
           return;
         }
-
-        const announcementPacket = createChatPacket(playerId, type, 0, chatMsg);
-        gameSession.broadcast({
-          packet: packetNames.game.S_Chat,
-          data: announcementPacket,
-        });
+        gameSession.broadcast(createChatResponse(0, chatMsg));
         break;
 
       // 파티 채팅
       case ChatType.PARTY:
         if (!user.party) {
-          const noPartyPacket = createChatPacket(
-            playerId,
-            type,
-            ChatErrorCodes.NO_PARTY,
-            '파티에 가입되지 않았습니다.',
-          );
-          socket.emit(packetNames.game.S_Chat, noPartyPacket);
+          socket.emit(createChatResponse(ChatErrorCodes.NO_PARTY, '파티에 가입되지 않았습니다.'));
           return;
         }
-
-        const partyChatPacket = createChatPacket(playerId, type, 0, chatMsg);
-        gameSession.sendToParty(user.party, {
-          packet: packetNames.game.S_Chat,
-          data: partyChatPacket,
-        });
+        gameSession.sendToParty(user.party, createChatResponse(0, chatMsg));
         break;
 
       // 귓속말
       case ChatType.WHISPER:
         const recipient = gameSession.getUserByName(senderName);
         if (!recipient) {
-          const userNotFoundPacket = createChatPacket(
-            playerId,
-            type,
-            ChatErrorCodes.USER_NOT_FOUND,
-            '대상이 존재하지 않습니다.',
+          socket.emit(
+            createChatResponse(ChatErrorCodes.USER_NOT_FOUND, '대상이 존재하지 않습니다.'),
           );
-          socket.emit(packetNames.game.S_Chat, userNotFoundPacket);
           return;
         }
-
-        const whisperPacket = createChatPacket(playerId, type, 0, chatMsg);
-        recipient.socket.emit(packetNames.game.S_Chat, whisperPacket);
+        recipient.socket.emit(createChatResponse(0, chatMsg));
         break;
 
-      // 감정표현
+      // 감정표현 (애니메이션 패킷 따로 처리)
       case ChatType.EMOTE:
-        const emotePacket = createAnimationPacket(playerId, chatMsg);
-        gameSession.broadcast(emotePacket);
+        // `S_Animation` 패킷을 사용하여 감정표현 처리
+        gameSession.broadcast(createEmoteResponse(chatMsg));
         break;
 
       default:
