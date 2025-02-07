@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS CharacterStats (
 
 CREATE TABLE IF NOT EXISTS Characters(
     id         INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    userId     INT NOT NULL UNIQUE,
+    userId     INT NOT NULL,
     charStatId INT NOT NULL,
     gold       INT DEFAULT 0,
     level      INT DEFAULT 1,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS Characters(
 
 CREATE TABLE IF NOT EXISTS Market (
     id        INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    charId    INT NOT NULL UNIQUE,
+    charId    INT NOT NULL,
     itemIndex INT NOT NULL,
     upgrade   INT NOT NULL,
     price     INT NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS Items (
 
 CREATE TABLE IF NOT EXISTS Inventory(
     id         INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    charId     INT NOT NULL UNIQUE,
+    charId     INT NOT NULL,
     itemId     INT NOT NULL,
     rarity     INT DEFAULT 0,
     equiped    BOOLEAN DEFAULT FALSE,
