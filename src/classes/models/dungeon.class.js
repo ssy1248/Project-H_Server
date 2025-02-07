@@ -10,7 +10,7 @@ class Dungeon {
     this.id = id;
     // 어떤 던전의 종류을 알수있는 인게스(이건 던전에 어떤 던전인지 아는 즉 0번이면 초원던전 1버이면 동굴던전)
     this.index = index;
-    // 던전에 들어간 유저들
+    // 던전에 들어간 유저들 유저고유의 아이디만 넣을거다.
     this.users = [];
     // 혹시 쓸수도 있는 인터벌 매니더
     this.intervalManager = new IntervalManager();
@@ -28,9 +28,9 @@ class Dungeon {
   }
 
   //유저에서 소켓으로 찾는것
-  getUserBySocket(socket) {
-    return this.users.find((user) => user.socket === socket);
-  }
+  // getUserBySocket(socket) {
+  //   return this.users.find((user) => user.socket === socket);
+  // }
 
   //던전에 특정 유저 제거하는것
   removeUser(userId) {
