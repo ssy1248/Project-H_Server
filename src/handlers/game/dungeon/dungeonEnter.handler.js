@@ -1,5 +1,12 @@
 import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import { addDungeonSession } from '../../../session/dungeon.session.js';
+import {
+  addDungeonSession,
+  getDungeonSession,
+  getDungeonUser,
+} from '../../../session/dungeon.session.js';
+import { getGameSession } from '../../../session/game.session.js';
+import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
+import { getUserById } from '../../../session/user.session.js';
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
@@ -7,39 +14,83 @@ import { v4 as uuidv4 } from 'uuid';
 
 const dungeonEnter = (socket, packetData) => {
   try {
-    //이게에 문제가 있다. 같이 온 팀원들에 대해서 알아야 하는데 어떻게 찾지
-    const { dungeonCode, players } = packetData;
+    // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보
+    const { dungeonId, players } = packetData;
 
-    //players는 playerinfo가 들어있다. 여기서 id을 추출
+    /*지금 전체적인 흐름이 
+   1. 파티장이 던전 입장 버튼을 클릭한다.
+   2. 매칭 핸들러로 들어간다.
+   3. 매칭이 완료되면 던전을 생성하고 던전아이디, playerinfo가 온다.
+   4. 일단 들어온 코드에 검증을 한다 던전아이디의 던전이 있는지 playerinfo는 적절한지  
+   5. 이 정보를 가지고 던전아이디에 자신을 던전 세션에 입장 시킨다.
+   6. 자신을 게임(마을)세션에서 자신을 제거한다.
+   7. 클라이언트에게 완료코드를 보낸다.
+    */
+
+    // 아직 에로 코드는 안적었다.
 
     //받아온 players의 playerinfo에서 id만 추출
-    const player = players.playerId;
+    const playerId = players.playerId;
 
-    //파티 클래스가 만들어진 다음에 같이 있는 파티 찾는로직을 만들자
-    //먼저 playerId로 어떤 파티인지 알고
-    //파티에서 member.length가 MAX_PARTY_MEMBER 보다 적으면 매칭로직으로 보내기
-    //매칭이 잡인것을 어떻게 파악을 할것인가
+    //유저 아이디가 없으면 오류를 뱉어야함
+    if (!playerId) {
+      throw new Error('플레이어 아이디가 없습니다.');
+    }
 
-    //간단하게  addDungeonSession를 쓰고 거기서 유저를 추가하면 되지만
-    //여기서 생각 해야할점이 여기서 addDungeonSession을 쓰면 던전이 파티원수대로 만들어지기 떄문에 고민을 해봐야한다.
-    //socket에서 찾은 다음에 같이 갈 유저들을 찾는것도 좋은것 같다. 근데 파티로 가면 파티원이 누구 인지 아는데 모르면 매칭 쪽에서 알려줘야한다.
-    //그리고 던전에 참여한 유저들을 gamesession에서 제거 해야한다.
-    //결국 던전 생성 시점이 어디냐가 중요하다.
-    //이 dungeonId를 어떻게 매칭된 유저들끼리 공유할것인가.
+    // 받아온 던전 아이디로 던전 세션을 찾는다.
+    const dungeonSession = getDungeonSession(dungeonId);
 
-    const dungeonId = uuidv4();
-    const dungeonSession = addDungeonSession(dungeonId, dungeonCode);
+    if (!dungeonSession) {
+      throw new Error('던전이 생성되지 않았습니다.');
+    }
 
+    //유저가 유저
+    const userSession = getUserById(playerId);
+
+    if (!userSession) {
+      throw new Error('유저가 유저 세션에 없습니다.');
+    }
+
+    //게임세션 가져오기  (아직 게임세션이 하나만 만들어 지기 떄문에 getGameSession으로 해도 된다. 만약 게임세션이 늘어나면 userId로 찾을수 있게 해야한다.)
+    const gameSession = getGameSession();
+
+    //유저가 게임 세션에 있는가
+    const gameUser = getUser(socket);
+    if (!gameUser) {
+      throw new Error('유저가 게임에 없습니다');
+    }
+
+    //유저가 던전 세션에 있는가 (이거 있으면 에러를 띠워야지)
+    const dungeonUser = getDungeonUser(userId);
+    if (dungeonUser) {
+      throw new Error('유저가 던전에 있습니다');
+    }
+
+    //이러면 속한 파티의 아이디가 나옴
+    const partyId = searchPartyInPlayerSession(playerId);
+
+    //속한 파티 알기
+    const party = searchPartySession(partyId);
+
+    //만약 파티에 속한멤버수가 특정값 보다 적으면
+    if (party.partyMembers.length < MAX_PARTY_MEMBER) {
+      console.log('파티 인원이 부족합니다.');
+    }
+
+    // 던전 세션이 유저를 입장시킨다.
     dungeonSession.addUser(players);
 
-    //던전입장시 필요한것
+    //게임 세션에서 이유저를 제거해야한다.
+    gameSession.removeUser(socket);
 
-    const dungeonEnterPayload = { players, dungeonCode };
-    const dungeonEnterResponse = createResponse(
-      
-      PACKET_TYPE.S_ENTERDUNGEON, 
-      dungeonEnterPayload
-    );
+    /*
+    그런 다음 완료 코드를 보낸다.
+    players,dungeonCode는 원래 있던 패킷에 있어서 넣었다 필요없으면 뺴도 된다.
+    dungeonId는 이파티,유저가 어떤 던전인지 알기 위해서 필요할것같다
+    */
+
+    const dungeonEnterPayload = { players, dungeonId };
+    const dungeonEnterResponse = createResponse(PACKET_TYPE.S_ENTERDUNGEON, dungeonEnterPayload);
 
     socket.write(dungeonEnterResponse);
   } catch (e) {
