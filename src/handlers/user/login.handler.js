@@ -1,7 +1,9 @@
 import User from '../../classes/models/user.class.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { findUserEmail } from '../../db/user/user.db.js';
+import { packetNames } from '../../protobuf/packetNames.js';
 import { addUser } from '../../session/user.session.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 
 const validateUserInput = async (email, password, socket) => {
   try {
@@ -15,14 +17,14 @@ const validateUserInput = async (email, password, socket) => {
     const user = new User(socket, userData.id, userData.nickname);
     addUser(user);
 
-    return createResponse(PACKET_TYPE.S_LOGINRESPONSE, 'game', 'S_LOGINRESPONSE', {
+    return createResponse('user', packetNames.user.S_LoginResponse, PACKET_TYPE.S_LOGINRESPONSE, {
       success: true,
       token: '',
       message: '로그인에 성공했습니다!',
       failCode: GlobalFailCode.NONE,
     });
   } catch (err) {
-    return createResponse(PACKET_TYPE.S_LOGINRESPONSE, 'game', 'S_LOGINRESPONSE', {
+    return createResponse('user', packetNames.user.S_LoginResponse, PACKET_TYPE.S_LOGINRESPONSE, {
       success: false,
       token: '',
       message: err.message,
