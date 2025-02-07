@@ -2,12 +2,12 @@ import Party from '../classes/models/party.class.js';
 import { partySessions } from './sessions.js';
 
 // 파티 생성
-export const createPartySession = (id, partyName) => {
+export const createPartySession = (id, partyName, userId) => {
   if (!id || !partyName) {
     throw new Error('파티 생성 시 id와 partyName은 필수입니다.');
   }
 
-  const partySession = new Party(id, partyName);
+  const partySession = new Party(id, partyName, userId);
   partySessions.push(partySession);
   return partySession;
 };
