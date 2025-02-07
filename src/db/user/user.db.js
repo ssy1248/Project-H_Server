@@ -41,7 +41,7 @@ export const updateCharacter = async (userId, charStatId, gold, level, exp) => {
   return result.affectedRows > 0;
 }
 
-// userId로 케릭터 정보, 스텟을 가져오는 함수.
+// userId, charStatId로 케릭터 정보, 스텟을 가져오는 함수.
 export const findCharacterByUserAndStatId   = async (userId, charStatId) => {
   // 케릭터 정보, 스텟 을 담을 배열
   const [characterInfo] = await pools.USER_DB.query(SQL_QUERIES.FIND_CHARACTER_BY_USER_AND_STAT_ID, [userId, charStatId])
