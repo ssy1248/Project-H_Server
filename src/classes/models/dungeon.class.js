@@ -27,6 +27,11 @@ class Dungeon {
     return this.users.find((user) => user.id === userId);
   }
 
+  //유저에서 소켓으로 찾는것
+  getUserBySocket(socket) {
+    return this.users.find((user) => user.socket === socket);
+  }
+
   //던전에 특정 유저 제거하는것
   removeUser(userId) {
     const index = this.users.findIndex((user) => user.id === userId);

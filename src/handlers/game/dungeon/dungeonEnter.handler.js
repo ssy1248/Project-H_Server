@@ -16,11 +16,10 @@ const dungeonEnter = (socket, packetData) => {
     const player = players.playerId;
 
     //파티 클래스가 만들어진 다음에 같이 있는 파티 찾는로직을 만들자
-    //먼저 playerId로 어떤 파티인지 알고
-    //파티에서 member.length가 MAX_PARTY_MEMBER 보다 적으면 매칭로직으로 보내기
-    //매칭이 잡인것을 어떻게 파악을 할것인가
 
-    //간단하게  addDungeonSession를 쓰고 거기서 유저를 추가하면 되지만
+    //먼저 playerId로 어떤 파티인지 알고
+    //파티에서 member.length가 MAX_PARTY_MEMBER 보다 적으면 매칭 큐에 넣기 아직 파티에서 찾는것이 낳아와야하마
+
     //여기서 생각 해야할점이 여기서 addDungeonSession을 쓰면 던전이 파티원수대로 만들어지기 떄문에 고민을 해봐야한다.
     //socket에서 찾은 다음에 같이 갈 유저들을 찾는것도 좋은것 같다. 근데 파티로 가면 파티원이 누구 인지 아는데 모르면 매칭 쪽에서 알려줘야한다.
     //그리고 던전에 참여한 유저들을 gamesession에서 제거 해야한다.
@@ -28,18 +27,20 @@ const dungeonEnter = (socket, packetData) => {
     //이 dungeonId를 어떻게 매칭된 유저들끼리 공유할것인가.
 
     const dungeonId = uuidv4();
+
     const dungeonSession = addDungeonSession(dungeonId, dungeonCode);
 
     dungeonSession.addUser(players);
 
-    //던전입장시 필요한것
+    //이 이후 나 말고 다른 플레이어도 들어오게 해야한다.
 
-    const dungeonEnterPayload = { players, dungeonCode };
-    const dungeonEnterResponse = createResponse(
-      
-      PACKET_TYPE.S_ENTERDUNGEON, 
-      dungeonEnterPayload
-    );
+    /*던전입장시 필요한것
+    players,dungeonCode는 원래 있던 패킷에 있어서 넣었다 필요없으면 뺴도 된다.
+    dungeonId는 이파티,유저가 어떤 던전인지 알기 위해서 필요할것같다.
+    partymember도 넣으면 좋을것 같다. 이던전에 나말고 누구랑 같이 같는지를 알게 하기 위해서이다.
+    */
+    const dungeonEnterPayload = { players, dungeonCode, dungeonId };
+    const dungeonEnterResponse = createResponse(PACKET_TYPE.S_ENTERDUNGEON, dungeonEnterPayload);
 
     socket.write(dungeonEnterResponse);
   } catch (e) {
