@@ -4,7 +4,7 @@ package Google.Protobuf.Protocol;
 /* 유저 패킷 */
 
 enum MsgId {
-  C_REGISTER_REQUEST = 0;
+  C_REGISTERREQUEST = 0;
   S_REGISTERRESPONSE = 1;
   C_LOGINREQUEST =2;
   S_LOGINRESPONSE= 3;
