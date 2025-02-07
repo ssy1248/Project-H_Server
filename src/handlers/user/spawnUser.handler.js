@@ -1,4 +1,4 @@
-import { getUserByNickname, getOtherUserSockets } from '../../session/user.session.js';
+import { getUserByNickname, getOtherUserSockets, getOtherUsers, broadcastToUsersAsync } from '../../session/user.session.js';
 import {
   findCharacterByUserId,
   findCharacterStatsById,
@@ -59,38 +59,46 @@ const spawnUserHandler = async (socket, packetData) => {
 
   // 4. 메세지 전송.
   try {
-    // 4-1. 클라이언트 에게 매세지 전달. (S_Enter -> 모두에게)
-    const data = {
-      player: createPlayerInfoPacketData(),
+    // [수정] 4-1. (S_Spawn) 클라이언트에게 현재 스폰되어있는 유저 정보를 전송.
+    // 본인을 제외한 유저 정보를 가져오자.
+    const users = getOtherUsers(socket);
+    // 플레이어(유저)들의 정보를 담을 배열.
+    const playerData = [];
+
+    // 패킷데이터 형식으로 바꿔서 담는다.
+    for(let value of users){
+      playerData.push(createPlayerInfoPacketData(value));
+    }
+
+    // 패킷데이터
+    const sSpawn = {
+      players: playerData,
       storeList: testItemList(),
-    };
-
-    const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, data);
-
+    }
+    
+    // 직렬화후 전송.
+    const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, sSpawn);
     await socket.write(initialResponse);
+
+    // isSpawn을 true로 변경.
     user.setIsSpawn(true);
 
-    // 4-2. 브로드 캐스트 (S_Spawn -> 본인)
-    const sockets = getOtherUserSockets(socket);
-
-    const data2 = {
-      players: createPlayerInfoPacketData(),
+    // [수정] 4-2. (S_Enter) 스폰되어있는 모든 유저에게 본인의 정보를 보냄. 
+    // 페킷데이터 만듬.
+    const sEnter = {
+      player: createPlayerInfoPacketData(),
     };
 
-    const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, data2);
+    // 직렬화 
+    const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, sEnter);
 
-    // Promise.all을 사용한 병렬 처리
-    const sendPromises = sockets.map((userSocket) => userSocket.write(initialResponse2));
-    await Promise.all(sendPromises);
+    // 브로드 캐스트
+    broadcastToUsersAsync(socket, initialResponse2);
+
   } catch (error) {
     console.error('에러 :', error);
   }
 
-  // 1. 내가 스폰된 정보를 다른 유저들에게 뿌려야하는가.?
-  // 2. 다른사람의 정보를 나에게 뿌려야하는가?
-
-  // 1. 내가 스폰하고 내정보를 브로드 캐스트.?
-  // 2. 내가 스폰하고 유저들의 정보를 내가 받는다.?
 };
 
 // 케릭터 초기화 정보. (수정)
@@ -165,9 +173,9 @@ export default spawnUserHandler;
 
 // 내일 해야할 것 (오전).
 // 0. 프로토콜 수정해야함. 
-// 1. S_Enter(브로드캐스트), S_Spawn(본인) 역활이 반대임.
-// 2. 케릭터의 원본데이터 디폴트값이 있다.  
-// 3. 브로드캐스트를 유저 세션에서 만들자. 
+// 1. S_Enter(브로드캐스트), S_Spawn(본인) 역활이 반대임. (완료)
+// 2. 케릭터의 원본데이터 디폴트값이 있다. (물어봐야함.) 
+// 3. 브로드캐스트를 유저 세션에서 만들자. (완료.)
 
 
   /*
