@@ -1,7 +1,8 @@
 export const packetNames = {
   game: {
-    C_Enter: 'game.C_Enter',
-    S_Enter: 'game.S_Enter',
+    //수정 예정
+    C_RegisterRequest: 'game.C_RegisterRequest',
+    S_RegisterResponse: 'game.S_RegisterResponse',
     S_Spawn: 'game.S_Spawn',
     C_Leave: 'game.C_Leave',
     C_Move: 'game.C_Move',
@@ -10,5 +11,44 @@ export const packetNames = {
     S_Animation: 'game.S_Animation',
     C_Chat: 'game.C_Chat',
     S_Chat: 'game.S_Chat',
+  },
+  user: {
+    C_RegisterRequest: 'user.C_RegisterRequest',
+    S_RegisterResponse: 'user.S_RegisterResponse',
+    C_LoginRequest: 'user.C_LoginRequest',
+    S_LoginResponse: 'user.S_LoginResponse',
+    C_SelectCharacterRequest: 'user.C_SelectCharacterRequest',
+    S_Enter: 'user.S_Enter',
+    S_Spawn: 'user.S_Spawn',
+    S_Despawn: 'user.S_Despawn',
+  },
+  town: {
+    C_Move: 'town.C_Move',
+    S_Move: 'town.S_Move',
+    C_Animation: 'town.C_Animation',
+    S_Animation: 'town.S_Animation',
+    C_PartyRequest: 'town.C_PartyRequest',
+    S_PartyResponse: 'town.S_PartyResponse',
+  },
+  chat: {
+    C_Chat: 'chat.C_Chat',
+    S_Chat: 'chat.S_Chat',
+  },
+  inventory: {
+    C_BuyItemRequest: 'inventory.C_BuyItemRequest',
+    S_BuyItemResponse: 'inventory.S_BuyItemResponse',
+    C_EquipItemRequest: 'inventory.C_EquipItemRequest',
+    S_EquipItemResponse: 'inventory.S_EquipItemResponse',
+    C_DisrobeItemRequest: 'inventory.C_DisrobeItemRequest',
+    S_DisrobeItemResponse: 'inventory.S_DisrobeItemResponse',
+    C_ActiveItemRequest: 'inventory.C_ActiveItemRequest',
+    S_ActiveItemRequest: 'inventory.S_ActiveItemRequest',
+  },
+  dungeon: {
+    C_EnterDungeon: 'dungeon.C_EnterDungeon',
+    S_EnterDungeon: 'dungeon.S_EnterDungeon',
+    S_LeaveDungeon: 'dungeon.S_LeaveDungeon',
+    S_ScreenText: 'dungeon.S_ScreenText',
+    S_ScreenDone: 'dungeon.S_ScreenDone',
   },
 };
