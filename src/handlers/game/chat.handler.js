@@ -21,7 +21,7 @@ const chatHandler = (socket, { playerId, type, senderName, chatMsg }) => {
 
     // 채팅 응답 패킷 생성 함수
     const createChatResponse = (errorType, message) => {
-      return createResponse(packetNames.chat.S_Chat, 13, {
+      return createResponse('chat', packetNames.chat.S_Chat, 13, {
         playerId,
         type,
         errorType,
@@ -31,7 +31,7 @@ const chatHandler = (socket, { playerId, type, senderName, chatMsg }) => {
 
     // 감정표현 응답 패킷 생성 함수 (S_Animation 사용)
     const createEmoteResponse = (animCode) => {
-      return createResponse(packetNames.town.S_Animation, 11, {
+      return createResponse('town', packetNames.town.S_Animation, 11, {
         playerId,
         // 감정표현 ID
         animCode,
