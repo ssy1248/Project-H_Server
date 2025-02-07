@@ -5,9 +5,11 @@ import moveHandler from './game/move.handler.js';
 import { PACKET_TYPE } from '../constants/header.js';
 import animationHandler from './game/animation.handler.js';
 import chatHandler from './game/chat.handler.js';
+import spawnUserHandler from './user/spawnUser.handler.js';
+import movementSyncHandler from './user/moventSync.handler.js';
 
 const handlers = {
-  [PACKET_TYPE.C_REGISTER_REQUEST]: {
+  [PACKET_TYPE.C_REGISTERREQUEST]: {
     handler: undefined,
     protoType: 'user.C_RegisterRequest',
   },
@@ -24,15 +26,15 @@ const handlers = {
     protoType: 'user.S_LoginResponse',
   },
   [PACKET_TYPE.C_SELECTCHARACTERREQUEST]: {
-    handler: undefined,
+    handler: spawnUserHandler,
     protoType: 'user.C_SelectCharacterRequest',
   },
   [PACKET_TYPE.S_ENTER]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.C_Enter',
   },
   [PACKET_TYPE.S_SPAWN]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.S_Spawn',
   },
   [PACKET_TYPE.S_DESPAWN]: {
@@ -40,11 +42,11 @@ const handlers = {
     protoType: 'user.S_Despawn',
   },
   [PACKET_TYPE.C_MOVE]: {
-    handler: moveHandler,
+    handler: movementSyncHandler,
     protoType: 'town.C_Move',
   },
   [PACKET_TYPE.S_MOVE]: {
-    handler: moveHandler,
+    handler: undefined,
     protoType: 'town.S_Move',
   },
   [PACKET_TYPE.C_ANIMATION]: {
