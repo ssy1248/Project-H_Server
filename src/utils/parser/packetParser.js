@@ -68,8 +68,8 @@ const getPacketNamesById = (packetId) => {
  *
  * 출력 예시 (14)를 매게변수로 넣었을경우
  * {
-      category: 'inventory',
-      packet: 'C_BuyItemRequest',
+      packageName: 'inventory',
+      structName: 'C_BuyItemRequest',
       packetName: 'Google.Protobuf.Protocol.C_BuyItemRequest'
     }
  */
