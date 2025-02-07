@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { createUser } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
-import { PACKET_TYPE } from '../../constants/header';
+import { PACKET_TYPE } from '../../constants/header.js';
 import { GlobalFailCode } from '../../utils/game.data.js';
 
 // 나중에 .env나 상수로 따로 관리
@@ -25,7 +25,7 @@ const validateUserInput = async (email, nickname, password) => {
     if (nickname === '') throw new Error('이름이 빈칸입니다!');
     // 비밀번호 검증
     const isValidatePw = regex.pw.test(password);
-    if (!isValidatePw) throw new Error('비밀번호가 일치하지 않습니다!');
+    if (!isValidatePw) throw new Error('비밀번호 규격에 일치하지 않습니다!');
     // 비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, HASH_ROUNDS);
     const isSuccessful = await createUser(email, nickname, hashedPassword);
@@ -55,3 +55,5 @@ const registerHandler = async (socket, payload) => {
   const responsePayload = await validateUserInput(email, nickname, password);
   socket.write(responsePayload);
 };
+
+export default registerHandler;
