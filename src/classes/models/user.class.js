@@ -39,6 +39,7 @@ export default class User {
       rot : 0, 
     }
 
+    this.inventory = new Inventory();
   }
 
   // 초기화 
@@ -61,6 +62,7 @@ export default class User {
       rot : this.generateRandomPlayerTransformInfo(0, 360), 
     }
 
+    this.inventory.init(/* charId */);
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수
