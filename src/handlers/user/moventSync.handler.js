@@ -1,7 +1,6 @@
-import { getUserBySocket } from '../../session/user.session.js';
+import { getUserBySocket, broadcastToUsersAsync } from '../../session/user.session.js';
 import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
-import createResponse from '../../utils/response/createResponse.js'
-import { packetNames } from '../../protobuf/packetNames.js';
+import createResponse from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 
 
@@ -18,8 +17,23 @@ const movementSyncHandler = (socket, packetData) => {
   // 3. 트랜스폼 검증.
   validateTransform(characterTransform, transform);
 
-  // 4. 
+  if(!validateTransform) {
+    return console.log("트랜스폼 검증에 실패하였습니다.");
+  }
 
+  // 트랜스폼 갱신.
+  user.setTransformInfo(transform);
+
+  // 4. 브로드캐스트.
+  const userInfo = user.getUserInfo();
+
+  const sMove = {
+    playerId: userInfo.userId,
+    transform: testItemList(),
+  };
+
+  const initialResponse = createResponse('town','S_Move', PACKET_TYPE.S_MOVE, sMove);
+  broadcastToUsersAsync(socket, initialResponse);
 };
 
 // 트랜스폼 검증용 함수.
