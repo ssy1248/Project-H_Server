@@ -68,15 +68,16 @@ message C_SelectCharacterRequest{
     int32 class = 2;
 }
 
-// 자신 캐릭터 선택
+
+// [수정] 다른유저에게 본인 케릭터 정보를 보내야한다.
 message S_Enter {
     PlayerInfo player = 1;
-    repeated ItemInfo storeList = 2; 
 }
 
-// 모두에게 캐릭터 정보 넣어주기
+// [수정] 본인에게 다른 유저 정보, 스토어리스트 보내야한다. 
 message S_Spawn {
     repeated PlayerInfo players = 1;
+    repeated ItemInfo storeList = 2; 
 }
   
 // 캐릭터 없애주기!
@@ -235,6 +236,7 @@ message S_PartyResponse{
     float rot = 4; // 기본값 : 0~360
   }
   
+  // [수정] magic은 빼야하는가?
   message StatInfo {
     int32 level = 1;
     float hp = 2;
@@ -243,7 +245,6 @@ message S_PartyResponse{
     float maxMp = 5;
     float atk = 6;
     float def = 7;
-    float magic = 8;
     float speed = 9; 
   }
   
