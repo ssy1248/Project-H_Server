@@ -5,7 +5,6 @@ import {
 } from '../../session/user.session.js';
 import { findCharacterByUserAndStatId, createCharacter } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
-import { packetNames } from '../../protobuf/packetNames.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
 
@@ -70,7 +69,7 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // S_Enter 패킷 생성 후 전송 (본인의 게임 시작 처리)
-    const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, sSpawn);
+    const initialResponse = createResponse('user','S_Spawn', PACKET_TYPE.S_SPAWN, sSpawn);
     await socket.write(initialResponse);
 
     // 본인을 스폰된 상태로 설정
@@ -82,7 +81,7 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
-    const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, sEnter);
+    const initialResponse2 = createResponse('user','S_Enter' , PACKET_TYPE.S_ENTER, sEnter);
     broadcastToUsersAsync(socket, initialResponse2);
   } catch (error) {
     // 에러 발생 시 null 반환

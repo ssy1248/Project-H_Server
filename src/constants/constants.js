@@ -18,3 +18,8 @@ export const ChatErrorCodes = {
   USER_NOT_FOUND: 3,
   INVALID_TYPE: 4,
 };
+
+
+// 마을 이동동기화 거리,회전 검증용 js
+export const MAX_POSITION_DIFFERENCE = 5.0;  
+export const MAX_ROTATION_DIFFERENCE = 30.0; 
