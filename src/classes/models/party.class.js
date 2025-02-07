@@ -1,5 +1,19 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
+/* 파티 패킷 
+message C_PartyRequest{
+    int32 userId = 1;
+}
+message S_PartyResponse{
+    PartyInfo party =1;
+    bool success =2;
+    string message= 3;
+    GlobalFailCode failCode =4;
+}
+    추가 패킷이 필요하다고 생각들면 추가하자
+*/
+
+// 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
   constructor(id, partyName) {
     // 파티 아이디
@@ -13,7 +27,41 @@ class Party {
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
   }
 
-  // 파티장 변경도 가능하게 따로 설정하는 함수로 사용하는게 좋겠다.
+  // 파티장 변경
+  changePartyLeader(requester, newLeader) {
+    // 요청자가 리더가 아니라면 리더 변경 불가
+    if (this.partyLeader !== requester) {
+      console.log('파티장 변경은 리더만 할 수 있습니다.');
+      return;
+    }
+
+    // 새로운 리더가 파티에 속해있는지 확인
+    if (this.partyMembers.indexOf(newLeader) === -1) {
+      console.log('파티에 속해있지 않은 멤버는 파티장이 될 수 없습니다.');
+      return;
+    }
+
+    // 리더 변경
+    this.partyLeader = newLeader;
+
+    console.log(`${newLeader} 님이 새로운 파티장이 되었습니다.`);
+  }
+
+  // 파티장 설정
+  setPartyLeader(leader) {
+    // 파티에 속해있지 않은 멤버는 리더가 될 수 없음
+    if (this.partyMembers.indexOf(leader) === -1) {
+      console.log('파티에 속해있지 않은 멤버는 리더가 될 수 없습니다.');
+      return;
+    }
+
+    if (this.partyLeader !== null) {
+      console.log('이미 리더가 설정되어 있습니다.');
+      return;
+    }
+
+    this.partyLeader = leader;
+  }
 
   // 파티 인원 추가
   addPartyMember(member) {
@@ -26,31 +74,28 @@ class Party {
     this.partyMembers.push(member);
 
     // 리더가 없다면 리더를 0번 인덱스로 설정
-    if (this.partyLeader === null) {
-      this.partyLeader = this.partyMembers[0];
-    }
+    this.setPartyLeader(this.partyMembers[0]);
   }
-  
+
   // 파티 초대
   inviteParty(requester, member) {
     const index = this.partyMembers.indexOf(requester);
 
-    if(index === -1) {
-        console.log('파티에 속해있지 않습니다.');
-        return;
+    if (index === -1) {
+      console.log('파티에 속해있지 않습니다.');
+      return;
     }
 
-    if(this.partyMembers.length >= MAX_PARTY_MEMBER) {
-        console.log('파티 인원 초과');
-        return;
+    if (this.partyMembers.length >= MAX_PARTY_MEMBER) {
+      console.log('파티 인원 초과');
+      return;
     }
 
     // 생각나는 예외 사항
     // 초대한 멤버가 거절을 했을 경우?
+
     // 초대한 멤버가 이미 다른 파티에 속해있을 경우?
     // 초대한 멤버가 잠수일 경우
-    // n명 이상의 플레이어에게 초대를 보냈는데 한명의 플레이어가 수락을 했는데 풀방이 되었는데 남은 한명이 수락을 눌렀을떄?
-    
   }
 
   // 파티 탈퇴
@@ -65,7 +110,7 @@ class Party {
 
     // 멤버가 파티에 단 한 명만 있을 경우
     if (this.partyMembers.length === 1) {
-        // 세션 지우기
+      // 세션 지우기
       this.partyMembers = [];
       this.partyLeader = null;
       return;
@@ -75,9 +120,7 @@ class Party {
     this.partyMembers.splice(index, 1);
 
     // 만약 탈퇴한 멤버가 리더였다면, 새로운 리더를 지정(배열의 첫 번째 멤버)
-    if (this.partyLeader === member) {
-      this.partyLeader = this.partyMembers[0];
-    }
+    this.setPartyLeader(this.partyMembers[0]);
   }
 
   // 파티 추방 - 리더만 다른 멤버를 추방할 수 있음
