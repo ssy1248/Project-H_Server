@@ -3,6 +3,7 @@ import { createUser } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { GlobalFailCode } from '../../utils/game.data.js';
+import { packetNames } from '../../protobuf/packetNames.js';
 
 // 나중에 .env나 상수로 따로 관리
 const HASH_ROUNDS = 5;
@@ -30,7 +31,7 @@ const validateUserInput = async (email, nickname, password) => {
     const hashedPassword = await bcrypt.hash(password, HASH_ROUNDS);
     const isSuccessful = await createUser(email, nickname, hashedPassword);
     if (isSuccessful.success) {
-      return createResponse(PACKET_TYPE.S_REGISTERRESPONSE, 'game', 'S_REGISTERRESPONSE', {
+      return createResponse(packetNames.user.S_RegisterResponse, PACKET_TYPE.S_REGISTERRESPONSE, {
         success: true,
         message: '회원가입에 성공했습니다!',
         failCode: GlobalFailCode.NONE,
@@ -39,7 +40,7 @@ const validateUserInput = async (email, nickname, password) => {
       throw new Error('이메일 또는 아이디가 중복됩니다.');
     }
   } catch (err) {
-    return createResponse(PACKET_TYPE.S_REGISTERRESPONSE, 'game', 'S_REGISTERRESPONSE', {
+    return createResponse(packetNames.user.S_RegisterResponse, PACKET_TYPE.S_REGISTERRESPONSE, {
       success: false,
       message: err.message,
       failCode: GlobalFailCode.NONE,
