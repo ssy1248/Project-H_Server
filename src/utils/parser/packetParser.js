@@ -1,3 +1,5 @@
+import { PACKET_TYPE } from '../../constants/header.js';
+import { packetNames } from '../../protobuf/packetNames.js';
 
 // MSS(Maximum Segment Size)는 TCP 연결에서 한 번에 전송할 수 있는 최대 데이터 크기
 // 보통은 1460바이트로 설정되며, 네트워크의 MTU(Maximum Transmission Unit)에 따라 결정
@@ -27,6 +29,20 @@ export const packetParser = (socket) => {
   // const packetDataSize = packetData.length;
   // offset += packetDataSize;
 
+  // 역직렬화 되어야함. packetData
+
   return { packetSize, packetId, packetData };
   // return { offset, packetId, packetData };
+};
+
+const getPacketNamesById = (packetId) => {
+  // 순서대로 패킷 카테고리마다 해당하는 ID를 찾고, 반환.
+  for (const category in packetNames) {
+    for (const packet in packetNames[category]) {
+      if (PACKET_TYPE[packet] === packetId) {
+        return packetNames[category][packet];
+      }
+    }
+  }
+  return null; // 해당 ID가 없으면 null 반환
 };
