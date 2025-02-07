@@ -1,9 +1,9 @@
-import { getUserByNickname, getOtherUserSockets, getOtherUsers, broadcastToUsersAsync } from '../../session/user.session.js';
 import {
-  findCharacterByUserId,
-  findCharacterStatsById,
-  createCharacter,
-} from '../../db/user/user.db.js';
+  getUserByNickname,
+  getOtherUsers,
+  broadcastToUsersAsync,
+} from '../../session/user.session.js';
+import { findCharacterByUserAndStatId, createCharacter } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { packetNames } from '../../protobuf/packetNames.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -24,91 +24,83 @@ const spawnUserHandler = async (socket, packetData) => {
   }
 
   // 3. 케릭터 초기화.
-  try {
-    // 3-1. 유저Id 로 케릭터가 데이터베이스에 있는지 확인.
-    const userInfo = user.getUserInfo();
-    const character = await findCharacterByUserId(userInfo.userId);
-    let characterData;
+  const userInfo = user.getUserInfo();
+  const character = findOrCreateCharacter(userInfo.userId, characterClass);
+  const characterData = initializeCharacter(character);
+  user.init(characterData.playerInfo, characterData.playerStatInfo);
 
-    // 3-2. 있다면 기존 정보로 초기화, 없다면 새로 생성.
+  // 4. 패킷 전송.
+  syncSpawnedUser(socket, user);
+};
+
+// 유저의 특정 캐릭터가 존재하는지 확인하고, 없으면 새로 생성하는 함수.
+const findOrCreateCharacter = async (userId, charStatId) => {
+  try {
+    // 1. 해당 유저의 특정 캐릭터 정보 조회
+    let character = await findCharacterByUserAndStatId(userId, charStatId);
+
+    // 2. 캐릭터가 존재하지 않으면 새로 생성 후 다시 조회
     if (!character) {
-      const newCharacter = await findCharacterStatsById(characterClass);
-
-      if (!newCharacter) {
-        return console.log('해당 케릭터는 존재하지 않습니다.');
-      }
-
-      characterData = initializeCharacter(newCharacter, characterClass, true);
-
-      // DB에 새로 생성.
-      const { playerClass, gold, level, exp } = characterData;
-      const result = await createCharacter(userInfo.userId, playerClass, gold, level, exp);
-
-      if (!result) {
-        return console.log('DB에 저장실패.');
-      }
-    } else {
-      characterData = initializeCharacter(character, characterClass);
+      await createCharacter(userId, charStatId);
+      character = await findCharacterByUserAndStatId(userId, charStatId);
     }
-
-    // 3-3. 케릭터 초기화
-    user.init(characterClass, characterData.playerInfo, characterData.playerStatInfo);
+    return character;
   } catch (error) {
-    console.error('에러 :', error);
+    console.error('캐릭터 조회/생성 중 에러 발생:', error);
+    return null; // 에러 발생 시 null 반환
   }
+};
 
-  // 4. 메세지 전송.
+// 새로운 유저가 스폰될 때, 해당 유저에게 기존 스폰된 유저 정보를 보내고
+// 동시에 다른 유저들에게 해당 유저가 새롭게 스폰되었음을 알리는 함수.
+const syncSpawnedUser = async (socket, user) => {
   try {
-    // [수정] 4-1. (S_Spawn) 클라이언트에게 현재 스폰되어있는 유저 정보를 전송.
-    // 본인을 제외한 유저 정보를 가져오자.
+    // 1. 본인에게 다른 유저들의 정보를 동기화하는 패킷 전송
+    // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
     const users = getOtherUsers(socket);
-    // 플레이어(유저)들의 정보를 담을 배열.
-    const playerData = [];
 
-    // 패킷데이터 형식으로 바꿔서 담는다.
-    for(let value of users){
-      playerData.push(createPlayerInfoPacketData(value));
-    }
+    // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
+    const playerData = users.map((value) => createPlayerInfoPacketData(value));
 
-    // 패킷데이터
+    // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
+    // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const sSpawn = {
       players: playerData,
       storeList: testItemList(),
-    }
-    
-    // 직렬화후 전송.
+    };
+
+    // S_Enter 패킷 생성 후 전송 (본인의 게임 시작 처리)
     const initialResponse = createResponse(packetNames.game.S_Enter, PACKET_TYPE.S_ENTER, sSpawn);
     await socket.write(initialResponse);
 
-    // isSpawn을 true로 변경.
+    // 본인을 스폰된 상태로 설정
     user.setIsSpawn(true);
 
-    // [수정] 4-2. (S_Enter) 스폰되어있는 모든 유저에게 본인의 정보를 보냄. 
-    // 페킷데이터 만듬.
+    // 2. 다른 유저들에게 본인이 스폰되었음을 알리는 패킷 브로드캐스트
     const sEnter = {
-      player: createPlayerInfoPacketData(),
+      player: createPlayerInfoPacketData(user),
     };
 
-    // 직렬화 
+    // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse(packetNames.game.S_Spawn, PACKET_TYPE.SPAWN, sEnter);
-
-    // 브로드 캐스트
     broadcastToUsersAsync(socket, initialResponse2);
-
   } catch (error) {
-    console.error('에러 :', error);
+    // 에러 발생 시 null 반환
+    console.error('패킷 전송 중 에러 발생:', error);
+    return null;
   }
-
 };
 
-// 케릭터 초기화 정보. (수정)
-const initializeCharacter = (result, characterClass, isNewCharacter = false) => {
+// 케릭터 초기화 함수.
+// 데이터 베이스에서 불러온 케릭터 정보를 기반으로 플레이어 정보와 스탯 정보를 초기화.
+const initializeCharacter = (result) => {
   const playerInfo = {
-    playerClass: characterClass,
-    gold: !isNewCharacter ? result.gold : 0,
-    level: !isNewCharacter ? result.level : 1,
-    exp: !isNewCharacter ? result.exp : 0,
+    playerClass: result.charStatId,
+    gold: result.gold,
+    level: result.level,
+    exp: result.exp,
     isMove: false,
+    isSpawn: false,
   };
   const playerStatInfo = {
     hp: result.hp,
@@ -123,7 +115,7 @@ const initializeCharacter = (result, characterClass, isNewCharacter = false) => 
   return { playerInfo, playerStatInfo };
 };
 
-// 임시로 쓸 아이템리스트 양식.
+// 임시로 쓸 아이템리스트 양식. (삭제 예정.)
 const testItemList = () => {
   const itemList = [
     { itemId: 0, price: 1000 },
@@ -136,7 +128,8 @@ const testItemList = () => {
   return itemList;
 };
 
-// 패킷 데이터를 만들자.
+// 플레이어(케릭터) 정보 패킷을 생성하는 함수.
+// 유저 객체를 기반으로, 해당 유저의 기본 정보와 스텟 정보를 포함한 패킷 데이터를 생성.
 const createPlayerInfoPacketData = (user) => {
   const userInfo = user.getUserInfo();
   const playerInfo = user.getPlayerInfo();
@@ -161,7 +154,6 @@ const createPlayerInfoPacketData = (user) => {
       maxMp: playerStatInfo.maxMp,
       atk: playerStatInfo.atk,
       def: playerStatInfo.def,
-      //magic: 0, // DB 기준엔 없다..
       speed: playerStatInfo.speed,
     },
   };
@@ -170,54 +162,3 @@ const createPlayerInfoPacketData = (user) => {
 };
 
 export default spawnUserHandler;
-
-// 내일 해야할 것 (오전).
-// 0. 프로토콜 수정해야함. (완료)
-// 1. S_Enter(브로드캐스트), S_Spawn(본인) 역활이 반대임. (완료)
-// 2. 케릭터의 원본데이터 디폴트값이 있다. (물어봐야함.) 
-// 3. 브로드캐스트를 유저 세션에서 만들자. (완료.)
-
-
-// 1. 원본 테이블 케릭터 디폴트 값 있습니다.
-// 2. 현재 한유저가 여러 플레이어를 플래이했을경우 케릭터 검증. 
-// 3. 
-
-  /*
- message S_Spawn {
-    repeated PlayerInfo players = 1;
-}
-  */
-
-/**
- *   message PlayerInfo {
-    int32 playerId = 1;   // 입장할때 서버 내부에서 생성한 관리코드
-    string nickname = 2;  // C_EnterGame 에서 지정한 이름
-    int32 class = 3;      // C_EnterGame 에서 지정한 직업 정보, 이 정보를 통해 캐릭터가 결정
-    TransformInfo transform = 4;
-    StatInfo statInfo = 5;
-  }
- */
-
-/**
- *   message TransformInfo {
-    float posX = 1; // 기본값 : -9 ~ 9
-    float posY = 2; // 기본값 : 1
-    float posZ = 3; // 기본값 : -8 ~ 8
-    float rot = 4; // 기본값 : 0~360
-  }
- */
-
-/**
- *   message StatInfo {
-    int32 level = 1;
-    float hp = 2;
-    float maxHp = 3;
-    float mp = 4;
-    float maxMp = 5;
-    float atk = 6;
-    float def = 7;
-    float magic = 8;
-    float speed = 9; 
-  }
-  }
- */
