@@ -31,7 +31,8 @@ const validateUserInput = async (email, nickname, password) => {
     const hashedPassword = await bcrypt.hash(password, HASH_ROUNDS);
     const isSuccessful = await createUser(email, nickname, hashedPassword);
     if (isSuccessful.success) {
-      return createResponse(packetNames.user.S_RegisterResponse, PACKET_TYPE.S_REGISTERRESPONSE, {
+      console.log('정상 처리');
+      return createResponse('user', 'S_RegisterResponse', PACKET_TYPE.S_REGISTERRESPONSE, {
         success: true,
         message: '회원가입에 성공했습니다!',
         failCode: GlobalFailCode.NONE,
@@ -40,7 +41,8 @@ const validateUserInput = async (email, nickname, password) => {
       throw new Error('이메일 또는 아이디가 중복됩니다.');
     }
   } catch (err) {
-    return createResponse(packetNames.user.S_RegisterResponse, PACKET_TYPE.S_REGISTERRESPONSE, {
+    console.log('오류 발생');
+    return createResponse('user', 'S_RegisterResponse', PACKET_TYPE.S_REGISTERRESPONSE, {
       success: false,
       message: err.message,
       failCode: GlobalFailCode.NONE,
@@ -54,6 +56,7 @@ const registerHandler = async (socket, payload) => {
   const { email, nickname, password } = payload;
   //  가입 정보 검증 후 응답 페이로드 준비
   const responsePayload = await validateUserInput(email, nickname, password);
+  console.log(responsePayload);
   socket.write(responsePayload);
 };
 

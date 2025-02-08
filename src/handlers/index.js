@@ -7,14 +7,16 @@ import animationHandler from './game/animation.handler.js';
 import chatHandler from './game/chat.handler.js';
 import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
+import registerHandler from './user/register.handler.js';
+import loginHandler from './user/login.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
-    handler: undefined,
+    handler: registerHandler,
     protoType: 'user.C_RegisterRequest',
   },
   [PACKET_TYPE.S_REGISTERRESPONSE]: {
-    handler: undefined,
+    handler: loginHandler,
     protoType: 'user.S_RegisterResponse',
   },
   [PACKET_TYPE.C_LOGINREQUEST]: {

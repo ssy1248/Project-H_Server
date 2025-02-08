@@ -20,14 +20,14 @@ const validateUserInput = async (email, password, socket) => {
     const user = new User(socket, userData.id, userData.nickname);
     addUser(user);
 
-    return createResponse('user', packetNames.user.S_LoginResponse, PACKET_TYPE.S_LOGINRESPONSE, {
+    return createResponse('user', 'S_LoginResponse', PACKET_TYPE.S_LOGINRESPONSE, {
       success: true,
       token: '',
       message: '로그인에 성공했습니다!',
       failCode: GlobalFailCode.NONE,
     });
   } catch (err) {
-    return createResponse('user', packetNames.user.S_LoginResponse, PACKET_TYPE.S_LOGINRESPONSE, {
+    return createResponse('user', 'S_LoginResponse', PACKET_TYPE.S_LOGINRESPONSE, {
       success: false,
       token: '',
       message: err.message,
@@ -41,6 +41,7 @@ const loginHandler = async (socket, payload) => {
   // email 와 password 받기
   const { email, password } = payload;
   const responsePayload = validateUserInput(email, password, socket);
+  console.log(responsePayload);
   socket.write(responsePayload);
 };
 
