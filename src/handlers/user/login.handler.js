@@ -4,9 +4,12 @@ import { findUserEmail } from '../../db/user/user.db.js';
 import { packetNames } from '../../protobuf/packetNames.js';
 import { addUser } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+import { regex } from './register.handler.js';
 
 const validateUserInput = async (email, password, socket) => {
   try {
+    const isValidateEmail = regex.email.test(email);
+    if (!isValidateEmail) throw new Error('이메일 규격에 일치하지 않습니다!');
     // 이메일로 찾아보기
     const userData = await findUserEmail(email);
     if (!userData) throw new Error('일치하는 유저가 없습니다!');

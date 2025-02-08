@@ -169,7 +169,7 @@ message C_ActiveItemRequest{
 }
 
 // 
-message S_ActiveItemRequest{
+message S_ActiveItemResponse{
     int32 itemId =1;
     bool success =2;
     string message =3;

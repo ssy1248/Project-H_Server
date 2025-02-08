@@ -9,7 +9,7 @@ import { packetNames } from '../../protobuf/packetNames.js';
 const HASH_ROUNDS = 5;
 
 /* 비번, 이메일 정규식 */
-const regex = {
+export const regex = {
   // 비밀번호는 최소 네자리, 영소문자 또는 숫자로만
   pw: /^[a-z0-9]{4,}$/,
   // 이메일은 일반적인 이메일 형식
