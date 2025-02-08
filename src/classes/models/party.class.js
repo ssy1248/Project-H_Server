@@ -1,9 +1,23 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
 /* 파티 패킷 
+message PartyInfo{
+    int32 partyId = 1 ;
+    int32 maximum = 2;
+    repeated PlayerStatus Players = 3;
+}
+    
 message C_PartyRequest{
     int32 userId = 1;
+    string partyName = 2; // 파티 이름 추가
 }
+
+// 초대용 패킷 
+message C_PartyInviteRequest{
+    int32 partyId = 1; // 파티 id
+    int32 userId = 2; // 초대할 유저 id or 초대한 유저 id
+}
+
 message S_PartyResponse{
     PartyInfo party =1;
     bool success =2;
@@ -15,7 +29,7 @@ message S_PartyResponse{
 
 // 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
-  constructor(id, partyName) {
+  constructor(id, partyName, userId) {
     // 파티 아이디
     this.id = id;
     // 파티 이름
@@ -96,6 +110,9 @@ class Party {
 
     // 초대한 멤버가 이미 다른 파티에 속해있을 경우?
     // 초대한 멤버가 잠수일 경우
+
+    // 모든 예외 사항을 넘어간다면 파티 추가
+    this.addPartyMember(member);
   }
 
   // 파티 탈퇴

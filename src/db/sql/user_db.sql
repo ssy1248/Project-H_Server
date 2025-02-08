@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS Market (
 );
 
 CREATE TABLE IF NOT EXISTS Items (
-    id       INT  PRIMARY KEY,
+    id       INT  PRIMARY KEY AUTO_INCREMENT,
     name     VARCHAR(255) UNIQUE,
     itemType INT NOT NULL ,
     stat     FLOAT NOT NULL,
