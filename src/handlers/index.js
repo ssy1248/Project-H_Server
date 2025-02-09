@@ -16,11 +16,11 @@ const handlers = {
     protoType: 'user.C_RegisterRequest',
   },
   [PACKET_TYPE.S_REGISTERRESPONSE]: {
-    handler: loginHandler,
+    handler: undefined,
     protoType: 'user.S_RegisterResponse',
   },
   [PACKET_TYPE.C_LOGINREQUEST]: {
-    handler: undefined,
+    handler: loginHandler,
     protoType: 'user.C_LoginRequest',
   },
   [PACKET_TYPE.S_LOGINRESPONSE]: {

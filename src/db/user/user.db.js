@@ -4,7 +4,8 @@ import { toCamelCase } from '../../utils/transformCase.js';
 
 // 유저 찾기
 export const findUserEmail = async (email) => {
-  return await pools.USER_DB.execute(SQL_QUERIES.FIND_USER_BY_DEVICE_ID, [email]);
+  const [data] = await pools.USER_DB.execute(SQL_QUERIES.FIND_USER, [email]);
+  return data[0] || null;
 };
 // 유저 생성
 export const createUser = async (email, nickname, password) => {
