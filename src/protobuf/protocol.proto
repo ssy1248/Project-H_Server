@@ -57,7 +57,7 @@ message C_LoginRequest {
 
 //로그인 응답
 message S_LoginResponse {
-    string success = 1;
+    bool success = 1;
     string token = 2;
     string message = 3;
     GlobalFailCode failCode = 4;
