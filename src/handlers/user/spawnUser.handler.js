@@ -56,6 +56,7 @@ const spawnUserHandler = async (socket, packetData) => {
 // 유저의 특정 캐릭터가 존재하는지 확인하고, 없으면 새로 생성하는 함수.
 const findOrCreateCharacter = async (userId, charStatId) => {
   try {
+    console.log('캐릭터 조회/생성 시작:', userId, charStatId);
     // 1. 해당 유저의 특정 캐릭터 정보 조회
     let character = await findCharacterByUserAndStatId(userId, charStatId);
 
