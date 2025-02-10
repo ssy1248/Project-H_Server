@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS Characters(
     gold       INT DEFAULT 0,
     level      INT DEFAULT 1,
     exp        INT DEFAULT 0,
-    CONSTRAINT FK_User_TO_Character_1 FOREIGN KEY (userId) REFERENCES User (id) ON DELETE CASCADE,
-    CONSTRAINT FK_CharacterStats_TO_Character_1 FOREIGN KEY (charStatId) REFERENCES CharacterStats (id)
+    FOREIGN KEY (userId) REFERENCES User (id) ON DELETE CASCADE,
+    FOREIGN KEY (charStatId) REFERENCES CharacterStats (id)
 );
 
 CREATE TABLE IF NOT EXISTS Market (
@@ -92,13 +92,3 @@ CREATE TABLE IF NOT EXISTS Skill (
     castingTime FLOAT DEFAULT 0, 
     effect      INT NOT NULL
 );
-
--- 2. 제약 조건 추가 (Foreign Keys)
--- ALTER TABLE Inventory
--- ADD CONSTRAINT FK_Character_TO_Inventory_1 FOREIGN KEY (charId) REFERENCES Characters(id);
-
--- ALTER TABLE Equiped
--- ADD CONSTRAINT FK_Character_TO_Equiped_1 FOREIGN KEY (charId) REFERENCES Characters(id);
-
--- ALTER TABLE Equiped
--- ADD CONSTRAINT FK_Inventory_TO_Equiped_1 FOREIGN KEY (invenId) REFERENCES Inventory (id);
