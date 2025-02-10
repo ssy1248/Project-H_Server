@@ -36,3 +36,11 @@ export const deleteItem = async (itemId) => {
         return false;
     }
 };
+
+// FIND_ALL_ITEMS
+// [추가] 모든 아이템 가져오기 
+export const findAllItems = async () => {
+    const [rows] = await pools.USER_DB.query(SQL_QUERIES.FIND_ALL_ITEMS);
+
+    return toCamelCase(rows);
+}

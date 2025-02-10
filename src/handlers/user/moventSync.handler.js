@@ -1,6 +1,6 @@
 import { getUserBySocket, broadcastToUsersAsync } from '../../session/user.session.js';
 import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
-import createResponse from '../../utils/response/createResponse.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 
 

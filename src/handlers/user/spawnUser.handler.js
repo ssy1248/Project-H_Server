@@ -4,6 +4,7 @@ import {
   broadcastToUsersAsync,
 } from '../../session/user.session.js';
 import { findCharacterByUserAndStatId, createCharacter } from '../../db/user/user.db.js';
+import { findAllItems } from '../../db/inventory/item.db.js'
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
@@ -65,7 +66,7 @@ const syncSpawnedUser = async (socket, user) => {
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const sSpawn = {
       players: playerData,
-      storeList: testItemList(),
+      storeList: getItemList(),
     };
 
     // S_Enter 패킷 생성 후 전송 (본인의 게임 시작 처리)
@@ -114,15 +115,16 @@ const initializeCharacter = (result) => {
   return { playerInfo, playerStatInfo };
 };
 
-// 임시로 쓸 아이템리스트 양식. (삭제 예정.)
-const testItemList = () => {
-  const itemList = [
-    { itemId: 0, price: 1000 },
-    { itemId: 1, price: 1000 },
-    { itemId: 2, price: 1000 },
-    { itemId: 3, price: 1000 },
-    { itemId: 4, price: 1000 },
-  ];
+// 아이템리스트 양식.
+const getItemList = () => {
+  // 데이터 베이스에 있는 아이템리스트 가져오기
+  const itemListData = findAllItems();
+
+  // map을 사용해서 id, price 
+  const itemList = itemListData.map(({ id, price }) => ({
+    itemId: id, 
+    price: price,
+  }));
 
   return itemList;
 };
