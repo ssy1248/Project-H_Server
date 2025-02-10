@@ -68,3 +68,10 @@ export const findCharacterStatsById = async (id) => {
   // 만약에 읽어온 값이 0일 경우 null 반환.
   return characterStatInfo.length > 0 ? characterStatInfo[0] : null;
 };
+
+// 케릭터 스텟 컬럼명만 가져오기.
+export const getTableStructure = async () => {
+  const query = 'DESCRIBE CharacterStats';
+  const [results] = await pools.USER_DB.query(query);
+  return results.map(column => column.Field); // 컬럼명만 반환
+};
