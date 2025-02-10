@@ -1,6 +1,7 @@
 import {
   getUserBySocket,
   getOtherUsers,
+  getAllUsers,
   broadcastToUsersAsync,
   getAllUsers,
 } from '../../session/user.session.js';
@@ -10,7 +11,7 @@ import {
   insertCharacterStats,
   getCharacterStatsCount,
 } from '../../db/user/user.db.js';
-import { findAllItems } from '../../db/inventory/item.db.js';
+import { getAllItems } from '../../db/inventory/item.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
@@ -85,7 +86,6 @@ const syncSpawnedUser = async (socket, user) => {
     // 1. 본인에게 다른 유저들의 정보를 동기화하는 패킷 전송
     // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
     const users = getAllUsers(socket);
-
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
     const playerData = users.map((value) => createPlayerInfoPacketData(value));
 
@@ -97,6 +97,12 @@ const syncSpawnedUser = async (socket, user) => {
       players: playerData,
       storeList: getItemList(),
     };
+
+    console.log(
+      `유저 아이디 : ${
+        userInfo.userId
+      }, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`,
+    );
 
     // S_Enter 패킷 생성 후 전송 (본인의 게임 시작 처리)
     const initialResponse = createResponse('user', 'S_Spawn', PACKET_TYPE.S_SPAWN, sSpawn);
@@ -113,6 +119,8 @@ const syncSpawnedUser = async (socket, user) => {
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);
     broadcastToUsersAsync(socket, initialResponse2);
+    const userCount = getAllUsers();
+    console.log(`들어와 있는 유저 세션 : ${userCount.length}`);
   } catch (error) {
     // 에러 발생 시 null 반환
     console.error('패킷 전송 중 에러 발생:', error);
@@ -147,7 +155,7 @@ const initializeCharacter = (result) => {
 // 아이템리스트 양식.
 const getItemList = async () => {
   // 데이터 베이스에 있는 아이템리스트 가져오기
-  const itemListData = await findAllItems();
+  const itemListData = await getAllItems();
 
   if (!Array.isArray(itemListData)) {
     console.error('아이템 리스트 데이터가 배열이 아닙니다:', itemListData);
