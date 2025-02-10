@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items Management</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 300px;
+            margin: 0 auto;
+        }
+        .form-container label,
+        .form-container input,
+        .form-container button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .edit-form-container {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 300px;
+            margin: 0 auto;
+        }
+        .edit-form-container label,
+        .edit-form-container input,
+        .edit-form-container button {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .edit-form-container .button-container {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <h1>Items Management</h1>
+    
+    <div class="form-container">
+        <form id="item-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="itemType">Item Type:</label>
+            <input type="number" id="itemType" name="itemType" required>
+            <label for="stat">Stat:</label>
+            <input type="number" id="stat" name="stat" required>
+            <label for="price">Price:</label>
+            <input type="number" id="price" name="price" required>
+            <button type="submit">Add Item</button>
+        </form>
+    </div>
+    
+    <div class="edit-form-container" id="edit-form-container">
+        <form id="edit-item-form">
+            <input type="hidden" id="edit-item-id" name="itemId">
+            <label for="edit-name">Name:</label>
+            <input type="text" id="edit-name" name="name" required>
+            <label for="edit-itemType">Item Type:</label>
+            <input type="number" id="edit-itemType" name="itemType" required>
+            <label for="edit-stat">Stat:</label>
+            <input type="number" id="edit-stat" name="stat" required>
+            <label for="edit-price">Price:</label>
+            <input type="number" id="edit-price" name="price" required>
+            <div class="button-container">
+                <button type="submit">Update Item</button>
+                <button type="button" id="cancel-edit">Cancel</button>
+            </div>
+        </form>
+    </div>
+    
+    <table style="margin: 0 auto;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Item Type</th>
+                <th>Stat</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="items-table-body">
+            <!-- 데이터가 여기에 추가됩니다 -->
+        </tbody>
+    </table>
+
+    <script src="./item.js"></script>
+</body>
+</html>
