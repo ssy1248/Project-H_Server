@@ -10,9 +10,15 @@ class Match {
     this.partyQueue = [];
     this.soloQueue = [];
     this.dungeonIndex = dungeonIndex;
-    
+
     setDesiredDungeonIndex(dungeonIndex);
   }
+
+  // 두개의 파티가 합쳐질때의 파티장 경우
+  // 한 파티는 해체한 후에 하나의 파티로 묶어서 기존의 파티장에게 위임?
+  // 파티장은 매칭된 파티장중에서 레벨 높은놈을 하나의 파티의 방장으로 설정
+  // A가 말대로 AB로 합쳐진 후 겜하다가 A중 한놈 튕기고 겜 끝나 -> 그럼 남아있던 파티원은 AB파티로 유지? 아니면 로비로 나가면 각자?
+  // 튕긴 파티원은 어떤식으로 보장을 할것인지 -> 재접속 or 포기 ui 표기
 
   // 파티로 매칭 시도
   addPartyMatchQueue(partyId) {
