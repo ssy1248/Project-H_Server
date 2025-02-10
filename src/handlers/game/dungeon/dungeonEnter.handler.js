@@ -6,7 +6,7 @@ import {
 } from '../../../session/dungeon.session.js';
 import { getGameSession } from '../../../session/game.session.js';
 import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
-import { getUserById } from '../../../session/user.session.js';
+import { getUserById, getUserBySocket, getUserInfo } from '../../../session/user.session.js';
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
@@ -28,11 +28,15 @@ const dungeonEnter = (socket, packetData) => {
 
     // 아직 에러 코드는 안적었다.
 
-    //받아온 players의 playerinfo에서 id만 추출
-    const playerId = players.playerId;
+    //소켓으로 유저를 찾는다.
+    const user = getUserBySocket(socket);
+    //유저에서 유저 Info 추출
+    const userInfo = user.getUserInfo();
+    // 유저 Info에서 userId 찾기
+    const userId = userInfo.userId;
 
     //유저 아이디가 없으면 오류를 뱉어야함
-    if (!playerId) {
+    if (!userInfo) {
       throw new Error('플레이어 아이디가 없습니다.');
     }
 
@@ -53,7 +57,7 @@ const dungeonEnter = (socket, packetData) => {
     }
 
     //유저가 유저
-    const userSession = getUserById(playerId);
+    const userSession = getUserById(userId);
     console.log('유저 세션', userSession);
 
     if (!userSession) {
@@ -91,7 +95,7 @@ const dungeonEnter = (socket, packetData) => {
     }
 
     // 던전 세션이 유저를 입장시킨다.
-    dungeonSession.addUser(players);
+    dungeonSession.addUser(user);
 
     //게임 세션에서 이유저를 제거해야한다.
     gameSession.removeUser(socket);
@@ -106,7 +110,11 @@ const dungeonEnter = (socket, packetData) => {
 
     /*
     그런 다음 완료 코드를 보낸다.
-    dungeonId,players,party,message,dungeonEnterSuccess
+    dungeonId,
+    players,
+    party,
+    message,
+    dungeonEnterSuccess
     */
 
     const dungeonEnterPayload = {
