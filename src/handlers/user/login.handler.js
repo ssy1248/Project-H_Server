@@ -20,13 +20,13 @@ const validateUserInput = async (email, password, socket) => {
 
     // 비밀번호 비교
     let passwordMatch = false;
-
     passwordMatch = await bcrypt.compare(password, userData.password);
     if (!passwordMatch) throw new Error('비밀번호가 일치하지 않습니다!');
 
     // 유저 생성 및 추가
     const user = new User(socket, userData.id, userData.nickname);
     addUser(user);
+
     console.log(user);
     return createResponse('user', 'S_LoginResponse', PACKET_TYPE.S_LOGINRESPONSE, {
       success: true,
