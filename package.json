@@ -6,7 +6,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
     "migrate": "node src/db/migrations/createSchemas.js",
-    "web": "node src/utils/web/server.js"
+    "web": "node src/utils/web/server.js",
+    "admin": "node admin/server.js"
   },
   "keywords": [],
   "author": "",

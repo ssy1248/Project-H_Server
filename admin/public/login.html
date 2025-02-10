@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Admin Dashboard</title>
+    <link rel="stylesheet" href="/loginStyles.css" />
+  </head>
+
+  <body>
+    <div class="login-container">
+      <h2>Login to Admin Dashboard</h2>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <button type="submit" class="login-button">Login</button>
+      </form>
+    </div>
+
+    <script>
+      // 로그인 폼 제출 시 처리
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // 폼 기본 제출 방지
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        // 서버에 로그인 요청
+        try {
+          const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          if (response.ok) {
+            // 로그인 성공 시 메인 페이지로 리디렉션
+            window.location.href = '/index';
+          } else {
+            // 로그인 실패 시 알림 띄우기
+            const result = await response.json();
+            alert(result.message || 'Login failed');
+          }
+        } catch (error) {
+          alert('An error occurred during login');
+        }
+      });
+    </script>
+  </body>
+</html>
