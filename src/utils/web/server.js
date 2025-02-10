@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import pools from '../../db/database.js';
-import { SQL_QUERIES } from '../../db/inventory/item.queries.js';
+import { testAllConnections } from '../db/testConnection.js';
+import { createItem, deleteItem, findAllItems, findItemById, updateItem } from '../../db/inventory/item.db.js';
 
 const app = express();
 const PORT = 3000;
@@ -18,22 +19,24 @@ app.use(bodyParser.json());
 const __dirname = path.resolve();
 app.use(express.static(path.join(__dirname, 'src/utils/web')));
 
+// 아이템 조회
 app.get('/api/items', async (req, res) => {
     try {
-        const [rows] = await pools.USER_DB.query(SQL_QUERIES.FIND_ALL_ITEMS);
-        res.json(rows);
+        const result = await findAllItems();
+        res.json(result);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
     }
 });
 
+// 아이템 추가
 app.post('/api/items', async (req, res) => {
     const { name, itemType, stat, price } = req.body;
     try {
         console.log('post');
-        const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_ITEM, [name, itemType, stat, price]);
-        const [newItem] = await pools.USER_DB.query(SQL_QUERIES.FIND_ITEM_BY_ID, [result.insertId]);
+        const result = await createItem(name, itemType, stat, price);
+        const newItem = await findItemById(result);
         res.status(201).json(newItem);
     } catch (error) {
         console.error(error);
@@ -41,6 +44,35 @@ app.post('/api/items', async (req, res) => {
     }
 });
 
+// 아이템 수정
+app.put('/api/items/:itemId', async (req, res) => {
+    const { itemId } = req.params;
+    const { name, itemType, stat, price } = req.body;
+    try {
+        console.log('update');
+        await updateItem(itemId, name, itemType, stat, price);
+        res.status(200).send('Item updated');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// 아이템 삭제
+app.delete('/api/items/:itemId', async (req, res) => {
+    const { itemId } = req.params;
+    try {
+        console.log(`delete:${itemId}`);
+        await deleteItem(itemId);
+        res.status(200).send('Item deleted');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// 서버 시작
 app.listen(PORT, () => {
+    testAllConnections(pools);
     console.log(`Server is running on port ${PORT}`);
 });
