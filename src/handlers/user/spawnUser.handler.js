@@ -5,7 +5,7 @@ import {
   broadcastToUsersAsync,
 } from '../../session/user.session.js';
 import { findCharacterByUserAndStatId, createCharacter, insertCharacterStats, getCharacterStatsCount } from '../../db/user/user.db.js';
-import { findAllItems } from '../../db/inventory/item.db.js'
+import { getAllItems } from '../../db/inventory/item.db.js'
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
@@ -145,7 +145,7 @@ const initializeCharacter = (result) => {
 // 아이템리스트 양식.
 const getItemList = async () => {
   // 데이터 베이스에 있는 아이템리스트 가져오기
-  const itemListData = await findAllItems();
+  const itemListData = await getAllItems();
 
   if (!Array.isArray(itemListData)) {
     console.error('아이템 리스트 데이터가 배열이 아닙니다:', itemListData);
