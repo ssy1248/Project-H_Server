@@ -25,7 +25,7 @@ export const onData = (socket) => async (data) => {
       const handler = getHandlerById(packetId);
 
       // 각 핸들러 동작.
-      // await handler(socket, deserializedPacketData);
+      await handler(socket, deserializedPacketData);
     } catch (e) {
       handlerError(socket, e);
     }
