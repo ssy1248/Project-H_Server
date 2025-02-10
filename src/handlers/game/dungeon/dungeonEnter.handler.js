@@ -1,5 +1,9 @@
 import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import { getDungeonSession, getDungeonUser } from '../../../session/dungeon.session.js';
+import {
+  getDungeonSession,
+  getDungeonUser,
+  getDungeonState,
+} from '../../../session/dungeon.session.js';
 import { getGameSession } from '../../../session/game.session.js';
 import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
 import { getUserById } from '../../../session/user.session.js';
@@ -11,15 +15,6 @@ const dungeonEnter = (socket, packetData) => {
   try {
     // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보, 파티아이디
     const { dungeonId, players, partyId } = packetData;
-
-    //받는 데이터로 던전의 상태를 넣는것이 어떤가
-    //예를 들면 예를 들면 던전활성화 isAtive 만약 넣는다면 
-    // start actvie end 이렇게 3개로 나누어서 
-    // start는 입장이 가능하고
-    // 그러면 여기서 문제 언제 active로 바꿀건인가
-    // active는 입장 불가
-    // end는 다끝났으니까 전부 dungeonSessio에서 제거후 gameSessions에 추가후 던전세션 제거
-    // 이걸 하기 위해서는 class 에 isActive를 추가하는것이 좋을것 같다.
 
     /*지금 전체적인 흐름이 
    1. 파티장이 던전 입장 버튼을 클릭한다.
@@ -44,13 +39,22 @@ const dungeonEnter = (socket, packetData) => {
     // 받아온 던전 아이디로 던전 세션을 찾는다.
     const dungeonSession = getDungeonSession(dungeonId);
 
-    //일단 있는지 없느지 부터 확인을 했는데 검증도 필요할수도
+    console.log('던전 입장전', dungeonSession);
+
     if (!dungeonSession) {
+      //일단 있는지 없느지 부터 확인을 했는데 검증도 필요할수도
       throw new Error('던전이 생성되지 않았습니다.');
+    }
+
+    //던전 상테 확인
+    const dungeonState = getDungeonState();
+    if (dungeonState !== 'matching') {
+      throw new Error('던전이 매칭 상태가 아닙니다.');
     }
 
     //유저가 유저
     const userSession = getUserById(playerId);
+    console.log('유저 세션', userSession);
 
     if (!userSession) {
       throw new Error('유저가 유저 세션에 없습니다.');
@@ -58,9 +62,11 @@ const dungeonEnter = (socket, packetData) => {
 
     //게임세션 가져오기  (아직 게임세션이 하나만 만들어 지기 떄문에 getGameSession으로 해도 된다. 만약 게임세션이 늘어나면 userId로 찾을수 있게 해야한다.)
     const gameSession = getGameSession();
+    console.log('게임 세션', gameSession);
 
     //유저가 게임 세션에 있는가
     const gameUser = getUser(socket);
+    console.log('gameUser', gameUser);
     if (!gameUser) {
       throw new Error('유저가 게임에 없습니다');
     }
@@ -73,6 +79,11 @@ const dungeonEnter = (socket, packetData) => {
 
     //받아온 파티 아이디로 파티 찾기 예도 다른 검증이 플요할수도 있다.
     const party = searchPartySession(partyId);
+    console.log('파티', party);
+
+    if (!party) {
+      throw new ErrorCodes('파티가 없습니다.');
+    }
 
     //만약 파티에 속한멤버수가 특정값 보다 적으면
     if (party.partyMembers.length < MAX_PARTY_MEMBER) {
@@ -84,11 +95,18 @@ const dungeonEnter = (socket, packetData) => {
 
     //게임 세션에서 이유저를 제거해야한다.
     gameSession.removeUser(socket);
+    console.log('게임에서 제거됬나?.', gameSession);
+
+    //일단 만약 던전에 max 인원이 있으면 상태를 변경하게 했다.
+    if (dungeonSession.getUserCount() === MAX_PARTY_MEMBER) {
+      dungeonSession.setDungeonState('progress');
+    }
+
+    console.log('던전 입장후', dungeonSession);
 
     /*
     그런 다음 완료 코드를 보낸다.
-    players,dungeonCode는 원래 있던 패킷에 있어서 넣었다 필요없으면 뺴도 된다.
-    dungeonId는 이파티,유저가 어떤 던전인지 알기 위해서 필요할것같다
+    dungeonId,players,party,message,dungeonEnterSuccess
     */
 
     const dungeonEnterPayload = {
