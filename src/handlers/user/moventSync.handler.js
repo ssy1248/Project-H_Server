@@ -3,7 +3,6 @@ import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constant
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 
-
 const movementSyncHandler = (socket, packetData) => {
   // 0. 페킷데이터 구조분해 할당.
   const { transform } = packetData;
@@ -17,8 +16,8 @@ const movementSyncHandler = (socket, packetData) => {
   // 3. 트랜스폼 검증.
   validateTransform(characterTransform, transform);
 
-  if(!validateTransform) {
-    return console.log("트랜스폼 검증에 실패하였습니다.");
+  if (!validateTransform) {
+    return console.log('트랜스폼 검증에 실패하였습니다.');
   }
 
   // 트랜스폼 갱신.
@@ -29,10 +28,10 @@ const movementSyncHandler = (socket, packetData) => {
 
   const sMove = {
     playerId: userInfo.userId,
-    transform: testItemList(),
+    transform: transform,
   };
 
-  const initialResponse = createResponse('town','S_Move', PACKET_TYPE.S_MOVE, sMove);
+  const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
   broadcastToUsersAsync(socket, initialResponse);
 };
 
