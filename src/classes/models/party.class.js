@@ -38,7 +38,13 @@ class Party {
     this.partyMembers = [];
     // 파티 리더
     this.partyLeader = null;
+    // 들어갈 던전
+    this.desiredDungeonIndex = null;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
+  }
+
+  setDesiredDungeonIndex(dungeonIndex) {
+    this.desiredDungeonIndex = dungeonIndex;
   }
 
   // 파티장 변경

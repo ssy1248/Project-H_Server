@@ -8,6 +8,8 @@ import { PARTY_ID } from '../../constants/constants.js';
 import { createPartySession } from '../../session/party.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 
+// 매칭을 할떄 던전에게 보내줘야 하는거 : 파티 아이디, 파티 인원 정보, 던전 정보보
+
 /* 파티 패킷 
 message C_PartyRequest{
     int32 userId = 1;
