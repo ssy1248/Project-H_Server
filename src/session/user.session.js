@@ -15,17 +15,17 @@ export const removeUser = async (socket) => {
 
 // id로 유저 찾기.
 export const getUserById = (id) => {
-  return userSessions.find((user) => user.playerInfo.playerId === id);
+  return userSessions.find((user) => user.userInfo.playerId === id);
 };
 
 // 소캣으로 유저 찾기.
 export const getUserBySocket = (socket) => {
-  return userSessions.find((user) => user.playerInfo.socket === socket);
+  return userSessions.find((user) => user.userInfo.socket === socket);
 };
 
 // 닉네임으로 유저 찾기.
 export const getUserByNickname = (nickname) => {
-  return userSessions.find((user) => user.playerInfo.nickname === nickname);
+  return userSessions.find((user) => user.userInfo.nickname === nickname);
 };
 
 // 모든 유저 가져오기.
@@ -36,7 +36,7 @@ export const getAllUsers = () => {
 // [수정] 본인 제외 유저 소켓 가져오기 (스폰 되어있는 유저)
 export const getOtherUserSockets = (socket) => {
   const userSockets = userSessions.filter(
-    (user) => user.userInfo.socket !== socket && user.playerInfo.isSpawn === true,
+    (user) => user.userInfo.socket !== socket && user.userInfo.isSpawn === true,
   );
   return userSockets.map((user) => user.userInfo.socket);
 };
@@ -44,7 +44,7 @@ export const getOtherUserSockets = (socket) => {
 // [추가] 본인을 제외한 유저 배열 (스폰 되어있는 유저)
 export const getOtherUsers = (socket) => {
   const userSockets = userSessions.filter(
-    (user) => user.userInfo.socket !== socket && user.playerInfo.isSpawn === true,
+    (user) => user.userInfo.socket !== socket && user.userInfo.isSpawn === true,
   );
   return userSockets;
 };
@@ -52,7 +52,7 @@ export const getOtherUsers = (socket) => {
 // [수정] 모든 유저 소켓 가져오기. (스폰 되어있는 유저)
 export const getAllUserSockets = () => {
   return userSessions
-    .filter((user) => user.playerInfo.isSpawn === true)
+    .filter((user) => user.userInfo.isSpawn === true)
     .map((user) => user.userInfo.socket);
 };
 
