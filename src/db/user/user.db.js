@@ -93,3 +93,13 @@ export const createCharacterStats = async(id, hp, mp, atk, def, speed) => {
   const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER_STATS, [hp, mp, atk, def, speed]);
   return result.affectedRows > 0;
 }
+
+export const insertCharacterStats = async (hp, mp, atk, def, speed) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.INSERT_CHARACTER_STATS, [hp, mp, atk, def, speed]);
+  return result.insertId;
+}
+
+export const getCharacterStatsCount = async () => {
+  const [rows] = await pools.USER_DB.query(SQL_QUERIES.COUNT_CHARACTERSTATTABLE);
+  return rows[0].count; // rows[0].count 값이 현재 행의 수입니다.
+};

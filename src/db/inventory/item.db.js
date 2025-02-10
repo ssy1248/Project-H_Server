@@ -4,7 +4,8 @@ import { toCamelCase } from '../../utils/transformCase.js';
 
 export const findAllItems = async () => {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.FIND_ALL_ITEMS);
-    return toCamelCase(rows);
+    //return toCamelCase(rows);
+    return rows;
 }
 export const findItemById = async (itemId) => {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.FIND_ITEM_BY_ID, [itemId]);
