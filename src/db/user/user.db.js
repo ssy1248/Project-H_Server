@@ -75,3 +75,21 @@ export const getTableStructure = async () => {
   const [results] = await pools.USER_DB.query(query);
   return results.map(column => column.Field); // 컬럼명만 반환
 };
+
+// CREATE_CHARACTER_STATS
+// 케릭터 추가 (케릭터 설계도)
+export const createCharacterStats = async(id, hp, mp, atk, def, speed) => {
+  // 해당 id가 이미 존재하는지 확인
+  const [characterStatInfo] = await pools.USER_DB.query(SQL_QUERIES.FIND_CHARACTER_STATS_BY_ID, [
+    id,
+  ]);
+
+  // 이미 존재하면 false 반환 (추가하지 않음)
+  if(characterStatInfo.length > 0 ) {
+    return false;
+  }
+
+  // id가 존재하지 않으면 새로운 캐릭터 스탯을 추가
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER_STATS, [hp, mp, atk, def, speed]);
+  return result.affectedRows > 0;
+}
