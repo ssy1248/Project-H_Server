@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td>${item.itemType}</td>
             <td>${item.stat}</td>
             <td>${item.price}</td>
+            <td>
+                <button class="edit-button" data-id="${item.id}">수정</button>
+                <button class="delete-button" data-id="${item.id}">제거</button>
+            </td>
         `;
         tableBody.appendChild(row);
     });
@@ -44,11 +48,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td>${newItem.itemType}</td>
                 <td>${newItem.stat}</td>
                 <td>${newItem.price}</td>
+                <td>
+                    <button class="edit-button" data-id="${newItem.id}">수정</button>
+                    <button class="delete-button" data-id="${newItem.id}">제거</button>
+                </td>
             `;
             tableBody.appendChild(row);
             form.reset();
         } else {
             console.error('Failed to add item');
+        }
+    });
+
+    tableBody.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('delete-button')) {
+            const itemId = event.target.getAttribute('data-id');
+            const response = await fetch(`/api/items/${itemId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                event.target.closest('tr').remove();
+            } else {
+                console.error('Failed to delete item');
+            }
+        }
+
+        if (event.target.classList.contains('edit-button')) {
+            const itemId = event.target.getAttribute('data-id');
+            // 아이템 수정 로직을 여기에 추가합니다.
+            // 예를 들어, 수정 폼을 표시하고, 수정된 데이터를 서버로 전송하는 로직을 작성할 수 있습니다.
         }
     });
 });
