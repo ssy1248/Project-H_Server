@@ -43,10 +43,12 @@ class Party {
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
   }
 
+  // 선택한 던전의 인덱스를 설정하는 경우
   setDesiredDungeonIndex(dungeonIndex) {
     this.desiredDungeonIndex = dungeonIndex;
   }
 
+  // 파티장이 튕겨나갈떄 변경되는 경우
   // 파티장 변경
   changePartyLeader(requester, newLeader) {
     // 요청자가 리더가 아니라면 리더 변경 불가

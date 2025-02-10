@@ -3,11 +3,30 @@ import {
   getOtherUsers,
   broadcastToUsersAsync,
 } from '../../session/user.session.js';
-import { findCharacterByUserAndStatId, createCharacter } from '../../db/user/user.db.js';
+import { findCharacterByUserAndStatId, createCharacter, insertCharacterStats, getCharacterStatsCount } from '../../db/user/user.db.js';
 import { findAllItems } from '../../db/inventory/item.db.js'
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import User from '../../classes/models/user.class.js';
+
+const setCharacterStat = async () => {
+  // 현재 테이블의 행 개수를 조회합니다.
+  const count = await getCharacterStatsCount();
+  console.log(`현재 캐릭터 스탯 행 개수: ${count}`);
+
+  // 만약 이미 5개 이상 존재한다면 추가 삽입하지 않음.
+  if (count >= 5) {
+    console.log('이미 5개의 캐릭터 스탯이 존재합니다.');
+    return;
+  }
+
+  // 부족한 개수만큼만 삽입 (예: 5 - count 개)
+  const rowsToInsert = 5 - count;
+  for (let i = 0; i < rowsToInsert; i++) {
+    await insertCharacterStats(1, 1, 1, 1, 1);
+  }
+  console.log(`${rowsToInsert}개의 캐릭터 스탯이 추가되었습니다.`);
+}
 
 const spawnUserHandler = async (socket, packetData) => {
   console.log('테스트');
@@ -25,6 +44,7 @@ const spawnUserHandler = async (socket, packetData) => {
 
   // 3. 케릭터 초기화.
   const userInfo = user.getUserInfo();
+  await setCharacterStat();
   const character = findOrCreateCharacter(userInfo.userId, characterClass);
   const characterData = initializeCharacter(character);
   user.init(characterData.playerInfo, characterData.playerStatInfo);
@@ -118,9 +138,14 @@ const initializeCharacter = (result) => {
 };
 
 // 아이템리스트 양식.
-const getItemList = () => {
+const getItemList = async () => {
   // 데이터 베이스에 있는 아이템리스트 가져오기
-  const itemListData = findAllItems();
+  const itemListData = await findAllItems();
+
+  if (!Array.isArray(itemListData)) {
+    console.error('아이템 리스트 데이터가 배열이 아닙니다:', itemListData);
+    return [];
+  }
 
   // map을 사용해서 id, price 
   const itemList = itemListData.map(({ id, price }) => ({
