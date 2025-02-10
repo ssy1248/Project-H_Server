@@ -64,7 +64,9 @@ const syncSpawnedUser = async (socket, user) => {
 
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    const userInfo = user.getUserInfo();
     const sSpawn = {
+      userId:userInfo.userId,
       players: playerData,
       storeList: getItemList(),
     };
