@@ -8,6 +8,10 @@ export default class Inventory {
 
     async init(charId) {
         this.inventory = await getInventoryFromCharId(charId);
+        if (!this.inventory) {
+            console.log('inventory is empty');
+            return;
+        }
         for (var item of this.inventory.filter((e) => { return e.equiped === true; })) {
             this.equip(item);
         }
