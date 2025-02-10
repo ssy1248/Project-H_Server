@@ -78,8 +78,9 @@ message S_Enter {
 
 // [수정] 본인에게 다른 유저 정보, 스토어리스트 보내야한다. 
 message S_Spawn {
-    repeated PlayerInfo players = 1;
-    repeated ItemInfo storeList = 2; 
+    int32 userId = 1;
+    repeated PlayerInfo players = 2;
+    repeated ItemInfo storeList = 3; 
 }
   
 // 캐릭터 없애주기!

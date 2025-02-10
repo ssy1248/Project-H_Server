@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const response = await fetch('/api/items');
-    const items = await response.json();
     const tableBody = document.getElementById('items-table-body');
+    const formContainer = document.querySelector('.form-container');
+    const editFormContainer = document.getElementById('edit-form-container');
+    const editItemForm = document.getElementById('edit-item-form');
+    const cancelEditButton = document.getElementById('cancel-edit');
+    let items = [];
 
-    items.forEach(item => {
+    const renderTableRow = (item) => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${item.id}</td>
@@ -16,8 +19,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <button class="delete-button" data-id="${item.id}">제거</button>
             </td>
         `;
-        tableBody.appendChild(row);
-    });
+        return row;
+    };
+
+    const fetchItems = async () => {
+        const response = await fetch('/api/items');
+        items = await response.json();
+        tableBody.innerHTML = '';
+        items.forEach(item => {
+            const row = renderTableRow(item);
+            tableBody.appendChild(row);
+        });
+    };
+
+    await fetchItems();
 
     const form = document.getElementById('item-form');
     form.addEventListener('submit', async (event) => {
@@ -40,20 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (response.ok) {
-            const newItem = await response.json();
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${newItem.id}</td>
-                <td>${newItem.name}</td>
-                <td>${newItem.itemType}</td>
-                <td>${newItem.stat}</td>
-                <td>${newItem.price}</td>
-                <td>
-                    <button class="edit-button" data-id="${newItem.id}">수정</button>
-                    <button class="delete-button" data-id="${newItem.id}">제거</button>
-                </td>
-            `;
-            tableBody.appendChild(row);
+            await fetchItems();
             form.reset();
         } else {
             console.error('Failed to add item');
@@ -68,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (response.ok) {
-                event.target.closest('tr').remove();
+                await fetchItems();
             } else {
                 console.error('Failed to delete item');
             }
@@ -76,8 +78,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (event.target.classList.contains('edit-button')) {
             const itemId = event.target.getAttribute('data-id');
-            // 아이템 수정 로직을 여기에 추가합니다.
-            // 예를 들어, 수정 폼을 표시하고, 수정된 데이터를 서버로 전송하는 로직을 작성할 수 있습니다.
+            const item = items.find(item => item.id == itemId);
+
+            document.getElementById('edit-item-id').value = item.id;
+            document.getElementById('edit-name').value = item.name;
+            document.getElementById('edit-itemType').value = item.itemType;
+            document.getElementById('edit-stat').value = item.stat;
+            document.getElementById('edit-price').value = item.price;
+
+            formContainer.style.display = 'none';
+            editFormContainer.style.display = 'block';
         }
+    });
+
+    editItemForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(editItemForm);
+        const data = {
+            name: formData.get('name'),
+            itemType: formData.get('itemType'),
+            stat: formData.get('stat'),
+            price: formData.get('price')
+        };
+        const itemId = formData.get('itemId');
+
+        const response = await fetch(`/api/items/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            await fetchItems();
+            editFormContainer.style.display = 'none';
+            formContainer.style.display = 'block';
+        } else {
+            console.error('Failed to update item');
+        }
+    });
+
+    cancelEditButton.addEventListener('click', () => {
+        editFormContainer.style.display = 'none';
+        formContainer.style.display = 'block';
     });
 });
