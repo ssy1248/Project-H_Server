@@ -58,7 +58,7 @@ export const findCharacterByUserAndStatId = async (userId, charStatId) => {
   return characterInfo.length > 0 ? characterInfo[0] : null;
 };
 
-// 클래스로 원본 클래스 정보 가져오는 함수
+// id로 원본 클래스 정보 가져오는 함수
 export const findCharacterStatsById = async (id) => {
   // 클래스 원본 스텟을 담을 배열.
   const [characterStatInfo] = await pools.USER_DB.query(SQL_QUERIES.FIND_CHARACTER_STATS_BY_ID, [
@@ -69,35 +69,56 @@ export const findCharacterStatsById = async (id) => {
   return characterStatInfo.length > 0 ? characterStatInfo[0] : null;
 };
 
+// FIND_ALL_CHARACTER_STATS
+// 전체  원본 클래스 가져오기
+export const findAllCharacterStats = async () => {
+  // 전체 데이터 조회
+  const [characterStats] = await pools.USER_DB.query(SQL_QUERIES.FIND_ALL_CHARACTER_STATS);
+  // 데이터를 반환, 없으면 빈 배열 반환
+  return characterStats.length > 0 ? characterStats : [];
+};
+
 // 케릭터 스텟 컬럼명만 가져오기.
 export const getTableStructure = async () => {
   const query = 'DESCRIBE CharacterStats';
   const [results] = await pools.USER_DB.query(query);
-  return results.map(column => column.Field); // 컬럼명만 반환
+  return results.map((column) => column.Field); // 컬럼명만 반환
 };
 
 // CREATE_CHARACTER_STATS
 // 케릭터 추가 (케릭터 설계도)
-export const createCharacterStats = async(id, hp, mp, atk, def, speed) => {
+export const createCharacterStats = async (id, hp, mp, atk, def, speed) => {
   // 해당 id가 이미 존재하는지 확인
   const [characterStatInfo] = await pools.USER_DB.query(SQL_QUERIES.FIND_CHARACTER_STATS_BY_ID, [
     id,
   ]);
 
   // 이미 존재하면 false 반환 (추가하지 않음)
-  if(characterStatInfo.length > 0 ) {
+  if (characterStatInfo.length > 0) {
     return false;
   }
 
   // id가 존재하지 않으면 새로운 캐릭터 스탯을 추가
-  const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER_STATS, [hp, mp, atk, def, speed]);
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER_STATS, [
+    hp,
+    mp,
+    atk,
+    def,
+    speed,
+  ]);
   return result.affectedRows > 0;
-}
+};
 
 export const insertCharacterStats = async (hp, mp, atk, def, speed) => {
-  const [result] = await pools.USER_DB.query(SQL_QUERIES.INSERT_CHARACTER_STATS, [hp, mp, atk, def, speed]);
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.INSERT_CHARACTER_STATS, [
+    hp,
+    mp,
+    atk,
+    def,
+    speed,
+  ]);
   return result.insertId;
-}
+};
 
 export const getCharacterStatsCount = async () => {
   const [rows] = await pools.USER_DB.query(SQL_QUERIES.COUNT_CHARACTERSTATTABLE);

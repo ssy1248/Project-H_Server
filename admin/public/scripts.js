@@ -21,13 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 컬럼 정보 받아서 표를 생성
         if (response.columns) {
-          mainContent.innerHTML = createTable(response.columns, contentType);
+          mainContent.innerHTML = createTable(response.columns, contentType, response.dataRows);
 
           // "No data available" 메시지 숨기기
           const noDataMessage = mainContent.querySelector('.no-data-message');
           if (noDataMessage) {
-            noDataMessage.style.display = 'none';
+            noDataMessage.style.display = 'block';
           }
+
+          
         } else {
           mainContent.innerHTML = `<p>No data available for ${contentType}.</p>`;
         }
@@ -55,26 +57,46 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // 테이블을 생성하는 함수
-  function createTable(columns, type) {
-    const colspanValue = columns.length + 1; // 'Actions' 컬럼을 포함한 colspan 값 계산
-    return `
-      <h2>${capitalizeFirstLetter(type)} List</h2>
-      <button onclick="addItem('${type}')">Add ${capitalizeFirstLetter(type)}</button>
-      <table>
-        <thead>
-          <tr>
-            ${columns.map((col) => `<th>${capitalizeFirstLetter(col)}</th>`).join('')}
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="${type}-table-body">
-          <tr class="no-data-message">
-            <td colspan="${colspanValue}">No data available</td>
-          </tr>
-        </tbody>
-      </table>
+function createTable(columns, type, dataRows = []) {
+  const colspanValue = columns.length + 1; // 'Actions' 컬럼을 포함한 colspan 값 계산
+
+  let tableRows = ''; // 데이터 로우를 저장할 변수
+  if (dataRows.length > 0) {
+    tableRows = dataRows.map((row) => {
+      return `
+        <tr>
+          ${columns.map((col) => `<td>${row[col] || '-'}</td>`).join('')}
+          <td>
+            <button onclick="editItem(${row.id}, '${type}')">Edit</button>
+            <button onclick="deleteItem(${row.id}, '${type}')">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } else {
+    tableRows = `
+      <tr class="no-data-message">
+        <td colspan="${colspanValue}">No data available</td>
+      </tr>
     `;
   }
+
+  return `
+    <h2>${capitalizeFirstLetter(type)} List</h2>
+    <button onclick="addItem('${type}')">Add ${capitalizeFirstLetter(type)}</button>
+    <table>
+      <thead>
+        <tr>
+          ${columns.map((col) => `<th>${capitalizeFirstLetter(col)}</th>`).join('')}
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="${type}-table-body">
+        ${tableRows}
+      </tbody>
+    </table>
+  `;
+}
   
 
   // 로그인 폼을 반환하는 함수

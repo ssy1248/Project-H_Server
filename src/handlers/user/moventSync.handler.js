@@ -29,7 +29,7 @@ const movementSyncHandler = (socket, packetData) => {
 
   const sMove = {
     playerId: userInfo.userId,
-    transform: testItemList(),
+    transform: transform,
   };
 
   const initialResponse = createResponse('town','S_Move', PACKET_TYPE.S_MOVE, sMove);

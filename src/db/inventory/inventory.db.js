@@ -31,3 +31,13 @@ export const removeItemFromInventory = async (charId, itemId) => {
     return false;
   }
 }
+
+export const getCharacterTable = async () => {
+  try {
+    const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_CHARACTER_TABLE);
+    return rows;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}

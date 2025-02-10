@@ -11,6 +11,7 @@ export const SQL_QUERIES = {
   FIND_CHARACTER_BY_USER_AND_STAT_ID:
     'SELECT ch.*, cs.* FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.id = ?',
   FIND_CHARACTER_STATS_BY_ID: 'SELECT * FROM CharacterStats WHERE id = ?',
+  FIND_ALL_CHARACTER_STATS: 'SELECT * FROM CharacterStats',
   INSERT_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
   COUNT_CHARACTERSTATTABLE: 'SELECT COUNT(*) AS count FROM CharacterStats',
   CREATE_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',

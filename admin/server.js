@@ -3,7 +3,7 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import { getTableStructure, createCharacterStats } from '../src/db/user/user.db.js';
+import { getTableStructure, createCharacterStats, findAllCharacterStats } from '../src/db/user/user.db.js';
 
 const app = express();
 const PORT = 3000;
@@ -64,13 +64,15 @@ app.post('/api/sidebar-click', async (req, res) => {
   // 서버에서 응답할 메시지 (메뉴에 따라 다르게 응답 가능)
   const responseMessage = `You clicked on ${menu} menu!`;
 
-  let tableColumns; 
+  let tableColumns;
+  let dataRows; 
   switch (menu) {
     case "admin-list":
       tableColumns = ["id", "name", "role"];
       break;
     case "character-list":
       tableColumns = await getTableStructure();
+      dataRows = await findAllCharacterStats();
       break;
     case "item-list":
       tableColumns = ["item_id", "name", "type", "rarity"];
@@ -82,8 +84,10 @@ app.post('/api/sidebar-click', async (req, res) => {
       break;
   }
 
+
+  console.log(dataRows);
   // 응답 보내기
-  res.json({ columns: tableColumns });
+  res.json({ columns: tableColumns, dataRows: dataRows });
 });
 
 // 데이터 추가 메세지 

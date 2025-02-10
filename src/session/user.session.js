@@ -36,7 +36,7 @@ export const getAllUsers = () => {
 // [수정] 본인 제외 유저 소켓 가져오기 (스폰 되어있는 유저)
 export const getOtherUserSockets = (socket) => {
   const userSockets = userSessions.filter(
-    (user) => user.userInfo.socket !== socket && user.userInfo.isSpawn === true,
+    (user) => user.userInfo.socket !== socket && user.playerInfo.isSpawn === true,
   );
   return userSockets.map((user) => user.userInfo.socket);
 };
@@ -44,7 +44,7 @@ export const getOtherUserSockets = (socket) => {
 // [추가] 본인을 제외한 유저 배열 (스폰 되어있는 유저)
 export const getOtherUsers = (socket) => {
   const userSockets = userSessions.filter(
-    (user) => user.userInfo.socket !== socket && user.userInfo.isSpawn === true,
+    (user) => user.userInfo.socket !== socket && user.playerInfo.isSpawn === true,
   );
   return userSockets;
 };
@@ -52,7 +52,7 @@ export const getOtherUsers = (socket) => {
 // [수정] 모든 유저 소켓 가져오기. (스폰 되어있는 유저)
 export const getAllUserSockets = () => {
   return userSessions
-    .filter((user) => user.userInfo.isSpawn === true)
+    .filter((user) => user.playerInfo.isSpawn === true)
     .map((user) => user.userInfo.socket);
 };
 
@@ -85,6 +85,7 @@ export const broadcastToUsersAsync = async (socket, data) => {
 
   // Promise.all을 사용한 병렬 처리 후 전송.
   const sendPromises = sockets.map((userSocket) => userSocket.write(data));
+  console.log(`sendPromise => ${sendPromises}`);
   await Promise.all(sendPromises);
 };
 
