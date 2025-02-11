@@ -3,7 +3,7 @@ import {
   getOtherUsers,
   getAllUsers,
   broadcastToUsersAsync,
-  getAllUsers,
+  broadcastToUsers,
 } from '../../session/user.session.js';
 import {
   findCharacterByUserAndStatId,
@@ -118,7 +118,8 @@ const syncSpawnedUser = async (socket, user) => {
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);
-    broadcastToUsersAsync(socket, initialResponse2);
+    //broadcastToUsersAsync(socket, initialResponse2);
+    broadcastToUsers(socket, initialResponse2);
     const userCount = getAllUsers();
     console.log(`들어와 있는 유저 세션 : ${userCount.length}`);
   } catch (error) {
