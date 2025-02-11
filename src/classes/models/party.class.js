@@ -41,6 +41,56 @@ class Party {
     // 들어갈 던전
     this.desiredDungeonIndex = null;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
+
+    /**
+     message PartyInfo{
+        int32 partyId = 1 ;
+        int32 maximum = 2;
+        repeated PlayerStatus Players = 3;
+      }
+
+      message PlayerStatus {
+        int32 playerClass = 1;
+        int32 playerLevel = 2;
+        string playerName = 3;
+        float playerFullHp = 4;
+        float playerFullMp = 5;
+        float playerCurHp = 6;
+        float playerCurMp = 7;
+      }
+     */
+    this.partyInfo = {
+      partyId: id,
+      maximum: MAX_PARTY_MEMBER,
+      // 3번째 repeated PlayerStatus가 들어가야 하니 userId는 아님
+      // userId를 통해서 유저를 조회하고 유저 클래스의 playerInfo, playerStatInfo를 가져와야 세팅이 가능
+    };
+  }
+
+  getPartyInfo() {
+    // partyMembers 배열의 각 유저(User 인스턴스)에서 필요한 정보를 추출
+    const players = this.partyMembers.map((member) => {
+      // 유저 클래스의 메서드를 통해 정보를 가져옵니다.
+      const playerInfo = member.getPlayerInfo();
+      const playerStatInfo = member.getPlayerStatInfo();
+      const userInfo = member.getUserInfo();
+      return {
+        playerClass: playerInfo.playerClass,
+        playerLevel: playerInfo.level,
+        playerName: userInfo.nickname,
+        playerFullHp: playerStatInfo.maxHp,
+        playerFullMp: playerStatInfo.maxMp,
+        playerCurHp: playerStatInfo.hp,
+        playerCurMp: playerStatInfo.mp,
+      };
+    });
+
+    // PartyInfo 객체 구성
+    return {
+      partyId: this.id,
+      maximum: MAX_PARTY_MEMBER,
+      Players: players, 
+    };
   }
 
   // 선택한 던전의 인덱스를 설정하는 경우
