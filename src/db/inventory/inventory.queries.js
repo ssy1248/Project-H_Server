@@ -7,6 +7,6 @@ export const SQL_QUERIES = {
   WHERE I.charId = ?
 `,
   ADD_ITEM_TO_INVENTORY: 'INSERT INTO Inventory (charId, itemId, rarity, equiped) VALUES (?, ?, ?, ?)',
-  REMOVE_ITEM_FROM_INVENTORY: 'DELETE FROM Inventory WHERE charId = ? AND itemId = ? LIMIT 1',
+  REMOVE_ITEM_FROM_INVENTORY: 'DELETE FROM Inventory WHERE id = ? AND charId = ?',
   GET_CHARACTER_TABLE: 'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC'
 };
