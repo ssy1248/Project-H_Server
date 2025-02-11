@@ -20,9 +20,9 @@ export const addItemToInventory = async (charId, itemId, rarity, equipped) => {
   }
 }
 
-export const removeItemFromInventory = async (charId, itemId) => {
+export const removeItemFromInventory = async (charId, id) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.REMOVE_ITEM_FROM_INVENTORY, [charId, itemId]);
+    await pools.USER_DB.query(SQL_QUERIES.REMOVE_ITEM_FROM_INVENTORY, [id, charId]);
   } catch (error) {
     console.log(error);
   }

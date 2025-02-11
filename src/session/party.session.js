@@ -1,4 +1,3 @@
-import e from 'cors';
 import Party from '../classes/models/party.class.js';
 import { partySessions } from './sessions.js';
 
