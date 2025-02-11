@@ -5,7 +5,7 @@ import express from 'express';
 import pools from '../../db/database.js';
 import { testAllConnections } from '../db/testConnection.js';
 import { createItem, deleteItem, getAllItems, findItemById, updateItem } from '../../db/inventory/item.db.js';
-import { getCharacterTable } from '../../db/inventory/inventory.db.js';
+import { getCharacterTable, getInventoryFromCharId } from '../../db/inventory/inventory.db.js';
 
 const app = express();
 const PORT = 3000;
@@ -79,6 +79,17 @@ app.delete('/api/items/:itemId', async (req, res) => {
 app.get('/api/characters', async (req, res) => {
     try {
         const result = await getCharacterTable();
+        res.json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+app.get('/api/inventory/:charId', async (req, res) => {
+    const { charId } = req.params;
+    try {
+        const result = await getInventoryFromCharId(charId);
         res.json(result);
     } catch (error) {
         console.error(error);
