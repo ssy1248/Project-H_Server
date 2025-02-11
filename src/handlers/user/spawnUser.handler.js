@@ -1,7 +1,6 @@
 import {
   getUserBySocket,
   getOtherUsers,
-  getAllUsers,
   broadcastToUsersAsync,
   broadcastToUsers,
 } from '../../session/user.session.js';
@@ -97,6 +96,8 @@ const syncSpawnedUser = async (socket, user) => {
       players: playerData,
       storeList: getItemList(),
     };
+
+    console.log(`유저 아이디 : ${userInfo.userId}, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`);
 
     console.log(
       `유저 아이디 : ${

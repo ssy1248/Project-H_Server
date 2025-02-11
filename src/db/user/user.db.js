@@ -58,7 +58,7 @@ export const findCharacterByUserAndStatId = async (userId, charStatId) => {
   return characterInfo.length > 0 ? characterInfo[0] : null;
 };
 
-// 클래스로 원본 클래스 정보 가져오는 함수
+// id로 원본 클래스 정보 가져오는 함수
 export const findCharacterStatsById = async (id) => {
   // 클래스 원본 스텟을 담을 배열.
   const [characterStatInfo] = await pools.USER_DB.query(SQL_QUERIES.FIND_CHARACTER_STATS_BY_ID, [
@@ -69,17 +69,62 @@ export const findCharacterStatsById = async (id) => {
   return characterStatInfo.length > 0 ? characterStatInfo[0] : null;
 };
 
+// FIND_ALL_CHARACTER_STATS
+// 전체  원본 클래스 가져오기
+export const findAllCharacterStats = async () => {
+  // 전체 데이터 조회
+  const [characterStats] = await pools.USER_DB.query(SQL_QUERIES.FIND_ALL_CHARACTER_STATS);
+  // 데이터를 반환, 없으면 빈 배열 반환
+  return characterStats.length > 0 ? characterStats : [];
+};
+
 // 케릭터 스텟 컬럼명만 가져오기.
 export const getTableStructure = async () => {
   const query = 'DESCRIBE CharacterStats';
   const [results] = await pools.USER_DB.query(query);
-  return results.map(column => column.Field); // 컬럼명만 반환
+  return results.map((column) => column.Field); // 컬럼명만 반환
 };
 
-export const insertCharacterStats = async (hp, mp, atk, def, speed) => {
-  const [result] = await pools.USER_DB.query(SQL_QUERIES.INSERT_CHARACTER_STATS, [hp, mp, atk, def, speed]);
-  return result.insertId;
+// CREATE_CHARACTER_STATS
+// 케릭터 추가 (케릭터 설계도)
+export const createCharacterStats = async (hp, mp, atk, def, speed) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER_STATS, [
+    hp,
+    mp,
+    atk,
+    def,
+    speed,
+  ]);
+  const newId = result.insertId;
+  return {success: true, id : newId};
+};
+
+// UPDATE_CHARACTER_STATS: 업데이트
+export const updateCharacterStats = async(id, hp, mp, atk, def, speed ) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_CHARACTER_STATS, [hp, mp, atk, def, speed, id]);
+
+  // 쿼리가 변경하거나 영향을 준 행의 개수를 검사 (업데이트 성공여부 확인용)
+  return result.affectedRows > 0;
 }
+
+// DELETE_CHARACTER_STATS: 'DELETE FROM CharacterStats WHERE id = ?',
+export const deleteCharacterStats = async(id) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.DELETE_CHARACTER_STATS, [id]);
+
+  // 쿼리가 변경하거나 영향을 준 행의 개수를 검사 (업데이트 성공여부 확인용)
+  return result.affectedRows > 0;
+}
+
+export const insertCharacterStats = async (hp, mp, atk, def, speed) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.INSERT_CHARACTER_STATS, [
+    hp,
+    mp,
+    atk,
+    def,
+    speed,
+  ]);
+  return result.insertId;
+};
 
 export const getCharacterStatsCount = async () => {
   const [rows] = await pools.USER_DB.query(SQL_QUERIES.COUNT_CHARACTERSTATTABLE);
