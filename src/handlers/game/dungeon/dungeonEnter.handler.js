@@ -11,10 +11,11 @@ import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
 
-const dungeonEnter = (socket, packetData) => {
+const dungeonEnterHandler = (socket, packetData) => {
   try {
     // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보, 파티아이디
     const { dungeonId, players, partyId } = packetData;
+    // dungeonId는 int, players, playerinfo, partyId int
 
     /*지금 전체적인 흐름이 
    1. 파티장이 던전 입장 버튼을 클릭한다.
@@ -75,7 +76,7 @@ const dungeonEnter = (socket, packetData) => {
       throw new Error('유저가 게임에 없습니다');
     }
 
-    //유저가 던전 세션에 있는가 (이거 있으면 에러를 띠워야지)
+    //유저가 던전 세션에 있는가 (이거 있으면 에러를 띠워야지)c
     const dungeonUser = getDungeonUser(userId);
     if (dungeonUser) {
       throw new Error('유저가 던전에 있습니다');
@@ -117,8 +118,12 @@ const dungeonEnter = (socket, packetData) => {
     dungeonEnterSuccess
     */
 
+    // 던전 세션을 보내주는것이 맞나?
+    // players는 받은 데이터 돌렺주는거고
+    // party는 파티아이디로 찾은 아이디 돌려주는거고
+    //mmessage
     const dungeonEnterPayload = {
-      dungeonId,
+      dungeonSession,
       players,
       party,
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
@@ -128,7 +133,7 @@ const dungeonEnter = (socket, packetData) => {
     //createResponse
     const dungeonEnterResponse = createResponse(
       'dungeon',
-      S_EnterDungeon,
+      'S_EnterDungeon',
       PACKET_TYPE.S_ENTERDUNGEON,
       dungeonEnterPayload,
     );
@@ -139,4 +144,4 @@ const dungeonEnter = (socket, packetData) => {
   }
 };
 
-export default dungeonEnter;
+export default dungeonEnterHandler;
