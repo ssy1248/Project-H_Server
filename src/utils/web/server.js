@@ -5,7 +5,7 @@ import express from 'express';
 import pools from '../../db/database.js';
 import { testAllConnections } from '../db/testConnection.js';
 import { createItem, deleteItem, getAllItems, findItemById, updateItem } from '../../db/inventory/item.db.js';
-import { getCharacterTable } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, getCharacterTable, getInventoryFromCharId, removeItemFromInventory } from '../../db/inventory/inventory.db.js';
 
 const app = express();
 const PORT = 3000;
@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, 'src/utils/web')));
 app.get('/api/items', async (req, res) => {
     try {
         const result = await getAllItems();
-        res.json(result);
+        res.status(200).json(result);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
@@ -79,13 +79,52 @@ app.delete('/api/items/:itemId', async (req, res) => {
 app.get('/api/characters', async (req, res) => {
     try {
         const result = await getCharacterTable();
-        res.json(result);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// 캐릭터 인벤토리 조회
+app.get('/api/inventory/:charId', async (req, res) => {
+    const { charId } = req.params;
+    try {
+        const result = await getInventoryFromCharId(charId);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// 캐릭터 인벤토리에 아이템 추가
+app.post('/api/inventory/:charId', async (req, res) => {
+    const { charId } = req.params;
+    const { itemId, rarity } = req.body;
+    try{
+        await addItemToInventory(charId, itemId, rarity, 0);
+        res.status(201).send('Item added');
+    }catch(error){
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+})
+
+// 캐릭터 인벤토리에서 아이템 제거
+app.delete('/api/inventory/:charId', async (req, res) => {
+    const { charId } = req.params;
+    const { itemId } = req.body;
+    try {
+        await removeItemFromInventory(charId, itemId);
+        res.status(200).send('Item removed');
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
     }
 });
 //#endregion
+
 // 서버 시작
 app.listen(PORT, () => {
     testAllConnections(pools);

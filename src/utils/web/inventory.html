@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,45 +9,69 @@
         body {
             text-align: center;
         }
-        table {
-            margin: 0 auto;
-            border-collapse: collapse;
-            width: 80%;
+
+        .tables-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
         }
-        th, td {
+
+        table {
+            border-collapse: collapse;
+            width: 45%;
+        }
+
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 8px;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
+        tr {
+            height: 50px; /* 원하는 높이로 설정 */
+        }
     </style>
 </head>
+
 <body>
     <h1>Inventory Management</h1>
     <h2 id="character-info"></h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Item ID</th>
-                <th>Item Name</th>
-                <th>Rarity</th>
-                <th>Equipped</th>
-            </tr>
-        </thead>
-        <tbody id="inventory-table-body">
-            <!-- 데이터가 여기에 추가됩니다 -->
-        </tbody>
-    </table>
+    <div class="tables-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nickname</th>
+                    <th>Item Name</th>
+                    <th>Rarity</th>
+                    <th>Equipped</th>
+                </tr>
+            </thead>
+            <tbody id="inventory-table-body">
+                <!-- 데이터가 여기에 추가됩니다 -->
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Item Name</th>
+                    <th>Type</th>
+                    <th>Stat</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody id="items-table-body">
+                <!-- 데이터가 여기에 추가됩니다 -->
+            </tbody>
+        </table>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
-            const nickname = urlParams.get('nickname');
-            const characterInfo = document.getElementById('character-info');
-            characterInfo.textContent = `Character ID: ${id}, Nickname: ${nickname}`;
-        });
-    </script>
+    <script src="inventory.js"></script>
 </body>
+
 </html>
