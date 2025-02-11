@@ -59,7 +59,8 @@ export default class User {
     this.transformInfo = {
       posX: this.generateRandomPlayerTransformInfo(-9, 9),
       posY: 1,
-      posZ: this.generateRandomPlayerTransformInfo(-8, 8),
+      // 130 고정은 나중에 생성관련에서 맵이 여러가지가 되면 보내주는 곳에서 맵인덱스를 보내서 그 맵인덱스에 맞게 더해주거나 아님 클라를 손보든 수정
+      posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
       rot: this.generateRandomPlayerTransformInfo(0, 360),
     };
 

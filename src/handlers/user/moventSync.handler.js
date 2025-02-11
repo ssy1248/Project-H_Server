@@ -1,4 +1,4 @@
-import { getUserBySocket, broadcastToUsersAsync } from '../../session/user.session.js';
+import { getUserBySocket, broadcastToUsersAsync, broadcastToUsers } from '../../session/user.session.js';
 import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -9,7 +9,7 @@ const movementSyncHandler = (socket, packetData) => {
 
   // 1. 소캣으로 유저찾기.
   const user = getUserBySocket(socket);
-
+  
   // 2. 케릭터의 현재 트랜스폼을 가져온다.
   const characterTransform = user.getTransformInfo();
 
@@ -32,7 +32,8 @@ const movementSyncHandler = (socket, packetData) => {
   };
 
   const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
-  broadcastToUsersAsync(socket, initialResponse);
+  //broadcastToUsersAsync(socket, initialResponse);
+  broadcastToUsers(socket, initialResponse);
 };
 
 // 트랜스폼 검증용 함수.
