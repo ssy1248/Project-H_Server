@@ -15,4 +15,6 @@ export const SQL_QUERIES = {
   INSERT_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
   COUNT_CHARACTERSTATTABLE: 'SELECT COUNT(*) AS count FROM CharacterStats',
   CREATE_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
+  UPDATE_CHARACTER_STATS: 'UPDATE CharacterStats SET hp = ?, mp = ?, atk = ?, def = ?, speed = ? WHERE id = ?',
+  DELETE_CHARACTER_STATS: 'DELETE FROM CharacterStats WHERE id = ?',
 };
