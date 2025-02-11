@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         alert(`Login failed: ${result.error}`);
 
-      // 실패 시 유저네임과 비밀번호 필드를 비움
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
+        // 실패 시 유저네임과 비밀번호 필드를 비움
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
       }
     } catch (error) {
       console.error('Error logging in:', error);
