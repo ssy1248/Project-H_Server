@@ -84,9 +84,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     inventoryTableBody.addEventListener('click', async (event) => {
         // 인벤토리 아이템 제거 버튼
         if (event.target.classList.contains('remove-button')) {
-            const itemId = event.target.getAttribute('data-id');
-            const response = await fetch(`/api/inventory/${charId}/${itemId}`, {
-                method: 'DELETE'
+            const id = event.target.getAttribute('data-id');
+            const response = await fetch(`/api/inventory/${charId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
             });
 
             if (response.ok) {

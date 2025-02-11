@@ -114,9 +114,9 @@ app.post('/api/inventory/:charId', async (req, res) => {
 // 캐릭터 인벤토리에서 아이템 제거
 app.delete('/api/inventory/:charId', async (req, res) => {
     const { charId } = req.params;
-    const { itemId } = req.body;
+    const { id } = req.body;
     try {
-        await removeItemFromInventory(charId, itemId);
+        await removeItemFromInventory(charId, id);
         res.status(200).send('Item removed');
     } catch (error) {
         console.error(error);
