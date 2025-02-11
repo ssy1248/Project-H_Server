@@ -15,7 +15,7 @@ export const removeUser = async (socket) => {
 
 // id로 유저 찾기.
 export const getUserById = (id) => {
-  return userSessions.find((user) => user.userInfo.playerId === id);
+  return userSessions.find((user) => user.userInfo.userId === id);
 };
 
 // 소캣으로 유저 찾기.

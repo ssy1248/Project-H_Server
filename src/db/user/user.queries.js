@@ -12,9 +12,18 @@ export const SQL_QUERIES = {
     'SELECT ch.*, cs.* FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.id = ?',
   FIND_CHARACTER_STATS_BY_ID: 'SELECT * FROM CharacterStats WHERE id = ?',
   FIND_ALL_CHARACTER_STATS: 'SELECT * FROM CharacterStats',
-  INSERT_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
+  INSERT_CHARACTER_STATS:
+    'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
   COUNT_CHARACTERSTATTABLE: 'SELECT COUNT(*) AS count FROM CharacterStats',
-  CREATE_CHARACTER_STATS: 'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
-  UPDATE_CHARACTER_STATS: 'UPDATE CharacterStats SET hp = ?, mp = ?, atk = ?, def = ?, speed = ? WHERE id = ?',
+  CREATE_CHARACTER_STATS:
+    'INSERT INTO CharacterStats (hp, mp, atk, def, speed) VALUES (?, ?, ?, ?, ?)',
+  UPDATE_CHARACTER_STATS:
+    'UPDATE CharacterStats SET hp = ?, mp = ?, atk = ?, def = ?, speed = ? WHERE id = ?',
   DELETE_CHARACTER_STATS: 'DELETE FROM CharacterStats WHERE id = ?',
+  // 쿼리문 추가 [케릭터 스킬 관련]
+  CREATE_SKILL:
+    'INSERT INTO Skill (name, job, cooldown, cost, castingTime, effect) VALUES (?, ?, ?, ?, ?, ?)',
+  DELETE_SKILL: 'DELETE FROM Skill WHERE id = ?',
+  UPDATE_SKILL: 'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
+  FIND_ALL_SKILLS: 'SELECT * FROM Skill',
 };
