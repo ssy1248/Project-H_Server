@@ -32,8 +32,8 @@ const movementSyncHandler = (socket, packetData) => {
   };
 
   const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
-  //broadcastToUsersAsync(socket, initialResponse);
-  broadcastToUsers(socket, initialResponse);
+  broadcastToUsersAsync(socket, initialResponse);
+  // broadcastToUsers(socket, initialResponse);
 };
 
 // 트랜스폼 검증용 함수.
