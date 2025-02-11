@@ -2,6 +2,7 @@ import {
   getUserBySocket,
   getOtherUsers,
   broadcastToUsersAsync,
+  getAllUsers,
   broadcastToUsers,
 } from '../../session/user.session.js';
 import {

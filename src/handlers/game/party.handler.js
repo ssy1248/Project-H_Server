@@ -5,7 +5,11 @@
 // party클래스에서 userId를 넣어?
 
 import { PACKET_TYPE } from '../../constants/header.js';
-import { createPartySession, GetAllPartySession } from '../../session/party.session.js';
+import {
+  createPartySession,
+  GetAllPartySession,
+  searchPartyInPlayerSession,
+} from '../../session/party.session.js';
 import { getUserById } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
@@ -80,31 +84,47 @@ const generatePartyId = () => {
 export const partyHandler = async (socket, payload) => {
   try {
     // payload로 받아온 데이터를 파싱
-    //const { userId, partyName } = payload;
+    // const { userId, partyName } = payload;
     const { userId } = payload;
+    // 보낼 파티 패킷(스코프때문에 외부로 빼놓음)
+    let partyPacket = {};
     // 파티 아이디 설정
     let partyId = generatePartyId();
     // 임시 값
     let partyName = 'testParty';
     // 파티에 집어넣기 위해 아이디를 통하여 유저 조회
     const user = getUserById(userId);
-    if(!user) {
+    if (!user) {
       console.log(`유저가 존재하지 않습니다. : ${user} : ${getUserById(userId)} : ${userId}`);
       return;
     }
 
-    // 파티 생성
-    const party = createPartySession(partyId, partyName, userId);
-    // 파티에 유저 추가
-    party.addPartyMember(user);
-    const info = party.getPartyInfo();
-    const partyPacket = {
-      info,
-      success: true,
-      message: '파티가 생성되었습니다.',
+    if (searchPartyInPlayerSession(userId).length > 0) {
+      console.log('이미 파티에 들어가있는 플레이어는 파티 생성이 불가능합니다.');
+      // 리턴을 하는것은 좋으나 클라에선 무슨 일인지 모르기에 실패 패킷으로 보내줘야함
+      partyPacket = {
+        success: false,
+        message: '파티 생성에 실패했습니다.',
+      };
+    } else {
+      // 파티 생성
+      const party = createPartySession(partyId, partyName, userId);
+      // 파티에 유저 추가
+      party.addPartyMember(user);
+      const info = party.getPartyInfo();
+      partyPacket = {
+        info,
+        success: true,
+        message: '파티가 생성되었습니다.',
+      };
     }
 
-    const partyResponse = createResponse('town', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, partyPacket);
+    const partyResponse = createResponse(
+      'town',
+      'S_PartyResponse',
+      PACKET_TYPE.S_PARTYRESPONSE,
+      partyPacket,
+    );
 
     // 파티 정보 전송
     await socket.write(partyResponse);

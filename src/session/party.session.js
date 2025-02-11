@@ -1,21 +1,21 @@
+import e from 'cors';
 import Party from '../classes/models/party.class.js';
 import { partySessions } from './sessions.js';
 
 // 파티 생성
 export const createPartySession = (id, partyName, userId) => {
+  let partySession;
   if (!id || !partyName) {
     throw new Error('파티 생성 시 id와 partyName은 필수입니다.');
   }
 
   // 이미 파티에 들어가있다면 예외 처리
   if(searchPartyInPlayerSession(userId).length > 0){
-    // 들어갔을떄 아이디 검색이 안됨 / 그리고 파티 아이디가 동일값이 계속 들어감
     console.log('이미 파티에 들어가있는 플레이어는 파티 생성이 불가능합니다.');
-    return;
+  } else {
+    partySession = new Party(id, partyName, userId);
+    partySessions.push(partySession);
   }
-
-  const partySession = new Party(id, partyName, userId);
-  partySessions.push(partySession);
   return partySession;
 };
 
