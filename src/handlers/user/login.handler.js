@@ -6,6 +6,7 @@ import { addUser } from '../../session/user.session.js';
 import { GlobalFailCode } from '../../utils/game.data.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { regex } from './register.handler.js';
+import { userSessions } from '../../session/sessions.js';
 
 const validateUserInput = async (email, password, socket) => {
   try {
@@ -20,14 +21,12 @@ const validateUserInput = async (email, password, socket) => {
 
     // 비밀번호 비교
     let passwordMatch = false;
-
     passwordMatch = await bcrypt.compare(password, userData.password);
     if (!passwordMatch) throw new Error('비밀번호가 일치하지 않습니다!');
 
     // 유저 생성 및 추가
     const user = new User(socket, userData.id, userData.nickname);
     addUser(user);
-    console.log(user);
     return createResponse('user', 'S_LoginResponse', PACKET_TYPE.S_LOGINRESPONSE, {
       success: true,
       token: '',

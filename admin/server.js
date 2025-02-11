@@ -3,10 +3,19 @@ import path from 'path';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import { getTableStructure } from '../src/db/user/user.db.js';
+import {
+  getTableStructure,
+  createCharacterStats,
+  findAllCharacterStats,
+  updateCharacterStats,
+  deleteCharacterStats,
+} from '../src/db/user/user.db.js';
 
 const app = express();
 const PORT = 3000;
+
+const USER_NAME = 'admin';
+const PASS_WORD = 'admin123';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,56 +31,151 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 
 
-// 기본 경로에 접속하면 로그인 페이지로 리디렉션
-app.get('/', (req, res) => {
-  console.log('Redirecting to /login');
-  res.redirect('/login'); // 로그인 페이지로 리디렉션
-});
-
-// 로그인 페이지 보여주기
-app.get('/login', (req, res) => {
-  // 경로 확인: admin/public/login.html
-  const loginPath = path.join(__dirname, 'public', 'login.html'); // 경로 수정
-  res.sendFile(loginPath); // loginPath 사용
-});
-
-// 메인 페이지 보여주기 (로그인 성공 후 이동)
-// app.get('/index', (req, res) => {
-//   const indexPath = path.join(__dirname, 'public', 'index.html'); // 경로 수정
-//   res.sendFile(indexPath);
-// });
-
 // 로그인 요청 처리
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   console.log(username);
   console.log(password);
 
-  // 여기서 실제 인증 로직을 추가하세요.
-  if (username === 'admin' && password === 'admin123') {
-    // 로그인 성공 시 메인 페이지로 리디렉션
-    res.redirect('/index');
-  } else {
-    res.status(401).send({ message: 'Invalid credentials' });
+  // 유효성 검사
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ success: false, error: 'UserName, PassWord을 제대로 입력하세요.' });
+  }
+
+  try {
+    if (username === USER_NAME && password === PASS_WORD) {
+      return res.json({ success: true, message: '로그인 성공!' });
+    }
+
+    // 인증 실패
+    return res.status(401).json({ success: false, error: 'UserName, PassWord 가 틀렸습니다.' });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ success: false, error: '로그인 실패.' });
   }
 });
 
 // 사이드바 클릭 요청 처리 (예시)
-app.post('/api/sidebar-click', (req, res) => {
+app.post('/api/sidebar-click', async (req, res) => {
   const { menu } = req.body;
   console.log(`Menu clicked: ${menu}`);
 
-  // 서버에서 응답할 메시지 (메뉴에 따라 다르게 응답 가능)
-  const responseMessage = `You clicked on ${menu} menu!`;
+  // type에 따라 다르게 처리할 수 있음
+  let tableColumns;
+  let dataRows;
+  switch (menu) {
+    case 'admin-list':
+      tableColumns = ['id', 'name', 'role'];
+      break;
+    case 'character-list':
+      tableColumns = await getTableStructure();
+      dataRows = await findAllCharacterStats();
+      break;
+    case 'item-list':
+      tableColumns = ['item_id', 'name', 'type', 'rarity'];
+      break;
+    case 'skill-list':
+      tableColumns = ['skill_id', 'name', 'damage', 'cooldown'];
+      break;
+    default:
+      break;
+  }
 
   // 응답 보내기
-  res.json({ message: responseMessage });
+  res.json({ columns: tableColumns, dataRows: dataRows });
 });
 
+// 데이터 추가 메세지
+app.post('/api/:type/add', async (req, res) => {
+  const { type } = req.params; // URL 파라미터에서 type을 추출
+  const data = req.body; // 클라이언트에서 보낸 데이터
+  console.log(data);
+
+  // type에 따라 다르게 처리할 수 있음
+  let result;
+  switch (type) {
+    case 'admin-list':
+      break;
+    case 'character-list':
+      result = await createCharacterStats(data.hp, data.mp, data.atk, data.def, data.speed);
+      break;
+    case 'item-list':
+      break;
+    case 'skill-list':
+      break;
+    default:
+      break;
+  }
+
+  res.json({ success: result.success, id: result.id });
+});
+
+// 업데이트
+app.post('/api/:type/update', async (req, res) => {
+  const { type } = req.params; // URL 파라미터에서 type을 추출
+  const data = req.body; // 클라이언트에서 보낸 데이터
+  console.log(data);
+
+  // type에 따라 다르게 처리할 수 있음
+  try {
+    switch (type) {
+      case 'admin-list':
+        break;
+      case 'character-list':
+        await updateCharacterStats(data.id, data.hp, data.mp, data.atk, data.def, data.speed);
+        break;
+      case 'item-list':
+        break;
+      case 'skill-list':
+        break;
+      default:
+        break;
+    }
+
+    // 처리 성공 시 응답 보내기
+    res.json({ success: true, message: '성공' });
+  } catch (error) {
+    // 처리 실패 시 응답 보내기
+    console.error(error);
+    res.status(500).json({ success: false, error: '실패' });
+  }
+});
+
+// 업데이트
+app.post('/api/:type/delete', async (req, res) => {
+  const { type } = req.params; // URL 파라미터에서 type을 추출
+  const data = req.body; // 클라이언트에서 보낸 데이터
+  console.log(data);
+
+  // type에 따라 다르게 처리할 수 있음
+  let result;
+  try {
+    switch (type) {
+      case 'admin-list':
+        break;
+      case 'character-list':
+        result = await deleteCharacterStats(data.id);
+        break;
+      case 'item-list':
+        break;
+      case 'skill-list':
+        break;
+      default:
+        break;
+    }
+
+    // 처리 성공 시 응답 보내기
+    res.json({ success: result });
+  } catch (error) {
+    // 처리 실패 시 응답 보내기
+    console.error(error);
+    res.status(500).json({ success: false, error: '실패' });
+  }
+});
 
 // 서버 시작
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
-  const test = await getTableStructure();
-  console.log(test);
 });
