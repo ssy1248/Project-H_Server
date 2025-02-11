@@ -14,6 +14,9 @@ import {
 const app = express();
 const PORT = 3000;
 
+const USER_NAME = 'admin';
+const PASS_WORD = 'admin123';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -26,24 +29,7 @@ app.use(bodyParser.json());
 // 정적 파일 제공 (어드민 페이지 HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 기본 경로에 접속하면 로그인 페이지로 리디렉션
-app.get('/', (req, res) => {
-  console.log('Redirecting to /login');
-  res.redirect('/login'); // 로그인 페이지로 리디렉션
-});
 
-// 로그인 페이지 보여주기
-app.get('/login', (req, res) => {
-  // 경로 확인: admin/public/login.html
-  const loginPath = path.join(__dirname, 'public', 'login.html'); // 경로 수정
-  res.sendFile(loginPath); // loginPath 사용
-});
-
-// 메인 페이지 보여주기 (로그인 성공 후 이동)
-// app.get('/index', (req, res) => {
-//   const indexPath = path.join(__dirname, 'public', 'index.html'); // 경로 수정
-//   res.sendFile(indexPath);
-// });
 
 // 로그인 요청 처리
 app.post('/login', (req, res) => {
@@ -51,12 +37,23 @@ app.post('/login', (req, res) => {
   console.log(username);
   console.log(password);
 
-  // 여기서 실제 인증 로직을 추가하세요.
-  if (username === 'admin' && password === 'admin123') {
-    // 로그인 성공 시 메인 페이지로 리디렉션
-    res.redirect('/index');
-  } else {
-    res.status(401).send({ message: 'Invalid credentials' });
+  // 유효성 검사
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ success: false, error: 'UserName, PassWord을 제대로 입력하세요.' });
+  }
+
+  try {
+    if (username === USER_NAME && password === PASS_WORD) {
+      return res.json({ success: true, message: '로그인 성공!' });
+    }
+
+    // 인증 실패
+    return res.status(401).json({ success: false, error: 'UserName, PassWord 가 틀렸습니다.' });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ success: false, error: '로그인 실패.' });
   }
 });
 
@@ -64,7 +61,6 @@ app.post('/login', (req, res) => {
 app.post('/api/sidebar-click', async (req, res) => {
   const { menu } = req.body;
   console.log(`Menu clicked: ${menu}`);
-
 
   // type에 따라 다르게 처리할 수 있음
   let tableColumns;
@@ -103,13 +99,7 @@ app.post('/api/:type/add', async (req, res) => {
     case 'admin-list':
       break;
     case 'character-list':
-      result = await createCharacterStats(
-        data.hp,
-        data.mp,
-        data.atk,
-        data.def,
-        data.speed,
-      );
+      result = await createCharacterStats(data.hp, data.mp, data.atk, data.def, data.speed);
       break;
     case 'item-list':
       break;
@@ -119,8 +109,7 @@ app.post('/api/:type/add', async (req, res) => {
       break;
   }
 
-
-  res.json({ success: result.success, id : result.id });
+  res.json({ success: result.success, id: result.id });
 });
 
 // 업데이트
@@ -144,7 +133,6 @@ app.post('/api/:type/update', async (req, res) => {
       default:
         break;
     }
-
 
     // 처리 성공 시 응답 보내기
     res.json({ success: true, message: '성공' });
@@ -178,16 +166,14 @@ app.post('/api/:type/delete', async (req, res) => {
         break;
     }
 
-
     // 처리 성공 시 응답 보내기
-    res.json({ success: result});
+    res.json({ success: result });
   } catch (error) {
     // 처리 실패 시 응답 보내기
     console.error(error);
     res.status(500).json({ success: false, error: '실패' });
   }
 });
-
 
 // 서버 시작
 app.listen(PORT, async () => {
