@@ -9,6 +9,7 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
+import { partyHandler } from './game/party.handler.js';
 import shopHandler from './game/shop.handler.js';
 
 const handlers = {
@@ -101,7 +102,7 @@ const handlers = {
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
-    handler: animationHandler,
+    handler: partyHandler,
     protoType: 'town.C_PartyRequest',
   },
   [PACKET_TYPE.S_PARTYRESPONSE]: {
