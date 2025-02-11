@@ -31,9 +31,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 인벤토리 버튼에 클릭 이벤트 콜백 추가
     tableBody.addEventListener('click', async (event) => {
-        const id = event.target.getAttribute('data-id');
-        const nickname = event.target.getAttribute('data-nickname');
-        window.location.href = `inventory.html?id=${id}&nickname=${nickname}`;
+        if (event.target.classList.contains('inventory-button')) {
+            const id = event.target.getAttribute('data-id');
+            const nickname = event.target.getAttribute('data-nickname');
+            window.location.href = `inventory.html?id=${id}&nickname=${nickname}`;
+        }
     });
 
     await fetchCharacters();
