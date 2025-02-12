@@ -444,7 +444,7 @@ message S_PartyResponse{
     int32 rarity =7; 
   }
 
-}
+
  message marketItemInfo{
     int32 marketId = 1;
     int32 itemId =2;
