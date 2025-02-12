@@ -24,6 +24,9 @@ export const SQL_QUERIES = {
   CREATE_SKILL:
     'INSERT INTO Skill (name, job, cooldown, cost, castingTime, effect) VALUES (?, ?, ?, ?, ?, ?)',
   DELETE_SKILL: 'DELETE FROM Skill WHERE id = ?',
-  UPDATE_SKILL: 'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
+  UPDATE_SKILL:
+    'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
   FIND_ALL_SKILLS: 'SELECT * FROM Skill',
+  // 골드 변경 쿼리문
+  UPDATE_CHARACTER_GOLD: 'UPDATE Characters SET gold = ? WHERE charStatId = ?',
 };
