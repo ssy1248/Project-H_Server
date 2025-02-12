@@ -10,6 +10,7 @@ import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
 import { partyHandler } from './game/party.handler.js';
+import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -109,11 +110,11 @@ const handlers = {
     protoType: 'town.S_PartyResponse',
   },
   [PACKET_TYPE.C_ENTERDUNGEON]: {
-    handler: animationHandler,
+    handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
   },
   [PACKET_TYPE.S_ENTERDUNGEON]: {
-    handler: animationHandler,
+    handler: dungeonEnterHandler,
     protoType: 'dungeon.S_EnterDungeon',
   },
   [PACKET_TYPE.S_LEAVEDUNGEON]: {
