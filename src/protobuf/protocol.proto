@@ -214,6 +214,7 @@ message S_PartyResponse{
   message C_EnterDungeon{
     int32 dungeonCode =1;
     repeated int32 players =2;
+    int32 partyId=3;
   }
   
   // Me
