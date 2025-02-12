@@ -13,7 +13,7 @@ export default class User {
 
     // 플레이어 정보.
     this.playerInfo = {
-      playerClass: '',
+      playerClass: 0,
       gold: 0,
       level: 0,
       exp: 0,

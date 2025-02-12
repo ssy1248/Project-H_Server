@@ -4,12 +4,25 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import {
-  getTableStructure,
+  getCharacterStatsTableStructure,
   createCharacterStats,
   findAllCharacterStats,
   updateCharacterStats,
   deleteCharacterStats,
+  getSkillStatsTableStructure,
+  createSkill,
+  deleteSkill,
+  updateSkill,
+  findAllSkills,
 } from '../src/db/user/user.db.js';
+
+import {
+  getItemsTableStructure,
+  createItem2,
+  deleteItem,
+  updateItem,
+  getAllItems,
+} from '../src/db/inventory/item.db.js';
 
 const app = express();
 const PORT = 3000;
@@ -28,8 +41,6 @@ app.use(bodyParser.json());
 
 // 정적 파일 제공 (어드민 페이지 HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'public')));
-
-
 
 // 로그인 요청 처리
 app.post('/login', (req, res) => {
@@ -70,14 +81,16 @@ app.post('/api/sidebar-click', async (req, res) => {
       tableColumns = ['id', 'name', 'role'];
       break;
     case 'character-list':
-      tableColumns = await getTableStructure();
+      tableColumns = await getCharacterStatsTableStructure();
       dataRows = await findAllCharacterStats();
       break;
     case 'item-list':
-      tableColumns = ['item_id', 'name', 'type', 'rarity'];
+      tableColumns = await getItemsTableStructure();
+      dataRows = await getAllItems();
       break;
     case 'skill-list':
-      tableColumns = ['skill_id', 'name', 'damage', 'cooldown'];
+      tableColumns = await getSkillStatsTableStructure();
+      dataRows = await findAllSkills();
       break;
     default:
       break;
@@ -91,7 +104,6 @@ app.post('/api/sidebar-click', async (req, res) => {
 app.post('/api/:type/add', async (req, res) => {
   const { type } = req.params; // URL 파라미터에서 type을 추출
   const data = req.body; // 클라이언트에서 보낸 데이터
-  console.log(data);
 
   // type에 따라 다르게 처리할 수 있음
   let result;
@@ -102,8 +114,17 @@ app.post('/api/:type/add', async (req, res) => {
       result = await createCharacterStats(data.hp, data.mp, data.atk, data.def, data.speed);
       break;
     case 'item-list':
+      result = await createItem2(data.name, data.itemtype, data.stat, data.price);
       break;
     case 'skill-list':
+      result = await createSkill(
+        data.name,
+        data.job,
+        data.cooldown,
+        data.cost,
+        data.castingtime,
+        data.effect,
+      );
       break;
     default:
       break;
@@ -127,8 +148,18 @@ app.post('/api/:type/update', async (req, res) => {
         await updateCharacterStats(data.id, data.hp, data.mp, data.atk, data.def, data.speed);
         break;
       case 'item-list':
+        await updateItem(data.id, data.name, data.itemtype, data.stat, data.price);
         break;
       case 'skill-list':
+        await updateSkill(
+          data.id,
+          data.name,
+          data.job,
+          data.cooldown,
+          data.cost,
+          data.castingtime,
+          data.effect,
+        );
         break;
       default:
         break;
@@ -143,7 +174,7 @@ app.post('/api/:type/update', async (req, res) => {
   }
 });
 
-// 업데이트
+// 삭제
 app.post('/api/:type/delete', async (req, res) => {
   const { type } = req.params; // URL 파라미터에서 type을 추출
   const data = req.body; // 클라이언트에서 보낸 데이터
@@ -159,8 +190,10 @@ app.post('/api/:type/delete', async (req, res) => {
         result = await deleteCharacterStats(data.id);
         break;
       case 'item-list':
+        result = await deleteItem(data.id);
         break;
       case 'skill-list':
+        result = await deleteSkill(data.id);
         break;
       default:
         break;

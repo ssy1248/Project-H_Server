@@ -2,6 +2,7 @@ import {
   getUserBySocket,
   getOtherUsers,
   broadcastToUsersAsync,
+  getAllUsers,
   broadcastToUsers,
 } from '../../session/user.session.js';
 import {
@@ -35,8 +36,6 @@ const setCharacterStat = async () => {
 };
 
 const spawnUserHandler = async (socket, packetData) => {
-  console.log('테스트');
-
   // 1. C_SelectCharacterRequest 패킷을 받는다
   // 구조 분해 할당 (class → characterClass로 변경);
   // class는 예약어라 변수명 그대로 사용불가, 대채 이름을 설정해서 사용해야함.
@@ -51,7 +50,7 @@ const spawnUserHandler = async (socket, packetData) => {
   // 3. 케릭터 초기화.
   const userInfo = user.getUserInfo();
   await setCharacterStat();
-  const character = findOrCreateCharacter(userInfo.userId, characterClass);
+  const character = await findOrCreateCharacter(userInfo.userId, characterClass);
   const characterData = initializeCharacter(character);
   user.init(characterData.playerInfo, characterData.playerStatInfo);
 

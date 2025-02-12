@@ -3,12 +3,18 @@ import { partySessions } from './sessions.js';
 
 // 파티 생성
 export const createPartySession = (id, partyName, userId) => {
+  let partySession;
   if (!id || !partyName) {
     throw new Error('파티 생성 시 id와 partyName은 필수입니다.');
   }
 
-  const partySession = new Party(id, partyName, userId);
-  partySessions.push(partySession);
+  // 이미 파티에 들어가있다면 예외 처리
+  if(searchPartyInPlayerSession(userId).length > 0){
+    console.log('이미 파티에 들어가있는 플레이어는 파티 생성이 불가능합니다.');
+  } else {
+    partySession = new Party(id, partyName, userId);
+    partySessions.push(partySession);
+  }
   return partySession;
 };
 
@@ -54,9 +60,6 @@ export const searchPartySession = (id) => {
 
 // 파티에 있는 유저 조회
 export const searchPartyInPlayerSession = (userId) => {
-  // 단일 검색
-  // return partySessions.find((party) => party.partyMembers.find((member) => member.id === userId));
-
   // 만약 여러개의 파티의 세션이 존재해서 그 파티를 전부다 조회해서 찾아야 한다면?
   if (!userId) {
     throw new Error("유저 검색 시 userId가 필요합니다.");
@@ -67,7 +70,7 @@ export const searchPartyInPlayerSession = (userId) => {
     // partyMembers가 배열인지 확인한 후, some() 메서드를 통해 조건 만족 여부를 판단
     if (!Array.isArray(party.partyMembers)) 
         return false;
-    return party.partyMembers.some((member) => member.id === userId);
+    return party.partyMembers.some((member) => member.userInfo.userId === userId);
   });
 
   if (parties.length === 0) {

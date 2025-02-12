@@ -33,8 +33,24 @@ enum MsgId {
   S_LEAVEDUNGEON=26;
   S_SCREENTEXT=27;
   S_SCREENDONE=28;
-  C_INVENTORYREQUEST=29;
-  S_INVENTORYRESPONSE=30;
+  C_PARTYINVITEREQUEST = 29;
+  C_PARTYJOINREQUEST = 30;
+  C_PARTYLISTREQUEST =31;
+  C_SEARCHPARTYREQUEST =32;
+  C_PARTYKICKREQUEST = 33;
+  C_PARTYEXITREQUEST =34;
+  S_PARTYSEARCHRESPONSE = 35;
+  S_PARTYRESULTRESPONSE = 36;
+  C_MARKETLIST = 37;
+  S_MARKETLIST = 38;
+  C_MARKETMYLIST = 39;
+  S_MARKETMYLIST =40;
+  C_SELLINMARKET =41;
+  S_SELLINMARKET = 42;
+  C_BUYINMARKET = 43;
+  S_BUYINMARKET = 44;
+    C_INVENTORYREQUEST=45;
+  S_INVENTORYRESPONSE=46;
 }
 
 //회원가입 요청
@@ -189,10 +205,68 @@ message S_ActiveItemResponse{
 
 /* 파티 패킷 */
 
-// 파티 생성 패킷
-message C_PartyRequest{
+message C_PartyRequest {
     int32 userId = 1;
+    string partyName = 2; // 파티 이름 추가
 }
+
+// 초대용 패킷 
+// 초대한 유저의 id를 파티 세션에서 검색을 한 후 파티가 존재하면 그 아이디를 전송
+message C_PartyInviteRequest {
+    string requesterUserNickname = 1; // 초대한 유저 닉네임
+    string participaterUserNickname = 2; // 초대할 유저 닉네임
+}
+
+// 파티 신청 패킷
+message C_PartyJoinRequest {
+    int32 partyId = 1; // 파티 id
+    int32 userId = 2; // 가입할 유저 id
+}
+
+message C_PartyListRequest {
+  // 빈값으로 요청 
+  // 5개만 요청(다음페이지를 누르면 다시 요청)
+  // 서버에서 파티 세션 전송?
+}
+
+//지금은 아예 똑같거나 LIKE 써서 사용(추후 좋은아이디어가 있으면 수정)
+message C_SearchPartyRequest {
+  string partyName = 1; // 검색한 파티 이름
+}
+
+// 추방 패킷
+// 추방 요청 유저가 파티세션에 있는지 검사 & 파티장인지 검사 후 성공 실패 전송
+message C_PartyKickRequest {
+    int32 requesterUserId = 1; // 추방 요청 유저 id
+    int32 kickUserUserId = 2; // 추방 유저 id
+}
+
+// 파티 나가기
+message C_PartyExitRequest {
+    // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
+    int32 userId = 1; // 나갈 유저 id
+}
+
+// 파티 조회 관련 패킷
+message S_PartySearchResponse {
+  repeated PartyInfo info = 1;
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
+}
+
+// 파티 해체 관련 패킷
+message S_PartyResultResponse {
+    // 나간 유저를 알아야 하니까? 파티원들도?
+    int32 userId = 1; // 나간 파티원
+    bool success = 2;
+    string message = 3;
+    GlobalFailCode failCode = 4;
+}
+
+// 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
+// 처리하는 패킷을 하나로
+// 파티 가입 관련 패킷 처리
 message S_PartyResponse{
     PartyInfo party =1;
     bool success =2;
@@ -206,6 +280,7 @@ message S_PartyResponse{
   message C_EnterDungeon{
     int32 dungeonCode =1;
     repeated int32 players =2;
+    int32 partyId=3;
   }
   
   // Me
@@ -227,7 +302,41 @@ message S_PartyResponse{
   // Me
   message S_ScreenDone { }
   
-  
+  // 경매장 페이지 네이션 요청 
+  message C_marketList{
+    int32 page =1;
+  }
+  // 경매장 페이지 네이션 응답
+  message S_marketList{
+    int32 MaxPage = 1;
+    repeated marketItemInfo itemdata = 2;
+  }
+  // 경매장 자신 인벤토리 페이지 네이션 요청
+  message C_marketMyList{
+    int32 page =1;
+  }
+  // 경매장 자신 인벤토리 페이지 네이션 응답
+  message S_marketMyList{
+    int32 MaxPage = 1;
+    repeated ItemInfo itemdata = 2;
+  }
+
+  // 소캣 기준으로 유저 찾고 판매 목록에 등록 
+  message C_SellInMarket{
+    int32 inventoryId =1;
+  }
+  //
+  message S_SellInMarket{
+    int32 inventoryId =1;
+    bool success = 2;
+  }
+  message C_BuyInMarket{
+
+  }
+  message S_BuyInMarket{
+
+  }
+
   // 정보 구조체
   
   message PlayerInfo {
@@ -321,8 +430,9 @@ message S_PartyResponse{
   }
   message PartyInfo{
     int32 partyId = 1 ;
-    int32 maximum = 2;
-    repeated PlayerStatus Players = 3;
+    string partyName = 2; // 파티 이름
+    int32 maximum = 3;
+    repeated PlayerStatus Players = 4;
   }
   message ItemInfo{
     int32 id =1;
@@ -333,3 +443,12 @@ message S_PartyResponse{
     bool equiped =6;
     int32 rarity =7; 
   }
+
+}
+ message marketItemInfo{
+    int32 marketId = 1;
+    int32 itemId =2;
+    int32 upgrade =3;
+    int64 endTime = 4;
+    int32 price = 5;
+ }
