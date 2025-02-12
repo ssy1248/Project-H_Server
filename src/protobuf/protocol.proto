@@ -217,7 +217,35 @@ message S_PartyResponse{
   // Me
   message S_ScreenDone { }
   
-  
+  // 경매장 페이지 네이션 요청 
+  message C_marketList{
+    int32 page =1;
+  }
+  // 경매장 페이지 네이션 응답
+  message S_marketList{
+    int32 MaxPage = 1;
+    repeated marketItemInfo itemdata = 2;
+  }
+  // 경매장 자신 인벤토리 페이지 네이션 요청
+  message C_marketMyList{
+    int32 page =1;
+  }
+  // 경매장 자신 인벤토리 페이지 네이션 응답
+  message S_marketMyList{
+    int32 MaxPage = 1;
+    repeated ItemInfo itemdata = 2;
+  }
+
+  // 소캣 기준으로 유저 찾고 판매 목록에 등록 
+  message C_SellInMarket{
+    int32 inventoryId =1;
+  }
+  //
+  message S_SellInMarket{
+    int32 inventoryId =1;
+    bool success = 2;
+  }
+
   // 정보 구조체
   
   message PlayerInfo {
@@ -318,3 +346,10 @@ message S_PartyResponse{
     int32 itemId =1;
     int32 price = 2;
   }
+ message marketItemInfo{
+    int32 marketId = 1;
+    int32 itemId =2;
+    int32 upgrade =3;
+    int64 endTime = 4;
+    int32 price = 5;
+ }
