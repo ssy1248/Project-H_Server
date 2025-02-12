@@ -103,11 +103,11 @@ const handlers = {
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
     handler: partyHandler,
-    protoType: 'town.C_PartyRequest',
+    protoType: 'party.C_PartyRequest',
   },
   [PACKET_TYPE.S_PARTYRESPONSE]: {
     handler: animationHandler,
-    protoType: 'town.S_PartyResponse',
+    protoType: 'party.S_PartyResponse',
   },
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
@@ -128,6 +128,62 @@ const handlers = {
   [PACKET_TYPE.S_SCREENDONE]: {
     handler: animationHandler,
     protoType: 'dungeon.S_ScreenDone',
+  },
+  [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_PartyInviteRequest',
+  },
+  [PACKET_TYPE.C_PARTYJOINREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_PartyJoinRequest',
+  },
+  [PACKET_TYPE.C_PARTYLISTREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_PartyListRequest',
+  },
+  [PACKET_TYPE.C_SEARCHPARTYREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_SearchPartyRequest',
+  },
+  [PACKET_TYPE.C_PARTYKICKREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_PartyKickRequest',
+  },
+  [PACKET_TYPE.C_PARTYEXITREQUEST]: {
+    handler: animationHandler,
+    protoType: 'party.C_PartyExitRequest',
+  },
+  [PACKET_TYPE.S_PARTYSEARCHRESPONSE]: {
+    handler: animationHandler,
+    protoType: 'party.S_PartySearchResponse',
+  },
+  [PACKET_TYPE.S_PARTYRESULTRESPONSE]: {
+    handler: animationHandler,
+    protoType: 'party.S_PartyResultResponse',
+  },
+  [PACKET_TYPE.C_MARKETLIST]: {
+    handler: animationHandler,
+    protoType: 'town.C_marketList',
+  },
+  [PACKET_TYPE.S_MARKETLIST]: {
+    handler: animationHandler,
+    protoType: 'town.S_marketList',
+  },
+  [PACKET_TYPE.C_MARKETMYLIST]: {
+    handler: animationHandler,
+    protoType: 'town.C_marketMyList',
+  },
+  [PACKET_TYPE.S_MARKETMYLIST]: {
+    handler: animationHandler,
+    protoType: 'town.S_marketMyList',
+  },
+  [PACKET_TYPE.C_SELLINMARKET]: {
+    handler: animationHandler,
+    protoType: 'town.C_SellInMarket',
+  },
+  [PACKET_TYPE.S_SELLINMARKET]: {
+    handler: animationHandler,
+    protoType: 'town.S_SellInMarket',
   },
 };
 
