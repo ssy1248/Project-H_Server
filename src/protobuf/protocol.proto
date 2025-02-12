@@ -6,221 +6,221 @@ package Google.Protobuf.Protocol;
 enum MsgId {
   C_REGISTERREQUEST = 0;
   S_REGISTERRESPONSE = 1;
-  C_LOGINREQUEST =2;
-  S_LOGINRESPONSE= 3;
+  C_LOGINREQUEST = 2;
+  S_LOGINRESPONSE = 3;
   C_SELECTCHARACTERREQUEST = 4;
   S_ENTER = 5;
-  S_SPAWN =6;
+  S_SPAWN = 6;
   S_DESPAWN = 7;
-  C_MOVE= 8;
-  S_MOVE= 9;
-  C_ANIMATION=10;
-  S_ANIMATION=11;
-  C_CHAT=12;
-  S_CHAT=13;
-  C_BUYITEMREQUEST=14;
-  S_BUYITEMRESPONSE =15;
-  C_EQUIPITEMREQUEST=16;
-  S_EQUIPITEMRESPONSE=17;
-  C_DISROBEITEMREQUEST=18;
-  S_DISROBEITEMRESPONSE=19;
-  C_ACTIVEITEMREQUEST=20;
-  S_ACTIVEITEMREQUEST=21;
-  C_PARTYREQUEST=22;
-  S_PARTYRESPONSE=23;
-  C_ENTERDUNGEON=24;
-  S_ENTERDUNGEON=25;
-  S_LEAVEDUNGEON=26;
-  S_SCREENTEXT=27;
-  S_SCREENDONE=28;
+  C_MOVE = 8;
+  S_MOVE = 9;
+  C_ANIMATION = 10;
+  S_ANIMATION = 11;
+  C_CHAT = 12;
+  S_CHAT = 13;
+  C_BUYITEMREQUEST = 14;
+  S_BUYITEMRESPONSE = 15;
+  C_EQUIPITEMREQUEST = 16;
+  S_EQUIPITEMRESPONSE = 17;
+  C_DISROBEITEMREQUEST = 18;
+  S_DISROBEITEMRESPONSE = 19;
+  C_ACTIVEITEMREQUEST = 20;
+  S_ACTIVEITEMREQUEST = 21;
+  C_PARTYREQUEST = 22;
+  S_PARTYRESPONSE = 23;
+  C_ENTERDUNGEON = 24;
+  S_ENTERDUNGEON = 25;
+  S_LEAVEDUNGEON = 26;
+  S_SCREENTEXT = 27;
+  S_SCREENDONE = 28;
   C_PARTYINVITEREQUEST = 29;
   C_PARTYJOINREQUEST = 30;
-  C_PARTYLISTREQUEST =31;
-  C_SEARCHPARTYREQUEST =32;
+  C_PARTYLISTREQUEST = 31;
+  C_SEARCHPARTYREQUEST = 32;
   C_PARTYKICKREQUEST = 33;
-  C_PARTYEXITREQUEST =34;
+  C_PARTYEXITREQUEST = 34;
   S_PARTYSEARCHRESPONSE = 35;
   S_PARTYRESULTRESPONSE = 36;
   C_MARKETLIST = 37;
   S_MARKETLIST = 38;
   C_MARKETMYLIST = 39;
-  S_MARKETMYLIST =40;
-  C_SELLINMARKET =41;
+  S_MARKETMYLIST = 40;
+  C_SELLINMARKET = 41;
   S_SELLINMARKET = 42;
   C_BUYINMARKET = 43;
   S_BUYINMARKET = 44;
-    C_INVENTORYREQUEST=45;
-  S_INVENTORYRESPONSE=46;
+  C_INVENTORYREQUEST = 45;
+  S_INVENTORYRESPONSE = 46;
 }
 
 //회원가입 요청
-message C_RegisterRequest{
-    string email = 1;
-    string nickname = 2;
-    string password = 3;
+message C_RegisterRequest {
+  string email = 1;
+  string nickname = 2;
+  string password = 3;
 }
 
 //회원가입 응답
-message S_RegisterResponse{
-    bool success = 1;
-    string message = 2;
-    GlobalFailCode failCode =3;
+message S_RegisterResponse {
+  bool success = 1;
+  string message = 2;
+  GlobalFailCode failCode = 3;
 }
 
 //로그인 요청
 message C_LoginRequest {
-    string email = 1;
-    string password = 2;
+  string email = 1;
+  string password = 2;
 }
 
 //로그인 응답
 message S_LoginResponse {
-    bool success = 1;
-    string token = 2;
-    string message = 3;
-    GlobalFailCode failCode = 4;
+  bool success = 1;
+  string token = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
 //캐릭터 선택
-message C_SelectCharacterRequest{
-    int32 class = 2;
+message C_SelectCharacterRequest {
+  int32 class = 2;
 }
 
 
 // [수정] 다른유저에게 본인 케릭터 정보를 보내야한다.
 message S_Enter {
-    PlayerInfo player = 1;
+  PlayerInfo player = 1;
 }
 
 // [수정] 본인에게 다른 유저 정보, 스토어리스트 보내야한다. 
 message S_Spawn {
-    int32 userId = 1;
-    repeated PlayerInfo players = 2;
-    repeated ItemInfo storeList = 3; 
+  int32 userId = 1;
+  repeated PlayerInfo players = 2;
+  repeated ItemInfo storeList = 3;
 }
-  
+
 // 캐릭터 없애주기!
 message S_Despawn {
-    repeated int32 playerIds = 2;
-  }
-  
-  /* 캐릭터 패킷 */
-  
-  // 응답 패킷 - S_Move
-  message C_Move {
-    TransformInfo transform = 1;
-  }
-  
-  // ALL
-  message S_Move {
-    int32 playerId = 1;
-    TransformInfo transform = 2;
-  }
-  
-  // 응답 패킷 - S_Animation
-  message C_Animation {
-    int32 animCode = 1;
-  }
-  
-  // ALL
-  message S_Animation {
-    int32 playerId = 1;
-    int32 animCode = 2;
-  }
-  
+  repeated int32 playerIds = 2;
+}
+
+/* 캐릭터 패킷 */
+
+// 응답 패킷 - S_Move
+message C_Move {
+  TransformInfo transform = 1;
+}
+
+// ALL
+message S_Move {
+  int32 playerId = 1;
+  TransformInfo transform = 2;
+}
+
+// 응답 패킷 - S_Animation
+message C_Animation {
+  int32 animCode = 1;
+}
+
+// ALL
+message S_Animation {
+  int32 playerId = 1;
+  int32 animCode = 2;
+}
+
 /* 채팅 패킷 */
 
-    // ALL
-message C_Chat{
-    int32 playerId = 1;
-    int32 type = 2;
-    string senderName = 3;
-    string chatMsg = 4;
+// ALL
+message C_Chat {
+  int32 playerId = 1;
+  int32 type = 2;
+  string senderName = 3;
+  string chatMsg = 4;
 }
-  
-  // 응답 패킷 - C_Chat
-  message S_Chat{
-    int32 playerId = 1;
-    int32 type = 2;
-    int32 errorType = 3;
-    string chatMsg = 4;
-  }
-  
+
+// 응답 패킷 - C_Chat
+message S_Chat {
+  int32 playerId = 1;
+  int32 type = 2;
+  int32 errorType = 3;
+  string chatMsg = 4;
+}
+
 /* 상점 패킷 */
 
-message C_BuyItemRequest{
-    string itemname =1;
-    int32 price =2;
+message C_BuyItemRequest {
+  string itemname = 1;
+  int32 price = 2;
 }
-message S_BuyItemResponse  {
-    bool success =1;
-    string message = 2;
-    GlobalFailCode failCode =3;
+message S_BuyItemResponse {
+  bool success = 1;
+  string message = 2;
+  GlobalFailCode failCode = 3;
 }
 
 /* 아이템 패킷 */
 
-message C_InventoryRequest{
-    int32 charId =1;
+message C_InventoryRequest {
+  int32 charId = 1;
 }
 
-message S_InventoryResponse{
-    repeated ItemInfo inventory =1;
+message S_InventoryResponse {
+  repeated ItemInfo inventory = 1;
 }
 
 /* 장착 관련 */
-message C_EquipItemRequest{
-    int32 itemId =1;
+message C_EquipItemRequest {
+  int32 itemId = 1;
 }
 
-message S_EquipItemResponse{
-    int32 itemId =1;
-    bool success =2;
-    string message =3;
-    GlobalFailCode failCode = 4;
+message S_EquipItemResponse {
+  int32 itemId = 1;
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
-message C_DisrobeItemRequest{
-    int32 itemId =1;
+message C_DisrobeItemRequest {
+  int32 itemId = 1;
 }
 
-message S_DisrobeItemResponse{
-    int32 itemId =1;
-    bool success =2;
-    string message =3;
-    GlobalFailCode failCode = 4;
+message S_DisrobeItemResponse {
+  int32 itemId = 1;
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
-message C_ActiveItemRequest{
-    int32 itemId =1;
+message C_ActiveItemRequest {
+  int32 itemId = 1;
 }
 
 // 
-message S_ActiveItemResponse{
-    int32 itemId =1;
-    bool success =2;
-    string message =3;
-    GlobalFailCode failCode = 4;
+message S_ActiveItemResponse {
+  int32 itemId = 1;
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
 /* 파티 패킷 */
 
 message C_PartyRequest {
-    int32 userId = 1;
-    string partyName = 2; // 파티 이름 추가
+  int32 userId = 1;
+  string partyName = 2;// 파티 이름 추가
 }
 
 // 초대용 패킷 
 // 초대한 유저의 id를 파티 세션에서 검색을 한 후 파티가 존재하면 그 아이디를 전송
 message C_PartyInviteRequest {
-    string requesterUserNickname = 1; // 초대한 유저 닉네임
-    string participaterUserNickname = 2; // 초대할 유저 닉네임
+  string requesterUserNickname = 1;// 초대한 유저 닉네임
+  string participaterUserNickname = 2;// 초대할 유저 닉네임
 }
 
 // 파티 신청 패킷
 message C_PartyJoinRequest {
-    int32 partyId = 1; // 파티 id
-    int32 userId = 2; // 가입할 유저 id
+  int32 partyId = 1;// 파티 id
+  int32 userId = 2;// 가입할 유저 id
 }
 
 message C_PartyListRequest {
@@ -231,20 +231,20 @@ message C_PartyListRequest {
 
 //지금은 아예 똑같거나 LIKE 써서 사용(추후 좋은아이디어가 있으면 수정)
 message C_SearchPartyRequest {
-  string partyName = 1; // 검색한 파티 이름
+  string partyName = 1;// 검색한 파티 이름
 }
 
 // 추방 패킷
 // 추방 요청 유저가 파티세션에 있는지 검사 & 파티장인지 검사 후 성공 실패 전송
 message C_PartyKickRequest {
-    int32 requesterUserId = 1; // 추방 요청 유저 id
-    int32 kickUserUserId = 2; // 추방 유저 id
+  int32 requesterUserId = 1;// 추방 요청 유저 id
+  int32 kickUserUserId = 2;// 추방 유저 id
 }
 
 // 파티 나가기
 message C_PartyExitRequest {
-    // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
-    int32 userId = 1; // 나갈 유저 id
+  // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
+  int32 userId = 1;// 나갈 유저 id
 }
 
 // 파티 조회 관련 패킷
@@ -257,173 +257,173 @@ message S_PartySearchResponse {
 
 // 파티 해체 관련 패킷
 message S_PartyResultResponse {
-    // 나간 유저를 알아야 하니까? 파티원들도?
-    int32 userId = 1; // 나간 파티원
-    bool success = 2;
-    string message = 3;
-    GlobalFailCode failCode = 4;
+  // 나간 유저를 알아야 하니까? 파티원들도?
+  int32 userId = 1;// 나간 파티원
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
 // 처리하는 패킷을 하나로
 // 파티 가입 관련 패킷 처리
-message S_PartyResponse{
-    PartyInfo party =1;
-    bool success =2;
-    string message= 3;
-    GlobalFailCode failCode =4;
+message S_PartyResponse {
+  PartyInfo party = 1;
+  bool success = 2;
+  string message = 3;
+  GlobalFailCode failCode = 4;
 }
 
 /* 던전 입장 */
 
-  // 응답 패킷 - S_EnterDungeon
-  message C_EnterDungeon{
-    int32 dungeonCode =1;
-    repeated int32 players =2;
-    int32 partyId=3;
-  }
-  
-  // Me
-  message S_EnterDungeon{
-    int32 dungeonCode = 1;
-    repeated PlayerInfo players = 2;
-    optional ScreenText screenText = 3;
-    optional BattleLog battleLog = 4;
-  }
-  
-  // Me
-  message S_LeaveDungeon { }
-  
-  // Me
-  message S_ScreenText{
-    ScreenText screenText = 1;
-  }
-  
-  // Me
-  message S_ScreenDone { }
-  
-  // 경매장 페이지 네이션 요청 
-  message C_marketList{
-    int32 page =1;
-  }
-  // 경매장 페이지 네이션 응답
-  message S_marketList{
-    int32 MaxPage = 1;
-    repeated marketItemInfo itemdata = 2;
-  }
-  // 경매장 자신 인벤토리 페이지 네이션 요청
-  message C_marketMyList{
-    int32 page =1;
-  }
-  // 경매장 자신 인벤토리 페이지 네이션 응답
-  message S_marketMyList{
-    int32 MaxPage = 1;
-    repeated ItemInfo itemdata = 2;
-  }
+// 응답 패킷 - S_EnterDungeon
+message C_EnterDungeon {
+  int32 dungeonCode = 1;
+  repeated int32 players = 2;
+  int32 partyId = 3;
+}
 
-  // 소캣 기준으로 유저 찾고 판매 목록에 등록 
-  message C_SellInMarket{
-    int32 inventoryId =1;
-  }
-  //
-  message S_SellInMarket{
-    int32 inventoryId =1;
-    bool success = 2;
-  }
-  message C_BuyInMarket{
+// Me
+message S_EnterDungeon {
+  int32 dungeonCode = 1;
+  repeated PlayerInfo players = 2;
+  optional ScreenText screenText = 3;
+  optional BattleLog battleLog = 4;
+}
 
-  }
-  message S_BuyInMarket{
+// Me
+message S_LeaveDungeon {}
 
-  }
+// Me
+message S_ScreenText {
+  ScreenText screenText = 1;
+}
 
-  // 정보 구조체
-  
-  message PlayerInfo {
-    int32 playerId = 1;   // 입장할때 서버 내부에서 생성한 관리코드
-    string nickname = 2;  // C_EnterGame 에서 지정한 이름
-    int32 class = 3;      // C_EnterGame 에서 지정한 직업 정보, 이 정보를 통해 캐릭터가 결정
-    TransformInfo transform = 4;
-    StatInfo statInfo = 5;
-  }
-  
-  // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
-  // C_Move 를 통해 전달된 데이터는 그대로 다른 사용자에게 릴레이
-  message TransformInfo {
-    float posX = 1; // 기본값 : -9 ~ 9
-    float posY = 2; // 기본값 : 1
-    float posZ = 3; // 기본값 : -8 ~ 8
-    float rot = 4; // 기본값 : 0~360
-  }
-  
-  // [수정] magic은 빼야하는가?
-  message StatInfo {
-    int32 level = 1;
-    float hp = 2;
-    float maxHp = 3;
-    float mp = 4;
-    float maxMp = 5;
-    float atk = 6;
-    float def = 7;
-    float speed = 9; 
-  }
-  
-  message ScreenText{
-    string msg = 1;
-    bool typingAnimation = 2;
-    optional ScreenTextAlignment alignment = 3;
-    optional Color textColor = 4;
-    optional Color screenColor = 5;
-  }
-  
-  message ScreenTextAlignment {
-    int32 x = 1;
-    int32 y = 2;
-  }
-  
-  message Color {
-    int32 r = 1;
-    int32 g = 2;
-    int32 b = 3;
-  }
-  
-  message DungeonInfo {
-    int32 dungeonCode = 1;
-    repeated MonsterStatus monsters = 2;
-  }
-  
-  message MonsterStatus {
-    int32 monsterIdx = 1;
-    int32 monsterModel = 2;
-    string monsterName = 3;
-    float monsterHp = 4;
-  }
-  
-  message ActionSet {
-    int32 animCode = 1;
-    int32 effectCode = 2;
-  }
-  
-  message PlayerStatus {
-    int32 playerClass = 1;
-    int32 playerLevel = 2;
-    string playerName = 3;
-    float playerFullHp = 4;
-    float playerFullMp = 5;
-    float playerCurHp = 6;
-    float playerCurMp = 7;
-  }
-  
-  message BattleLog {
-    string msg = 1;
-    bool typingAnimation = 2;
-    repeated BtnInfo btns = 3;
-  }
-  
-  message BtnInfo {
-    string msg = 1;
-    bool enable = 2;
-  }
+// Me
+message S_ScreenDone {}
+
+// 경매장 페이지 네이션 요청 
+message C_marketList {
+  int32 page = 1;
+}
+// 경매장 페이지 네이션 응답
+message S_marketList {
+  int32 MaxPage = 1;
+  repeated marketItemInfo itemdata = 2;
+}
+// 경매장 자신 인벤토리 페이지 네이션 요청
+message C_marketMyList {
+  int32 page = 1;
+}
+// 경매장 자신 인벤토리 페이지 네이션 응답
+message S_marketMyList {
+  int32 MaxPage = 1;
+  repeated ItemInfo itemdata = 2;
+}
+
+// 소캣 기준으로 유저 찾고 판매 목록에 등록 
+message C_SellInMarket {
+  int32 inventoryId = 1;
+}
+//
+message S_SellInMarket {
+  int32 inventoryId = 1;
+  bool success = 2;
+}
+message C_BuyInMarket {
+
+}
+message S_BuyInMarket {
+
+}
+
+// 정보 구조체
+
+message PlayerInfo {
+  int32 playerId = 1;// 입장할때 서버 내부에서 생성한 관리코드
+  string nickname = 2;// C_EnterGame 에서 지정한 이름
+  int32 class = 3;// C_EnterGame 에서 지정한 직업 정보, 이 정보를 통해 캐릭터가 결정
+  TransformInfo transform = 4;
+  StatInfo statInfo = 5;
+}
+
+// C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
+// C_Move 를 통해 전달된 데이터는 그대로 다른 사용자에게 릴레이
+message TransformInfo {
+  float posX = 1;// 기본값 : -9 ~ 9
+  float posY = 2;// 기본값 : 1
+  float posZ = 3;// 기본값 : -8 ~ 8
+  float rot = 4;// 기본값 : 0~360
+}
+
+// [수정] magic은 빼야하는가?
+message StatInfo {
+  int32 level = 1;
+  float hp = 2;
+  float maxHp = 3;
+  float mp = 4;
+  float maxMp = 5;
+  float atk = 6;
+  float def = 7;
+  float speed = 9;
+}
+
+message ScreenText {
+  string msg = 1;
+  bool typingAnimation = 2;
+  optional ScreenTextAlignment alignment = 3;
+  optional Color textColor = 4;
+  optional Color screenColor = 5;
+}
+
+message ScreenTextAlignment {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Color {
+  int32 r = 1;
+  int32 g = 2;
+  int32 b = 3;
+}
+
+message DungeonInfo {
+  int32 dungeonCode = 1;
+  repeated MonsterStatus monsters = 2;
+}
+
+message MonsterStatus {
+  int32 monsterIdx = 1;
+  int32 monsterModel = 2;
+  string monsterName = 3;
+  float monsterHp = 4;
+}
+
+message ActionSet {
+  int32 animCode = 1;
+  int32 effectCode = 2;
+}
+
+message PlayerStatus {
+  int32 playerClass = 1;
+  int32 playerLevel = 2;
+  string playerName = 3;
+  float playerFullHp = 4;
+  float playerFullMp = 5;
+  float playerCurHp = 6;
+  float playerCurMp = 7;
+}
+
+message BattleLog {
+  string msg = 1;
+  bool typingAnimation = 2;
+  repeated BtnInfo btns = 3;
+}
+
+message BtnInfo {
+  string msg = 1;
+  bool enable = 2;
+}
 
   message GlobalFailCode{
     int32 code =1;
