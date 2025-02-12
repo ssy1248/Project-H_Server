@@ -31,7 +31,7 @@ export const deleteMovementSync = (movementSyncId) => {
 
 // [movementSync 찾기].
 export const findMovementSync = (movementSyncId) => {
-  return movementSyncs[movementSyncId];
+  return movementSyncs[movementSyncId] || null;
 };
 
 // [유저 동기화 추가].
@@ -53,7 +53,7 @@ export const addUserSync = (movementSyncId, userId, socket, transform) => {
       return false;
     }
 
-    if(!isValidTransform()) {
+    if(!isValidTransform(transform)) {
       console.log(`transform 이 정상이 아님 : ${transform}`);
       return false;
     }
@@ -73,7 +73,7 @@ export const updateUserSync = (movementSyncId, userId, transform, timestamp) => 
   }
 
   if (movementSyncs[movementSyncId] && findUserSync(movementSyncId, userId)) {
-    if(!isValidTransform()) {
+    if(!isValidTransform(transform)) {
       console.log(`transform 이 정상이 아님 : ${transform}`);
       return false;
     }
