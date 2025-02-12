@@ -16,23 +16,27 @@ import { createResponse } from '../../utils/response/createResponse.js';
 
 // 매칭을 할떄 던전에게 보내줘야 하는거 : 파티 아이디, 파티 인원 정보, 던전 정보보
 
-/* 파티 패킷 
+/* 파티 생성 패킷 
 message C_PartyRequest{
     int32 userId = 1;
     string partyName = 2; // 파티 이름 추가
 }
 
 // 초대용 패킷 
+// 초대한 유저의 id를 파티 세션에서 검색을 한 후 파티가 존재하면 그 아이디를 전송
 message C_PartyInviteRequest{
-    //int32 partyId = 1; // 파티 id
-    int32 requesterId = 2; // 초대한 유저 id
-    int32 participaterId = 3; // 초대할 유저 id
+    int32 requesterId = 1; // 초대한 유저 id
+    int32 participaterId = 2; // 초대할 유저 id
 }
 
 // 참가용 패킷
 message C_PartyJoinRequest{
     int32 partyId = 1; // 파티 id
     int32 userId = 2; // 가입할 유저 id
+}
+
+message C_SearchPartyListRequest {
+  // 빈값으로 요청
 }
 
 // 추방 패킷
@@ -67,8 +71,9 @@ message S_PartyResponse{
 
 message PartyInfo{
     int32 partyId = 1 ;
-    int32 maximum = 2;
-    repeated PlayerStatus Players = 3;
+    string partyName = 2; // 파티 이름
+    int32 maximum = 3;
+    repeated PlayerStatus Players = 4;
 }
     추가 패킷이 필요하다고 생각들면 추가하자
 */
