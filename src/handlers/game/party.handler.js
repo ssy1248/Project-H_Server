@@ -105,11 +105,63 @@ message S_PartyResponse{
  */
 
 // C_SearchPartyRequest
-// 파티 이름 검색을 해서 조회한 값을 전송송
+// 파티 이름 검색을 해서 조회한 값을 전송
 export const partySearchHandler = async (socket, payload) => {
   try {
-    // C_SearchPartyRequest 검색
     const { partyName } = payload;
+    console.log(`검색 이름 : ${partyName}`);
+    const parties = GetAllPartySession();
+    // 빈값이거나 없을 경우
+    if (!partyName || partyName.trim() === '') {
+      const responsePayload = {
+        info: [],
+        success: true,
+        message: '검색어가 입력되지 않았습니다.',
+      };
+
+      const responsePacket = createResponse(
+        'party',
+        'S_PartySearchResponse',
+        PACKET_TYPE.S_PARTYSEARCHRESPONSE,
+        responsePayload
+      );
+      await socket.write(responsePacket);
+      return;
+    }
+
+    // 파티 이름을 기준으로 필터링합니다.
+    const matchingParties = parties.filter((party) => {
+      const info = party.getPartyInfo();
+      console.log(`찾은 정보 : ${info.partyName}`);
+      if (!info || !info.partyName) 
+        return false;
+      return info.partyName.toLowerCase().includes(partyName.toLowerCase());
+    });
+
+    console.log(`검색 결과 : ${matchingParties}`);
+
+    // 검색 결과를 PartyInfo 형식의 객체 배열로 변환합니다.
+    const partyInfoList = matchingParties.map((party) => party.getPartyInfo());
+
+    // 응답 페이로드 구성
+    const responsePayload = {
+      info: partyInfoList,
+      success: true,
+      message:
+        partyInfoList.length > 0
+          ? `총 ${partyInfoList.length}개의 파티 검색 성공`
+          : '검색 결과가 없습니다.',
+    };
+
+    // 응답 패킷 생성 및 전송
+    const responsePacket = createResponse(
+      'party',
+      'S_PartySearchResponse',
+      PACKET_TYPE.S_PARTYSEARCHRESPONSE,
+      responsePayload
+    );
+
+    await socket.write(responsePacket);
   } catch (e) {
     handlerError(socket, e);
   }

@@ -9,9 +9,8 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyHandler, partyListHandler } from './game/party.handler.js';
+import { partyHandler, partyListHandler, partySearchHandler } from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
-import { partyHandler } from './game/party.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 
 const handlers = {
@@ -152,7 +151,7 @@ const handlers = {
     protoType: 'party.C_PartyListRequest',
   },
   [PACKET_TYPE.C_SEARCHPARTYREQUEST]: {
-    handler: animationHandler,
+    handler: partySearchHandler,
     protoType: 'party.C_SearchPartyRequest',
   },
   [PACKET_TYPE.C_PARTYKICKREQUEST]: {
