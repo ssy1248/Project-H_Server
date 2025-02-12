@@ -425,28 +425,30 @@ message BtnInfo {
   bool enable = 2;
 }
 
-message GlobalFailCode {
-  int32 code = 1;
-}
-message PartyInfo {
-  int32 partyId = 1;
-  string partyName = 2;// 파티 이름
-  int32 maximum = 3;
-  repeated PlayerStatus Players = 4;
-}
-message ItemInfo {
-  int32 id = 1;
-  int32 price = 2;
-  int32 itemType = 3;
-  string name = 4;
-  float stat = 5;
-  bool equiped = 6;
-  int32 rarity = 7;
-}
-message marketItemInfo {
-  int32 marketId = 1;
-  int32 itemId = 2;
-  int32 upgrade = 3;
-  int64 endTime = 4;
-  int32 price = 5;
-}
+  message GlobalFailCode{
+    int32 code =1;
+  }
+  message PartyInfo{
+    int32 partyId = 1 ;
+    string partyName = 2; // 파티 이름
+    int32 maximum = 3;
+    repeated PlayerStatus Players = 4;
+  }
+  message ItemInfo{
+    int32 id =1;
+    int32 price = 2;
+    int32 itemType =3;
+    string name =4;
+    float stat =5;
+    bool equiped =6;
+    int32 rarity =7; 
+  }
+
+
+ message marketItemInfo{
+    int32 marketId = 1;
+    int32 itemId =2;
+    int32 upgrade =3;
+    int64 endTime = 4;
+    int32 price = 5;
+ }
