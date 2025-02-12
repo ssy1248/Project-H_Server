@@ -10,6 +10,8 @@ import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
 import { partyHandler, partyListHandler } from './game/party.handler.js';
+import { inventoryHandler } from './inventory/inventory.handler.js';
+import { partyHandler } from './game/party.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 
 const handlers = {
@@ -128,6 +130,14 @@ const handlers = {
   [PACKET_TYPE.S_SCREENDONE]: {
     handler: animationHandler,
     protoType: 'dungeon.S_ScreenDone',
+  },
+  [PACKET_TYPE.C_INVENTORYREQUEST]: {
+    handler: inventoryHandler,
+    protoType: 'inventory.C_InventoryRequest',
+  },
+  [PACKET_TYPE.S_INVENTORYRESPONSE]: {
+    handler: inventoryHandler,
+    protoType: 'inventory.S_InventoryResponse',
   },
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
     handler: animationHandler,
