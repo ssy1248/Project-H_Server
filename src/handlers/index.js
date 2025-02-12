@@ -129,14 +129,6 @@ const handlers = {
     handler: animationHandler,
     protoType: 'dungeon.S_ScreenDone',
   },
-  [PACKET_TYPE.C_UploadItemRequest]: {
-    handler: shopHandler,
-    protoType: 'inventory.C_UploadItemRequest',
-  },
-  [PACKET_TYPE.S_UploadItemResponse]: {
-    handler: shopHandler,
-    protoType: 'inventory.S_UploadItemResponse',
-  },
 };
 
 export const getHandlerById = (handlerId) => {

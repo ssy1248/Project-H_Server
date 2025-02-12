@@ -30,8 +30,6 @@ export const packetNames = {
     S_DisrobeItemResponse: 'Google.Protobuf.Protocol.S_DisrobeItemResponse',
     C_ActiveItemRequest: 'Google.Protobuf.Protocol.C_ActiveItemRequest',
     S_ActiveItemRequest: 'Google.Protobuf.Protocol.S_ActiveItemResponse',
-    C_UploadItemRequest: 'Google.Protobuf.protocol.C_UploadItemRequest',
-    S_UploadItemResponse: 'Google.Protobuf.protocol.S_UploadItemResponse',
   },
   dungeon: {
     C_EnterDungeon: 'Google.Protobuf.Protocol.C_EnterDungeon',
