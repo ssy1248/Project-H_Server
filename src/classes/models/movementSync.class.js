@@ -9,7 +9,10 @@ export default class MovementSync {
     this.snapshotTime = Date.now();
     this.interval = 0;
 
-    // 임시로 만든것 (페킷을 큐로 받아서 )
+    // 인터벌 시작.
+    this.startMovementProcess();
+
+    // 임시로 만든것 (페킷을 큐로 받아서... 이하 생략. )
     this.movementQueue = {}; // 이동 데이터 큐 (클라이언트에서 받은 데이터)
   }
 
@@ -82,25 +85,28 @@ export default class MovementSync {
           .filter(([value]) => value.lastUpdateTime > this.snapshotTime)
           .map(([value]) => value);
 
-        // 변경된 유저들로 패킷을 만들자.
-        const syncTransformInfoDatas = [];
-        changedUsers.forEach((user) => {
-          const syncData = this.createSyncTransformInfoData(user);
-          syncTransformInfoDatas.push(syncData);
-        });
+        // 변경된 유저들이 있을 경우 로직 실행. 
+        if (changedUsers.length !== 0) {
+          // 변경된 유저들로 패킷을 만들자.
+          const syncTransformInfoDatas = [];
+          changedUsers.forEach((user) => {
+            const syncData = this.createSyncTransformInfoData(user);
+            syncTransformInfoDatas.push(syncData);
+          });
 
-        const sMove = {
-          transformInfos: syncTransformInfoDatas,
-        };
+          const sMove = {
+            transformInfos: syncTransformInfoDatas,
+          };
 
-        // 만들어진 패킷을 직렬화.
-        const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
+          // 만들어진 패킷을 직렬화.
+          const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
 
-        // 브로드캐스트.
-        await this.broadcastChangedUsers(changedUsers, initialResponse);
+          // 브로드캐스트.
+          await this.broadcastChangedUsers(changedUsers, initialResponse);
 
-        // 스냅샷 시간 갱신
-        this.snapshotTime = Date.now();
+          // 스냅샷 시간 갱신
+          this.snapshotTime = Date.now();
+        }
       }
     }, 100);
   }
