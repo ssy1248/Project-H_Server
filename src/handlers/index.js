@@ -9,6 +9,7 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
+import { inventoryHandler } from './inventory/inventory.handler.js';
 import { partyHandler } from './game/party.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 
@@ -129,6 +130,13 @@ const handlers = {
     handler: animationHandler,
     protoType: 'dungeon.S_ScreenDone',
   },
+  [PACKET_TYPE.C_INVENTORYREQUEST]: {
+    handler: inventoryHandler,
+    protoType: 'inventory.C_InventoryRequest',
+  },
+  [PACKET_TYPE.S_INVENTORYRESPONSE]: {
+    handler: inventoryHandler,
+    protoType: 'inventory.S_InventoryResponse',
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
     handler: animationHandler,
     protoType: 'party.C_PartyInviteRequest',
