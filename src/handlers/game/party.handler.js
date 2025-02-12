@@ -40,23 +40,25 @@ message C_SearchPartyListRequest {
 }
 
 // 추방 패킷
+// 추방 요청 유저가 파티세션에 있는지 검사 & 파티장인지 검사 후 성공 실패 전송
 message C_PartyKickRequest{
-    int32 partyId = 1; // 파티 id
-    int32 requesterId = 2; // 추방한 유저 id
-    int32 kickUserId = 3; // 추방할 유저 id
+    int32 requesterId = 1; // 추방 요청 유저 id
+    int32 kickUserId = 2; // 추방 유저 id
 }
 
-// 해체 패킷
-message C_PartyDisbandRequest{
-    int32 parttyId = 1; // 해체할 파티 id
-    repeated Playerstatus players = 2; // 파티원들
+// 파티 나가기
+message C_PartyExitRequest{
+    // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
+    int32 userId = 1; // 나갈 유저 id
 }
 
 // 파티 해체 관련 패킷 처리
 message S_PartyResultResponse{
-    bool success = 1;
-    string message = 2;
-    GlobalFailCode failCode = 3;
+    // 나간 유저를 알아야 하니까? 파티원들도?
+    repeated PlayerStatus Players = 1; // 파티원들
+    bool success = 2;
+    string message = 3;
+    GlobalFailCode failCode = 4;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
@@ -169,11 +171,12 @@ export const partyKickHandler = (socket, payload) => {
   }
 };
 
-// C_PartyDisbandRequest가 날라오면 처리할 핸들러
-// 파티 해체
+// C_PartyExitRequest가 날라오면 처리할 핸들러
+// 파티 나가기
+// 해체는 0명이 되면 자동 해체를 진행
 export const partyDisbandHandler = (socket, payload) => {
   try {
-    const { partyId } = payload;
+    const { userId } = payload;
   } catch (e) {
     handlerError(socket, e);
   }
