@@ -185,6 +185,10 @@ const handlers = {
     handler: animationHandler,
     protoType: 'town.S_SellInMarket',
   },
+  [PACKET_TYPE.C_BuyInMarket]: {
+    handler: animationHandler,
+    protoType: 'town.C_BuyInMarket',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
