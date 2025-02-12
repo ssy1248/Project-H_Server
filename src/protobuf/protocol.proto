@@ -47,6 +47,8 @@ enum MsgId {
   S_MARKETMYLIST =40;
   C_SELLINMARKET =41;
   S_SELLINMARKET = 42;
+  C_BUYINMARKET = 43;
+  S_BUYINMARKET = 44;
 }
 
 //회원가입 요청
@@ -317,6 +319,12 @@ message S_PartyResponse{
   message S_SellInMarket{
     int32 inventoryId =1;
     bool success = 2;
+  }
+  message C_BuyInMarket{
+
+  }
+  message S_BuyInMarket{
+
   }
 
   // 정보 구조체

@@ -45,4 +45,6 @@ export const PACKET_TYPE = {
   S_MARKETMYLIST: 40,
   C_SELLINMARKET: 41,
   S_SELLINMARKET: 42,
+  C_BuyInMarket: 43,
+  S_BuyInMarket: 44,
 };
