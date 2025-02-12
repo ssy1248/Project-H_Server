@@ -137,6 +137,7 @@ const handlers = {
   [PACKET_TYPE.S_INVENTORYRESPONSE]: {
     handler: inventoryHandler,
     protoType: 'inventory.S_InventoryResponse',
+  },
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
     handler: animationHandler,
     protoType: 'party.C_PartyInviteRequest',
