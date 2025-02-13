@@ -1,6 +1,10 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { setDesiredDungeonIndex } from './party.class.js';
+import { dungeonSessions } from '../../session/sessions.js';
+import { addDungeonSession } from '../../session/dungeon.session.js';
+import { uniqueId } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 const maxDungeonNum = MAX_PARTY_MEMBER;
 // 매칭 관련 다룰 클래스
@@ -13,6 +17,8 @@ class Match {
 
     setDesiredDungeonIndex(dungeonIndex);
   }
+
+  //그러면 만들어질떄 matchSession에 (dungeonIndex)가 있는거면 그걸 찾고 없으면 만든다.
 
   // 두개의 파티가 합쳐질때의 파티장 경우
   // 한 파티는 해체한 후에 하나의 파티로 묶어서 기존의 파티장에게 위임?
@@ -97,6 +103,7 @@ class Match {
             } 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length}).`,
           );
           const matchedMembers = [...party1.partyMembers, ...party2.partyMembers];
+          //이떄 결합할떄 파티 메소드를 통해서 결합 을 써도 좋을것같다.
           this.enterDungeon(matchedMembers);
           // 매칭 완료 후 변경된 큐를 다시 확인하기 위해 재귀 호출
           return this.attemptMatch();
@@ -106,32 +113,31 @@ class Match {
 
     // 3) 파티 + 솔로 매칭: 파티에 부족한 인원을 솔로 큐에서 채울 수 있는 경우
     updatedFilteredPartyQueue = this.partyQueue.filter(
-        party => party.desiredDungeonIndex === this.dungeonIndex
-      );
-      
-      for (let i = 0; i < updatedFilteredPartyQueue.length; i++) {
-        const party = updatedFilteredPartyQueue[i];
-        const needed = maxDungeonNum - party.partyMembers.length;
-        if (needed > 0 && filteredSoloQueue.length >= needed) {
-          // 미리 필터링된 filteredSoloQueue에서 필요한 만큼 솔로를 선택
-          const matchingSolos = filteredSoloQueue.slice(0, needed);
-          
-          // 원본 솔로 큐에서 해당 솔로들을 제거
-          const matchingSoloIds = matchingSolos.map(u => u.id);
-          this.soloQueue = this.soloQueue.filter(u => !matchingSoloIds.includes(u.id));
-          
-          // 해당 파티도 원본 파티 큐에서 제거
-          this.partyQueue = this.partyQueue.filter(p => p.id !== party.id);
-          
-          console.log(
-            `매칭 완료: 파티 ${party.id}와 솔로 ${needed}명 결합하여 던전 ${this.dungeonIndex} 입장.`
-          );
-          const matchedMembers = [...party.partyMembers, ...matchingSolos];
-          this.enterDungeon(matchedMembers);
-          return this.attemptMatch();
-        }
+      (party) => party.desiredDungeonIndex === this.dungeonIndex,
+    );
+
+    for (let i = 0; i < updatedFilteredPartyQueue.length; i++) {
+      const party = updatedFilteredPartyQueue[i];
+      const needed = maxDungeonNum - party.partyMembers.length;
+      if (needed > 0 && filteredSoloQueue.length >= needed) {
+        // 미리 필터링된 filteredSoloQueue에서 필요한 만큼 솔로를 선택
+        const matchingSolos = filteredSoloQueue.slice(0, needed);
+
+        // 원본 솔로 큐에서 해당 솔로들을 제거
+        const matchingSoloIds = matchingSolos.map((u) => u.id);
+        this.soloQueue = this.soloQueue.filter((u) => !matchingSoloIds.includes(u.id));
+
+        // 해당 파티도 원본 파티 큐에서 제거
+        this.partyQueue = this.partyQueue.filter((p) => p.id !== party.id);
+
+        console.log(
+          `매칭 완료: 파티 ${party.id}와 솔로 ${needed}명 결합하여 던전 ${this.dungeonIndex} 입장.`,
+        );
+        const matchedMembers = [...party.partyMembers, ...matchingSolos];
+        this.enterDungeon(matchedMembers);
+        return this.attemptMatch();
       }
-      
+    }
 
     // 4) 솔로 + 솔로 매칭: 솔로 큐에 maxDungeonNum명 이상의 대상이 있으면 매칭
     while (true) {
@@ -154,7 +160,7 @@ class Match {
         }
         this.soloQueue = remainingSoloQueue;
         console.log(`매칭 완료: 솔로 ${maxDungeonNum}명 결합하여 던전 ${this.dungeonIndex} 입장.`);
-        this.enterDungeon(selectedSolos);
+        this.enterDungeon(selectedSolos, this.dungeonIndex);
       } else {
         break;
       }
@@ -162,11 +168,19 @@ class Match {
   }
 
   // 매칭 취소?
+  cancelMatch() {}
 
-  // 던전 입장 함수 (예시)
-  enterDungeon(members) {
+  // 던전 입장 함수 (예시) (사실상 던전 생성하는곳이 되겠군)
+  enterDungeon(members, dungeonIndex) {
+    //던전 고유 번호 생성
+    const dungeonId = uuidv4;
+    //던전 교유 번호와 던전종류을 알수있는 인덱스 넣기
+    const dungeonSession = addDungeonSession(dungeonId, dungeonIndex);
+
     // 실제 게임 로직에서는 이곳에서 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행합니다.
+    // 여기서 던전 입장 보다는 던전 생성해서 이것도 패킷으로 보내는것이 낳을것 같다.
     console.log('던전 입장 처리 중...', members);
+    return dungeonSession;
   }
 }
 
