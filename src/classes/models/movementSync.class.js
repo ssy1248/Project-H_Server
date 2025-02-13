@@ -149,7 +149,7 @@ export default class MovementSync {
 
     // 문제가 발생시 그때 핑퐁 방식으로 변경.
 
-    const ping = Date.now() - timestamp; // 핑 계산
+    const ping = (Date.now() - timestamp) * 2; // 핑 계산
     return ping;
   }
 
