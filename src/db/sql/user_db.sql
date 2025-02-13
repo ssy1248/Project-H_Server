@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Market (
     itemIndex INT NOT NULL,
     upgrade   INT NOT NULL,
     price     INT NOT NULL,
-    endTime   DATE NOT NULL,
+    endTime   TIMESTAMP NOT NULL,
     CONSTRAINT FK_Character_TO_Market_1 FOREIGN KEY (charId) REFERENCES Characters(id)
 );
 

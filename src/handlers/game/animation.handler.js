@@ -1,7 +1,6 @@
 import { PACKET_TYPE } from '../../constants/header.js';
 import { getGameSession } from '../../session/game.session.js';
-import { userSessions } from '../../session/sessions.js';
-import { getUserBySocket } from '../../session/user.session.js';
+import { broadcastToAllUsersAsync, getUserBySocket } from '../../session/user.session.js';
 import CustomError from '../../utils/error/customError.js';
 import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
@@ -24,7 +23,7 @@ const animationHandler = (socket, payload) => {
       playerId: user.userInfo.userId,
       animCode: payload.animCode,
     });
-    userSessions.broadcastToAllUsers(packet);
+    broadcastToAllUsersAsync(packet);
   } catch (e) {
     handlerError(socket, e);
   }

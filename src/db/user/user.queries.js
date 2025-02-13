@@ -9,7 +9,7 @@ export const SQL_QUERIES = {
   UPDATE_CHARACTER:
     'UPDATE Characters SET gold = ?, level = ?, exp = ? WHERE userId = ? AND charStatId = ?',
   FIND_CHARACTER_BY_USER_AND_STAT_ID:
-    'SELECT ch.*, cs.* FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.id = ?',
+    'SELECT ch.*, cs.* FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.charStatId = ?',
   FIND_CHARACTER_STATS_BY_ID: 'SELECT * FROM CharacterStats WHERE id = ?',
   FIND_ALL_CHARACTER_STATS: 'SELECT * FROM CharacterStats',
   INSERT_CHARACTER_STATS:
@@ -24,6 +24,9 @@ export const SQL_QUERIES = {
   CREATE_SKILL:
     'INSERT INTO Skill (name, job, cooldown, cost, castingTime, effect) VALUES (?, ?, ?, ?, ?, ?)',
   DELETE_SKILL: 'DELETE FROM Skill WHERE id = ?',
-  UPDATE_SKILL: 'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
+  UPDATE_SKILL:
+    'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
   FIND_ALL_SKILLS: 'SELECT * FROM Skill',
+  // 골드 변경 쿼리문
+  UPDATE_CHARACTER_GOLD: 'UPDATE Characters SET gold = ? WHERE charStatId = ?',
 };
