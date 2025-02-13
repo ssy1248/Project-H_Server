@@ -250,18 +250,20 @@ message C_PartyExitRequest {
 // 파티 조회 관련 패킷
 message S_PartySearchResponse {
   repeated PartyInfo info = 1;
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+    int32 case = 2; // case: (1 -> 모든 리스트 조회, 2 -> 검색)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
 }
 
 // 파티 해체 관련 패킷
 message S_PartyResultResponse {
   // 나간 유저를 알아야 하니까? 파티원들도?
-  int32 userId = 1;// 나간 파티원
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+  int32 userId = 1; // 나간 파티원
+    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
@@ -269,9 +271,10 @@ message S_PartyResultResponse {
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
   PartyInfo party = 1;
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
 }
 
 /* 던전 입장 */
