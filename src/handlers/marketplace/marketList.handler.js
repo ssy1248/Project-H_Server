@@ -3,6 +3,7 @@
 import { PACKET_TYPE } from '../../constants/header.js';
 import { getMarketSession, getMaxMarketList } from '../../session/market.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+
 const marketListHandler = (socket, payload) => {
   const { page, count } = payload;
 

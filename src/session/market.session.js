@@ -20,7 +20,10 @@ export function getMarketSession(id) {
 }
 // 최대 길이 구하기
 export function getMaxMarketList(count) {
-  return Object.keys(marketSessions).length / count;
+  if (Object.keys(marketSessions).length <= 0) {
+    return 0;
+  }
+  return parseInt(Object.keys(marketSessions).length / count);
 }
 
 //처음 초기화 용도

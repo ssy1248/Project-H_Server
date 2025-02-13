@@ -327,6 +327,7 @@ message S_marketMyList {
 // 소캣 기준으로 유저 찾고 판매 목록에 등록 
 message C_SellInMarket {
   int32 inventoryId = 1;
+  int32 itemId = 2;
 }
 //
 message S_SellInMarket {

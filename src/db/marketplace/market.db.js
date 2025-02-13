@@ -18,9 +18,9 @@ export const sellInMarket = async (data) => {
       data.rarity,
       false,
     ]);
-    await pools.USER_DB.execute(MARKET.REMOVE_MARKET_DATA, [data.makrketId]);
-    await pools.USER_DB.execute(USER.UPDATE_CHARACTER_GOLD, [data.Buygold, data.BuyCharId]);
-    await pools.USER_DB.execute(USER.UPDATE_CHARACTER_GOLD, [data.Sellgold, data.SellCharId]);
+    await pools.USER_DB.execute(MARKET.REMOVE_MARKET_DATA, [data.marketId]);
+    await pools.USER_DB.execute(USER.UPDATE_SUBTRACT_GOLD, [data.gold, data.BuyCharId]);
+    await pools.USER_DB.execute(USER.UPDATE_ADD_GOLD, [data.gold, data.SellCharId]);
 
     await pools.commit();
   } catch (err) {
