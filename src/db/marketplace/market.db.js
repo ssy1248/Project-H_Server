@@ -12,7 +12,7 @@ export const sellInMarket = async (data) => {
   try {
     await pools.beginTransaction();
 
-    await pools.USER_DB.execute(INVENTORY.ADD_ITEM_TO_INVENTORY, [
+    const itemData = await pools.USER_DB.execute(INVENTORY.ADD_ITEM_TO_INVENTORY, [
       data.BuyCharId,
       data.itemId,
       data.rarity,
@@ -23,6 +23,7 @@ export const sellInMarket = async (data) => {
     await pools.USER_DB.execute(USER.UPDATE_ADD_GOLD, [data.gold, data.SellCharId]);
 
     await pools.commit();
+    return itemData;
   } catch (err) {
     await pools.rollback();
   } finally {
@@ -38,15 +39,15 @@ export const addMarket = async (data) => {
       data.inventoryId,
       data.charId,
     ]);
-    await pools.USER_DB.execute(MARKET.ADD_MARKET_DATA, [
+    const marketData = await pools.USER_DB.execute(MARKET.ADD_MARKET_DATA, [
       data.charId,
       data.itemIndex,
       data.upgrade,
       data.price,
       data.endTime,
     ]);
-
     await pools.commit();
+    return marketData;
   } catch (err) {
     await pools.rollback();
   } finally {

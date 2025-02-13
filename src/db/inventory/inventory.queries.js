@@ -11,4 +11,5 @@ export const SQL_QUERIES = {
   REMOVE_ITEM_FROM_INVENTORY: 'DELETE FROM Inventory WHERE id = ? AND charId = ?',
   GET_CHARACTER_TABLE:
     'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC',
+  GET_ITEM_BUY_INVENTORY: 'SELECT * FROM Inventory WHERE id = ? AND charId = ? LIMIT 1',
 };

@@ -1,19 +1,18 @@
+import marketData from '../../classes/models/marketData.class.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { removeItemFromInventory } from '../../db/inventory/inventory.db.js';
+import { getItemBuyInventoryId, removeItemFromInventory } from '../../db/inventory/inventory.db.js';
+import { addMarket } from '../../db/marketplace/market.db.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 
 const check = async (data) => {
   try {
     //아이템에 인벤토리 고유 키 넣어준다면 이렇게 구현
-    const [item] = data.user.inventory.filter((item) => item.inventoryId === data.inventoryId);
+    const item = getItemBuyInventoryId(data.user.charID, data.inventoryId);
     if (!item) {
       throw new Error('인벤토리에 없습니다!');
     }
-    // drop 해주기
-    data.user.inventory.drop(item);
-
-    await addMarket({
+    const marketDataTemp = await addMarket({
       charId: data.user.playerInfo.charID,
       inventoryId: data.inventoryId,
       itemIndex: item.itemId,
@@ -21,6 +20,11 @@ const check = async (data) => {
       price: data.gold,
       endTime: new Date(),
     });
+    if (!marketDataTemp) {
+      throw new Error('거래 실패입니다!');
+    }
+    // 생성까지 완료 해주기
+    new marketData(marketDataTemp);
 
     return createResponse('town', 'S_SellInMarket', PACKET_TYPE.S_SELLINMARKET, {
       success: true,

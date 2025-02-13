@@ -19,7 +19,7 @@ const check = async (user, marketId) => {
     // 유저 아이디도 추가하면 좋을거 같음
     // 있으면 서버상에서 갱신 가능
     deletMarketSession(marketId);
-    await sellInMarket({
+    const itemData = await sellInMarket({
       BuyCharId: user.userInfo.userId,
       SellCharId: marketData.charId,
       itemId: marketData.itemIndex,
@@ -27,6 +27,9 @@ const check = async (user, marketId) => {
       marketId,
       gold: marketData.price,
     });
+
+    user.inventory.add(itemData);
+
     return createResponse('town', 'S_BuyInMarket', PACKET_TYPE.S_BUYITEMRESPONSE, {
       success: true,
       message: '구매에 성공했습니다.',
