@@ -14,6 +14,7 @@ import {
 import { getAllItems } from '../../db/inventory/item.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
+import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
 
 const setCharacterStat = async () => {
@@ -111,10 +112,16 @@ const syncSpawnedUser = async (socket, user) => {
     // 본인을 스폰된 상태로 설정
     user.setIsSpawn(true);
 
+    
+
     // 2. 다른 유저들에게 본인이 스폰되었음을 알리는 패킷 브로드캐스트
+    const playerPacketData = createPlayerInfoPacketData(user);
     const sEnter = {
-      player: createPlayerInfoPacketData(user),
+      player: playerPacketData,
     };
+
+    // [테스트] 이동동기화 유저 추가
+    addUserSync('town', userInfo.userId, socket, playerPacketData.transform);
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);

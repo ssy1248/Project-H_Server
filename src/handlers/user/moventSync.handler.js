@@ -2,37 +2,42 @@ import { getUserBySocket, broadcastToUsersAsync, broadcastToUsers } from '../../
 import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
+import { updateUserSync } from '../../classes/managers/movementSync.manager.js';
 
 const movementSyncHandler = (socket, packetData) => {
   // 0. 페킷데이터 구조분해 할당.
-  const { transform } = packetData;
+  const { playerId, transform, timestamp  } = packetData;
 
-  // 1. 소캣으로 유저찾기.
-  const user = getUserBySocket(socket);
+  updateUserSync("town", playerId, transform, timestamp);
+
+
+
+  // // 1. 소캣으로 유저찾기.
+  // const user = getUserBySocket(socket);
   
-  // 2. 케릭터의 현재 트랜스폼을 가져온다.
-  const characterTransform = user.getTransformInfo();
+  // // 2. 케릭터의 현재 트랜스폼을 가져온다.
+  // const characterTransform = user.getTransformInfo();
 
-  // 3. 트랜스폼 검증.
-  validateTransform(characterTransform, transform);
+  // // 3. 트랜스폼 검증.
+  // validateTransform(characterTransform, transform);
 
-  if (!validateTransform) {
-    return console.log('트랜스폼 검증에 실패하였습니다.');
-  }
+  // if (!validateTransform) {
+  //   return console.log('트랜스폼 검증에 실패하였습니다.');
+  // }
 
-  // 트랜스폼 갱신.
-  user.setTransformInfo(transform);
+  // // 트랜스폼 갱신.
+  // user.setTransformInfo(transform);
 
-  // 4. 브로드캐스트.
-  const userInfo = user.getUserInfo();
+  // // 4. 브로드캐스트.
+  // const userInfo = user.getUserInfo();
 
-  const sMove = {
-    playerId: userInfo.userId,
-    transform: transform,
-  };
+  // const sMove = {
+  //   playerId: userInfo.userId,
+  //   transform: transform,
+  // };
 
-  const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
-  broadcastToUsersAsync(socket, initialResponse);
+  // const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
+  // broadcastToUsersAsync(socket, initialResponse);
   // broadcastToUsers(socket, initialResponse);
 };
 
