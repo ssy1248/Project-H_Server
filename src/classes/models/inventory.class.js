@@ -24,6 +24,7 @@ export default class Inventory {
             // 서버 업데이트
             var item = this.inventory.find((item) => item.id = inventoryId);
             item.equiped = 1;
+            return this.inventory;
         } catch (error) {
             console.error(error);
         }
@@ -37,6 +38,7 @@ export default class Inventory {
             // 서버 업데이트
             var item = this.inventory.find((item) => item.id === inventoryId);
             item.equiped = 0;
+            return this.inventory;
         } catch (error) {
             console.error(error);
         }
@@ -60,6 +62,7 @@ export default class Inventory {
             }
             // 서버 업데이트
             this.inventory.push(newItem);
+            return this.inventory;
         } catch (error) {
             console.error(error);
         }
@@ -74,6 +77,9 @@ export default class Inventory {
             const index = this.inventory.indexOf(item);
             if (index > -1) {
                 this.inventory.splice(index, 1);
+                return this.inventory;
+            }else{
+                throw new Error('item not found');
             }
         } catch (error) {
             console.error(error);
