@@ -271,7 +271,7 @@ export const partyHandler = async (socket, payload) => {
       const info = party.getPartyInfo();
       console.log(info);
       partyPacket = {
-        info,
+        party: info,
         case: 1,
         success: true,
         message: '파티가 생성되었습니다.',
@@ -366,7 +366,7 @@ export const partyInviteHandler = async (socket, payload) => {
     partyInstance.addPartyMember(participater);
     const info = partyInstance.getPartyInfo();
     partyPacket = {
-      info,
+      party: info,
       case: 2,
       success: true,
       message: '파티에 초대되었습니다.',

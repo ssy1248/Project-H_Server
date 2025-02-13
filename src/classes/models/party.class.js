@@ -48,7 +48,7 @@ class Party {
     return {
       partyId: this.id,
       partyName: this.partyName,
-      partyLeader: this.partyLeader.userInfo.userId,
+      partyLeaderId: this.partyLeader.userInfo.userId,
       maximum: MAX_PARTY_MEMBER,
       Players: players, 
     };
