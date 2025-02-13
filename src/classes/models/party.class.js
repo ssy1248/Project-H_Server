@@ -1,32 +1,5 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
-/* 파티 패킷 
-message PartyInfo{
-    int32 partyId = 1 ;
-    int32 maximum = 2;
-    repeated PlayerStatus Players = 3;
-}
-    
-message C_PartyRequest{
-    int32 userId = 1;
-    string partyName = 2; // 파티 이름 추가
-}
-
-// 초대용 패킷 
-message C_PartyInviteRequest{
-    int32 partyId = 1; // 파티 id
-    int32 userId = 2; // 초대할 유저 id or 초대한 유저 id
-}
-
-message S_PartyResponse{
-    PartyInfo party =1;
-    bool success =2;
-    string message= 3;
-    GlobalFailCode failCode =4;
-}
-    추가 패킷이 필요하다고 생각들면 추가하자
-*/
-
 // 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
   constructor(id, partyName, userId) {
@@ -42,25 +15,9 @@ class Party {
     this.desiredDungeonIndex = null;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
 
-    /**
-     message PartyInfo{
-        int32 partyId = 1 ;
-        int32 maximum = 2;
-        repeated PlayerStatus Players = 3;
-      }
-
-      message PlayerStatus {
-        int32 playerClass = 1;
-        int32 playerLevel = 2;
-        string playerName = 3;
-        float playerFullHp = 4;
-        float playerFullMp = 5;
-        float playerCurHp = 6;
-        float playerCurMp = 7;
-      }
-     */
     this.partyInfo = {
       partyId: id,
+      partyName: partyName,
       maximum: MAX_PARTY_MEMBER,
       // 3번째 repeated PlayerStatus가 들어가야 하니 userId는 아님
       // userId를 통해서 유저를 조회하고 유저 클래스의 playerInfo, playerStatInfo를 가져와야 세팅이 가능
@@ -88,6 +45,7 @@ class Party {
     // PartyInfo 객체 구성
     return {
       partyId: this.id,
+      partyName: this.partyName,
       maximum: MAX_PARTY_MEMBER,
       Players: players, 
     };
