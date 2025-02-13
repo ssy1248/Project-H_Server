@@ -8,5 +8,7 @@ export const SQL_QUERIES = {
 `,
   ADD_ITEM_TO_INVENTORY: 'INSERT INTO Inventory (charId, itemId, rarity, equiped) VALUES (?, ?, ?, ?)',
   REMOVE_ITEM_FROM_INVENTORY: 'DELETE FROM Inventory WHERE id = ? AND charId = ?',
-  GET_CHARACTER_TABLE: 'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC'
+  GET_CHARACTER_TABLE: 'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC',
+  EQUIP_ITEM: 'UPDATE Inventory SET equiped = 1 WHERE id = ? AND charId = ?',
+  DISROBE_ITEM: 'UPDATE Inventory SET equiped = 0 WHERE id = ? AND charId = ?',
 };
