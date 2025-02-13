@@ -9,6 +9,7 @@ import {
   createPartySession,
   GetAllPartySession,
   searchPartyInPlayerSession,
+  searchPartySession,
 } from '../../session/party.session.js';
 import { getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
@@ -103,8 +104,19 @@ message S_PartyResponse{
   message PartyInfo{
     int32 partyId = 1 ;
     string partyName = 2; // 파티 이름
-    int32 maximum = 3;
-    repeated PlayerStatus Players = 4;
+    int32 partyLeaderId = 3; // 리더 아이디
+    int32 maximum = 4;
+    repeated PlayerStatus Players = 5;
+  }
+
+  message PlayerStatus {
+    int32 playerClass = 1;
+    int32 playerLevel = 2;
+    string playerName = 3;
+    float playerFullHp = 4;
+    float playerFullMp = 5;
+    float playerCurHp = 6;
+    float playerCurMp = 7;
   }
  */
 
@@ -257,6 +269,7 @@ export const partyHandler = async (socket, payload) => {
       // 파티에 유저 추가
       party.addPartyMember(user);
       const info = party.getPartyInfo();
+      console.log(info);
       partyPacket = {
         info,
         case: 1,
@@ -282,27 +295,11 @@ export const partyHandler = async (socket, payload) => {
 
 // C_PartyInviteRequest가 날라오면 처리할 핸들러
 // S_PartyResponse
-// 파티 초대
-/**
-  message C_PartyInviteRequest {
-    string requesterUserNickname = 1; // 초대한 유저 닉네임
-    string participaterUserNickname = 2; // 초대할 유저 닉네임
-  }
-
-  message S_PartyResponse{
-    PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
-}
- */
+// 파티에 있는 사람이 중간에 나가면 파티에서 지우는 예외조건?
 export const partyInviteHandler = async (socket, payload) => {
   try {
     const { requesterUserNickname, participaterUserNickname } = payload;
     let partyPacket = {};
-    console.log(`요청 유저 닉네임 = ${requesterUserNickname}`);
-    console.log(`초대 유저 닉네임 = ${participaterUserNickname}`);
 
     const requester = getUserByNickname(requesterUserNickname);
     const participater = getUserByNickname(participaterUserNickname);
@@ -310,41 +307,76 @@ export const partyInviteHandler = async (socket, payload) => {
       console.log(`req 유저가 존재하지 않습니다. -> ${requester}`);
       return;
     }
-    if(!participater) {
-      // 자기 자신은 제외 예외조건 추가
+    // 자기 자신은 제외
+    if(!participater || requester === participater) {
       console.log(`par 유저가 존재하지 않습니다. -> ${participater}`);
       return;
     }
     
-    const party = searchPartyInPlayerSession(requester.userInfo.userId);
-    console.log(`찾아진 파티 세션 : ${party}`);
-
-    // 요청한 사람이 파티에 들어가있는지 검사
-    // 초대를 받은 유저가 다른 파티에 들어가있는지 검사 / 같은 파티에 있는지 검사
-    if(party.length > 0){
-      const partyInstance = party[0]; // 첫 번째 파티 선택
-      partyInstance.addPartyMember(participater);
-      const info = partyInstance.getPartyInfo();
-      partyPacket = {
-        info,
-        case: 2,
-        success: true,
-        message: '파티에 초대되었습니다.'
-      };
-    } else {
-      // 파티에 없음
+    const requesterParties = searchPartyInPlayerSession(requester.userInfo.userId);
+    if (requesterParties.length === 0) {
+      // 요청자가 파티에 속해 있지 않으면 초대할 파티가 없음
       partyPacket = {
         case: 2,
         success: false,
-        message: '파티가 존재하지 않습니다.'
+        message: '요청자가 아직 파티에 속해 있지 않습니다.',
       };
+      const partyResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        partyPacket
+      );
+      await socket.write(partyResponse);
+      return;
     }
+    
+    // 보통 한 유저는 한 파티에만 속한다고 가정하고 첫 번째 파티 사용
+    const partyInstance = requesterParties[0];
+
+    // 초대 대상 유저가 이미 어떤 파티에 속해 있는지 검사
+    const participaterParties = searchPartyInPlayerSession(participater.userInfo.userId);
+    // 유저 id 9가 포함된 파티를 찾을 수 없습니다.
+    if (participaterParties.length > 0) {
+      // 이미 파티에 속해 있다면, 같은 파티인지 다른 파티인지 확인
+      if (participaterParties[0].id === partyInstance.id) {
+        partyPacket = {
+          case: 2,
+          success: false,
+          message: '초대 대상은 이미 같은 파티에 속해 있습니다.',
+        };
+      } else {
+        partyPacket = {
+          case: 2,
+          success: false,
+          message: '초대 대상은 이미 다른 파티에 속해 있습니다.',
+        };
+      }
+      const partyResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        partyPacket
+      );
+      await socket.write(partyResponse);
+      return;
+    }
+
+    // 초대 대상이 아직 파티에 속해 있지 않은 경우, 파티에 추가
+    partyInstance.addPartyMember(participater);
+    const info = partyInstance.getPartyInfo();
+    partyPacket = {
+      info,
+      case: 2,
+      success: true,
+      message: '파티에 초대되었습니다.',
+    };
 
     const partyResponse = createResponse(
       'party',
       'S_PartyResponse',
       PACKET_TYPE.S_PARTYRESPONSE,
-      partyPacket,
+      partyPacket
     );
 
     await socket.write(partyResponse);
@@ -363,10 +395,29 @@ message C_PartyJoinRequest {
     int32 partyId = 1; // 파티 id
     int32 userId = 2; // 가입할 유저 id
 }
+
+message S_PartyResponse{
+    PartyInfo party = 1;
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
+}
  */
 export const partyJoinHandler = (socket, payload) => {
   try {
     const { partyId, userId } = payload;
+    const user = getUserById(userId);
+    if(!user) {
+      console.log('유저가 존재하지 않습니다. ' + user);
+      return;
+    }
+    const party = searchPartySession(partyId);
+    if(!party) {
+      console.log('존재하지 않는 파티입니다.' + party);
+      return;
+    }
+
   } catch (e) {
     handlerError(socket, e);
   }

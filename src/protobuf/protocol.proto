@@ -434,8 +434,9 @@ message BtnInfo {
   message PartyInfo{
     int32 partyId = 1 ;
     string partyName = 2; // 파티 이름
-    int32 maximum = 3;
-    repeated PlayerStatus Players = 4;
+    int32 partyLeaderId = 3; // 리더 아이디
+    int32 maximum = 4;
+    repeated PlayerStatus Players = 5;
   }
   message ItemInfo{
     int32 id =1;
