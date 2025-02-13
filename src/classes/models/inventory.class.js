@@ -22,7 +22,7 @@ export default class Inventory {
             // DB 업데이트
             await equipItem(this.charId, inventoryId);
             // 서버 업데이트
-            var item = this.inventory.find((item) => item.id = inventoryId);
+            var item = this.inventory.find((item) => item.id === inventoryId);
             item.equiped = true;
             return this.inventory;
         } catch (error) {
