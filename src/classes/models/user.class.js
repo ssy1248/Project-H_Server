@@ -19,6 +19,7 @@ export default class User {
       exp: 0,
       isMove: false,
       isSpawn: false,
+      charId: 0, // TODO : 캐릭터 선택시 캐릭터 ID 저장
       // 정보 추가
     };
 
