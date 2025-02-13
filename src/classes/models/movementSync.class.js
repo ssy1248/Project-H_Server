@@ -1,4 +1,4 @@
-import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
+import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE, CLIENT_TIME_OFFSET } from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 
 export default class MovementSync {
@@ -122,11 +122,12 @@ export default class MovementSync {
   }
 
   // [ 패킷 생성 ]
-  createSyncTransformInfoData(userSyncInfo) {
+  createSyncTransformInfoData(user) {
     const SyncTransformInfo = {
-      playerId: userSyncInfo.userId,
-      TransformInfo: userSyncInfo.currentTransform,
-      estimatedArrivalTime: this.CalculateEstimatedArrivalTime(userSyncInfo.userId),
+      playerId: user.userId,
+      TransformInfo: user.currentTransform,
+      estimatedArrivalTime: this.CalculateEstimatedArrivalTime(user.userId),
+      latency: user.latency,
     };
     return SyncTransformInfo;
   }
@@ -158,7 +159,7 @@ export default class MovementSync {
     const latency = this.userSyncs[userId].latency;
 
     // 예상 도착 시간 = snapshotTime + (ping / 2)
-    const estimatedArrivalTime = snapshotTime + latency / 2;
+    const estimatedArrivalTime = snapshotTime + (latency / 2) + CLIENT_TIME_OFFSET;
     return estimatedArrivalTime;
   }
 

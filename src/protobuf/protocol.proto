@@ -88,28 +88,17 @@ message S_Despawn {
   
   /* 캐릭터 패킷 */
   
-  // 응답 패킷 - S_Move
+  // [수정] 동기화 리메이크에 사용할 패킷
   message C_Move {
-    TransformInfo transform = 1;
+    int32 playerId = 1; // 유저 id
+    TransformInfo transform = 2; // 유저의 트랜스폼 정보
+    int64 timestamp = 3; // 서버에서 핑 체크용.
   }
   
   // ALL
   message S_Move {
-    int32 playerId = 1;
-    TransformInfo transform = 2;
+    repeated SyncTransformInfo transformInfos = 1;  // 동기화된 트랜스폼 정보들. 
   }
-
-  // // [수정] 동기화 리메이크에 사용할 패킷 - S_Move
-  // message C_Move {
-  //   int32 playerId = 1; // 유저 id
-  //   TransformInfo transform = 2; // 유저의 트랜스폼 정보
-  //   int64 timestamp = 3; // 서버에서 핑 체크용.
-  // }
-  
-  // // [수정] 동기화 리메이크에 사용할 패킷 ALL
-  // message S_Move {
-  //   repeated SyncTransformInfo transformInfos;  // 동기화된 트랜스폼 정보들. 
-  // }
   
   // 응답 패킷 - S_Animation
   message C_Animation {
@@ -246,6 +235,7 @@ message S_PartyResponse{
     int32 playerId = 1; // 유저 id 
     TransformInfo transform = 2; // 트랜스폼 정보
     int64 estimatedArrivalTime  = 3; // 예상 도착 시간
+    int32 latency = 4; // 레이턴시
   }
 
   // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
