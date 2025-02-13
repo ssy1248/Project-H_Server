@@ -1,3 +1,6 @@
+import { cancelMarket } from '../../db/marketplace/market.db';
+import { deletMarketSession } from '../../session/market.session';
+
 class marketData {
   constructor(data) {
     this.id = data.id;
@@ -14,6 +17,14 @@ class marketData {
       endData();
     }
   }
-  endData() {}
+  endData() {
+    cancelMarket({
+      makrketId: this.id,
+      charId: this.charId,
+      itemId: this.itemIndex,
+      rarity: this.upgrade,
+    });
+    deletMarketSession(this.id);
+  }
 }
 export default marketData;
