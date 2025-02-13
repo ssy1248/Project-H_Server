@@ -7,24 +7,42 @@ export const getInventoryFromCharId = async (charId) => {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_INVENTORY_FROM_CHAR_ID, [charId]);
     return toCamelCase(rows);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 }
 
 export const addItemToInventory = async (charId, itemId, rarity, equipped) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [charId, itemId, rarity, equipped]);
+    const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [charId, itemId, rarity, equipped]);
+    return result;
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    return null;
   }
 }
 
-export const removeItemFromInventory = async (charId, id) => {
+export const removeItemFromInventory = async (charId, inventoryId) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.REMOVE_ITEM_FROM_INVENTORY, [id, charId]);
+    await pools.USER_DB.query(SQL_QUERIES.REMOVE_ITEM_FROM_INVENTORY, [inventoryId, charId]);
   } catch (error) {
-    console.log(error);
+    console.error(error);
+  }
+}
+
+export const equipItem = async (charId, inventoryId) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.EQUIP_ITEM, [inventoryId, charId]);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export const disrobeItem = async (charId, inventoryId) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.DISROBE_ITEM, [inventoryId, charId])
+  } catch (error) {
+    console.error(error);
   }
 }
 
