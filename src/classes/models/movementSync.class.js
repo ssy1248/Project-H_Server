@@ -127,7 +127,6 @@ export default class MovementSync {
       playerId: user.userId,
       TransformInfo: user.currentTransform,
       estimatedArrivalTime: this.CalculateEstimatedArrivalTime(user.userId),
-      latency: user.latency,
     };
     return SyncTransformInfo;
   }
