@@ -1,5 +1,5 @@
 import { cancelMarket } from '../../db/marketplace/market.db';
-import { deletMarketSession } from '../../session/market.session';
+import { addMarketSession, deletMarketSession } from '../../session/market.session';
 
 class marketData {
   constructor(data) {
@@ -12,9 +12,10 @@ class marketData {
     this.delay = endTime - new Date(); // 남은 시간 계산 (밀리초)
 
     if (delay > 0) {
-      setTimeout(endData(), delay);
+      addMarketSession(this);
+      setTimeout(this.endData(), delay);
     } else {
-      endData();
+      this.endData();
     }
   }
   endData() {

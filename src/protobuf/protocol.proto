@@ -329,12 +329,14 @@ message C_SellInMarket {
 message S_SellInMarket {
   int32 inventoryId = 1;
   bool success = 2;
+  string message =3;
 }
 message C_BuyInMarket {
-
+  int32 marketId = 1;
 }
 message S_BuyInMarket {
-
+  bool success = 1;
+  string message =2;
 }
 
 // 정보 구조체
