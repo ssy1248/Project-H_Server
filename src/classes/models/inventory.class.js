@@ -23,7 +23,7 @@ export default class Inventory {
             await equipItem(this.charId, inventoryId);
             // 서버 업데이트
             var item = this.inventory.find((item) => item.id = inventoryId);
-            item.equiped = 1;
+            item.equiped = true;
             return this.inventory;
         } catch (error) {
             console.error(error);
@@ -31,13 +31,13 @@ export default class Inventory {
     }
 
     // 아이템 해제하기
-    async unequip(inventoryId) {
+    async disrobe(inventoryId) {
         try {
             // DB 업데이트
             await disrobeItem(this.charId, inventoryId);
             // 서버 업데이트
             var item = this.inventory.find((item) => item.id === inventoryId);
-            item.equiped = 0;
+            item.equiped = false;
             return this.inventory;
         } catch (error) {
             console.error(error);
@@ -48,7 +48,7 @@ export default class Inventory {
     async add(itemId, rarity) {
         try {
             // DB 업데이트
-            const result = await addItemToInventory(this.charId, itemId, rarity, 0);
+            const result = await addItemToInventory(this.charId, itemId, rarity, false);
             // 아이템 정보 조회
             const item = await findItemById(itemId);
             const newItem = {
@@ -58,7 +58,7 @@ export default class Inventory {
                 price: item.price,
                 stat: item.stat,
                 rarity: rarity,
-                equiped: 0,
+                equiped: false,
             }
             // 서버 업데이트
             this.inventory.push(newItem);
@@ -74,11 +74,11 @@ export default class Inventory {
             // DB 업데이트
             await removeItemFromInventory(this.charId, inventoryId);
             // 서버 업데이트
-            const index = this.inventory.indexOf(item);
+            const index = this.inventory.findIndex((item) => item.id === inventoryId);
             if (index > -1) {
                 this.inventory.splice(index, 1);
                 return this.inventory;
-            }else{
+            } else {
                 throw new Error('item not found');
             }
         } catch (error) {
@@ -86,7 +86,7 @@ export default class Inventory {
         }
     }
 
-    getInventory(){
+    getInventory() {
         return this.inventory;
     }
 }
