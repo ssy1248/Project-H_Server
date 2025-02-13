@@ -11,7 +11,7 @@ import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
 import { removeUser } from '../../../session/user.session.js';
-import { userSessions } from '../../../session/sessions.js';
+import { dungeonSessions, userSessions } from '../../../session/sessions.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 
@@ -47,13 +47,10 @@ const dungeonEnterHandler = (socket, packetData) => {
 
     // 받아온 던전 아이디로 던전 세션을 찾는다.
 
-
     //임시로 만든 던전 코드 밑의  addDungeonSession 과 함꺠 재대로 되는지 확인하려면 지우고 위의 payload를 dungeon을 dungeonId로 바꾸야 한다.
     const dungeonId = 10;
 
-    addDungeonSession(dungeonId);
-
-    const dungeonSession = getDungeonSession(dungeonId);
+    const dungeonSession = addDungeonSession(dungeonId, 1);
 
     console.log('던전 입장전', dungeonSession);
 
@@ -123,7 +120,6 @@ const dungeonEnterHandler = (socket, packetData) => {
       players,
       // party,
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
-      dungeonEnterSuccess: true, // 입장 성공 여부
     };
 
     //createResponse
