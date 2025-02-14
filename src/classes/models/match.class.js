@@ -1,8 +1,8 @@
-import { MAX_PARTY_MEMBER } from '../../constants/constants.js'; 
-import { searchPartySession } from '../../session/party.session.js'; 
-import { setDesiredDungeonIndex } from './party.class.js'; 
-import { addDungeonSession } from '../../session/dungeon.session.js'; 
-import { v4 as uuidv4 } from 'uuid'; 
+import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
+import { searchPartySession } from '../../session/party.session.js';
+import { setDesiredDungeonIndex } from './party.class.js';
+import { addDungeonSession } from '../../session/dungeon.session.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수
 
@@ -10,9 +10,9 @@ const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수
 class Match {
   constructor(dungeonIndex) {
     // 파티와 솔로 매치 큐를 초기화
-    this.partyQueue = [];  // 파티 매칭 대기열
-    this.soloQueue = [];   // 솔로 매칭 대기열
-    this.dungeonIndex = dungeonIndex;  // 던전 인덱스
+    this.partyQueue = []; // 파티 매칭 대기열
+    this.soloQueue = []; // 솔로 매칭 대기열
+    this.dungeonIndex = dungeonIndex; // 던전 인덱스
 
     // 던전 인덱스를 설정
     setDesiredDungeonIndex(dungeonIndex);
@@ -80,7 +80,7 @@ class Match {
         console.log(
           `매칭 완료: 파티 ${party.id} 단독으로 던전 ${this.dungeonIndex} 입장 (멤버 수: ${party.partyMembers.length}).`,
         );
-        this.enterDungeon(party.partyMembers); // 던전 입장 처리
+        this.enterDungeon(party.partyMembers, this.dungeonIndex); // 던전 입장 처리
       }
     }
 
@@ -101,8 +101,11 @@ class Match {
             } 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length}).`,
           );
           const matchedMembers = [...party1.partyMembers, ...party2.partyMembers];
+
+          //파티장 결합 문제 두명에서 파티장중에서 누가 될것인가 레벨과 같으면 랜덤으로?
+
           // 파티 결합 후 던전 입장
-          this.enterDungeon(matchedMembers);
+          this.enterDungeon(matchedMembers, this.dungeonIndex);
           // 매칭 완료 후 변경된 큐를 다시 확인하기 위해 재귀 호출
           return this.attemptMatch();
         }
@@ -132,7 +135,7 @@ class Match {
           `매칭 완료: 파티 ${party.id}와 솔로 ${needed}명 결합하여 던전 ${this.dungeonIndex} 입장.`,
         );
         const matchedMembers = [...party.partyMembers, ...matchingSolos];
-        this.enterDungeon(matchedMembers);
+        this.enterDungeon(matchedMembers, this.dungeonIndex);
         return this.attemptMatch();
       }
     }

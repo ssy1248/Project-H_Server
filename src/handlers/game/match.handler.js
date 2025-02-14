@@ -10,12 +10,10 @@ import { getUserById, getUserBySocket } from '../../../session/user.session.js';
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
-import { removeUser } from '../../../session/user.session.js';
-import { userSessions } from '../../../session/sessions.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import { addMatchSession, getMatchSession } from '../../session/match.session.js';
-import { dungeonSessions } from '../../session/sessions.js';
+
 
 const matchingHandler = (socket, packetData) => {
   try {
@@ -67,7 +65,7 @@ const matchingHandler = (socket, packetData) => {
       dungeonState: dungeon.sState,
     };
 
-    const partyInfo = partyInfo;
+    const partyInfo = party.partyInfo;
 
     //dungeonId : 던전 아이디
     //dungeonIndex : 어떤 던전인지 아는 던전 번호
