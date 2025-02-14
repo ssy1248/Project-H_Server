@@ -1,20 +1,21 @@
-import { cancelMarket } from '../../db/marketplace/market.db';
-import { deletMarketSession } from '../../session/market.session';
+import { cancelMarket } from '../../db/marketplace/market.db.js';
+import { addMarketSession, deletMarketSession } from '../../session/market.session.js';
 
 class marketData {
   constructor(data) {
     this.id = data.id;
     this.charId = data.charId;
     this.itemIndex = data.itemIndex;
-    this.upgrade = data.upgrade;
+    this.rarity = data.upgrade;
     this.price = data.price;
     this.endTime = data.endTime;
-    this.delay = endTime - new Date(); // 남은 시간 계산 (밀리초)
+    this.delay = this.endTime - new Date(); // 남은 시간 계산 (밀리초)
 
-    if (delay > 0) {
-      setTimeout(endData(), delay);
+    if (this.delay > 0) {
+      addMarketSession(this);
+      setTimeout(this.endData.bind(this), this.delay);
     } else {
-      endData();
+      this.endData();
     }
   }
   endData() {
@@ -22,7 +23,7 @@ class marketData {
       makrketId: this.id,
       charId: this.charId,
       itemId: this.itemIndex,
-      rarity: this.upgrade,
+      rarity: this.rarity,
     });
     deletMarketSession(this.id);
   }
