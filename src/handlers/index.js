@@ -209,6 +209,14 @@ const handlers = {
     handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
   },
+  [PACKET_TYPE.C_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.C_Emote',
+  },
+  [PACKET_TYPE.S_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.S_Emote',
+  },
 };
 
 export const getHandlerById = (handlerId) => {

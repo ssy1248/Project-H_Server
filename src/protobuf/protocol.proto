@@ -51,6 +51,8 @@ enum MsgId {
   S_BUYINMARKET = 44;
   C_INVENTORYREQUEST = 45;
   S_INVENTORYRESPONSE = 46;
+  C_EMOTE = 47;
+  S_EMOTE = 48;
 }
 
 //회원가입 요청
@@ -483,3 +485,16 @@ message BtnInfo {
     int64 endTime = 4;
     int32 price = 5;
  }
+
+message C_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+}
+
+message S_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+  int32 errortype = 4;
+}

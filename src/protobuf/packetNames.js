@@ -39,6 +39,8 @@ export const packetNames = {
   chat: {
     C_Chat: 'Google.Protobuf.Protocol.C_Chat',
     S_Chat: 'Google.Protobuf.Protocol.S_Chat',
+    C_Emote: 'Google.Protobuf.Protocol.C_Emote',
+    S_Emote: 'Google.Protobuf.Protocol.S_Emote',
   },
   inventory: {
     C_BuyItemRequest: 'Google.Protobuf.Protocol.C_BuyItemRequest',
