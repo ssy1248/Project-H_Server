@@ -227,7 +227,9 @@ class Match {
   }
 
   // 매칭 취소? (아직 구현되지 않음)
-  cancelMatch() {}
+  cancelMatch(user) {
+
+  }
 
   // 던전 입장 함수: 매칭된 멤버들이 던전에 입장하도록 처리
   enterDungeon(members, dungeonIndex) {
