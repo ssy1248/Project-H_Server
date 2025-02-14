@@ -1,4 +1,4 @@
-import MovementSync from '../models/movementSync.class';
+import MovementSync from '../models/movementSync.class.js';
 
 const movementSyncs = {};
 
@@ -48,7 +48,9 @@ export const addUserSync = (movementSyncId, userId, socket, transform) => {
       return false;
     }
 
-    if (!socket.connected) {
+    console.log(socket);
+
+    if (socket.destroyed || !socket.writable) {
       console.log(`연결된 소켓이아님 : ${socket.id}`);
       return false;
     }
@@ -66,7 +68,7 @@ export const addUserSync = (movementSyncId, userId, socket, transform) => {
 };
 
 // [유저 동기화 업데이트].
-export const updateUserSync = (movementSyncId, userId, transform, timestamp) => {
+export const updateUserSync = (movementSyncId, userId, transform, timestamp, isMoving, velocity, speed, rotationSpeed) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
@@ -84,7 +86,7 @@ export const updateUserSync = (movementSyncId, userId, transform, timestamp) => 
     }
 
     // 업데이트
-    movementSyncs[movementSyncId].updateUserSync(userId, transform, timestamp);
+    movementSyncs[movementSyncId].updateUserSync(userId, transform, timestamp, isMoving, velocity, speed, rotationSpeed);
   }
 
   return true;

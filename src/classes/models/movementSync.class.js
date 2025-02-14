@@ -1,5 +1,6 @@
-import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE, CLIENT_TIME_OFFSET } from '../../constants/constants.js';
+import { MAX_POSITION_DIFFERENCE, MAX_ROTATION_DIFFERENCE } from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+import { PACKET_TYPE } from '../../constants/header.js';
 
 export default class MovementSync {
   // 생성자.
@@ -33,7 +34,21 @@ export default class MovementSync {
         posZ: Transform.posZ,
         rot: Transform.rot,
       },
+      lastSyncedTransform: {
+        posX: Transform.posX,
+        posY: Transform.posY,
+        posZ: Transform.posZ,
+        rot: Transform.rot,
+      },
       latency: 0,
+      isMoving: false,
+      velocity: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      rotationSpeed: 0,
+      speed: 0,
       lastUpdateTime: Date.now(),
     };
 
@@ -49,16 +64,108 @@ export default class MovementSync {
   }
 
   // [유저 업데이트]
-  updateUserSync(userId, transform, timestamp) {
-    // [검증] 서버에서 마지막으로 보낸 트랜스폼과 클라에서 보낸 트랜스폼을 비교.
-    const value = this.validateTransform(transform, this.userSyncs[userId].currentTransform);
+  updateUserSync(userId, transform, timestamp, isMoving, velocity, speed, rotationSpeed) {
+    // 레이턴시(핑)
+    this.userSyncs[userId].latency = this.computeNetworkDelay(timestamp);
+    // 현재 트랜스폼, 과거 트랜스폼 갱신.
+    this.userSyncs[userId].lastSyncedTransform = transform;
 
-    if (value) {
-      // 레이턴시(핑)
-      this.userSyncs[userId].latency = this.computeNetworkDelay(timestamp);
-      // 현재 트랜스폼, 과거 트랜스폼 갱신.
-      this.userSyncs[userId].previousTransform = this.userSyncs[userId].currentTransform;
-      this.userSyncs[userId].currentTransform = transform;
+    // 회전값이 없다면 기본값 0을 할당
+    if (typeof this.userSyncs[userId].lastSyncedTransform.rot === 'undefined') {
+      this.userSyncs[userId].lastSyncedTransform.rot = 0; // 기본 회전값 설정
+    }
+
+    // 움직이고 있는 중인가.
+    this.userSyncs[userId].isMoving = isMoving;
+    // 속도 벡터(방향 + 속도).
+    this.userSyncs[userId].velocity = velocity;
+    // 스피드
+    this.userSyncs[userId].speed = speed;
+    // 회전스피드
+    this.userSyncs[userId].rotationSpeed = rotationSpeed;
+    // 마지막 업데이트 갱신.
+    this.userSyncs[userId].lastUpdateTime = Date.now();
+
+    console.log('목표 좌표:', this.userSyncs[userId].lastSyncedTransform);
+
+    // console.log(userId);
+    //console.log(this.userSyncs[userId].lastSyncedTransform);
+    // console.log(isMoving);
+    // console.log(velocity);
+    // console.log(speed);
+    // console.log(rotationSpeed);
+  }
+
+  // [ 스냅샷 ] // 밥먹고 메인로직 수정
+  syncTransformFromSnapshot(userId) {
+    if (this.userSyncs[userId].isMoving) {
+      // 필요한 변수 선언.
+      const velocity = this.userSyncs[userId].velocity;
+      const latency = this.userSyncs[userId].latency;
+      const rotationSpeed = this.userSyncs[userId].rotationSpeed;
+      const currentTransform = this.userSyncs[userId].currentTransform;
+      const lastSyncedTransform = this.userSyncs[userId].lastSyncedTransform;
+
+      // previousTransform 갱신
+      this.userSyncs[userId].previousTransform = { ...this.userSyncs[userId].currentTransform };
+
+      // latency는 밀리초 단위로 계산되므로, 이를 초 단위로 변환 후 속도와 곱해야 함
+      const deltaTime = latency / 1000; // latency를 초 단위로 변환
+
+      const speedFactor = this.userSyncs[userId].speed; // deltaTime이 작을 때 속도에 가중치를 두어 속도를 빠르게 함
+      this.userSyncs[userId].currentTransform.posX += velocity.x * deltaTime * speedFactor;
+      this.userSyncs[userId].currentTransform.posY += velocity.y * deltaTime * speedFactor;
+      this.userSyncs[userId].currentTransform.posZ += velocity.z * deltaTime * speedFactor;
+
+      // 목표 지점 방향 계산
+      // 목표 위치와 현재 위치의 차이 계산
+      const deltaX = this.userSyncs[userId].currentTransform.posX - lastSyncedTransform.posX;
+      const deltaY = this.userSyncs[userId].currentTransform.posY - lastSyncedTransform.posY;
+
+      const angleToTarget = Math.atan2(deltaY, deltaX);
+
+      // 회전 방향 계산: -1 (반시계방향), 1 (시계방향)
+      const rotationDirection = Math.sign(angleToTarget - currentTransform.rot);
+
+      // 회전 값 업데이트
+      this.userSyncs[userId].currentTransform.rot += rotationSpeed * deltaTime * rotationDirection;
+
+      // 회전값이 360도를 넘지 않도록 보정
+      this.userSyncs[userId].currentTransform.rot =
+        (this.userSyncs[userId].currentTransform.rot + 360) % 360;
+
+      //console.log('rot:', this.userSyncs[userId].currentTransform.rot);
+
+      // 목표지점에 도착했는가.
+      const { posDiff, rotDiff } = this.validateTransform(
+        this.userSyncs[userId].currentTransform,
+        lastSyncedTransform,
+      );
+
+      // 목적지에 넘어갔는가? 
+      const isPastTarget = this.hasPassedTarget(this.userSyncs[userId].currentTransform, this.userSyncs[userId].lastSyncedTransform, velocity )
+
+      if(isPastTarget){
+        this.userSyncs[userId].isMoving = false;
+        this.userSyncs[userId].currentTransform = { ...this.userSyncs[userId].lastSyncedTransform };
+
+      }
+      
+      // 목적지에 도착했다면 움직임 멈추기
+      if (Math.abs(posDiff) < MAX_POSITION_DIFFERENCE) {
+        console.log('end');
+
+        this.userSyncs[userId].isMoving = false;
+        this.userSyncs[userId].currentTransform = { ...this.userSyncs[userId].lastSyncedTransform };
+        console.log('현재 좌표:', this.userSyncs[userId].currentTransform);
+      } else {
+        console.clear()
+        console.log('벨로시티:',velocity);
+        console.log('레이턴시:',latency);
+      }
+
+      //
+
       // 마지막 업데이트 갱신.
       this.userSyncs[userId].lastUpdateTime = Date.now();
     }
@@ -80,19 +187,22 @@ export default class MovementSync {
       const userSyncsSize = Object.keys(this.userSyncs).length;
       // 유저들이 있을때만 메인 로직 실행.
       if (userSyncsSize !== 0) {
-        // 변경된 유저들만 찾는다.
-        const changedUsers = this.userSyncs
-          .filter(([value]) => value.lastUpdateTime > this.snapshotTime)
-          .map(([value]) => value);
+        // 움직이고 있는 유저 솎아내기.
+        const changedUsers = Object.keys(this.userSyncs)
+          .filter((key) => this.userSyncs[key].isMoving === true)
+          .map((key) => this.userSyncs[key]);
 
-        // 변경된 유저들이 있을 경우 로직 실행. 
+        // 움직이고 있는 유저들이 있을 경우 로직 실행.
         if (changedUsers.length !== 0) {
-          // 변경된 유저들로 패킷을 만들자.
+          // 변경된 유저들로 패킷을 만들자. []
           const syncTransformInfoDatas = [];
-          changedUsers.forEach((user) => {
-            const syncData = this.createSyncTransformInfoData(user);
+
+          // 데이터 업데이트 및 패킷 전송 준비.
+          for (const user of changedUsers) {
+            this.syncTransformFromSnapshot(user.userId);
+            const syncData = this.createSyncTransformInfoData(user); // 동기 처리
             syncTransformInfoDatas.push(syncData);
-          });
+          }
 
           const sMove = {
             transformInfos: syncTransformInfoDatas,
@@ -106,9 +216,12 @@ export default class MovementSync {
 
           // 스냅샷 시간 갱신
           this.snapshotTime = Date.now();
+          //console.log(this.snapshotTime);
         }
       }
-    }, 100);
+    }, 1);
+
+    console.log('여긴오면안되');
   }
 
   // [메인 로직 시작]
@@ -125,31 +238,25 @@ export default class MovementSync {
   createSyncTransformInfoData(user) {
     const SyncTransformInfo = {
       playerId: user.userId,
-      TransformInfo: user.currentTransform,
-      estimatedArrivalTime: this.CalculateEstimatedArrivalTime(user.userId),
+      transform: user.currentTransform,
+      speed: user.speed,
     };
+
     return SyncTransformInfo;
   }
 
   // [ 레이 턴시 ]
   computeNetworkDelay(timestamp) {
-    // 현재 방식은 핑이 정확하지않음
-    // 이유는 유니티의 현재시간과 js현재시간의 차이가 있을수 있음.
-    // 유니티 DateTime.UtcNow.Ticks / 10_000 → UTC 기준 밀리초
-    // JS Date.now() → UTC 기준 밀리초
-    // 이론상으론 차이없다고는 하지만
-    // 일부 플랫폼(모바일,브라우저)에선 클라시간이 흐트러질 수도 있다고함.
-    // (예: 모바일 절전 모드, FPS 드랍, 운영체제 시간 변경 등.)
+    // 서버와 클라이언트 시간 차이를 계산해서 보정
+    const timeDifference = Date.now() - timestamp;
+    let ping = timeDifference >= 0 ? timeDifference : 24 * 60 * 60 * 1000 + timeDifference; // 음수일 때 하루를 더해주기
 
-    // 차이가 나도 문제가 없는 이유
-    // 클라가 이동할 때 매번 패킷을 보내고, 100ms마다 서버에서 스냅샷을 보냄
-    // 아주 미세한 시간 차이는 누적되기 전까지 큰 문제가 되지 않음
-    // 핑(Ping)이 정확하지 않아도 보간(Interpolation)과 추측항법으로 보정 가능
+    // ping이 0이면 1로 설정
+    if (ping === 0) {
+      ping = 1;
+    }
 
-    // 문제가 발생시 그때 핑퐁 방식으로 변경.
-
-    const ping = (Date.now() - timestamp) * 2; // 핑 계산
-    return ping;
+    return ping * 2;
   }
 
   // [예상 도착 시간 계산]
@@ -158,7 +265,8 @@ export default class MovementSync {
     const latency = this.userSyncs[userId].latency;
 
     // 예상 도착 시간 = snapshotTime + (ping / 2)
-    const estimatedArrivalTime = snapshotTime + (latency / 2) + CLIENT_TIME_OFFSET;
+    // CLIENT_TIME_OFFSET 뺏음
+    const estimatedArrivalTime = snapshotTime + latency / 2;
     return estimatedArrivalTime;
   }
 
@@ -174,25 +282,56 @@ export default class MovementSync {
     // 2. 회전 차이 계산: 이전 회전 값과 현재 회전 값의 절대 차이를 구합니다.
     const rotationDifference = Math.abs(previousTransform.rot - currentTransform.rot);
 
-    // 3. 조건 확인: 위치 차이와 회전 차이가 주어진 최대 차이를 초과하지 않으면 true 반환.
-    // 둘 중 하나라도 최대 차이를 초과하면 false를 반환.
-    const isValidTransform = !(
-      positionDifference > MAX_POSITION_DIFFERENCE || rotationDifference > MAX_ROTATION_DIFFERENCE
-    );
+    return { posDiff: positionDifference, rotDiff: rotationDifference };
+  }
 
-    return isValidTransform;
+  // [타겟 방향을 지나갔는지 검증]
+  hasPassedTarget(currentTransform, targetTransform, velocity) {
+    // 목표 지점과 현재 위치 벡터 계산
+    const deltaX = targetTransform.posX - currentTransform.posX;
+    const deltaY = targetTransform.posY - currentTransform.posY;
+  
+    // 현재 이동 방향 벡터
+    const velocityX = velocity.x;
+    const velocityY = velocity.y;
+  
+    // 내적 계산
+    const dotProduct = (deltaX * velocityX + deltaY * velocityY);
+  
+    // 내적이 음수일 경우, 목표 지점을 지나친 것으로 판단
+    if (dotProduct < 0) {
+      console.log("목표 지점을 지나쳤음");
+      return true; // 목표 지점을 지나쳤다고 판단
+    }
+  
+    return false; // 목표 지점을 지나치지 않았다고 판단
   }
 
   // 브로드캐스트
   async broadcastChangedUsers(changedUsers, initialResponse) {
     // 모든 유저에게 비동기적으로 패킷 전송
-    const promises = changedUsers.map((user) => {
-      // 유저의 소켓을 통해 패킷 전송 (응답 없음)
-      user.socket.write(initialResponse);
-      return Promise.resolve(); // 바로 resolve
+    // 변경된 사람에게 보내고있있엇넹..
+
+    const promises = Object.keys(this.userSyncs).map((userId) => {
+      const user = this.userSyncs[userId]; // userId로 객체 참조
+
+      return new Promise((resolve, reject) => {
+        try {
+          user.socket.write(initialResponse);
+          //console.log(`[✅ 성공] ${userId}에게 패킷 전송:`, initialResponse);
+          setImmediate(resolve); // 즉시 resolve
+        } catch (error) {
+          //console.log(`[❌ 실패] ${userId}에게 패킷 전송 실패`, error);
+          reject(error);
+        }
+      });
     });
 
-    // 모든 프로미스가 완료될 때까지 대기
-    await Promise.all(promises);
+    try {
+      await Promise.all(promises);
+      //console.log('📢 모든 유저에게 브로드캐스트 완료!');
+    } catch (error) {
+      //console.error('🚨 일부 유저에게 전송 실패:', error);
+    }
   }
 }

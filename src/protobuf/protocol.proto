@@ -111,6 +111,10 @@ message S_Despawn {
     int32 playerId = 1; // 유저 id
     TransformInfo transform = 2; // 유저의 트랜스폼 정보
     int64 timestamp = 3; // 서버에서 핑 체크용.
+    bool isMoving = 4; // 이동 중 여부 (true: 이동 중, false: 정지)
+    Velocity velocity = 5; // 속도 벡터 (방향 + 속도)
+    float speed = 7;       // 스피트
+    float rotationSpeed = 8; // 회전 속도 추가 (°/s)
   }
   
   // ALL
@@ -352,7 +356,7 @@ message PlayerInfo {
 message SyncTransformInfo {
   int32 playerId = 1; // 유저 id 
   TransformInfo transform = 2; // 트랜스폼 정보
-  int64 estimatedArrivalTime  = 3; // 예상 도착 시간
+  float speed = 3; // 스피드
 }
 
 // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
@@ -362,6 +366,12 @@ message TransformInfo {
   float posY = 2;// 기본값 : 1
   float posZ = 3;// 기본값 : -8 ~ 8
   float rot = 4;// 기본값 : 0~360
+}
+
+message Velocity {
+  float x = 1;
+  float y = 2;
+  float z = 3;
 }
 
 // [수정] magic은 빼야하는가?

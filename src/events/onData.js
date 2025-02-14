@@ -24,7 +24,7 @@ export const onData = (socket) => async (data) => {
     try {
       const handler = getHandlerById(packetId);
 
-      console.log(`Received packet: ${packetId} - ${PACKET_TYPE[packetId]}`);
+      //console.log(`Received packet: ${packetId} - ${PACKET_TYPE[packetId]}`);
 
       // 각 핸들러 동작.
       await handler(socket, deserializedPacketData);

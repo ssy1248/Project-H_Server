@@ -20,6 +20,6 @@ export const ChatErrorCodes = {
 
 
 // 동기화 관련 js
-export const MAX_POSITION_DIFFERENCE = 5.0;  
-export const MAX_ROTATION_DIFFERENCE = 30.0; 
+export const MAX_POSITION_DIFFERENCE = 0.5;  
+export const MAX_ROTATION_DIFFERENCE = 1; 
 export const CLIENT_TIME_OFFSET  = 100;
