@@ -52,6 +52,10 @@ export const packetNames = {
     C_InventoryRequest: 'Google.Protobuf.Protocol.C_InventoryRequest',
     S_InventoryResponse: 'Google.Protobuf.Protocol.S_InventoryResponse',
   },
+  // match: {
+  //   C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
+  //   S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
+  // },
   dungeon: {
     C_EnterDungeon: 'Google.Protobuf.Protocol.C_EnterDungeon',
     S_EnterDungeon: 'Google.Protobuf.Protocol.S_EnterDungeon',

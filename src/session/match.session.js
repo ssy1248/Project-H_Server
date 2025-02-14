@@ -1,5 +1,5 @@
-import { matchSessions } from './sessions';
-import Match from '../classes/models/match.class';
+import { matchSessions } from './sessions.js';
+import Match from '../classes/models/match.class.js';
 
 export const addMatchSession = (dungeonIndex) => {
   const session = new Match(dungeonIndex);

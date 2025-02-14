@@ -1,19 +1,11 @@
-import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import {
-  addDungeonSession,
-  getDungeonSession,
-  getDungeonUser,
-} from '../../../session/dungeon.session.js';
-import { getGameSession } from '../../../session/game.session.js';
-import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
-import { getUserById, getUserBySocket } from '../../../session/user.session.js';
-import CustomError from '../../../utils/error/customError.js';
-import { ErrorCodes } from '../../../utils/error/errorCodes.js';
-import { handlerError } from '../../../utils/error/errorHandler.js';
-import { createResponse } from '../../../utils/response/createResponse.js';
-import { PACKET_TYPE } from '../../../constants/header.js';
+import { searchPartySession } from '../../session/party.session.js';
+import { getUserBySocket } from '../../session/user.session.js';
+import CustomError from '../../utils/error/customError.js';
+import { ErrorCodes } from '../../utils/error/errorCodes.js';
+import { handlerError } from '../../utils/error/errorHandler.js';
+import { createResponse } from '../../utils/response/createResponse.js';
+import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession, getMatchSession } from '../../session/match.session.js';
-
 
 const matchingHandler = (socket, packetData) => {
   try {

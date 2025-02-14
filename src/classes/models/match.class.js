@@ -1,7 +1,7 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 import { searchPartySession } from '../../session/party.session.js';
-import { setDesiredDungeonIndex } from './party.class.js';
 import { addDungeonSession } from '../../session/dungeon.session.js';
+import Party from './party.class.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수
@@ -14,8 +14,8 @@ class Match {
     this.soloQueue = []; // 솔로 매칭 대기열
     this.dungeonIndex = dungeonIndex; // 던전 인덱스
 
-    // 던전 인덱스를 설정
-    setDesiredDungeonIndex(dungeonIndex);
+    // // 던전 인덱스를 설정
+    // setDesiredDungeonIndex(dungeonIndex);
   }
 
   // 두개의 파티가 합쳐질 때, 합쳐진 파티의 새로운 파티장 설정 로직
@@ -39,6 +39,9 @@ class Match {
       }
 
       // 파티를 매칭 대기열에 추가
+
+      party.setDesiredDungeonIndex(dungeonIndex);
+
       this.partyQueue.push(party);
       console.log(
         `파티 ${partyId}의 멤버들이 던전 ${this.dungeonIndex} 매칭 대기열에 추가되었습니다.`,
@@ -103,6 +106,18 @@ class Match {
           const matchedMembers = [...party1.partyMembers, ...party2.partyMembers];
 
           //파티장 결합 문제 두명에서 파티장중에서 누가 될것인가 레벨과 같으면 랜덤으로?
+          //보니까 여기서 파티장을 비교해서 레벨이 높은쪽이 파티장이 되고 아니면 랜덤으로 하자
+          //파티장이 어떤 형태로 들어가는지 알아야겠다. 이부분은 일당 제끼고
+          //그러면 파티장 레벨이 낮은쪽이 파티 헤제를
+          //파티장이 이렇게 들어온다.
+          /* partyLeader: User {
+          userInfo: [Object],
+          playerInfo: [Object],
+          playerStatInfo: [Object],
+          transformInfo: [Object],
+          inventory: [Inventory]
+          },*/
+          // userInfo안에 platerStatInfo에 레벨이 있군
 
           // 파티 결합 후 던전 입장
           this.enterDungeon(matchedMembers, this.dungeonIndex);

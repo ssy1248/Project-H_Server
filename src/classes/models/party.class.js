@@ -47,7 +47,7 @@ class Party {
       partyId: this.id,
       partyName: this.partyName,
       maximum: MAX_PARTY_MEMBER,
-      Players: players, 
+      Players: players,
     };
   }
 

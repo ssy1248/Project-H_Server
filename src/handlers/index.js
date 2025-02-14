@@ -9,9 +9,15 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyHandler, partyInviteHandler, partyListHandler, partySearchHandler } from './game/party.handler.js';
+import {
+  partyHandler,
+  partyInviteHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
+import matchingHandler from './game/match.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -110,6 +116,15 @@ const handlers = {
     handler: animationHandler,
     protoType: 'party.S_PartyResponse',
   },
+  [PACKET_TYPE.C_MATCHREQUEST]: {
+    handler: matchingHandler,
+    protoType: 'match.C_MatchResponse',
+  },
+  [PACKET_TYPE.S_MATCHRESPONSE]: {
+    handler: matchingHandler,
+    protoType: 'match.S_MatchResponse',
+  },
+
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
