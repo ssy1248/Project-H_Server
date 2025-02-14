@@ -17,5 +17,6 @@ const marketMyListHandler = (socket, payload) => {
     MaxPage: user.inventory.lenght > 0 ? parseInt(user.inventory.lenght / page) : 0,
     itemdata: data,
   });
+  socket.write(packet);
 };
 export default marketMyListHandler;

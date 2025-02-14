@@ -20,15 +20,13 @@ const check = async (user, marketId) => {
     // 있으면 서버상에서 갱신 가능
     deletMarketSession(marketId);
     const itemData = await sellInMarket({
-      BuyCharId: user.userInfo.userId,
+      BuyCharId: user.playerInfo.charId,
       SellCharId: marketData.charId,
       itemId: marketData.itemIndex,
       rarity: marketData.rarity,
       marketId,
       gold: marketData.price,
     });
-
-    user.inventory.add(itemData);
 
     return createResponse('town', 'S_BuyInMarket', PACKET_TYPE.S_BUYITEMRESPONSE, {
       success: true,

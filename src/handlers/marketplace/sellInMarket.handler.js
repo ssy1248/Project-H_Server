@@ -13,7 +13,7 @@ const check = async (data) => {
       throw new Error('인벤토리에 없습니다!');
     }
     const marketDataTemp = await addMarket({
-      charId: data.user.playerInfo.charID,
+      charId: data.user.playerInfo.charId,
       inventoryId: data.inventoryId,
       itemIndex: item.itemId,
       upgrade: item.rarity,
