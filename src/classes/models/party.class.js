@@ -15,9 +15,11 @@ class Party {
     this.desiredDungeonIndex = null;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
 
+    // partyInfo에 리더 아이디를 넣으면 
     this.partyInfo = {
       partyId: id,
       partyName: partyName,
+      partyLeaderId: userId,
       maximum: MAX_PARTY_MEMBER,
       // 3번째 repeated PlayerStatus가 들어가야 하니 userId는 아님
       // userId를 통해서 유저를 조회하고 유저 클래스의 playerInfo, playerStatInfo를 가져와야 세팅이 가능
@@ -46,6 +48,7 @@ class Party {
     return {
       partyId: this.id,
       partyName: this.partyName,
+      partyLeaderId: this.partyLeader.userInfo.userId,
       maximum: MAX_PARTY_MEMBER,
       Players: players, 
     };
@@ -91,6 +94,10 @@ class Party {
     }
 
     this.partyLeader = leader;
+  }
+
+  getPartyLeader() {
+    return this.partyLeader;
   }
 
   // 파티 인원 추가
