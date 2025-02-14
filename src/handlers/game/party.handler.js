@@ -1,9 +1,3 @@
-// 파티 관련 패킷을 받아서 처리할 핸들러 js
-// 파티 조회에서 던전에 들어가있는 파티 조회 함수
-// 매칭 큐? 아님 어떤식으로 해야 할지 고민
-// 매칭 관련 핸들러
-// party클래스에서 userId를 넣어?
-
 import { PACKET_TYPE } from '../../constants/header.js';
 import {
   createPartySession,
@@ -15,8 +9,6 @@ import {
 import { broadcastToUsers, getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
-
-// 매칭을 할떄 던전에게 보내줘야 하는거 : 파티 아이디, 파티 인원 정보, 던전 정보
 
 /* 
 // 파티 신청 패킷
