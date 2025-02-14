@@ -51,6 +51,8 @@ enum MsgId {
   S_BUYINMARKET = 44;
   C_INVENTORYREQUEST = 45;
   S_INVENTORYRESPONSE = 46;
+  C_EMOTE = 47;
+  S_EMOTE = 48;
 }
 
 //회원가입 요청
@@ -278,10 +280,10 @@ message S_PartyResponse {
 }
 
 /*매칭 */
-message C_match{
+message C_matchRequest{
   partyInfo party =1;
   int32 dungeonCode=2;
-  repeated platerInfo players=3;
+  repeated PlayerStatus players=3;
 }
 
 
@@ -291,7 +293,6 @@ message S_matchResponse{
   repeated PartyInfo party = 3;
   string message = 4;
 }
-
 
 /* 던전 입장 */
 
@@ -324,38 +325,43 @@ message S_ScreenText {
 message S_ScreenDone {}
 
 // 경매장 페이지 네이션 요청 
-message C_marketList {
+message C_MarketList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 페이지 네이션 응답
-message S_marketList {
-  int32 MaxPage = 1;
+message S_MarketList {
+  int32 maxPage = 1;
   repeated marketItemInfo itemdata = 2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 요청
-message C_marketMyList {
+message C_MarketMyList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 응답
-message S_marketMyList {
-  int32 MaxPage = 1;
+message S_MarketMyList {
+  int32 maxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
 
 // 소캣 기준으로 유저 찾고 판매 목록에 등록 
 message C_SellInMarket {
   int32 inventoryId = 1;
+  int32 itemId = 2;
 }
 //
 message S_SellInMarket {
   int32 inventoryId = 1;
   bool success = 2;
+  string message =3;
 }
 message C_BuyInMarket {
-
+  int32 marketId = 1;
 }
 message S_BuyInMarket {
-
+  bool success = 1;
+  string message =2;
 }
 
 // 정보 구조체
@@ -413,7 +419,7 @@ message DungeonInfo {
   int32 dungeonId = 1;
   int32 DungeonIndex=2;
   string dungeonState=3;
-  repeated PLayerInfo Player=4;
+  repeated PlayerStatus Player=4;
   repeated MonsterStatus monsters = 5;
 }
 
@@ -478,3 +484,16 @@ message BtnInfo {
     int64 endTime = 4;
     int32 price = 5;
  }
+
+message C_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+}
+
+message S_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+  int32 errortype = 4;
+}
