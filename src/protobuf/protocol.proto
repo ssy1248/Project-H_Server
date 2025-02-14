@@ -277,21 +277,39 @@ message S_PartyResponse {
     GlobalFailCode failCode = 5;
 }
 
+/*매칭 */
+message C_match{
+  partyInfo party =1;
+  int32 dungeonCode=2;
+  repeated platerInfo players=3;
+}
+
+
+message S_matchResponse{
+  repeated DungeonInfo dungeon = 1;
+  repeated PlayerInfo players = 2;
+  repeated PartyInfo party = 3;
+  string message = 4;
+}
+
+
 /* 던전 입장 */
 
 // 응답 패킷 - S_EnterDungeon
+//partyId와 party중에 고민중
 message C_EnterDungeon {
-  int32 dungeonCode = 1;
-  repeated int32 players = 2;
-  int32 partyId = 3;
+  repeated DungeonInfo dungeon = 1;
+  repeated PlayerInfo players = 2;
+  repeated PartyInfo party = 3;
 }
 
 // Me
+// 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
-  int32 dungeonCode = 1;
+  repeated DungeonInfo dungeon = 1;
   repeated PlayerInfo players = 2;
-  optional ScreenText screenText = 3;
-  optional BattleLog battleLog = 4;
+  repeated PartyInfo party = 3;
+  optional ScreenText screenText = 4;
 }
 
 // Me
@@ -393,9 +411,13 @@ message Color {
   int32 b = 3;
 }
 
+// 이던전 인포를 던전클래스에 있는것들로 바꾸야힌다.
 message DungeonInfo {
-  int32 dungeonCode = 1;
-  repeated MonsterStatus monsters = 2;
+  int32 dungeonId = 1;
+  int32 DungeonIndex=2;
+  string dungeonState=3;
+  repeated PLayerInfo Player=4;
+  repeated MonsterStatus monsters = 5;
 }
 
 message MonsterStatus {
