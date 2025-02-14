@@ -9,7 +9,7 @@ class marketData {
     this.rarity = data.upgrade;
     this.price = data.price;
     this.endTime = data.endTime;
-    this.delay = new Date() - this.endTime; // 남은 시간 계산 (밀리초)
+    this.delay = this.endTime - new Date(); // 남은 시간 계산 (밀리초)
 
     if (this.delay > 0) {
       addMarketSession(this);
