@@ -12,7 +12,7 @@ import {
   searchPartyInPlayerSession,
   searchPartySession,
 } from '../../session/party.session.js';
-import { getUserById, getUserByNickname } from '../../session/user.session.js';
+import { broadcastToUsers, getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 
@@ -506,10 +506,12 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        if (member.userInfo.socket !== socket) {
-          member.userInfo.socket.write(updateResponse);
-        }
+        //if (member.userInfo.socket !== socket) {
+        broadcastToUsers(member.userInfo.socket, updateResponse);
+        //member.userInfo.socket.write(updateResponse);
+        //}
       });
+      socket.write(updateResponse);
     }
   } catch (e) {
     handlerError(socket, e);
@@ -517,24 +519,7 @@ export const partyKickHandler = (socket, payload) => {
 };
 
 // C_PartyExitRequest가 날라오면 처리할 핸들러
-/**
- message C_PartyExitRequest {
-    // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
-    int32 userId = 1; // 나갈 유저 id
-  }
- */
 // S_PartyResultResponse
-/**
- // 파티 해체 관련 패킷
-  message S_PartyResultResponse {
-    // 나간 유저를 알아야 하니까? 파티원들도?
-    int32 userId = 1; // 나간 파티원
-    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
-  }
- */
 // 파티 나가기
 // 해체는 0명이 되면 자동 해체를 진행
 export const partyExitHandler = (socket, payload) => {

@@ -19,6 +19,10 @@ import {
 } from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
+import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
+import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
+import marketMyListHandler from './marketplace/marketMyList.handler.js';
+import marketListHandler from './marketplace/marketList.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -178,7 +182,7 @@ const handlers = {
     protoType: 'party.S_PartyResultResponse',
   },
   [PACKET_TYPE.C_MARKETLIST]: {
-    handler: animationHandler,
+    handler: marketListHandler,
     protoType: 'town.C_marketList',
   },
   [PACKET_TYPE.S_MARKETLIST]: {
@@ -186,7 +190,7 @@ const handlers = {
     protoType: 'town.S_marketList',
   },
   [PACKET_TYPE.C_MARKETMYLIST]: {
-    handler: animationHandler,
+    handler: marketMyListHandler,
     protoType: 'town.C_marketMyList',
   },
   [PACKET_TYPE.S_MARKETMYLIST]: {
@@ -194,7 +198,7 @@ const handlers = {
     protoType: 'town.S_marketMyList',
   },
   [PACKET_TYPE.C_SELLINMARKET]: {
-    handler: animationHandler,
+    handler: sellInMarketHandler,
     protoType: 'town.C_SellInMarket',
   },
   [PACKET_TYPE.S_SELLINMARKET]: {
@@ -202,7 +206,7 @@ const handlers = {
     protoType: 'town.S_SellInMarket',
   },
   [PACKET_TYPE.C_BuyInMarket]: {
-    handler: animationHandler,
+    handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
   },
   [PACKET_TYPE.C_Emote]: {
