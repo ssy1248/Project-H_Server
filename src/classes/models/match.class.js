@@ -93,6 +93,7 @@ class Match {
     );
     for (let i = 0; i < updatedFilteredPartyQueue.length; i++) {
       for (let j = i + 1; j < updatedFilteredPartyQueue.length; j++) {
+        console.log('파티+파티 매칭중');
         const party1 = updatedFilteredPartyQueue[i];
         const party2 = updatedFilteredPartyQueue[j];
         if (party1.partyMembers.length + party2.partyMembers.length === maxDungeonNum) {
@@ -103,14 +104,47 @@ class Match {
               this.dungeonIndex
             } 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length}).`,
           );
+          console.log('party1', 'party2', party1, party2);
           const matchedMembers = [...party1.partyMembers, ...party2.partyMembers];
+          console.log(
+            'party1members',
+            'party2members',
+            ...party1.partyMembers,
+            ...party2.partyMembers,
+          );
+
+          // 파티 1,2이 레벨 비교하기 위해서 파티장의 레벨을 가져온다.
+          const party1LeaderLevel = party1.partyLeader.playerInfo.level;
+          const party2LeaderLevel = party2.partyLeader.playerInfo.level;
+          console.log(
+            'party1LedaerLevel',
+            'party2LeaderLevel',
+            party1LeaderLevel,
+            party2LeaderLevel,
+          );
+
+          //파티 1의 리더 레벨이 높거나 같으면 (일단 레벨이 같으면 먼저 큐에 들어간 사람을 파티장으로)
+          if (party1LeaderLevel >= party2LeaderLevel) {
+            //파티2 삭제
+            party2.PartyBreakUp();
+            // 파티1에 파티2인원 추가
+            party1.addPartyMember(...party2.partyMembers);
+          } else if (party1LeaderLevel < party2LeaderLevel) {
+            //파티1 삭제
+            party1.PartyBreakUp();
+            //파티2에 파티1인원 추가
+            party2.addPartyMember(...party1.partyMembers);
+          }
+          console.log('party1', 'party2', party1, party2, '파티 분리후');
 
           //파티장 결합 문제 두명에서 파티장중에서 누가 될것인가 레벨과 같으면 랜덤으로?
           //보니까 여기서 파티장을 비교해서 레벨이 높은쪽이 파티장이 되고 아니면 랜덤으로 하자
           //파티장이 어떤 형태로 들어가는지 알아야겠다. 이부분은 일당 제끼고
           //그러면 파티장 레벨이 낮은쪽이 파티 헤제를
           //파티장이 이렇게 들어온다.
-          /* partyLeader: User {
+
+          /* partyLeader: 
+          User {
           userInfo: [Object],
           playerInfo: [Object],
           playerStatInfo: [Object],
@@ -136,6 +170,7 @@ class Match {
       const party = updatedFilteredPartyQueue[i];
       const needed = maxDungeonNum - party.partyMembers.length;
       if (needed > 0 && filteredSoloQueue.length >= needed) {
+        console.log('파티+솔로 매칭중');
         // 미리 필터링된 filteredSoloQueue에서 필요한 만큼 솔로를 선택
         const matchingSolos = filteredSoloQueue.slice(0, needed);
 
@@ -145,6 +180,13 @@ class Match {
 
         // 해당 파티도 원본 파티 큐에서 제거
         this.partyQueue = this.partyQueue.filter((p) => p.id !== party.id);
+
+        console.log('party', party);
+        console.log('matchingSolos', matchingSolos);
+
+        //파티에 솔로 매칭 인원 추가
+        party.addPartyMember(...matchingSolos);
+        console.log('party', party, '파티 생성후');
 
         console.log(
           `매칭 완료: 파티 ${party.id}와 솔로 ${needed}명 결합하여 던전 ${this.dungeonIndex} 입장.`,
@@ -175,6 +217,7 @@ class Match {
           }
         }
         this.soloQueue = remainingSoloQueue; // 선택된 솔로들을 제외한 나머지 솔로들
+
         console.log(`매칭 완료: 솔로 ${maxDungeonNum}명 결합하여 던전 ${this.dungeonIndex} 입장.`);
         this.enterDungeon(selectedSolos, this.dungeonIndex);
       } else {
