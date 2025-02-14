@@ -8,7 +8,7 @@ import { createResponse } from '../../utils/response/createResponse.js';
 const check = async (data) => {
   try {
     //아이템에 인벤토리 고유 키 넣어준다면 이렇게 구현
-    const item = getItemBuyInventoryId(data.user.charID, data.inventoryId);
+    const item = getItemBuyInventoryId(data.user.charId, data.inventoryId);
     if (!item) {
       throw new Error('인벤토리에 없습니다!');
     }

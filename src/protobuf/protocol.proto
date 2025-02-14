@@ -306,20 +306,20 @@ message S_ScreenText {
 message S_ScreenDone {}
 
 // 경매장 페이지 네이션 요청 
-message C_marketList {
+message C_MarketList {
   int32 page = 1;
 }
 // 경매장 페이지 네이션 응답
-message S_marketList {
+message S_MarketList {
   int32 MaxPage = 1;
   repeated marketItemInfo itemdata = 2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 요청
-message C_marketMyList {
+message C_MarketMyList {
   int32 page = 1;
 }
 // 경매장 자신 인벤토리 페이지 네이션 응답
-message S_marketMyList {
+message S_MarketMyList {
   int32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
