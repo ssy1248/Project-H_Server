@@ -139,6 +139,7 @@ const initializeCharacter = (result) => {
     exp: result.exp,
     isMove: false,
     isSpawn: false,
+    charId: result.id,
   };
   const playerStatInfo = {
     hp: result.hp,
