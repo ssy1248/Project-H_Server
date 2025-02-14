@@ -6,7 +6,6 @@ import { createResponse } from '../../utils/response/createResponse.js';
 
 const marketListHandler = (socket, payload) => {
   const { page, count } = payload;
-
   const marketData = [];
   for (let i = 0; i < count; i++) {
     let data = getMarketSession(page * count + i);
@@ -21,7 +20,7 @@ const marketListHandler = (socket, payload) => {
     }
   }
   const MaxPage = getMaxMarketList(count);
-  const packet = createResponse('town', 'S_marketList', PACKET_TYPE.S_MARKETLIST, {
+  const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
     MaxPage,
     itemdata: marketData,
   });

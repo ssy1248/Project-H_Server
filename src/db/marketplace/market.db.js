@@ -1,5 +1,5 @@
 import pools from '../database.js';
-import { SQL_QUERIES as MARKET } from './market.queries';
+import { SQL_QUERIES as MARKET } from './market.queries.js';
 import { SQL_QUERIES as INVENTORY } from '../inventory/inventory.queries.js';
 import { SQL_QUERIES as USER } from '../user/user.queries.js';
 // 모든 데이터 받고 서버에서 관리 경매 종료를 위한 관리

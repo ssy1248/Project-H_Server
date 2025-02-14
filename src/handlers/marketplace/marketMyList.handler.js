@@ -13,7 +13,7 @@ const marketMyListHandler = (socket, payload) => {
     }
   }
 
-  const packet = createResponse('town', 'S_marketMyList', PACKET_TYPE.S_MARKETMYLIST, {
+  const packet = createResponse('town', 'S_MarketMyList', PACKET_TYPE.S_MARKETMYLIST, {
     MaxPage: user.inventory.lenght > 0 ? parseInt(user.inventory.lenght / page) : 0,
     itemdata: data,
   });

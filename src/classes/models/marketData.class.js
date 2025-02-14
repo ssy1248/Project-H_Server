@@ -1,5 +1,5 @@
-import { cancelMarket } from '../../db/marketplace/market.db';
-import { addMarketSession, deletMarketSession } from '../../session/market.session';
+import { cancelMarket } from '../../db/marketplace/market.db.js';
+import { addMarketSession, deletMarketSession } from '../../session/market.session.js';
 
 class marketData {
   constructor(data) {
@@ -9,11 +9,11 @@ class marketData {
     this.rarity = data.upgrade;
     this.price = data.price;
     this.endTime = data.endTime;
-    this.delay = endTime - new Date(); // 남은 시간 계산 (밀리초)
+    this.delay = new Date() - this.endTime; // 남은 시간 계산 (밀리초)
 
-    if (delay > 0) {
+    if (this.delay > 0) {
       addMarketSession(this);
-      setTimeout(this.endData(), delay);
+      setTimeout(this.endData.bind(this), this.delay);
     } else {
       this.endData();
     }

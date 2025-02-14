@@ -1,6 +1,6 @@
 //구매 하기
 
-import { PACKET_TYPE } from '../../constants/header';
+import { PACKET_TYPE } from '../../constants/header.js';
 import { sellInMarket } from '../../db/marketplace/market.db.js';
 import { deletMarketSession, getMarketSession } from '../../session/market.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
