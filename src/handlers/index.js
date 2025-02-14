@@ -10,8 +10,10 @@ import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
 import {
+  partyExitHandler,
   partyHandler,
   partyInviteHandler,
+  partyKickHandler,
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
@@ -164,11 +166,11 @@ const handlers = {
     protoType: 'party.C_SearchPartyRequest',
   },
   [PACKET_TYPE.C_PARTYKICKREQUEST]: {
-    handler: animationHandler,
+    handler: partyKickHandler,
     protoType: 'party.C_PartyKickRequest',
   },
   [PACKET_TYPE.C_PARTYEXITREQUEST]: {
-    handler: animationHandler,
+    handler: partyExitHandler,
     protoType: 'party.C_PartyExitRequest',
   },
   [PACKET_TYPE.S_PARTYSEARCHRESPONSE]: {
