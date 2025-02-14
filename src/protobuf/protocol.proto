@@ -280,8 +280,8 @@ message S_PartyResponse {
 }
 
 /*매칭 */
-message C_match{
-  PlayerStatus party =1;
+message C_matchRequest{
+  partyInfo party =1;
   int32 dungeonCode=2;
   repeated PlayerStatus players=3;
 }
@@ -293,7 +293,6 @@ message S_matchResponse{
   repeated PartyInfo party = 3;
   string message = 4;
 }
-
 
 /* 던전 입장 */
 

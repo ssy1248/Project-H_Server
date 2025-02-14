@@ -229,6 +229,7 @@ export const partyHandler = async (socket, payload) => {
       const party = createPartySession(partyId, partyName, userId);
       // 파티에 유저 추가
       party.addPartyMember(user);
+      console.log(party)
       const info = party.getPartyInfo();
       partyPacket = {
         party: info,
