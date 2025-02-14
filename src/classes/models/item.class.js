@@ -9,6 +9,7 @@ class Item{
         this.price = 0; // int
         this.rarity = 0; // int
         this.equiped = false // bool
+        this.stackable = false // bool
     };
 
     // 소모성 아이템일 경우 아이템 사용 효과

@@ -18,7 +18,7 @@ import {
 
 import {
   getItemsTableStructure,
-  createItem2,
+  createItem,
   deleteItem,
   updateItem,
   getAllItems,
@@ -114,7 +114,8 @@ app.post('/api/:type/add', async (req, res) => {
       result = await createCharacterStats(data.hp, data.mp, data.atk, data.def, data.speed);
       break;
     case 'item-list':
-      result = await createItem2(data.name, data.itemtype, data.stat, data.price);
+      result = await createItem(data.name, data.itemtype, data.stat, data.price);
+      result = result === null ? { success: false, id: null } : { sucess: true, id: result.insertId };
       break;
     case 'skill-list':
       result = await createSkill(
