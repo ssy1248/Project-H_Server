@@ -192,6 +192,7 @@ export const partyListHandler = async (socket, payload) => {
   }
 };
 
+// 이부분을 바꿔야할듯 -> Id를 어떤식으로? 그냥 랜덤값으로 하면 결국 같은 값이 나올 가능성이 존재하지 않을까?
 const generatePartyId = () => {
   const timestamp = Date.now(); // 현재 밀리초 단위 시간
   const random = Math.floor(Math.random() * 1000); // 0 ~ 999 사이의 랜덤 수
@@ -385,24 +386,7 @@ export const partyJoinHandler = (socket, payload) => {
 };
 
 // C_PartyKickRequest가 날라오면 처리할 핸들러
-// 추방 패킷
-// 추방 요청 유저가 파티세션에 있는지 검사 & 파티장인지 검사 후 성공 실패 전송
-//  message C_PartyKickRequest {
-//    int32 requesterUserId = 1; // 추방 요청 유저 id
-//    int32 kickUserUserId = 2; // 추방 유저 id
-//  }
 // S_PartyResultResponse
-/**
- // 파티 해체 관련 패킷
-  message S_PartyResultResponse {
-    // 나간 유저를 알아야 하니까? 파티원들도?
-    int32 userId = 1; // 나간 파티원
-    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
-  }
- */
 // 파티 추방 exitPartySelectMember -> party.class
 export const partyKickHandler = (socket, payload) => {
   try {
@@ -621,5 +605,3 @@ export const partyExitHandler = (socket, payload) => {
     handlerError(socket, e);
   }
 };
-
-// 파티 해체 핸들러?

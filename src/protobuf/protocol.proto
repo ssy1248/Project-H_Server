@@ -271,7 +271,7 @@ message S_PartyResultResponse {
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
     PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
     bool success = 3;
     string message = 4;
     GlobalFailCode failCode = 5;
