@@ -1,24 +1,31 @@
 import pools from '../database.js';
 import { SQL_QUERIES } from './inventory.queries.js';
-import { toCamelCase } from '../../utils/transformCase.js';
 
 export const getInventoryFromCharId = async (charId) => {
   try {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_INVENTORY_FROM_CHAR_ID, [charId]);
-    return toCamelCase(rows);
+    return rows;
   } catch (error) {
     console.error(error);
     return null;
   }
 }
 
-export const addItemToInventory = async (charId, itemId, rarity, equipped) => {
+export const addItemToInventory = async (charId, itemId, rarity, equipped, quantity = 1) => {
   try {
-    const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [charId, itemId, rarity, equipped]);
+    const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [charId, itemId, rarity, equipped, quantity]);
     return result;
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export const updateItemQuantity = async (charId, itemId, rarity, quantity) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_QUANTITY, [quantity, itemId, charId, rarity]);
+  } catch (error) {
+    console.error(error);
   }
 }
 
