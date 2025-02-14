@@ -9,7 +9,14 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyExitHandler, partyHandler, partyInviteHandler, partyKickHandler, partyListHandler, partySearchHandler } from './game/party.handler.js';
+import {
+  partyExitHandler,
+  partyHandler,
+  partyInviteHandler,
+  partyKickHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 
@@ -197,6 +204,14 @@ const handlers = {
   [PACKET_TYPE.C_BuyInMarket]: {
     handler: animationHandler,
     protoType: 'town.C_BuyInMarket',
+  },
+  [PACKET_TYPE.C_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.C_Emote',
+  },
+  [PACKET_TYPE.S_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.S_Emote',
   },
 };
 

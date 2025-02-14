@@ -47,6 +47,8 @@ export const PACKET_TYPE = {
   S_SELLINMARKET: 42,
   C_BuyInMarket: 43,
   S_BuyInMarket: 44,
-    C_INVENTORYREQUEST: 45,
+  C_INVENTORYREQUEST: 45,
   S_INVENTORYRESPONSE: 46,
+  C_EMOTE: 47,
+  S_EMOTE: 48,
 };
