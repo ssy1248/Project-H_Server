@@ -9,8 +9,8 @@ export const onEnd = (socket) => async () => {
   // 유저 처리.
   clearUser(socket);
 
-  const gameSession = getGameSession();
-  gameSession.removeUser(socket);
+  // const gameSession = getGameSession();
+  // gameSession.removeUser(socket);
 };
 
 // 유저 처러.
@@ -35,9 +35,10 @@ const clearUser = async (socket) => {
         playerInfo.level,
         playerInfo.exp,
       );
-      // 세션에서 유저 삭제
-      await removeUser(socket);
     }
+
+    // 세션에서 유저 삭제
+    removeUser(socket);
 
     
   } catch (error) {
