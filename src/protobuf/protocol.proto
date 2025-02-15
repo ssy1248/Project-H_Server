@@ -99,9 +99,9 @@ message S_Spawn {
   repeated ItemInfo storeList = 3;
 }
 
-// 캐릭터 없애주기!
-message S_Despawn {
-    repeated int32 playerIds = 2;
+  // 캐릭터 없애주기!
+  message S_Despawn {
+    int32 playerId = 1; // 유저 id
   }
   
   /* 캐릭터 패킷 */
@@ -113,8 +113,7 @@ message S_Despawn {
     int64 timestamp = 3; // 서버에서 핑 체크용.
     bool isMoving = 4; // 이동 중 여부 (true: 이동 중, false: 정지)
     Velocity velocity = 5; // 속도 벡터 (방향 + 속도)
-    float speed = 7;       // 스피트
-    float rotationSpeed = 8; // 회전 속도 추가 (°/s)
+    float speed = 6;
   }
   
   // ALL

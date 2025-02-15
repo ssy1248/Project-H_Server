@@ -16,6 +16,7 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
+import { findUserSync } from '../../classes/managers/movementSync.manager.js';
 
 const setCharacterStat = async () => {
   // 현재 테이블의 행 개수를 조회합니다.
@@ -86,7 +87,18 @@ const syncSpawnedUser = async (socket, user) => {
     // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
     const users = getAllUsers(socket);
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
-    const playerData = users.map((value) => createPlayerInfoPacketData(value));
+    const playerData = users.map((value) => {
+      
+      // 유저 최신 좌표 가져오기.
+      const userInfo = value.getUserInfo();
+      const user = findUserSync("town", userInfo.userId);
+      if(user !== null){
+        value.setTransformInfo(user.currentTransform);
+      }
+
+      const playerInfo = createPlayerInfoPacketData(value);
+      return playerInfo;
+    });
 
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -127,6 +139,7 @@ const syncSpawnedUser = async (socket, user) => {
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);
     //broadcastToUsersAsync(socket, initialResponse2);
     broadcastToUsers(socket, initialResponse2);
+
     const userCount = getAllUsers();
     console.log(`들어와 있는 유저 세션 : ${userCount.length}`);
   } catch (error) {
