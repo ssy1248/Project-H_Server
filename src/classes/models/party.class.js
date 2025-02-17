@@ -21,8 +21,6 @@ class Party {
       partyName: partyName,
       partyLeaderId: userId,
       maximum: MAX_PARTY_MEMBER,
-      // 3번째 repeated PlayerStatus가 들어가야 하니 userId는 아님
-      // userId를 통해서 유저를 조회하고 유저 클래스의 playerInfo, playerStatInfo를 가져와야 세팅이 가능
     };
   }
 

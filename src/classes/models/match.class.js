@@ -1,22 +1,18 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 import { createPartySession, searchPartySession } from '../../session/party.session.js';
 import { addDungeonSession } from '../../session/dungeon.session.js';
-import Party from './party.class.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수를 상수로 지정
 
 // 매칭 관련 다룰 클래스
 class Match {
-  constructor(dungeonIndex) {
+  constructor() {
     // 파티와 솔로 매치 큐를 초기화
     this.partyQueue = []; // 파티 매칭 대기열
-    this.soloQueue = []; // 솔로 매칭 대기열
-
-    // // 던전 인덱스를 설정 왠지 모르게 에러가 나서 이걸 매칭 시도시에 쓰도록 변경
-    // setDesiredDungeonIndex(dungeonIndex);
-    this.dungeonIndex = dungeonIndex; // 던전 인덱스를 설정
   }
+
+  // 솔로가 던전 입장 누르면 무조건 파티 생성 후 입장이 가능합니다. 팝업띄어서 유저가 직접 파티 생성하게 -> 파티 세션 집어넣고 진행
 
   // 두개의 파티가 합쳐질 때, 합쳐진 파티의 새로운 파티장 설정 로직
   // 튕긴 파티원 처리 로직
@@ -27,23 +23,23 @@ class Match {
     try {
       const party = searchPartySession(partyId); // 파티 세션 검색
 
-      // 파티가 원하는 던전과 현재 던전이 일치하는지 확인
-      // if (party.desiredDungeonIndex !== this.dungeonIndex) {
-      //   console.error(`파티 ${partyId}는 던전 ${this.dungeonIndex} 매칭 대상이 아닙니다.`);
-      //   return;
-      // }
-
       // 파티 정보가 유효한지 확인
       if (!party || !Array.isArray(party.partyMembers)) {
         throw new Error('유효한 파티 또는 파티 멤버 정보를 찾을 수 없습니다.');
       }
 
-      // 파티를 매칭 대기열에 추가
-      party.setDesiredDungeonIndex(dungeonIndex);
+      // 던전 인덱스가 정상적인 값인지?
+      // 임시 예외 처리
+      if (party.desiredDungeonIndex !== typeof Number) {
+        console.log('숫자형이 아님');
+        return;
+      }
 
+      // 파티를 매칭 대기열에 추가
       this.partyQueue.push(party);
+
       console.log(
-        `파티 ${partyId}의 멤버들이 던전 ${this.dungeonIndex} 매칭 대기열에 추가되었습니다.`,
+        `파티 ${partyId}의 멤버들이 던전 ${party.desiredDungeonIndex} 매칭 대기열에 추가되었습니다.`,
       );
       this.attemptMatch(); // 매칭 시도
     } catch (error) {
@@ -51,26 +47,11 @@ class Match {
     }
   }
 
-  // 솔로로 매칭 시도
-  addSoloMatchQueue(user) {
-    // 솔로 유저가 원하는 던전과 현재 던전이 일치하는지 확인
-    if (user.desiredDungeonIndex !== this.dungeonIndex) {
-      console.error(`유저 ${user.id}는 던전 ${this.dungeonIndex} 매칭 대상이 아닙니다.`);
-      return;
-    }
-    this.soloQueue.push(user); // 유저를 솔로 대기열에 추가
-    console.log(`유저 ${user.id}가 던전 ${this.dungeonIndex} 솔로 매칭 대기열에 추가되었습니다.`);
-    this.attemptMatch(); // 매칭 시도
-  }
-
   // 매칭 로직: 여러 큐를 활용하여 4명 조합 찾기
   attemptMatch() {
-    // 현재 던전 대상의 파티와 솔로만 필터링
+    // 던전 필터링 변경
     const filteredPartyQueue = this.partyQueue.filter(
       (party) => party.desiredDungeonIndex === this.dungeonIndex,
-    );
-    const filteredSoloQueue = this.soloQueue.filter(
-      (user) => user.desiredDungeonIndex === this.dungeonIndex,
     );
 
     // 1) 단독 파티 매칭: 파티의 멤버 수가 maxDungeonNum(예: 4명)인 경우
@@ -80,9 +61,10 @@ class Match {
         // 해당 파티를 원본 큐에서 제거
         this.partyQueue = this.partyQueue.filter((p) => p.id !== party.id);
         console.log(
-          `매칭 완료: 파티 ${party.id} 단독으로 던전 ${this.dungeonIndex} 입장 (멤버 수: ${party.partyMembers.length}).`,
+          `매칭 완료: 파티 ${party.id} 던전 ${party.desiredDungeonIndex} 입장 (멤버 수: ${party.partyMembers.length}).`,
         );
-        this.enterDungeon(party.partyMembers, this.dungeonIndex); // 던전 입장 처리
+        // enterDungeon 수정
+        const dungeonInfo = this.enterDungeon(party); // 던전 입장 처리
       }
     }
 
@@ -128,11 +110,13 @@ class Match {
             party2.PartyBreakUp();
             // 파티1에 파티2인원 추가
             party1.addPartyMember(...party2.partyMembers);
+            const dungeonInfo = this.enterDungeon(party1);
           } else if (party1LeaderLevel < party2LeaderLevel) {
             // 파티1 삭제
             party1.PartyBreakUp();
             // 파티2에 파티1인원 추가
             party2.addPartyMember(...party1.partyMembers);
+            const dungeonInfo = this.enterDungeon(party2);
           }
           console.log('party1', 'party2', party1, party2, '파티 분리후');
 
@@ -153,98 +137,10 @@ class Match {
           // userInfo안에 platerStatInfo에 레벨이 있군
 
           // 파티 결합 후 던전 입장
-          this.enterDungeon(matchedMembers, this.dungeonIndex);
+
           // 매칭 완료 후 변경된 큐를 다시 확인하기 위해 재귀 호출
           return this.attemptMatch();
         }
-      }
-    }
-
-    // 3) 파티 + 솔로 매칭: 파티에 부족한 인원을 솔로 큐에서 채울 수 있는 경우
-    updatedFilteredPartyQueue = this.partyQueue.filter(
-      (party) => party.desiredDungeonIndex === this.dungeonIndex,
-    );
-
-    for (let i = 0; i < updatedFilteredPartyQueue.length; i++) {
-      const party = updatedFilteredPartyQueue[i];
-      const needed = maxDungeonNum - party.partyMembers.length;
-      if (needed > 0 && filteredSoloQueue.length >= needed) {
-        console.log('파티+솔로 매칭중');
-        // 미리 필터링된 filteredSoloQueue에서 필요한 만큼 솔로를 선택
-        const matchingSolos = filteredSoloQueue.slice(0, needed);
-
-        // 원본 솔로 큐에서 해당 솔로들을 제거
-        const matchingSoloIds = matchingSolos.map((u) => u.id);
-        this.soloQueue = this.soloQueue.filter((u) => !matchingSoloIds.includes(u.id));
-
-        // 해당 파티도 원본 파티 큐에서 제거
-        this.partyQueue = this.partyQueue.filter((p) => p.id !== party.id);
-
-        console.log('party', party);
-        console.log('matchingSolos', matchingSolos);
-
-        // 파티에 솔로 매칭 인원 추가
-        party.addPartyMember(...matchingSolos);
-        console.log('party', party, '파티 생성후');
-
-        console.log(
-          `매칭 완료: 파티 ${party.id}와 솔로 ${needed}명 결합하여 던전 ${this.dungeonIndex} 입장.`,
-        );
-        const matchedMembers = [...party.partyMembers, ...matchingSolos];
-        this.enterDungeon(matchedMembers, this.dungeonIndex);
-        return this.attemptMatch();
-      }
-    }
-
-    // 4) 솔로 + 솔로 매칭: 솔로 큐에 maxDungeonNum명 이상의 대상이 있으면 매칭
-    while (true) {
-      // 던전 인덱스에 맞는 솔로 유저들만 필터링
-      const availableSolos = this.soloQueue.filter(
-        (user) => user.desiredDungeonIndex === this.dungeonIndex,
-      );
-
-      // availableSolos에 maxDungeonNum 명 이상의 솔로가 있으면 매칭을 시도
-      if (availableSolos.length >= maxDungeonNum) {
-        const selectedSolos = []; // 선택된 4명(파티)을 저장할 배열
-        const remainingSoloQueue = []; // 매칭에 사용되지 않은 나머지 솔로 유저들 저장할 배열
-
-        // 원본 솔로 큐에서 던전 대상인 유저들 중에서 maxDungeonNum 명을 선택
-        for (let user of this.soloQueue) {
-          if (
-            user.desiredDungeonIndex === this.dungeonIndex && // 원하는 던전 인덱스와 일치하는지 확인
-            selectedSolos.length < maxDungeonNum // 아직 4명이 되지 않았다면
-          ) {
-            selectedSolos.push(user); // 유효한 솔로 유저를 선택
-          } else {
-            remainingSoloQueue.push(user); // 선택되지 않은 유저는 나중에 다시 사용되도록 남겨둠
-          }
-        }
-
-        this.soloQueue = remainingSoloQueue; // 매칭에 사용되지 않은 유저들을 다시 대기열에 저장
-
-        // 파티장 설정: 레벨이 가장 높은 사람을 파티장으로 설정
-        selectedSolos.sort((a, b) => b.playerInfo.level - a.playerInfo.level); // 레벨 내림차순 정렬 (가장 높은 레벨이 앞에 오게)
-
-        // 첫 번째 유저를 파티장으로 지정 (레벨이 가장 높은 사람)
-        const partyLeader = selectedSolos[0];
-        selectedSolos.shift(); // 파티장으로 설정한 사람은 나머지 파티원들과 구분되므로 제외
-
-        // 파티 이름은 uuid로 고유하게 생성
-        const partyName = `Party_${uuidv4()}`; // 파티 이름 생성 (UUID 사용) **임시적으로 uuid씀
-        const userId = partyLeader.id; // 파티장은 레벨이 가장 높은 사람으로 설정
-        const partyId = uuidv4();
-
-        // 새로운 파티 세션을 생성. 파티 이름과 파티장 정보로 세션을 생성
-        const party = createPartySession(partyId, partyName, userId);
-        party.addPartyMember(...selectedSolos);
-
-        console.log(`매칭 완료: 솔로 ${maxDungeonNum}명 결합하여 던전 ${this.dungeonIndex} 입장.`);
-
-        // 매칭된 유저들로 던전에 입장
-        this.enterDungeon(selectedSolos, this.dungeonIndex);
-      } else {
-        // availableSolos에 4명 이상의 유저가 없으면, 더 이상 매칭을 시도하지 않고 종료
-        break;
       }
     }
   }
@@ -253,14 +149,14 @@ class Match {
   cancelMatch(user) {}
 
   // 던전 입장 함수: 매칭된 멤버들이 던전에 입장하도록 처리
-  enterDungeon(members, dungeonIndex) {
+  enterDungeon(party) {
     // 던전 고유 번호 생성
     const dungeonId = uuidv4();
     // 던전 세션 추가
-    const dungeonSession = addDungeonSession(dungeonId, dungeonIndex);
+    const dungeonSession = addDungeonSession(dungeonId, party.desiredDungeonIndex);
 
     // 실제 게임 로직에서는 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행
-    console.log('던전 입장 처리 중...', members);
+    console.log('던전 입장 처리 중...', party.partyMembers);
     return dungeonSession; // 생성된 던전 세션 반환
   }
 }
