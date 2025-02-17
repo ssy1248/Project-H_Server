@@ -2,9 +2,10 @@ import { cancelMarket } from '../../db/marketplace/market.db.js';
 import { addMarketSession, deletMarketSession } from '../../session/market.session.js';
 
 class marketData {
-  constructor(data) {
+  constructor(data, name) {
     this.id = data.id;
     this.charId = data.charId;
+    this.name = name;
     this.itemIndex = data.itemIndex;
     this.rarity = data.upgrade;
     this.price = data.price;
