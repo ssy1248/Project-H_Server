@@ -35,8 +35,6 @@ enum MsgId {
   S_SCREENDONE = 28;
   C_PARTYINVITEREQUEST = 29;
   C_PARTYJOINREQUEST = 30;
-  // C_UploadItemRequest=29;
-  // S_UploadItemResponse=30;
   C_PARTYLISTREQUEST = 31;
   C_SEARCHPARTYREQUEST = 32;
   C_PARTYKICKREQUEST = 33;
@@ -55,8 +53,8 @@ enum MsgId {
   S_INVENTORYRESPONSE = 46;
   C_EMOTE = 47;
   S_EMOTE = 48;
-  C_SellItemRequest = 49;
-  S_SellItemResponse = 50;
+  C_SellItemRequest = 51;
+  S_SellItemResponse = 52;
 }
 
 //회원가입 요청

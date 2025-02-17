@@ -230,14 +230,6 @@ const handlers = {
     handler: chatHandler,
     protoType: 'chat.S_Emote',
   },
-  // [PACKET_TYPE.C_UploadItemRequest]: {
-  //   handler: shopHandler,
-  //   protoType: 'inventory.C_UploadItemRequest',
-  // },
-  // [PACKET_TYPE.S_UploadItemResponse]: {
-  //   handler: shopHandler,
-  //   protoType: 'inventory.S_UploadItemResponse',
-  // },
   [PACKET_TYPE.C_SellItemRequest]: {
     handler: shopHandler,
     protoType: 'inventory.C_SellItemRequest',
