@@ -1,14 +1,10 @@
 import { matchSessions } from './sessions.js';
 import Match from '../classes/models/match.class.js';
 
-export const addMatchSession = (dungeonIndex) => {
-  const session = new Match(dungeonIndex);
+export const addMatchSession = () => {
+  const session = new Match();
   matchSessions.push(session);
   return session;
-};
-
-export const getMatchSession = (dungeonIndex) => {
-  return matchSessions.find((session) => session.dungeonIndex === dungeonIndex);
 };
 
 export const removeMatchSession = (id) => {
