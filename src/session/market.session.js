@@ -30,9 +30,32 @@ export function getMaxMarketList(count) {
   return parseInt(marketSessions.size / count);
 }
 
-export function getBuyNameInMarketList(naem, page, count) {
-  const startIndex = (page - 1) * count;
-  const endIndex = startIndex + count;
+// 이름 기준으로 검색하기
+export function getBuyNameInMarketList(name, page, count) {
+  const data = [];
+  // 넘기기 전용 카운트
+  let nexCount = page * count;
+
+  for (let [makrketId, marketData] of marketSessions) {
+    if (data.length >= count) {
+      break;
+    }
+    if (marketData.name.includes(name)) {
+      if (nexCount === 0) {
+        data.push({
+          makrketId,
+          itemId: marketData.itemIndex,
+          upgrade: marketData.upgrade,
+          endTime: marketData.endTime,
+          price: marketData.price,
+        });
+      } else {
+        nexCount--;
+      }
+    }
+  }
+
+  return data;
 }
 
 //처음 초기화 용도
