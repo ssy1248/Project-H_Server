@@ -389,10 +389,11 @@ message S_BuyInMarket {
   string message =2;
 }
 message C_MarketSelectBuyName{
-
+  int32 page = 1;
+  int32 count = 2;
 }
 message S_MarketSelectBuyName{
-  
+  repeated ItemInfo itemdata = 2;
 }
 
 // 정보 구조체
