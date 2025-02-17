@@ -11,46 +11,6 @@ import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
 
-/* 
-// 파티 신청 패킷
-message C_PartyJoinRequest {
-    int32 partyId = 1; // 파티 id
-    int32 userId = 2; // 가입할 유저 id
-}
-
-// 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
-// 처리하는 패킷을 하나로
-// 파티 가입 관련 패킷 처리
-message S_PartyResponse{
-    PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
-}
-    추가 패킷이 필요하다고 생각들면 추가하자
-*/
-
-/**
-  message PartyInfo{
-    int32 partyId = 1 ;
-    string partyName = 2; // 파티 이름
-    int32 partyLeaderId = 3; // 리더 아이디
-    int32 maximum = 4;
-    repeated PlayerStatus Players = 5;
-  }
-
-  message PlayerStatus {
-    int32 playerClass = 1;
-    int32 playerLevel = 2;
-    string playerName = 3;
-    float playerFullHp = 4;
-    float playerFullMp = 5;
-    float playerCurHp = 6;
-    float playerCurMp = 7;
-  }
- */
-
 // C_SearchPartyRequest
 // S_PartySearchResponse -> 보내주는
 // 파티 이름 검색을 해서 조회한 값을 전송
@@ -324,29 +284,9 @@ export const partyInviteHandler = async (socket, payload) => {
 // C_PartyJoinRequest가 날라오면 처리할 핸들러
 // S_PartyResponse
 // 파티 가입
-/**
- // 파티 신청 패킷
-message C_PartyJoinRequest {
-    int32 partyId = 1; // 파티 id
-    int32 userId = 2; // 가입할 유저 id
-}
-
-message S_PartyResponse{
-    PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
-}
- */
 export const partyJoinHandler = (socket, payload) => {
   try {
     const { partyId, userId } = payload;
-
-    console.log('파티 아이디 : ');
-    console.log(partyId);
-    console.log('유저 아이디 : ');
-    console.log(userId);
 
     // 1. 유저와 파티 존재 여부 확인
     const user = getUserById(userId);
