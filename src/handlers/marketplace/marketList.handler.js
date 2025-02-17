@@ -22,6 +22,7 @@ const marketListHandler = (socket, payload) => {
       marketData.push({
         marketId: data.id,
         itemId: data.itemIndex,
+        name: data.name,
         upgrade: data.upgrade,
         endTime: data.endTime,
         price: data.price,
