@@ -28,8 +28,9 @@ const marketListHandler = (socket, payload) => {
       });
     }
   }
-
+  // 최대 page 가져오기
   const MaxPage = getMaxMarketList(count);
+
   const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
     MaxPage,
     itemdata: marketData,
