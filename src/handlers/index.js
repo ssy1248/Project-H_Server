@@ -26,8 +26,6 @@ import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
-import { partyHandler } from './game/party.handler.js';
-import shopHandler from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
 const handlers = {
