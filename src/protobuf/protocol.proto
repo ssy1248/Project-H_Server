@@ -522,13 +522,13 @@ message BtnInfo {
     int32 rarity =7; 
   }
 
-
  message marketItemInfo{
     int32 marketId = 1;
     int32 itemId =2;
-    int32 upgrade =3;
-    int64 endTime = 4;
-    int32 price = 5;
+    string name = 3;
+    int32 upgrade =4;
+    int64 endTime = 5;
+    int32 price = 6;
  }
 
 message C_Emote{

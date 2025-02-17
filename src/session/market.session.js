@@ -45,6 +45,7 @@ export function getBuyNameInMarketList(name, page, count) {
         data.push({
           makrketId,
           itemId: marketData.itemIndex,
+          name: marketData.name,
           upgrade: marketData.upgrade,
           endTime: marketData.endTime,
           price: marketData.price,
