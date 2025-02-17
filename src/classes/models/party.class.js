@@ -50,7 +50,7 @@ class Party {
       partyName: this.partyName,
       partyLeaderId: this.partyLeader.userInfo.userId,
       maximum: MAX_PARTY_MEMBER,
-      Players: players, 
+      Players: players,
     };
   }
 

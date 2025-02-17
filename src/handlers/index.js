@@ -23,6 +23,7 @@ import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
+import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
 
 const handlers = {
@@ -122,6 +123,15 @@ const handlers = {
     handler: animationHandler,
     protoType: 'party.S_PartyResponse',
   },
+  [PACKET_TYPE.C_MATCHREQUEST]: {
+    handler: matchingHandler,
+    protoType: 'match.C_MatchResponse',
+  },
+  [PACKET_TYPE.S_MATCHRESPONSE]: {
+    handler: matchingHandler,
+    protoType: 'match.S_MatchResponse',
+  },
+
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
