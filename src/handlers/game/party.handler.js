@@ -9,35 +9,13 @@ import {
 import { broadcastToUsers, getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+import { v4 as uuidv4 } from 'uuid';
 
 /* 
 // 파티 신청 패킷
 message C_PartyJoinRequest {
     int32 partyId = 1; // 파티 id
     int32 userId = 2; // 가입할 유저 id
-}
-
-// 추방 패킷
-// 추방 요청 유저가 파티세션에 있는지 검사 & 파티장인지 검사 후 성공 실패 전송
-message C_PartyKickRequest {
-    int32 requesterUserId = 1; // 추방 요청 유저 id
-    int32 kickUserUserId = 2; // 추방 유저 id
-}
-
-// 파티 나가기
-message C_PartyExitRequest {
-    // 파티 세션에서 파티에 들어가있는지 검사 후 방장이였다면 다른 사람에게 방장을 넘기고 나가기
-    int32 userId = 1; // 나갈 유저 id
-}
-
-// 파티 해체 관련 패킷
-message S_PartyResultResponse {
-    // 나간 유저를 알아야 하니까? 파티원들도?
-    int32 userId = 1; // 나간 파티원
-    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
@@ -186,15 +164,16 @@ export const partyListHandler = async (socket, payload) => {
 
 // 이부분을 바꿔야할듯 -> Id를 어떤식으로? 그냥 랜덤값으로 하면 결국 같은 값이 나올 가능성이 존재하지 않을까?
 const generatePartyId = () => {
-  const timestamp = Date.now(); // 현재 밀리초 단위 시간
-  const random = Math.floor(Math.random() * 1000); // 0 ~ 999 사이의 랜덤 수
-  return parseInt(`${timestamp}${random}`);
+  // uuid는 같은 값이 나올 가능성이 낮다
+  const id = uuidv4();
+  return parseInt(`${id}`);
 };
 
 // C_PartyRequest가 날라오면 처리할 핸들러
 // S_PartyResponse
 // 파티 생성
 // 파티 생성 시 던전까지 고르고 생성
+// 파티 생성 시 이름 부적절 검사?
 export const partyHandler = async (socket, payload) => {
   try {
     // payload로 받아온 데이터를 파싱
@@ -222,7 +201,7 @@ export const partyHandler = async (socket, payload) => {
       const party = createPartySession(partyId, partyName, userId);
       // 파티에 유저 추가
       party.addPartyMember(user);
-      console.log(party)
+      console.log(party);
       const info = party.getPartyInfo();
       partyPacket = {
         party: info,
@@ -363,16 +342,91 @@ message S_PartyResponse{
 export const partyJoinHandler = (socket, payload) => {
   try {
     const { partyId, userId } = payload;
+
+    console.log('파티 아이디 : ');
+    console.log(partyId);
+    console.log('유저 아이디 : ');
+    console.log(userId);
+
+    // 1. 유저와 파티 존재 여부 확인
     const user = getUserById(userId);
     if (!user) {
-      console.log('유저가 존재하지 않습니다. ' + user);
+      console.log('가입할 유저가 존재하지 않습니다. userId:', userId);
+      const response = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, {
+        case: 3,
+        success: false,
+        message: '가입할 유저가 존재하지 않습니다.',
+        failCode: 1,
+      });
+      socket.write(response);
       return;
     }
+
     const party = searchPartySession(partyId);
     if (!party) {
-      console.log('존재하지 않는 파티입니다.' + party);
+      console.log('존재하지 않는 파티입니다. partyId:', partyId);
+      const response = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, {
+        case: 3,
+        success: false,
+        message: '존재하지 않는 파티입니다.',
+        failCode: 2,
+      });
+      socket.write(response);
       return;
     }
+
+    // 2. 가입하려는 유저가 이미 다른 파티에 속해 있는지 확인
+    const existingParties = searchPartyInPlayerSession(userId);
+    if (existingParties.length > 0) {
+      console.log('유저가 이미 다른 파티에 속해 있습니다. userId:', userId);
+      const response = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, {
+        case: 3,
+        success: false,
+        message: '이미 다른 파티에 속해 있습니다.',
+        failCode: 3,
+      });
+      socket.write(response);
+      return;
+    }
+
+    // 3. 파티 인원 제한 확인
+    if (party.partyMembers.length >= party.getPartyInfo().Maximum) {
+      console.log('파티 인원이 가득 찼습니다. partyId:', partyId);
+      const response = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, {
+        case: 3,
+        success: false,
+        message: '파티 인원이 가득 찼습니다.',
+        failCode: 4,
+      });
+      socket.write(response);
+      return;
+    }
+
+    // 4. 파티 가입 처리
+    party.addPartyMember(user);
+    const updatedPartyInfo = party.getPartyInfo();
+
+    // 가입 성공 응답 구성 (case: 3 -> 가입)
+    const responsePayload = {
+      party: updatedPartyInfo,
+      case: 3,
+      success: true,
+      message: '파티에 성공적으로 가입했습니다.',
+      failCode: 0,
+    };
+
+    const responsePacket = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, responsePayload);
+
+    // 5. 응답 전송 및 브로드캐스트
+    // 가입 요청을 보낸 소켓에 전송
+    socket.write(responsePacket);
+    // 업데이트 리스판스를 보내줘야 할듯
+    // 파티에 속한 다른 멤버들에게도 업데이트된 파티 정보를 브로드캐스트
+    party.partyMembers.forEach(member => {
+      broadcastToUsers(member.userInfo.socket, responsePacket);
+    });
+    
+    console.log(`파티 ${partyId}에 user ${userId}가 가입했습니다.`);
   } catch (e) {
     handlerError(socket, e);
   }
@@ -483,10 +537,7 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        //if (member.userInfo.socket !== socket) {
         broadcastToUsers(member.userInfo.socket, updateResponse);
-        //member.userInfo.socket.write(updateResponse);
-        //}
       });
       socket.write(updateResponse);
     }
@@ -498,7 +549,6 @@ export const partyKickHandler = (socket, payload) => {
 // C_PartyExitRequest가 날라오면 처리할 핸들러
 // S_PartyResultResponse
 // 파티 나가기
-// 해체는 0명이 되면 자동 해체를 진행
 export const partyExitHandler = (socket, payload) => {
   try {
     const { userId } = payload;
@@ -589,9 +639,7 @@ export const partyExitHandler = (socket, payload) => {
       );
       // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
       party.partyMembers.forEach((member) => {
-        if (member.userInfo && member.userInfo.socket) {
-          member.userInfo.socket.write(updateResponse);
-        }
+        broadcastToUsers(member.userInfo.socket, updateResponse);
       });
     }
   } catch (e) {
