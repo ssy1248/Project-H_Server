@@ -7,8 +7,17 @@ import { createResponse } from '../../utils/response/createResponse.js';
 const marketListHandler = (socket, payload) => {
   const { page, count } = payload;
   const marketData = [];
-  for (let i = 0; i < count; i++) {
-    let data = getMarketSession(page * count + i);
+  const marketSession = getMarketSession();
+
+  // 시작 과 끝 정해주기
+  const keysArray = Array.from(marketSession.keys());
+  const startIndex = (page - 1) * count;
+  const endIndex = startIndex + count;
+  const selectedKeys = keysArray.slice(startIndex, endIndex);
+
+  // 데이터 찾아서 넣어주기
+  for (let marketData of selectedKeys) {
+    let data = marketSession.get(marketData);
     if (data) {
       marketData.push({
         marketId: data.id,
@@ -19,6 +28,7 @@ const marketListHandler = (socket, payload) => {
       });
     }
   }
+
   const MaxPage = getMaxMarketList(count);
   const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
     MaxPage,
