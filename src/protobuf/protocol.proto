@@ -55,6 +55,8 @@ enum MsgId {
   S_INVENTORYRESPONSE = 46;
   C_EMOTE = 47;
   S_EMOTE = 48;
+  C_MATCHREQUEST = 49;
+  S_MATCHRESPONSE = 50;
   C_SELLITEMREQUEST = 51;
   S_SELLITEMRESPONSE = 52;
   C_MARKETSELECTBUYNAME = 53;
@@ -168,22 +170,6 @@ message S_BuyItemResponse  {
     string message = 2;
     GlobalFailCode failCode =3;
 }
-// message C_UploadItemRequest {
-//   // 등록할 아이템 이름
-//   string itemname = 1;
-//   // 아이템 가격
-//   int32 price = 2;
-//   // 판매할 개수
-//   int32 quantity = 3;   
-// }
-// message S_UploadItemResponse {
-//   // 성공 여부
-//   bool success = 1;
-//   // 결과 메시지
-//   string message = 2;
-//   // 실패 코드 (예: 잔액 부족, 아이템 없음 등)
-//   GlobalFailCode failCode = 3;
-// }
 
 /* 아이템 패킷 */
 
