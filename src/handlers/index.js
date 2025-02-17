@@ -25,6 +25,8 @@ import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
+import { partyHandler } from './game/party.handler.js';
+import shopHandler from './game/shop.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -228,6 +230,14 @@ const handlers = {
     handler: chatHandler,
     protoType: 'chat.S_Emote',
   },
+  // [PACKET_TYPE.C_UploadItemRequest]: {
+  //   handler: shopHandler,
+  //   protoType: 'inventory.C_UploadItemRequest',
+  // },
+  // [PACKET_TYPE.S_UploadItemResponse]: {
+  //   handler: shopHandler,
+  //   protoType: 'inventory.S_UploadItemResponse',
+  // },
   [PACKET_TYPE.C_SellItemRequest]: {
     handler: shopHandler,
     protoType: 'inventory.C_SellItemRequest',

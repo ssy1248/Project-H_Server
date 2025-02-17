@@ -35,6 +35,8 @@ enum MsgId {
   S_SCREENDONE = 28;
   C_PARTYINVITEREQUEST = 29;
   C_PARTYJOINREQUEST = 30;
+  // C_UploadItemRequest=29;
+  // S_UploadItemResponse=30;
   C_PARTYLISTREQUEST = 31;
   C_SEARCHPARTYREQUEST = 32;
   C_PARTYKICKREQUEST = 33;
@@ -151,16 +153,31 @@ message S_Chat {
 }
 
 /* 상점 패킷 */
-
-message C_BuyItemRequest {
-  string itemname = 1;
-  int32 price = 2;
+message C_BuyItemRequest{
+    string itemname =1;
+    int32 price =2;
 }
-message S_BuyItemResponse {
-  bool success = 1;
-  string message = 2;
-  GlobalFailCode failCode = 3;
+message S_BuyItemResponse  {
+    bool success =1;
+    string message = 2;
+    GlobalFailCode failCode =3;
 }
+// message C_UploadItemRequest {
+//   // 등록할 아이템 이름
+//   string itemname = 1;
+//   // 아이템 가격
+//   int32 price = 2;
+//   // 판매할 개수
+//   int32 quantity = 3;   
+// }
+// message S_UploadItemResponse {
+//   // 성공 여부
+//   bool success = 1;
+//   // 결과 메시지
+//   string message = 2;
+//   // 실패 코드 (예: 잔액 부족, 아이템 없음 등)
+//   GlobalFailCode failCode = 3;
+// }
 
 /* 아이템 패킷 */
 
