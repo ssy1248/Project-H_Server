@@ -18,7 +18,6 @@ export const ChatErrorCodes = {
   INVALID_TYPE: 4,
 };
 
-
 // 동기화 관련 js
 export const MAX_POSITION_DIFFERENCE = 0.5;  
 export const MAX_ROTATION_DIFFERENCE = 1; 
