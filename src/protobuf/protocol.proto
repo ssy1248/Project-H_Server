@@ -51,6 +51,8 @@ enum MsgId {
   S_BUYINMARKET = 44;
   C_INVENTORYREQUEST = 45;
   S_INVENTORYRESPONSE = 46;
+  C_EMOTE = 47;
+  S_EMOTE = 48;
 }
 
 //회원가입 요청
@@ -254,45 +256,65 @@ message C_PartyExitRequest {
 // 파티 조회 관련 패킷
 message S_PartySearchResponse {
   repeated PartyInfo info = 1;
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+    int32 case = 2; // case: (1 -> 모든 리스트 조회, 2 -> 검색)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
 }
 
 // 파티 해체 관련 패킷
 message S_PartyResultResponse {
   // 나간 유저를 알아야 하니까? 파티원들도?
-  int32 userId = 1;// 나간 파티원
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+  int32 userId = 1; // 나간 파티원
+    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
 // 처리하는 패킷을 하나로
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
-  PartyInfo party = 1;
-  bool success = 2;
-  string message = 3;
-  GlobalFailCode failCode = 4;
+    PartyInfo party = 1;
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    bool success = 3;
+    string message = 4;
+    GlobalFailCode failCode = 5;
+}
+
+/*매칭 */
+message C_matchRequest{
+  PartyInfo party =1;
+  int32 dungeonCode=2;
+  repeated PlayerStatus players=3;
+}
+
+
+message S_matchResponse{
+  repeated DungeonInfo dungeon = 1;
+  repeated PlayerInfo players = 2;
+  repeated PartyInfo party = 3;
+  string message = 4;
 }
 
 /* 던전 입장 */
 
 // 응답 패킷 - S_EnterDungeon
+//partyId와 party중에 고민중
 message C_EnterDungeon {
-  int32 dungeonCode = 1;
-  repeated int32 players = 2;
-  int32 partyId = 3;
+  repeated DungeonInfo dungeon = 1;
+  repeated PlayerInfo players = 2;
+  repeated PartyInfo party = 3;
 }
 
 // Me
+// 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
-  int32 dungeonCode = 1;
+  repeated DungeonInfo dungeon = 1;
   repeated PlayerInfo players = 2;
-  optional ScreenText screenText = 3;
-  optional BattleLog battleLog = 4;
+  repeated PartyInfo party = 3;
+  optional ScreenText screenText = 4;
 }
 
 // Me
@@ -307,38 +329,43 @@ message S_ScreenText {
 message S_ScreenDone {}
 
 // 경매장 페이지 네이션 요청 
-message C_marketList {
+message C_MarketList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 페이지 네이션 응답
-message S_marketList {
-  int32 MaxPage = 1;
+message S_MarketList {
+  int32 maxPage = 1;
   repeated marketItemInfo itemdata = 2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 요청
-message C_marketMyList {
+message C_MarketMyList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 응답
-message S_marketMyList {
-  int32 MaxPage = 1;
+message S_MarketMyList {
+  int32 maxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
 
 // 소캣 기준으로 유저 찾고 판매 목록에 등록 
 message C_SellInMarket {
   int32 inventoryId = 1;
+  int32 itemId = 2;
 }
 //
 message S_SellInMarket {
   int32 inventoryId = 1;
   bool success = 2;
+  string message =3;
 }
 message C_BuyInMarket {
-
+  int32 marketId = 1;
 }
 message S_BuyInMarket {
-
+  bool success = 1;
+  string message =2;
 }
 
 // 정보 구조체
@@ -404,9 +431,13 @@ message Color {
   int32 b = 3;
 }
 
+// 이던전 인포를 던전클래스에 있는것들로 바꾸야힌다.
 message DungeonInfo {
-  int32 dungeonCode = 1;
-  repeated MonsterStatus monsters = 2;
+  int32 dungeonId = 1;
+  int32 DungeonIndex=2;
+  string dungeonState=3;
+  repeated PlayerStatus Player=4;
+  repeated MonsterStatus monsters = 5;
 }
 
 message MonsterStatus {
@@ -448,8 +479,9 @@ message BtnInfo {
   message PartyInfo{
     int32 partyId = 1 ;
     string partyName = 2; // 파티 이름
-    int32 maximum = 3;
-    repeated PlayerStatus Players = 4;
+    int32 partyLeaderId = 3; // 리더 아이디
+    int32 maximum = 4;
+    repeated PlayerStatus Players = 5;
   }
   message ItemInfo{
     int32 id =1;
@@ -469,3 +501,16 @@ message BtnInfo {
     int64 endTime = 4;
     int32 price = 5;
  }
+
+message C_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+}
+
+message S_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+  int32 errortype = 4;
+}

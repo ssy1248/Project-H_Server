@@ -9,9 +9,21 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyHandler, partyListHandler, partySearchHandler } from './game/party.handler.js';
+import {
+  partyExitHandler,
+  partyHandler,
+  partyInviteHandler,
+  partyKickHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
+import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
+import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
+import marketMyListHandler from './marketplace/marketMyList.handler.js';
+import marketListHandler from './marketplace/marketList.handler.js';
+import matchingHandler from './game/match.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -110,6 +122,15 @@ const handlers = {
     handler: animationHandler,
     protoType: 'party.S_PartyResponse',
   },
+  [PACKET_TYPE.C_MATCHREQUEST]: {
+    handler: matchingHandler,
+    protoType: 'match.C_MatchResponse',
+  },
+  [PACKET_TYPE.S_MATCHRESPONSE]: {
+    handler: matchingHandler,
+    protoType: 'match.S_MatchResponse',
+  },
+
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
@@ -139,7 +160,7 @@ const handlers = {
     protoType: 'inventory.S_InventoryResponse',
   },
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
-    handler: animationHandler,
+    handler: partyInviteHandler,
     protoType: 'party.C_PartyInviteRequest',
   },
   [PACKET_TYPE.C_PARTYJOINREQUEST]: {
@@ -155,11 +176,11 @@ const handlers = {
     protoType: 'party.C_SearchPartyRequest',
   },
   [PACKET_TYPE.C_PARTYKICKREQUEST]: {
-    handler: animationHandler,
+    handler: partyKickHandler,
     protoType: 'party.C_PartyKickRequest',
   },
   [PACKET_TYPE.C_PARTYEXITREQUEST]: {
-    handler: animationHandler,
+    handler: partyExitHandler,
     protoType: 'party.C_PartyExitRequest',
   },
   [PACKET_TYPE.S_PARTYSEARCHRESPONSE]: {
@@ -171,7 +192,7 @@ const handlers = {
     protoType: 'party.S_PartyResultResponse',
   },
   [PACKET_TYPE.C_MARKETLIST]: {
-    handler: animationHandler,
+    handler: marketListHandler,
     protoType: 'town.C_marketList',
   },
   [PACKET_TYPE.S_MARKETLIST]: {
@@ -179,7 +200,7 @@ const handlers = {
     protoType: 'town.S_marketList',
   },
   [PACKET_TYPE.C_MARKETMYLIST]: {
-    handler: animationHandler,
+    handler: marketMyListHandler,
     protoType: 'town.C_marketMyList',
   },
   [PACKET_TYPE.S_MARKETMYLIST]: {
@@ -187,7 +208,7 @@ const handlers = {
     protoType: 'town.S_marketMyList',
   },
   [PACKET_TYPE.C_SELLINMARKET]: {
-    handler: animationHandler,
+    handler: sellInMarketHandler,
     protoType: 'town.C_SellInMarket',
   },
   [PACKET_TYPE.S_SELLINMARKET]: {
@@ -195,8 +216,16 @@ const handlers = {
     protoType: 'town.S_SellInMarket',
   },
   [PACKET_TYPE.C_BuyInMarket]: {
-    handler: animationHandler,
+    handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
+  },
+  [PACKET_TYPE.C_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.C_Emote',
+  },
+  [PACKET_TYPE.S_Emote]: {
+    handler: chatHandler,
+    protoType: 'chat.S_Emote',
   },
 };
 

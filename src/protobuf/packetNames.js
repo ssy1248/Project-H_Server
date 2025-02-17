@@ -14,10 +14,10 @@ export const packetNames = {
     S_Move: 'Google.Protobuf.Protocol.S_Move',
     C_Animation: 'Google.Protobuf.Protocol.C_Animation',
     S_Animation: 'Google.Protobuf.Protocol.S_Animation',
-    C_marketList: 'Google.Protobuf.Protocol.C_marketList',
-    S_marketList: 'Google.Protobuf.Protocol.S_marketList',
-    C_marketMyList: 'Google.Protobuf.Protocol.C_marketMyList',
-    S_marketMyList: 'Google.Protobuf.Protocol.S_marketMyList',
+    C_MarketList: 'Google.Protobuf.Protocol.C_MarketList',
+    S_MarketList: 'Google.Protobuf.Protocol.S_MarketList',
+    C_MarketMyList: 'Google.Protobuf.Protocol.C_MarketMyList',
+    S_MarketMyList: 'Google.Protobuf.Protocol.S_MarketMyList',
     C_SellInMarket: 'Google.Protobuf.Protocol.C_SellInMarket',
     S_SellInMarket: 'Google.Protobuf.Protocol.S_SellInMarket',
     C_BuyInMarket: 'Google.Protobuf.Protocol.C_BuyInMarket',
@@ -39,6 +39,8 @@ export const packetNames = {
   chat: {
     C_Chat: 'Google.Protobuf.Protocol.C_Chat',
     S_Chat: 'Google.Protobuf.Protocol.S_Chat',
+    C_Emote: 'Google.Protobuf.Protocol.C_Emote',
+    S_Emote: 'Google.Protobuf.Protocol.S_Emote',
   },
   inventory: {
     C_BuyItemRequest: 'Google.Protobuf.Protocol.C_BuyItemRequest',
@@ -52,6 +54,10 @@ export const packetNames = {
     C_InventoryRequest: 'Google.Protobuf.Protocol.C_InventoryRequest',
     S_InventoryResponse: 'Google.Protobuf.Protocol.S_InventoryResponse',
   },
+  // match: {
+  //   C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
+  //   S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
+  // },
   dungeon: {
     C_EnterDungeon: 'Google.Protobuf.Protocol.C_EnterDungeon',
     S_EnterDungeon: 'Google.Protobuf.Protocol.S_EnterDungeon',

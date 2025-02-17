@@ -19,6 +19,7 @@ export default class User {
       exp: 0,
       isMove: false,
       isSpawn: false,
+      charId: 0, // TODO : 캐릭터 선택시 캐릭터 ID 저장
       // 정보 추가
     };
 
@@ -64,7 +65,7 @@ export default class User {
       rot: this.generateRandomPlayerTransformInfo(0, 360),
     };
 
-    this.inventory.init(/* charId */);
+    this.inventory.init(this.playerInfo.charId);
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수
@@ -107,6 +108,7 @@ export default class User {
       level: playerInfo.level,
       exp: playerInfo.exp,
       isMove: false,
+      charId: playerInfo.charId,
     };
   }
 

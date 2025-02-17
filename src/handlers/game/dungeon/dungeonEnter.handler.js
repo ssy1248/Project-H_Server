@@ -11,15 +11,14 @@ import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
 import { removeUser } from '../../../session/user.session.js';
-import { userSessions } from '../../../session/sessions.js';
+import { dungeonSessions, userSessions } from '../../../session/sessions.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 
 const dungeonEnterHandler = (socket, packetData) => {
   try {
     // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보, 파티아이디
-    const { dungeon, players, partyId } = packetData;
-    // dungeonId는 int, players, playerinfo, partyId int
+    const { dungeonInfo, players, partyInfo } = packetData;
 
     /*지금 전체적인 흐름이 
    1. 파티장이 던전 입장 버튼을 클릭한다.
@@ -40,6 +39,9 @@ const dungeonEnterHandler = (socket, packetData) => {
     // 유저 Info에서 userId 찾기
     const userId = userInfo.userId;
 
+    const dungeonId = dungeonInfo.dungeonId;
+    const dungeon = getDungeonSession(dungeonId);
+
     //유저 아이디가 없으면 오류를 뱉어야함
     if (!userInfo) {
       throw new Error('플레이어 아이디가 없습니다.');
@@ -47,23 +49,20 @@ const dungeonEnterHandler = (socket, packetData) => {
 
     // 받아온 던전 아이디로 던전 세션을 찾는다.
 
-
     //임시로 만든 던전 코드 밑의  addDungeonSession 과 함꺠 재대로 되는지 확인하려면 지우고 위의 payload를 dungeon을 dungeonId로 바꾸야 한다.
-    const dungeonId = 10;
+    const dungeonIdEX = 10;
 
-    addDungeonSession(dungeonId);
+    const dungeonEX = addDungeonSession(dungeonId, 1);
 
-    const dungeonSession = getDungeonSession(dungeonId);
+    console.log('던전 입장전', dungeonEX);
 
-    console.log('던전 입장전', dungeonSession);
-
-    if (!dungeonSession) {
+    if (!dungeon) {
       //일단 있는지 없느지 부터 확인을 했는데 검증도 필요할수도
       throw new Error('던전이 생성되지 않았습니다.');
     }
 
     //던전 상테 확인
-    const dungeonState = dungeonSession.getDungeonState();
+    const dungeonState = dungeon.getDungeonState();
     if (dungeonState !== 'matching') {
       throw new Error('던전이 매칭 상태가 아닙니다.');
     }
@@ -90,19 +89,26 @@ const dungeonEnterHandler = (socket, packetData) => {
     // }
 
     // 던전 세션이 유저를 입장시킨다.
-    dungeonSession.addUser(user);
-    console.log(dungeonSession);
+    dungeon.addUser(user);
+    console.log(dungeon);
 
     //유저 세션에서 유저 제거
     removeUser(socket);
     console.log(userSessions);
 
     //일단 만약 던전에 max 인원이 있으면 상태를 변경하게 했다.
-    if (dungeonSession.getUserCount() === MAX_PARTY_MEMBER) {
-      dungeonSession.setDungeonState('progress');
+    if (dungeon.getUserCount() === MAX_PARTY_MEMBER) {
+      dungeon.setDungeonState('progress');
     }
 
-    console.log('던전 입장후', dungeonSession);
+    console.log('던전 입장후', dungeon);
+
+    const dungeonInfoResponse = {
+      dungeonId: dungeon.dungeonId,
+      dungeonIndex: dungeon.dungeonIndex,
+      dungeonUser: dungeon.users,
+      dungeonState: dungeon.sState,
+    };
 
     /*
     그런 다음 완료 코드를 보낸다.
@@ -119,13 +125,13 @@ const dungeonEnterHandler = (socket, packetData) => {
     //mmessage
     //여기도 party가 만들어 지면 주석을 풀어야한다.
     const dungeonEnterPayload = {
-      dungeonSession,
+      dungeonInfoResponse,
       players,
-      // party,
+      partyInfo,
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
-      dungeonEnterSuccess: true, // 입장 성공 여부
     };
 
+    console.log(party)
     //createResponse
     const dungeonEnterResponse = createResponse(
       'dungeon',
