@@ -3,6 +3,8 @@ syntax = "proto3";
 package Google.Protobuf.Protocol;
 /* 유저 패킷 */
 
+
+// msgid 는 모두 대문자로 써주세요
 enum MsgId {
   C_REGISTERREQUEST = 0;
   S_REGISTERRESPONSE = 1;
@@ -53,8 +55,10 @@ enum MsgId {
   S_INVENTORYRESPONSE = 46;
   C_EMOTE = 47;
   S_EMOTE = 48;
-  C_SellItemRequest = 51;
-  S_SellItemResponse = 52;
+  C_SELLITEMREQUEST = 51;
+  S_SELLITEMRESPONSE = 52;
+  C_MARKETSELECTBUYNAME = 53;
+  S_MARKETSELECTBUYNAME = 54;
 }
 
 //회원가입 요청
@@ -383,6 +387,13 @@ message C_BuyInMarket {
 message S_BuyInMarket {
   bool success = 1;
   string message =2;
+}
+message C_MarketSelectBuyName{
+  int32 page = 1;
+  int32 count = 2;
+}
+message S_MarketSelectBuyName{
+  repeated ItemInfo itemdata = 2;
 }
 
 // 정보 구조체
