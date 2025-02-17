@@ -21,7 +21,7 @@ const animationHandler = (socket, payload) => {
 
     const packet = createResponse('town', 'S_Animation', PACKET_TYPE.S_ANIMATION, {
       playerId: user.userInfo.userId,
-      animCode: payload.animCode,
+      animCode: payload.animCode + 1,
     });
     broadcastToAllUsersAsync(packet);
   } catch (e) {

@@ -22,14 +22,16 @@ const marketListHandler = (socket, payload) => {
       marketData.push({
         marketId: data.id,
         itemId: data.itemIndex,
+        name: data.name,
         upgrade: data.upgrade,
         endTime: data.endTime,
         price: data.price,
       });
     }
   }
-
+  // 최대 page 가져오기
   const MaxPage = getMaxMarketList(count);
+
   const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
     MaxPage,
     itemdata: marketData,

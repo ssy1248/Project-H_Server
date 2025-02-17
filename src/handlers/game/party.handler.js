@@ -23,6 +23,7 @@ export const partySearchHandler = async (socket, payload) => {
     if (!partyName || partyName.trim() === '') {
       const responsePayload = {
         info: [],
+        case: 2,
         success: true,
         message: '검색어가 입력되지 않았습니다.',
       };
@@ -44,8 +45,6 @@ export const partySearchHandler = async (socket, payload) => {
       if (!info || !info.partyName) return false;
       return info.partyName.toLowerCase().includes(partyName.toLowerCase());
     });
-
-    console.log(`검색 결과 : ${matchingParties}`);
 
     // 검색 결과를 PartyInfo 형식의 객체 배열로 변환합니다.
     const partyInfoList = matchingParties.map((party) => party.getPartyInfo());

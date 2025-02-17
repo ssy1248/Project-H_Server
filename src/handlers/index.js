@@ -26,8 +26,7 @@ import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
-import { partyHandler } from './game/party.handler.js';
-import shopHandler from './game/shop.handler.js';
+import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -222,11 +221,11 @@ const handlers = {
     handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
   },
-  [PACKET_TYPE.C_Emote]: {
+  [PACKET_TYPE.C_EMOTE]: {
     handler: chatHandler,
     protoType: 'chat.C_Emote',
   },
-  [PACKET_TYPE.S_Emote]: {
+  [PACKET_TYPE.S_EMOTE]: {
     handler: chatHandler,
     protoType: 'chat.S_Emote',
   },
@@ -238,6 +237,11 @@ const handlers = {
     handler: shopHandler,
     protoType: 'inventory.S_SellItemResponse',
   },
+  [PACKET_TYPE.C_MARKETSELECTBUYNAME]: {
+    handler: marketSelectBuyName,
+    protoType: 'town.C_MarketSelectBuyName',
+  },
+  marketSelectBuyName,
 };
 
 export const getHandlerById = (handlerId) => {
