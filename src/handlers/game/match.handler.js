@@ -5,7 +5,7 @@ import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMatchSession, getMatchSession } from '../../session/match.session.js';
+import { addMatchSession } from '../../session/match.session.js';
 
 const matchingHandler = (socket, packetData) => {
   try {
@@ -36,11 +36,11 @@ const matchingHandler = (socket, packetData) => {
     const user = getUserBySocket(socket);
 
     // 매칭 세션이 0명이 되면 삭제할지 말지 고민 냅둬도 될거 같긴 한데
-    let matchSession = getMatchSession(dungeonCode);
-    if (!matchSession) {
-      console.log('이 던전의 매칭은 만들어지지 않았습니다');
-      matchSession = addMatchSession(dungeonCode);
-    }
+    //let matchSession = getMatchSession(dungeonCode);
+    // if (!matchSession) {
+    //   console.log('이 던전의 매칭은 만들어지지 않았습니다');
+    //   matchSession = addMatchSession(dungeonCode);
+    // }
 
     // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐 
     let dungeon;

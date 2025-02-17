@@ -37,7 +37,6 @@ class Match {
 
       // 파티를 매칭 대기열에 추가
       this.partyQueue.push(party);
-
       console.log(
         `파티 ${partyId}의 멤버들이 던전 ${party.desiredDungeonIndex} 매칭 대기열에 추가되었습니다.`,
       );
