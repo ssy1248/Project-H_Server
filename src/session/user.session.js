@@ -6,10 +6,14 @@ export const addUser = (user) => {
   return user;
 };
 
-export const removeUser = async (socket) => {
-  const index = userSessions.findIndex((user) => user.socket === socket);
+export const removeUser =  (socket) => {
+  const index = userSessions.findIndex((user) => user.userInfo.socket === socket);
+  
   if (index !== -1) {
-    return userSessions.splice(index, 1)[0];
+    const length = userSessions.length;
+    const removedUser = userSessions.splice(index, 1)[0];
+
+    return true;
   }
 };
 

@@ -9,7 +9,7 @@ export const SQL_QUERIES = {
   UPDATE_CHARACTER:
     'UPDATE Characters SET gold = ?, level = ?, exp = ? WHERE userId = ? AND charStatId = ?',
   FIND_CHARACTER_BY_USER_AND_STAT_ID:
-    'SELECT ch.*, cs.* FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.charStatId = ?',
+    'SELECT ch.id, ch.userId, ch.charStatId, ch.gold, ch.level, ch.exp, cs.hp, cs.mp, cs.atk, cs.def, cs.speed FROM Characters ch JOIN CharacterStats cs ON ch.charStatId = cs.id WHERE ch.userId = ? AND ch.charStatId = ?',
   FIND_CHARACTER_STATS_BY_ID: 'SELECT * FROM CharacterStats WHERE id = ?',
   FIND_ALL_CHARACTER_STATS: 'SELECT * FROM CharacterStats',
   INSERT_CHARACTER_STATS:

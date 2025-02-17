@@ -1,6 +1,6 @@
 export const SQL_QUERIES = {
   GET_INVENTORY_FROM_CHAR_ID: `
-  SELECT I.id, T.itemId, T.itemType, T.name, T.price, T.stat, I.rarity, I.equiped, I.quantity
+  SELECT I.id, I.itemId, T.itemType, T.name, T.price, T.stat, I.rarity, I.equiped, I.quantity
   FROM Inventory AS I
   JOIN Characters AS C ON I.charId = C.id
   JOIN Items AS T ON I.itemId = T.id

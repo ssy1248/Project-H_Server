@@ -101,35 +101,39 @@ message S_Spawn {
   repeated ItemInfo storeList = 3;
 }
 
-// 캐릭터 없애주기!
-message S_Despawn {
-  repeated int32 playerIds = 2;
-}
-
-/* 캐릭터 패킷 */
-
-// 응답 패킷 - S_Move
-message C_Move {
-  TransformInfo transform = 1;
-}
-
-// ALL
-message S_Move {
-  int32 playerId = 1;
-  TransformInfo transform = 2;
-}
-
-// 응답 패킷 - S_Animation
-message C_Animation {
-  int32 animCode = 1;
-}
-
-// ALL
-message S_Animation {
-  int32 playerId = 1;
-  int32 animCode = 2;
-}
-
+  // 캐릭터 없애주기!
+  message S_Despawn {
+    int32 playerId = 1; // 유저 id
+  }
+  
+  /* 캐릭터 패킷 */
+  
+  // [수정] 동기화 리메이크에 사용할 패킷
+  message C_Move {
+    int32 playerId = 1; // 유저 id
+    TransformInfo transform = 2; // 유저의 트랜스폼 정보
+    int64 timestamp = 3; // 서버에서 핑 체크용.
+    bool isMoving = 4; // 이동 중 여부 (true: 이동 중, false: 정지)
+    Velocity velocity = 5; // 속도 벡터 (방향 + 속도)
+    float speed = 6;
+  }
+  
+  // ALL
+  message S_Move {
+    repeated SyncTransformInfo transformInfos = 1;  // 동기화된 트랜스폼 정보들. 
+  }
+  
+  // 응답 패킷 - S_Animation
+  message C_Animation {
+    int32 animCode = 1;
+  }
+  
+  // ALL
+  message S_Animation {
+    int32 playerId = 1;
+    int32 animCode = 2;
+  }
+  
 /* 채팅 패킷 */
 
 // ALL
@@ -273,7 +277,7 @@ message S_PartyResultResponse {
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
     PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
     bool success = 3;
     string message = 4;
     GlobalFailCode failCode = 5;
@@ -374,6 +378,13 @@ message PlayerInfo {
   StatInfo statInfo = 5;
 }
 
+// [추가] 동기화 리메이크에 사용할 패킷
+message SyncTransformInfo {
+  int32 playerId = 1; // 유저 id 
+  TransformInfo transform = 2; // 트랜스폼 정보
+  float speed = 3; // 스피드
+}
+
 // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
 // C_Move 를 통해 전달된 데이터는 그대로 다른 사용자에게 릴레이
 message TransformInfo {
@@ -381,6 +392,12 @@ message TransformInfo {
   float posY = 2;// 기본값 : 1
   float posZ = 3;// 기본값 : -8 ~ 8
   float rot = 4;// 기본값 : 0~360
+}
+
+message Velocity {
+  float x = 1;
+  float y = 2;
+  float z = 3;
 }
 
 // [수정] magic은 빼야하는가?

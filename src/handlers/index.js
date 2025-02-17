@@ -13,6 +13,7 @@ import {
   partyExitHandler,
   partyHandler,
   partyInviteHandler,
+  partyJoinHandler,
   partyKickHandler,
   partyListHandler,
   partySearchHandler,
@@ -130,7 +131,6 @@ const handlers = {
     handler: matchingHandler,
     protoType: 'match.S_MatchResponse',
   },
-
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
@@ -164,7 +164,7 @@ const handlers = {
     protoType: 'party.C_PartyInviteRequest',
   },
   [PACKET_TYPE.C_PARTYJOINREQUEST]: {
-    handler: animationHandler,
+    handler: partyJoinHandler,
     protoType: 'party.C_PartyJoinRequest',
   },
   [PACKET_TYPE.C_PARTYLISTREQUEST]: {
