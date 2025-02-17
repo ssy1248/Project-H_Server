@@ -23,6 +23,7 @@ import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
+import shopHandler from './game/shop.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -216,6 +217,14 @@ const handlers = {
   [PACKET_TYPE.S_Emote]: {
     handler: chatHandler,
     protoType: 'chat.S_Emote',
+  },
+  [PACKET_TYPE.C_SellItemRequest]: {
+    handler: shopHandler,
+    protoType: 'inventory.C_SellItemRequest',
+  },
+  [PACKET_TYPE.S_SellItemResponse]: {
+    handler: shopHandler,
+    protoType: 'inventory.S_SellItemResponse',
   },
 };
 

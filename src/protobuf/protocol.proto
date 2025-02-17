@@ -53,6 +53,8 @@ enum MsgId {
   S_INVENTORYRESPONSE = 46;
   C_EMOTE = 47;
   S_EMOTE = 48;
+  C_SellItemRequest = 49;
+  S_SellItemResponse = 50;
 }
 
 //회원가입 요청
@@ -497,4 +499,16 @@ message S_Emote{
   int32 type = 2;
   string emote = 3;
   int32 errortype = 4;
+}
+
+// 아이템 판매 요청
+message C_SellItemRequest {
+  int32 inventoryId = 1;
+  int32 price = 2;
+}
+// 아이템 판매 응답
+message S_SellItemResponse {
+  bool success = 1;
+  string message = 2;
+  GlobalFailCode failCode = 3;
 }
