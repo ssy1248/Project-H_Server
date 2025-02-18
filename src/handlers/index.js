@@ -217,9 +217,13 @@ const handlers = {
     handler: animationHandler,
     protoType: 'town.S_SellInMarket',
   },
-  [PACKET_TYPE.C_BuyInMarket]: {
+  [PACKET_TYPE.C_BUYINMARKET]: {
     handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
+  },
+  [PACKET_TYPE.S_BUYINMARKET]: {
+    handler: buyInMarketHandler,
+    protoType: 'town.S_BuyInMarket',
   },
   [PACKET_TYPE.C_EMOTE]: {
     handler: chatHandler,

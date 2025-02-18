@@ -405,7 +405,7 @@ message C_MarketSelectBuyName{
   string name = 3;
 }
 message S_MarketSelectBuyName{
-  repeated ItemInfo itemdata = 2;
+  repeated marketItemInfo itemdata = 2;
 }
 
 // 정보 구조체
