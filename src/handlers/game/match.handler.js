@@ -11,6 +11,10 @@ import { matchSessions } from '../../session/sessions.js';
     PartyInfo party = 1;
   }
 
+  message S_MatchingResponse {
+
+  }
+
   message S_MatchResponse{
     int32 dungeonSessionNumber = 1;
     repeated PartyInfo party = 2; // 합쳐진 파티 인포
@@ -20,6 +24,7 @@ import { matchSessions } from '../../session/sessions.js';
 
   message C_MatchStopRequest {
     bool stop = 1; // 매칭 중단 요청
+    int32 partyId = 2; //파티 아이디
   }
 
   message S_MatchStopResponse { 
@@ -28,11 +33,15 @@ import { matchSessions } from '../../session/sessions.js';
   }
 */
 
-//C_MatchResponse
+//C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
     // 파티 ,플레어 정보
     const { party } = packetData;
+
+    // 파티장이 신청했는지 예외 처리 파티장만 신청 가능하도록
+    // 파티장이 신청하면 파티원들에게 매칭이 시작된다라는 것을 브로드캐스트로 보내줘서 매칭 ui 띄우기
+    // 매칭 취소를 누르면 매칭 취소 핸들러 
 
     //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
     //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
@@ -95,6 +104,7 @@ const matchingHandler = (socket, packetData) => {
   }
 };
 
+// C_MatchStopRequest
 export const matchStopHandler = (socket, packetData) => {
   try {
     const { stop, partyId } = packetData;

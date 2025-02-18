@@ -24,7 +24,7 @@ import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
-import matchingHandler from './game/match.handler.js';
+import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
@@ -246,7 +246,7 @@ const handlers = {
     protoType: 'town.C_MarketSelectBuyName',
   },
   [PACKET_TYPE.C_MATCHSTOPREQUEST]: {
-    handler: undefined,
+    handler: matchStopHandler,
     protoType: 'match.C_MatchStopRequest',
   },
   [PACKET_TYPE.S_MATCHSTOPRESPONSE]: {
