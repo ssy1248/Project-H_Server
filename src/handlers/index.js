@@ -245,6 +245,14 @@ const handlers = {
     handler: marketSelectBuyName,
     protoType: 'town.C_MarketSelectBuyName',
   },
+  [PACKET_TYPE.C_MATCHSTOPREQUEST]: {
+    handler: undefined,
+    protoType: 'match.C_MatchStopRequest',
+  },
+  [PACKET_TYPE.S_MATCHSTOPRESPONSE]: {
+    handler: undefined,
+    protoType: 'match.S_MatchStopResponse',
+  },
   marketSelectBuyName,
 };
 
