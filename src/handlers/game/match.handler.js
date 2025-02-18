@@ -5,7 +5,7 @@ import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMatchSession, getMatchSession } from '../../session/match.session.js';
+import { addMatchSession } from '../../session/match.session.js';
 
 const matchingHandler = (socket, packetData) => {
   try {
@@ -42,7 +42,7 @@ const matchingHandler = (socket, packetData) => {
       matchSession = addMatchSession(dungeonCode);
     }
 
-    // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐 
+    // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐
     let dungeon;
 
     dungeon = matchSession.addPartyMatchQueue(partyId);
