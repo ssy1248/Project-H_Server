@@ -62,7 +62,7 @@ enum MsgId {
   C_MARKETSELECTBUYNAME = 53;
   S_MARKETSELECTBUYNAME = 54;
   C_MATCHSTOPREQUEST = 55;
-  S_MATCHSTOPRESPONSE = 56
+  S_MATCHSTOPRESPONSE = 56;
 }
 
 //회원가입 요청
@@ -223,7 +223,7 @@ message S_ActiveItemResponse {
 message C_PartyRequest {
   int32 userId = 1;
   string partyName = 2;// 파티 이름 추가
-  int32 dungeonIndex; // 선택한 던전 인덱스
+  int32 dungeonIndex = 3; // 선택한 던전 인덱스
 }
 
 // 초대용 패킷 
@@ -505,8 +505,8 @@ message BtnInfo {
     string partyName = 2; // 파티 이름
     int32 partyLeaderId = 3; // 리더 아이디
     int32 maximum = 4;
-    int32 dungeonIndex; // 들어갈 던전 인덱스
-    repeated PlayerStatus Players = 5;
+    int32 dungeonIndex = 5; // 들어갈 던전 인덱스
+    repeated PlayerStatus Players = 6;
   }
   message ItemInfo{
     int32 id =1;
