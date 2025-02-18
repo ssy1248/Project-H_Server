@@ -1,12 +1,32 @@
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
-import CustomError from '../../utils/error/customError.js';
-import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 
+/* 
+  C_MatchHRequest {
+    PartyInfo Info, // 파티 인포에 던전인덱스추가
+  }
+
+  C_MatchStopRequest {
+    bool stop,
+  }
+*/
+/* 
+  S_MatchResponse {
+    int32 dungeonSessionNumber, // 던전 세션 번호
+    PartyInfo Info, // 완성된 하나의 인포
+    bool success, // 매칭 성공 여부
+  }
+
+  S_MatchStopResponse {
+   bool stop,
+  }
+*/
+
+//C_MatchResponse 
 const matchingHandler = (socket, packetData) => {
   try {
     // 파티 ,플레어 정보
