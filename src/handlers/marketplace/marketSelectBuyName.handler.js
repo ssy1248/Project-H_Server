@@ -1,5 +1,5 @@
-import { PACKET_TYPE } from '../../constants/header';
-import { getBuyNameInMarketList } from '../../session/market.session';
+import { PACKET_TYPE } from '../../constants/header.js';
+import { getBuyNameInMarketList } from '../../session/market.session.js';
 
 function marketSelectBuyName(socket, payload) {
   const { name, page, count } = payload;
