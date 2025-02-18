@@ -9,7 +9,7 @@ const initServer = async () => {
   try {
     await loadProtos();
     await initItemSesion();
-    await initMarketSesion();
+    //await initMarketSesion();
     const gameId = uuidv4();
     const gameSession = addGameSession(gameId);
 

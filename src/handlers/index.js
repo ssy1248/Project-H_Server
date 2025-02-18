@@ -26,8 +26,7 @@ import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
-import { partyHandler } from './game/party.handler.js';
-import shopHandler from './game/shop.handler.js';
+
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {

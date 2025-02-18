@@ -14,9 +14,8 @@ import {
 import { getAllItems } from '../../db/inventory/item.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
-import { findUserSync } from '../../classes/managers/movementSync.manager.js';
+import { findEntitySync, addEntitySync } from '../../classes/managers/movementSync.manager.js';
 
 const setCharacterStat = async () => {
   // 현재 테이블의 행 개수를 조회합니다.
@@ -91,7 +90,7 @@ const syncSpawnedUser = async (socket, user) => {
       
       // 유저 최신 좌표 가져오기.
       const userInfo = value.getUserInfo();
-      const user = findUserSync("town", userInfo.userId);
+      const user = findEntitySync("town", userInfo.userId,"user");
       if(user !== null){
         value.setTransformInfo(user.currentTransform);
       }
@@ -133,7 +132,7 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // [테스트] 이동동기화 유저 추가
-    addUserSync('town', userInfo.userId, socket, playerPacketData.transform);
+    addEntitySync('town', userInfo.userId, "user",  socket, playerPacketData.transform);
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);

@@ -1,7 +1,7 @@
 import { removeUser, getUserBySocket } from '../session/user.session.js';
 import { getGameSession } from '../session/game.session.js';
 import { updateCharacter } from '../db/user/user.db.js';
-import { deleteUserSync } from '../classes/managers/movementSync.manager.js';
+import { deleteEntitySync } from '../classes/managers/movementSync.manager.js';
 
 export const onEnd = (socket) => async () => {
   console.log('클라이언트 연결이 종료되었습니다.');
@@ -23,7 +23,7 @@ const clearUser = async (socket) => {
     const playerInfo = user.getPlayerInfo();
 
     // 삭제.
-    deleteUserSync('town', userInfo.userId);
+    deleteEntitySync('town', userInfo.userId, "user");
 
     // 스폰 되어있는 클라이언트가 종료했을경우.
     if (playerInfo.isSpawn) {
