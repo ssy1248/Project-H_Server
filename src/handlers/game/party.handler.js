@@ -136,7 +136,7 @@ const generatePartyId = () => {
 export const partyHandler = async (socket, payload) => {
   try {
     // payload로 받아온 데이터를 파싱
-    const { userId, partyName } = payload;
+    const { userId, partyName, dungeonIndex } = payload;
     // 보낼 파티 패킷(스코프때문에 외부로 빼놓음)
     let partyPacket = {};
     // 파티 아이디 설정
@@ -157,7 +157,7 @@ export const partyHandler = async (socket, payload) => {
       };
     } else {
       // 파티 생성
-      const party = createPartySession(partyId, partyName, userId);
+      const party = createPartySession(partyId, partyName, userId, dungeonIndex);
       // 파티에 유저 추가
       party.addPartyMember(user);
       console.log(party);

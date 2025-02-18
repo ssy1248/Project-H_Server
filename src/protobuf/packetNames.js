@@ -58,10 +58,12 @@ export const packetNames = {
     C_SellItemRequest: 'Google.Protobuf.Protocol.C_SellItemRequest',
     S_SellItemResponse: 'Google.Protobuf.Protocol.S_SellItemResponse',
   },
-  // match: {
-  //   C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
-  //   S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
-  // },
+  match: {
+    C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
+    S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
+    C_MatchStopRequest: 'Google.Protobuf.Protocol.C_MatchStopRequest',
+    S_MatchStopResponse: 'Google.Protobuf.Protocol.S_MatchStopResponse',
+  },
   dungeon: {
     C_EnterDungeon: 'Google.Protobuf.Protocol.C_EnterDungeon',
     S_EnterDungeon: 'Google.Protobuf.Protocol.S_EnterDungeon',
