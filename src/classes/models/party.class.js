@@ -2,7 +2,7 @@ import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
 // 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
-  constructor(id, partyName, userId, desiredDungeonIndex) {
+  constructor(id, partyName, userId, dungeonIndex) {
     // 파티 아이디
     this.id = id;
     // 파티 이름
@@ -12,7 +12,7 @@ class Party {
     // 파티 리더
     this.partyLeader = null;
     // 들어갈 던전
-    this.desiredDungeonIndex = desiredDungeonIndex;
+    this.dungeonIndex = dungeonIndex;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
 
     // partyInfo에 리더 아이디를 넣으면 
@@ -21,7 +21,7 @@ class Party {
       partyName: partyName,
       partyLeaderId: userId,
       maximum: MAX_PARTY_MEMBER,
-      dungeonIndex: desiredDungeonIndex,
+      dungeonIndex: dungeonIndex,
     };
   }
 
@@ -56,7 +56,7 @@ class Party {
 
   // 만약 던전 선택을 변경을 한다면 사용할 함수
   setDesiredDungeonIndex(dungeonIndex) {
-    this.desiredDungeonIndex = dungeonIndex;
+    this.dungeonIndex = dungeonIndex;
   }
 
   // 파티장이 튕겨나갈떄 변경되는 경우
