@@ -29,7 +29,7 @@ class Match {
 
       // 던전 인덱스가 정상적인 값인지?
       // 임시 예외 처리
-      if (party.desiredDungeonIndex !== typeof Number) {
+      if (typeof party.dungeonIndex !== 'number') {
         console.log('숫자형이 아님');
         return;
       }
@@ -37,10 +37,12 @@ class Match {
       // 파티를 매칭 대기열에 추가
       this.partyQueue.push(party);
       console.log(
-        `파티 ${partyId}의 멤버들이 던전 ${party.desiredDungeonIndex} 매칭 대기열에 추가되었습니다.`,
+        `파티 ${partyId}의 멤버들이 던전 ${party.dungeonIndex} 매칭 대기열에 추가되었습니다.`,
       );
 
       // 매칭 시도 후 던전 세션을 반환 (매칭 성공 시)
+      const check = this.attemptMatch();
+      console.log(check);
       return this.attemptMatch();
     } catch (error) {
       console.error(`파티 ${partyId} 매칭 추가 실패: ${error.message}`);
@@ -49,15 +51,17 @@ class Match {
 
   // 매칭 로직: 여러 큐를 활용하여 4명 조합 찾기
   attemptMatch() {
+    console.log('attemptMatch들어옴');
     // reduce를 이용해서 각 던전 인덱스를 키를 한 배열들을 만들고
     const groups = this.partyQueue.reduce((acc, party) => {
-      const dungeonIndex = party.desiredDungeonIndex;
+      const dungeonIndex = party.dungeonIndex;
       if (!acc[dungeonIndex]) {
         acc[dungeonIndex] = [];
       }
       acc[dungeonIndex].push(party);
       return acc;
     }, {});
+    console.log(groups);
 
     /**
      리턴값
@@ -67,13 +71,13 @@ class Match {
       }
      */
     // 매칭을 진행하지 않을 파티인지 확인
-    if (this.matchTimeouts[party.id]) {
-      console.log(
-        `파티 ${party.id}는 매칭을 진행하지 않아서 대기열에서 제거되고 타임아웃이 취소됩니다.`,
-      );
+    // if (this.matchTimeouts[party.id]) {
+    //   console.log(
+    //     `파티 ${party.id}는 매칭을 진행하지 않아서 대기열에서 제거되고 타임아웃이 취소됩니다.`,
+    //   );
 
-      return null; // 재귀를 더 이상 진행하지 않음
-    }
+    //   return null; // 재귀를 더 이상 진행하지 않음
+    // }
 
     // 각 그룹별로 매칭을 시도
     for (const dungeonIndex in groups) {
@@ -128,13 +132,14 @@ class Match {
     }
     // 무한재귀를 막기 위한 setTimeout 사용
     // 타임아웃을 설정하여 1초 후 재시도
-    const timeoutId = setTimeout(() => {
+    /* const timeoutId = */
+    setTimeout(() => {
       // 매칭 로직 처리 후, 재시도
       this.attemptMatch();
     }, 1000); // 1초 후 재시도
 
     // 타임아웃 ID를 matchTimeouts 객체에 저장
-    this.matchTimeouts[party.id] = timeoutId;
+    //this.matchTimeouts[party.id] = timeoutId;
 
     // 아직 매칭이 완료되지 않았음을 나타내기 위해 null을 반환
     return null;
