@@ -7,13 +7,28 @@ export default class Inventory {
         this.equipment = []; // 장비중인 아이템 인벤토리
     }
 
-    async init(charId) {
-        this.charId = charId;
+    async init(user) {
+        this.user = user;
+        this.charId = user.PlayerInfo.charId;
         this.inventory = await getInventoryFromCharId(charId);
         if (!this.inventory) {
             console.log('inventory is empty');
             return;
         }
+        this.send();
+    }
+
+    send() {
+        // 메시지 생성
+        const inventoryResponse = createResponse(
+            'inventory',
+            'S_InventoryResponse',
+            PACKET_TYPE.S_INVENTORYRESPONSE,
+            { inventory: this.inventory },
+        );
+
+        // 전송
+        this.user.userInfo.socket.write(inventoryResponse);
     }
 
     // 아이템 장비하기
