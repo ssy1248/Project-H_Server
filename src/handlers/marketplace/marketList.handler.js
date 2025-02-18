@@ -8,16 +8,14 @@ const marketListHandler = (socket, payload) => {
   const { page, count } = payload;
   const marketData = [];
   const marketSession = getMarketSession();
-
   // 시작 과 끝 정해주기
   const keysArray = Array.from(marketSession.keys());
   const startIndex = (page - 1) * count;
   const endIndex = startIndex + count;
   const selectedKeys = keysArray.slice(startIndex, endIndex);
-
   // 데이터 찾아서 넣어주기
-  for (let marketData of selectedKeys) {
-    let data = marketSession.get(marketData);
+  for (let marketDataTemp of selectedKeys) {
+    let data = marketSession.get(marketDataTemp);
     if (data) {
       marketData.push({
         marketId: data.id,
@@ -31,7 +29,6 @@ const marketListHandler = (socket, payload) => {
   }
   // 최대 page 가져오기
   const MaxPage = getMaxMarketList(count);
-
   const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
     MaxPage,
     itemdata: marketData,
