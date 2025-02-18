@@ -39,7 +39,7 @@ const handleBuyItem = async (socket, packetData) => {
 
   const itemBought = await buyItem(characterId, item.id);
   if (!itemBought) {
-    throw new CustomError(ErrorCodes.INTERNAL_ERROR, '아이템 구매 실패');
+    throw new CustomError(ErrorCodes.INTERNAL_ERROR, '아이템 구매에 실패했습니다.');
   }
 
   const response = createResponse('shop', 'S_BuyItemResponse', PACKET_TYPE.S_BUY_ITEM_RESPONSE, {
@@ -68,7 +68,7 @@ const handleSellItem = async (socket, packetData) => {
 
   const goldUpdated = await updateUserGoldAfterSell(characterId, price);
   if (!goldUpdated) {
-    throw new CustomError(ErrorCodes.INTERNAL_ERROR, '골드 갱신 실패');
+    throw new CustomError(ErrorCodes.INTERNAL_ERROR, '골드 갱신에 실패했습니다.');
   }
 
   const response = createResponse('shop', 'S_SellItemResponse', PACKET_TYPE.S_SELLITEMRESPONSE, {
