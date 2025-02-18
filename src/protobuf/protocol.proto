@@ -61,6 +61,8 @@ enum MsgId {
   S_SELLITEMRESPONSE = 52;
   C_MARKETSELECTBUYNAME = 53;
   S_MARKETSELECTBUYNAME = 54;
+  C_MATCHSTOPREQUEST = 55;
+  S_MATCHSTOPRESPONSE = 56
 }
 
 //회원가입 요청
@@ -221,6 +223,7 @@ message S_ActiveItemResponse {
 message C_PartyRequest {
   int32 userId = 1;
   string partyName = 2;// 파티 이름 추가
+  int32 dungeonIndex; // 선택한 던전 인덱스
 }
 
 // 초대용 패킷 
@@ -291,18 +294,24 @@ message S_PartyResponse {
 }
 
 /*매칭 */
-message C_matchRequest{
-  PartyInfo party =1;
-  int32 dungeonCode=2;
-  repeated PlayerStatus players=3;
+message C_MatchRequest{
+  PartyInfo party = 1;
 }
 
+message S_MatchResponse{
+  int32 dungeonSessionNumber = 1;
+  repeated PartyInfo party = 2; // 합쳐진 파티 인포
+  bool success = 3; // 매칭 완료 불값
+  string message = 4; // 매칭 완료 
+}
 
-message S_matchResponse{
-  repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
-  repeated PartyInfo party = 3;
-  string message = 4;
+message C_MatchStopRequest {
+  bool stop = 1; // 매칭 중단 요청
+}
+
+message S_MatchStopResponse { 
+   bool stop = 1; // 매칭 중단 결과
+   string message = 2; // 매칭 중단 결과 메세지
 }
 
 /* 던전 입장 */
@@ -496,6 +505,7 @@ message BtnInfo {
     string partyName = 2; // 파티 이름
     int32 partyLeaderId = 3; // 리더 아이디
     int32 maximum = 4;
+    int32 dungeonIndex; // 들어갈 던전 인덱스
     repeated PlayerStatus Players = 5;
   }
   message ItemInfo{

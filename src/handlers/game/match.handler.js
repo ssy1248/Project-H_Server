@@ -1,16 +1,37 @@
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
-import CustomError from '../../utils/error/customError.js';
-import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMatchSession, getMatchSession } from '../../session/match.session.js';
+import { addMatchSession } from '../../session/match.session.js';
+import { matchSessions } from '../../session/sessions.js';
 
+/* 
+  C_MatchHRequest {
+    PartyInfo Info, // 파티 인포에 던전인덱스추가
+  }
+
+  C_MatchStopRequest {
+    bool stop,
+  }
+*/
+/* 
+  S_MatchResponse {
+    int32 dungeonSessionNumber, // 던전 세션 번호
+    PartyInfo Info, // 완성된 하나의 인포
+    bool success, // 매칭 성공 여부
+  }
+
+  S_MatchStopResponse {
+   bool stop,
+  }
+*/
+
+//C_MatchResponse
 const matchingHandler = (socket, packetData) => {
   try {
     // 파티 ,플레어 정보
-    const { partyinfo, dungeonCode, players } = packetData;
+    const { partyinfo } = packetData;
 
     //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
     //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
@@ -36,25 +57,19 @@ const matchingHandler = (socket, packetData) => {
     const user = getUserBySocket(socket);
 
     // 매칭 세션이 0명이 되면 삭제할지 말지 고민 냅둬도 될거 같긴 한데
-    let matchSession = getMatchSession(dungeonCode);
+    let matchSession = matchSessions;
     if (!matchSession) {
       console.log('이 던전의 매칭은 만들어지지 않았습니다');
-      matchSession = addMatchSession(dungeonCode);
+      matchSession = addMatchSession();
     }
 
-    // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐 
-    let dungeon;
+    // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐
 
-    dungeon = matchSession.addPartyMatchQueue(partyId);
+    const dungeon = matchSession.addPartyMatchQueue(partyId);
     // 여기서 나온 던전 세션을 새로 만드는 던전 인포에 맞게 넣어야한다.
     //dungeonInfo 에 들어가야 할것
 
-    const dungeonInfo = {
-      dungeonId: dungeon.dungeonId,
-      dungeonIndex: dungeon.dungeonIndex,
-      dungeonUser: dungeon.users,
-      dungeonState: dungeon.sState,
-    };
+    const dungeonId = dungeon.dungeonId;
 
     const partyInfo = party.partyInfo;
 
@@ -66,15 +81,16 @@ const matchingHandler = (socket, packetData) => {
     //여기서 던전 세션을 만들어야한고 클라이언트에 보내줘야한다.일단 받은 데이터는 다 보내자
 
     const MatcchPayload = {
-      dungeonInfo,
-      players,
+      dungeonId,
       partyInfo,
+      bool: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };
 
     //createResponse
     const matchResponse = createResponse('match', 'S_Match', PACKET_TYPE.S_Match, MatcchPayload);
     socket.write(matchResponse);
+    
   } catch (e) {
     handlerError(socket, e);
   }
