@@ -18,7 +18,7 @@ export const ChatErrorCodes = {
   INVALID_TYPE: 4,
 };
 
-
-// 마을 이동동기화 거리,회전 검증용 js
-export const MAX_POSITION_DIFFERENCE = 5.0;  
-export const MAX_ROTATION_DIFFERENCE = 30.0; 
+// 동기화 관련 js
+export const MAX_POSITION_DIFFERENCE = 0.5;  
+export const MAX_ROTATION_DIFFERENCE = 1; 
+export const SERVER_TIME_OFFSET  = 10;

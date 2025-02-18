@@ -9,9 +9,24 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyHandler, partyInviteHandler, partyListHandler, partySearchHandler } from './game/party.handler.js';
+import {
+  partyExitHandler,
+  partyHandler,
+  partyInviteHandler,
+  partyJoinHandler,
+  partyKickHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
 import { inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
+import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
+import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
+import marketMyListHandler from './marketplace/marketMyList.handler.js';
+import marketListHandler from './marketplace/marketList.handler.js';
+import matchingHandler from './game/match.handler.js';
+import shopHandler from './game/shop.handler.js';
+import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -110,6 +125,14 @@ const handlers = {
     handler: animationHandler,
     protoType: 'party.S_PartyResponse',
   },
+  [PACKET_TYPE.C_MATCHREQUEST]: {
+    handler: matchingHandler,
+    protoType: 'match.C_MatchResponse',
+  },
+  [PACKET_TYPE.S_MATCHRESPONSE]: {
+    handler: matchingHandler,
+    protoType: 'match.S_MatchResponse',
+  },
   [PACKET_TYPE.C_ENTERDUNGEON]: {
     handler: dungeonEnterHandler,
     protoType: 'dungeon.C_EnterDungeon',
@@ -143,7 +166,7 @@ const handlers = {
     protoType: 'party.C_PartyInviteRequest',
   },
   [PACKET_TYPE.C_PARTYJOINREQUEST]: {
-    handler: animationHandler,
+    handler: partyJoinHandler,
     protoType: 'party.C_PartyJoinRequest',
   },
   [PACKET_TYPE.C_PARTYLISTREQUEST]: {
@@ -155,11 +178,11 @@ const handlers = {
     protoType: 'party.C_SearchPartyRequest',
   },
   [PACKET_TYPE.C_PARTYKICKREQUEST]: {
-    handler: animationHandler,
+    handler: partyKickHandler,
     protoType: 'party.C_PartyKickRequest',
   },
   [PACKET_TYPE.C_PARTYEXITREQUEST]: {
-    handler: animationHandler,
+    handler: partyExitHandler,
     protoType: 'party.C_PartyExitRequest',
   },
   [PACKET_TYPE.S_PARTYSEARCHRESPONSE]: {
@@ -171,7 +194,7 @@ const handlers = {
     protoType: 'party.S_PartyResultResponse',
   },
   [PACKET_TYPE.C_MARKETLIST]: {
-    handler: animationHandler,
+    handler: marketListHandler,
     protoType: 'town.C_marketList',
   },
   [PACKET_TYPE.S_MARKETLIST]: {
@@ -179,7 +202,7 @@ const handlers = {
     protoType: 'town.S_marketList',
   },
   [PACKET_TYPE.C_MARKETMYLIST]: {
-    handler: animationHandler,
+    handler: marketMyListHandler,
     protoType: 'town.C_marketMyList',
   },
   [PACKET_TYPE.S_MARKETMYLIST]: {
@@ -187,7 +210,7 @@ const handlers = {
     protoType: 'town.S_marketMyList',
   },
   [PACKET_TYPE.C_SELLINMARKET]: {
-    handler: animationHandler,
+    handler: sellInMarketHandler,
     protoType: 'town.C_SellInMarket',
   },
   [PACKET_TYPE.S_SELLINMARKET]: {
@@ -195,9 +218,38 @@ const handlers = {
     protoType: 'town.S_SellInMarket',
   },
   [PACKET_TYPE.C_BuyInMarket]: {
-    handler: animationHandler,
+    handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
   },
+  [PACKET_TYPE.C_EMOTE]: {
+    handler: chatHandler,
+    protoType: 'chat.C_Emote',
+  },
+  [PACKET_TYPE.S_EMOTE]: {
+    handler: chatHandler,
+    protoType: 'chat.S_Emote',
+  },
+  [PACKET_TYPE.C_SellItemRequest]: {
+    handler: shopHandler,
+    protoType: 'inventory.C_SellItemRequest',
+  },
+  [PACKET_TYPE.S_SellItemResponse]: {
+    handler: shopHandler,
+    protoType: 'inventory.S_SellItemResponse',
+  },
+  [PACKET_TYPE.C_MARKETSELECTBUYNAME]: {
+    handler: marketSelectBuyName,
+    protoType: 'town.C_MarketSelectBuyName',
+  },
+  [PACKET_TYPE.C_MATCHSTOPREQUEST]: {
+    handler: undefined,
+    protoType: 'match.C_MatchStopRequest',
+  },
+  [PACKET_TYPE.S_MATCHSTOPRESPONSE]: {
+    handler: undefined,
+    protoType: 'match.S_MatchStopResponse',
+  },
+  marketSelectBuyName,
 };
 
 export const getHandlerById = (handlerId) => {

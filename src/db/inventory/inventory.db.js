@@ -9,17 +9,23 @@ export const getInventoryFromCharId = async (charId) => {
     console.error(error);
     return null;
   }
-}
+};
 
 export const addItemToInventory = async (charId, itemId, rarity, equipped, quantity = 1) => {
   try {
-    const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [charId, itemId, rarity, equipped, quantity]);
+    const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [
+      charId,
+      itemId,
+      rarity,
+      equipped,
+      quantity,
+    ]);
     return result;
   } catch (error) {
     console.error(error);
     return null;
   }
-}
+};
 
 export const updateItemQuantity = async (charId, itemId, rarity, quantity) => {
   try {
@@ -27,7 +33,7 @@ export const updateItemQuantity = async (charId, itemId, rarity, quantity) => {
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const removeItemFromInventory = async (charId, inventoryId) => {
   try {
@@ -35,7 +41,7 @@ export const removeItemFromInventory = async (charId, inventoryId) => {
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const equipItem = async (charId, inventoryId) => {
   try {
@@ -43,15 +49,15 @@ export const equipItem = async (charId, inventoryId) => {
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const disrobeItem = async (charId, inventoryId) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.DISROBE_ITEM, [inventoryId, charId])
+    await pools.USER_DB.query(SQL_QUERIES.DISROBE_ITEM, [inventoryId, charId]);
   } catch (error) {
     console.error(error);
   }
-}
+};
 
 export const getCharacterTable = async () => {
   try {
@@ -61,4 +67,8 @@ export const getCharacterTable = async () => {
     console.log(error);
     return null;
   }
-}
+};
+
+export const getItemBuyInventoryId = async (charId, id) => {
+  return ([rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ITEM_BUY_INVENTORY, [charId, id]));
+};

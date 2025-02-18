@@ -6,10 +6,12 @@ export const SQL_QUERIES = {
   JOIN Items AS T ON I.itemId = T.id
   WHERE I.charId = ?
 `,
-  ADD_ITEM_TO_INVENTORY: 'INSERT INTO Inventory (charId, itemId, rarity, equiped, quantity) VALUES (?, ?, ?, ?, ?)',
+  ADD_ITEM_TO_INVENTORY:
+    'INSERT INTO Inventory (charId, itemId, rarity, equiped, quantity) VALUES (?, ?, ?, ?, ?)',
   UPDATE_ITEM_QUANTITY: 'UPDATE Inventory SET quantity = ? WHERE itemId = ? AND charId = ?',
   REMOVE_ITEM_FROM_INVENTORY: 'DELETE FROM Inventory WHERE id = ? AND charId = ? AND rarity = ?',
-  GET_CHARACTER_TABLE: 'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC',
+  GET_CHARACTER_TABLE:
+    'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC',
   EQUIP_ITEM: 'UPDATE Inventory SET equiped = 1 WHERE id = ? AND charId = ?',
   DISROBE_ITEM: 'UPDATE Inventory SET equiped = 0 WHERE id = ? AND charId = ?',
 };

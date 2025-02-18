@@ -3,6 +3,8 @@ syntax = "proto3";
 package Google.Protobuf.Protocol;
 /* 유저 패킷 */
 
+
+// msgid 는 모두 대문자로 써주세요
 enum MsgId {
   C_REGISTERREQUEST = 0;
   S_REGISTERRESPONSE = 1;
@@ -51,6 +53,16 @@ enum MsgId {
   S_BUYINMARKET = 44;
   C_INVENTORYREQUEST = 45;
   S_INVENTORYRESPONSE = 46;
+  C_EMOTE = 47;
+  S_EMOTE = 48;
+  C_MATCHREQUEST = 49;
+  S_MATCHRESPONSE = 50;
+  C_SELLITEMREQUEST = 51;
+  S_SELLITEMRESPONSE = 52;
+  C_MARKETSELECTBUYNAME = 53;
+  S_MARKETSELECTBUYNAME = 54;
+  C_MATCHSTOPREQUEST = 55;
+  S_MATCHSTOPRESPONSE = 56
 }
 
 //회원가입 요청
@@ -99,35 +111,39 @@ message S_Spawn {
   repeated ItemInfo storeList = 3;
 }
 
-// 캐릭터 없애주기!
-message S_Despawn {
-  repeated int32 playerIds = 2;
-}
-
-/* 캐릭터 패킷 */
-
-// 응답 패킷 - S_Move
-message C_Move {
-  TransformInfo transform = 1;
-}
-
-// ALL
-message S_Move {
-  int32 playerId = 1;
-  TransformInfo transform = 2;
-}
-
-// 응답 패킷 - S_Animation
-message C_Animation {
-  int32 animCode = 1;
-}
-
-// ALL
-message S_Animation {
-  int32 playerId = 1;
-  int32 animCode = 2;
-}
-
+  // 캐릭터 없애주기!
+  message S_Despawn {
+    int32 playerId = 1; // 유저 id
+  }
+  
+  /* 캐릭터 패킷 */
+  
+  // [수정] 동기화 리메이크에 사용할 패킷
+  message C_Move {
+    int32 playerId = 1; // 유저 id
+    TransformInfo transform = 2; // 유저의 트랜스폼 정보
+    int64 timestamp = 3; // 서버에서 핑 체크용.
+    bool isMoving = 4; // 이동 중 여부 (true: 이동 중, false: 정지)
+    Velocity velocity = 5; // 속도 벡터 (방향 + 속도)
+    float speed = 6;
+  }
+  
+  // ALL
+  message S_Move {
+    repeated SyncTransformInfo transformInfos = 1;  // 동기화된 트랜스폼 정보들. 
+  }
+  
+  // 응답 패킷 - S_Animation
+  message C_Animation {
+    int32 animCode = 1;
+  }
+  
+  // ALL
+  message S_Animation {
+    int32 playerId = 1;
+    int32 animCode = 2;
+  }
+  
 /* 채팅 패킷 */
 
 // ALL
@@ -147,16 +163,31 @@ message S_Chat {
 }
 
 /* 상점 패킷 */
-
-message C_BuyItemRequest {
-  string itemname = 1;
-  int32 price = 2;
+message C_BuyItemRequest{
+    string itemname =1;
+    int32 price =2;
 }
-message S_BuyItemResponse {
-  bool success = 1;
-  string message = 2;
-  GlobalFailCode failCode = 3;
+message S_BuyItemResponse  {
+    bool success =1;
+    string message = 2;
+    GlobalFailCode failCode =3;
 }
+// message C_UploadItemRequest {
+//   // 등록할 아이템 이름
+//   string itemname = 1;
+//   // 아이템 가격
+//   int32 price = 2;
+//   // 판매할 개수
+//   int32 quantity = 3;   
+// }
+// message S_UploadItemResponse {
+//   // 성공 여부
+//   bool success = 1;
+//   // 결과 메시지
+//   string message = 2;
+//   // 실패 코드 (예: 잔액 부족, 아이템 없음 등)
+//   GlobalFailCode failCode = 3;
+// }
 
 /* 아이템 패킷 */
 
@@ -208,6 +239,7 @@ message S_ActiveItemResponse {
 message C_PartyRequest {
   int32 userId = 1;
   string partyName = 2;// 파티 이름 추가
+  int32 dungeonIndex; // 선택한 던전 인덱스
 }
 
 // 초대용 패킷 
@@ -270,28 +302,33 @@ message S_PartyResultResponse {
 // 처리하는 패킷을 하나로
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
-  PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입)
+    PartyInfo party = 1;
+    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
     bool success = 3;
     string message = 4;
     GlobalFailCode failCode = 5;
 }
 
 /*매칭 */
-message C_match{
-  partyInfo party =1;
-  int32 dungeonCode=2;
-  repeated platerInfo players=3;
+message C_MatchRequest{
+  PartyInfo party = 1;
 }
 
-
-message S_matchResponse{
-  repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
-  repeated PartyInfo party = 3;
-  string message = 4;
+message S_MatchResponse{
+  int32 dungeonSessionNumber = 1;
+  repeated PartyInfo party = 2; // 합쳐진 파티 인포
+  bool success = 3; // 매칭 완료 불값
+  string message = 4; // 매칭 완료 
 }
 
+message C_MatchStopRequest {
+  bool stop = 1; // 매칭 중단 요청
+}
+
+message S_MatchStopResponse { 
+   bool stop = 1; // 매칭 중단 결과
+   string message = 2; // 매칭 중단 결과 메세지
+}
 
 /* 던전 입장 */
 
@@ -324,38 +361,51 @@ message S_ScreenText {
 message S_ScreenDone {}
 
 // 경매장 페이지 네이션 요청 
-message C_marketList {
+message C_MarketList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 페이지 네이션 응답
-message S_marketList {
-  int32 MaxPage = 1;
+message S_MarketList {
+  int32 maxPage = 1;
   repeated marketItemInfo itemdata = 2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 요청
-message C_marketMyList {
+message C_MarketMyList {
   int32 page = 1;
+  int32 count =2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 응답
-message S_marketMyList {
-  int32 MaxPage = 1;
+message S_MarketMyList {
+  int32 maxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
 
 // 소캣 기준으로 유저 찾고 판매 목록에 등록 
 message C_SellInMarket {
   int32 inventoryId = 1;
+  int32 itemId = 2;
 }
 //
 message S_SellInMarket {
   int32 inventoryId = 1;
   bool success = 2;
+  string message =3;
 }
 message C_BuyInMarket {
-
+  int32 marketId = 1;
 }
 message S_BuyInMarket {
-
+  bool success = 1;
+  string message =2;
+}
+message C_MarketSelectBuyName{
+  int32 page = 1;
+  int32 count = 2;
+  string name = 3;
+}
+message S_MarketSelectBuyName{
+  repeated ItemInfo itemdata = 2;
 }
 
 // 정보 구조체
@@ -368,6 +418,13 @@ message PlayerInfo {
   StatInfo statInfo = 5;
 }
 
+// [추가] 동기화 리메이크에 사용할 패킷
+message SyncTransformInfo {
+  int32 playerId = 1; // 유저 id 
+  TransformInfo transform = 2; // 트랜스폼 정보
+  float speed = 3; // 스피드
+}
+
 // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
 // C_Move 를 통해 전달된 데이터는 그대로 다른 사용자에게 릴레이
 message TransformInfo {
@@ -375,6 +432,12 @@ message TransformInfo {
   float posY = 2;// 기본값 : 1
   float posZ = 3;// 기본값 : -8 ~ 8
   float rot = 4;// 기본값 : 0~360
+}
+
+message Velocity {
+  float x = 1;
+  float y = 2;
+  float z = 3;
 }
 
 // [수정] magic은 빼야하는가?
@@ -413,7 +476,7 @@ message DungeonInfo {
   int32 dungeonId = 1;
   int32 DungeonIndex=2;
   string dungeonState=3;
-  repeated PLayerInfo Player=4;
+  repeated PlayerStatus Player=4;
   repeated MonsterStatus monsters = 5;
 }
 
@@ -456,8 +519,10 @@ message BtnInfo {
   message PartyInfo{
     int32 partyId = 1 ;
     string partyName = 2; // 파티 이름
-    int32 maximum = 3;
-    repeated PlayerStatus Players = 4;
+    int32 partyLeaderId = 3; // 리더 아이디
+    int32 maximum = 4;
+    int32 dungeonIndex; // 들어갈 던전 인덱스
+    repeated PlayerStatus Players = 5;
   }
   message ItemInfo{
     int32 id =1;
@@ -469,11 +534,36 @@ message BtnInfo {
     int32 rarity =7; 
   }
 
-
  message marketItemInfo{
     int32 marketId = 1;
     int32 itemId =2;
-    int32 upgrade =3;
-    int64 endTime = 4;
-    int32 price = 5;
+    string name = 3;
+    int32 upgrade =4;
+    int64 endTime = 5;
+    int32 price = 6;
  }
+
+message C_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+}
+
+message S_Emote{
+  int32 playerId = 1;
+  int32 type = 2;
+  string emote = 3;
+  int32 errortype = 4;
+}
+
+// 아이템 판매 요청
+message C_SellItemRequest {
+  int32 inventoryId = 1;
+  int32 price = 2;
+}
+// 아이템 판매 응답
+message S_SellItemResponse {
+  bool success = 1;
+  string message = 2;
+  GlobalFailCode failCode = 3;
+}

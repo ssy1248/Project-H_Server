@@ -131,6 +131,7 @@ const dungeonEnterHandler = (socket, packetData) => {
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
     };
 
+    console.log(party)
     //createResponse
     const dungeonEnterResponse = createResponse(
       'dungeon',
