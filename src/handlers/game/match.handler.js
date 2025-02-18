@@ -12,6 +12,7 @@ import { matchSessions } from '../../session/sessions.js';
   }
 
   C_MatchStopRequest {
+    partyId int
     bool stop,
   }
 */
@@ -80,17 +81,57 @@ const matchingHandler = (socket, packetData) => {
 
     //여기서 던전 세션을 만들어야한고 클라이언트에 보내줘야한다.일단 받은 데이터는 다 보내자
 
-    const MatcchPayload = {
+    const matchPayload = {
       dungeonId,
       partyInfo,
-      bool: true,
+      success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };
 
     //createResponse
-    const matchResponse = createResponse('match', 'S_Match', PACKET_TYPE.S_Match, MatcchPayload);
+    const matchResponse = createResponse(
+      'match',
+      'S_MatchResponse',
+      PACKET_TYPE.S_MATCHRESPONSE,
+      matchPayload,
+    );
     socket.write(matchResponse);
-    
+  } catch (e) {
+    handlerError(socket, e);
+  }
+};
+
+export const matchStopHandler = (socket, packetData) => {
+  try {
+    const { stop, partyId } = packetData;
+
+    const stopMatch = matchSessions.cancelMatch(partyId);
+
+    if (!stopMatch) {
+      const matchStopPayload = {
+        bool: true,
+        message: '매칭 종료가 성공정으로 진행되었습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+    } else {
+      const matchStopPayload = {
+        bool: false,
+        message: '매칭 종료를 실패했습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+    }
   } catch (e) {
     handlerError(socket, e);
   }
