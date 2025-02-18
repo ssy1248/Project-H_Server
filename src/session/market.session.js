@@ -63,6 +63,6 @@ export function getBuyNameInMarketList(name, page, count) {
 export async function initMarketSesion() {
   const marketAllData = await getAllMarketData();
   for (let data of marketAllData) {
-    new marketData(data, getItemSession(data.id).name);
+    //new marketData(data, getItemSession(data.id).name);
   }
 }
