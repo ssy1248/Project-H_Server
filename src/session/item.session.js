@@ -3,7 +3,7 @@ import { itemSessions } from './sessions.js';
 import Item from '../classes/models/item.class.js';
 
 export function addItemSession(item) {
-  if (itemSessions.has(item.id)) {
+  if (!itemSessions.has(item.id)) {
     itemSessions.set(item.id, item);
   } else {
     return new Error('해당하는 데이터가 이미 존제 합니다.');

@@ -5,7 +5,7 @@ import { marketSessions } from './sessions.js';
 
 // 해당 데이터 추가입니다.
 export function addMarketSession(item) {
-  if (marketSessions.has(item.id)) {
+  if (!marketSessions.has(item.id)) {
     marketSessions.set(item.id, item);
   } else {
     return new Error('해당하는 데이터가 이미 존제 합니다.');
@@ -34,8 +34,7 @@ export function getMaxMarketList(count) {
 export function getBuyNameInMarketList(name, page, count) {
   const data = [];
   // 넘기기 전용 카운트
-  let nexCount = page * count;
-
+  let nexCount = (page - 1) * count;
   for (let [makrketId, marketData] of marketSessions) {
     if (data.length >= count) {
       break;
@@ -43,10 +42,10 @@ export function getBuyNameInMarketList(name, page, count) {
     if (marketData.name.includes(name)) {
       if (nexCount === 0) {
         data.push({
-          makrketId,
+          makrketId: marketData.id,
           itemId: marketData.itemIndex,
           name: marketData.name,
-          upgrade: marketData.upgrade,
+          upgrade: marketData.rarity,
           endTime: marketData.endTime,
           price: marketData.price,
         });
@@ -63,6 +62,6 @@ export function getBuyNameInMarketList(name, page, count) {
 export async function initMarketSesion() {
   const marketAllData = await getAllMarketData();
   for (let data of marketAllData) {
-    new marketData(data, getItemSession(data.id).name);
+    new marketData(data, getItemSession(data.itemIndex).name);
   }
 }
