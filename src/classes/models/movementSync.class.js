@@ -63,6 +63,14 @@ export default class MovementSync {
     return null;
   }
 
+  // [전체 엔티티 찾기]
+  getAllEntitySyncs() {
+    if (this.entitySyncs) {
+      return this.entitySyncs;
+    }
+    return null;
+  }
+
   // [엔티티 삭제]
   deleteEntitySync(id, type) {
     if (this.entitySyncs[id] && this.entitySyncs[id].type === type) {

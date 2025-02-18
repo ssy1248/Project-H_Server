@@ -1,24 +1,27 @@
-const MONSTER_AI_Behavior = {
-  IDLE: 0, // 몬스터가 대기
-  WANDER: 1, // 몬스터가 주변을 돌아다님
-  CHASE: 2, // 몬스터가 유저를 추적
-  FLANK: 3, // 몬스터가 측면으로 이동
-  ATTACK: 4, // 몬스터가 유저가 근처에 있다면 공격
-  RETURN: 5, // 몬스터가 스폰 장소로 돌아감
-  TAKING_DAMAGE: 6, // 몬스터가 공격받고 있음
+export const MONSTER_AI_BEHAVIOR = {
+  IDLE: 0,            // 몬스터가 대기
+  WANDER: 1,          // 몬스터가 주변을 돌아다님
+  CHASE_NORMAL: 2,    // 추격 (일반)
+  CHASE_FLANK: 3,     // 추격 (측면이동)
+  CHASE_PAUSE: 4,     // 추격 (대기)
+  CHASE_RETREAT  : 5, // 추격 (후퇴)
+  ATTACK: 6,          // 몬스터가 유저가 근처에 있다면 공격
+  RETURN: 7,          // 몬스터가 스폰 장소로 돌아감
+  TAKING_DAMAGE: 8,   // 몬스터가 공격받고 있음
 };
 
-export default class Monster {
+export class Monster {
   // 생성자.
-  constructor(id, index, model, name, hp) {
+  constructor(movementSyncId, id, index, model, name, hp) {
     // 몬스터 정보
     this.monsterInfo = {
+      movementSyncId: movementSyncId,
       id: id,
       index: index,
       model: model,
       name: name,
       hp: hp,
-      behavior: MONSTER_AI_Behavior.IDLE,
+      behavior: MONSTER_AI_BEHAVIOR.IDLE,
     };
 
     const randomTransform = {
@@ -48,6 +51,11 @@ export default class Monster {
     // 타겟 정보
     this.targetInfo = {
       userId: '',
+      velocity: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
       transform: {
         posX: 0,
         posY: 0,
@@ -56,6 +64,12 @@ export default class Monster {
       },
     };
   }
+
+  // [Get] - monsterInfo
+  getMonsterInfo() {
+    return this.monsterInfo;
+  }
+
 
   // [Get] - 행동패턴
   getBehavior() {
@@ -93,9 +107,10 @@ export default class Monster {
   }
 
   // [Set] - targetInfo
-  SetTargetInfo(userId, transform) {
+  SetTargetInfo(userId, transform , velocity) {
     this.spawnTransform.userId = userId;
     this.spawnTransform.transform = transform;
+    this.spawnTransform.velocity = velocity;
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수
