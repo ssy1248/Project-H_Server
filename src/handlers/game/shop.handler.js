@@ -7,6 +7,7 @@ import {
   findItemById,
   buyItem,
   updateUserGoldAfterBuy,
+  updateShopStockAfterBuy,
   sellItem,
   updateUserGoldAfterSell,
 } from '../../db/shop/shop.db.js';
@@ -14,7 +15,7 @@ import { PACKET_TYPE } from '../../constants/header.js';
 
 // 아이템 구매
 const handleBuyItem = async (socket, packetData) => {
-  const { itemname, price } = packetData;
+  const { shopId, price } = packetData;
   const user = getUserBySocket(socket);
 
   if (!user) {
@@ -22,7 +23,7 @@ const handleBuyItem = async (socket, packetData) => {
   }
 
   const characterId = user.userInfo.characterId;
-  const item = await findItemById(itemname);
+  const item = await findItemById(shopId);
 
   if (!item) {
     throw new CustomError(ErrorCodes.ITEM_NOT_FOUND, '아이템을 찾을 수 없습니다.');
@@ -32,17 +33,26 @@ const handleBuyItem = async (socket, packetData) => {
     throw new CustomError(ErrorCodes.INVALID_ITEM_PRICE, '아이템 가격이 일치하지 않습니다.');
   }
 
+  if (item.stock <= 0) {
+    throw new CustomError(ErrorCodes.OUT_OF_STOCK, '아이템 재고가 부족합니다.');
+  }
+
   const goldUpdated = await updateUserGoldAfterBuy(characterId, price);
   if (!goldUpdated) {
     throw new CustomError(ErrorCodes.NOT_ENOUGH_GOLD, '골드가 부족합니다.');
   }
 
-  const itemBought = await buyItem(characterId, item.id);
+  const itemBought = await buyItem(characterId, item.itemId);
   if (!itemBought) {
     throw new CustomError(ErrorCodes.INTERNAL_ERROR, '아이템 구매에 실패했습니다.');
   }
 
-  const response = createResponse('shop', 'S_BuyItemResponse', PACKET_TYPE.S_BUY_ITEM_RESPONSE, {
+  const stockUpdated = await updateShopStockAfterBuy(shopId);
+  if (!stockUpdated) {
+    throw new CustomError(ErrorCodes.INTERNAL_ERROR, '상점 재고 업데이트에 실패했습니다.');
+  }
+
+  const response = createResponse('shop', 'S_BuyItemResponse', PACKET_TYPE.S_BUYITEMRESPONSE, {
     success: true,
     message: '아이템 구매 성공',
     failCode: 0,
