@@ -1,9 +1,9 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
-import { searchPartySession } from '../../session/party.session.js';
+import { createPartySession, searchPartySession } from '../../session/party.session.js';
 import { addDungeonSession } from '../../session/dungeon.session.js';
 import { v4 as uuidv4 } from 'uuid';
 
-const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수
+const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수를 상수로 지정
 
 // 매칭 관련 다룰 클래스
 class Match {
@@ -148,4 +148,4 @@ class Match {
   }
 }
 
-export default Match;
+export default Match; // Match 클래스 내보내기
