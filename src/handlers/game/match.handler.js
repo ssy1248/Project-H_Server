@@ -7,24 +7,24 @@ import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
 
 /* 
-  C_MatchHRequest {
-    PartyInfo Info, // 파티 인포에 던전인덱스추가
+  message C_MatchRequest{
+    PartyInfo party = 1;
   }
 
-  C_MatchStopRequest {
-    partyId int
-    bool stop,
-  }
-*/
-/* 
-  S_MatchResponse {
-    int32 dungeonSessionNumber, // 던전 세션 번호
-    PartyInfo Info, // 완성된 하나의 인포
-    bool success, // 매칭 성공 여부
+  message S_MatchResponse{
+    int32 dungeonSessionNumber = 1;
+    repeated PartyInfo party = 2; // 합쳐진 파티 인포
+    bool success = 3; // 매칭 완료 불값
+    string message = 4; // 매칭 완료 
   }
 
-  S_MatchStopResponse {
-   bool stop,
+  message C_MatchStopRequest {
+    bool stop = 1; // 매칭 중단 요청
+  }
+
+  message S_MatchStopResponse { 
+    bool stop = 1; // 매칭 중단 결과
+    string message = 2; // 매칭 중단 결과 메세지
   }
 */
 
@@ -32,7 +32,7 @@ import { matchSessions } from '../../session/sessions.js';
 const matchingHandler = (socket, packetData) => {
   try {
     // 파티 ,플레어 정보
-    const { partyinfo } = packetData;
+    const { party } = packetData;
 
     //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
     //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
@@ -48,31 +48,25 @@ const matchingHandler = (socket, packetData) => {
     // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
     // 던전 인덱스의
 
-    //일단 파티 partyinfo에서 partyId 추출
-    const partyId = partyinfo.partyId;
-
-    //partId로 파티 찾기
-    const party = searchPartySession(partyId);
-
-    //소켓으로 유저 찾기
-    const user = getUserBySocket(socket);
-
     // 매칭 세션이 0명이 되면 삭제할지 말지 고민 냅둬도 될거 같긴 한데
     let matchSession = matchSessions;
-    if (!matchSession) {
+    if (matchSession.length <= 0) {
       console.log('이 던전의 매칭은 만들어지지 않았습니다');
       matchSession = addMatchSession();
     }
 
-    // 매칭이 완료가 되었을떄 들어가는 던전 정보를 어떻게 가져오냐
+    console.log(party.partyId);
+    const dungeon = matchSession.addPartyMatchQueue(party.partyId);
+    if (!dungeon) {
+      // 매칭이 아직 안 됐으므로, 던전 정보가 없다.
+      console.log('아직 매칭이 완료되지 않았습니다.');
+      return;
+    }
 
-    const dungeon = matchSession.addPartyMatchQueue(partyId);
-    // 여기서 나온 던전 세션을 새로 만드는 던전 인포에 맞게 넣어야한다.
-    //dungeonInfo 에 들어가야 할것
-
+    // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
     const dungeonId = dungeon.dungeonId;
 
-    const partyInfo = party.partyInfo;
+    const partyInfo = party;
 
     //dungeonId : 던전 아이디
     //dungeonIndex : 어떤 던전인지 아는 던전 번호
