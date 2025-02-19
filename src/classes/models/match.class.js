@@ -162,7 +162,7 @@ class Match {
 
     // 현재 진행 중인 타임아웃을 취소
     console.log(partyId, 'partyId');
-    console.log(this.matchTimeouts[(partyId)], 'this.matchTimeouts[partyId]');
+    console.log(this.matchTimeouts[partyId], 'this.matchTimeouts[partyId]');
     const timeoutId = this.matchTimeouts[partyId];
     console.log(timeoutId, 'timeoutid');
     console.log(this.matchTimeouts, 'this.matchTimeouts');
