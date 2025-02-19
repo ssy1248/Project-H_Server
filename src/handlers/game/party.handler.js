@@ -125,7 +125,7 @@ export const partyListHandler = async (socket, payload) => {
 const generatePartyId = () => {
   // uuid는 같은 값이 나올 가능성이 낮다
   const id = uuidv4();
-  return parseInt(`${id}`);
+  return id;
 };
 
 // C_PartyRequest가 날라오면 처리할 핸들러
