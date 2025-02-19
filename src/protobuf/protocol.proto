@@ -63,6 +63,7 @@ enum MsgId {
   S_MARKETSELECTBUYNAME = 54;
   C_MATCHSTOPREQUEST = 55;
   S_MATCHSTOPRESPONSE = 56;
+  S_MATCHINGNOTIFICATION = 57;
 }
 
 //회원가입 요청
@@ -172,22 +173,6 @@ message S_BuyItemResponse  {
     string message = 2;
     GlobalFailCode failCode =3;
 }
-// message C_UploadItemRequest {
-//   // 등록할 아이템 이름
-//   string itemname = 1;
-//   // 아이템 가격
-//   int32 price = 2;
-//   // 판매할 개수
-//   int32 quantity = 3;   
-// }
-// message S_UploadItemResponse {
-//   // 성공 여부
-//   bool success = 1;
-//   // 결과 메시지
-//   string message = 2;
-//   // 실패 코드 (예: 잔액 부족, 아이템 없음 등)
-//   GlobalFailCode failCode = 3;
-// }
 
 /* 아이템 패킷 */
 
@@ -251,7 +236,7 @@ message C_PartyInviteRequest {
 
 // 파티 신청 패킷
 message C_PartyJoinRequest {
-  int32 partyId = 1;// 파티 id
+  string partyId = 1;// 파티 id
   int32 userId = 2;// 가입할 유저 id
 }
 
@@ -314,6 +299,10 @@ message C_MatchRequest{
   PartyInfo party = 1;
 }
 
+message S_MatchingNotification {
+    bool isStart = 1; // 시작했는지 체크
+}
+
 message S_MatchResponse{
   int32 dungeonSessionNumber = 1;
   repeated PartyInfo party = 2; // 합쳐진 파티 인포
@@ -322,7 +311,7 @@ message S_MatchResponse{
 }
 
 message C_MatchStopRequest {
-  bool stop = 1; // 매칭 중단 요청
+  PartyInfo party = 1; //파티 정보
 }
 
 message S_MatchStopResponse { 
@@ -385,6 +374,7 @@ message S_MarketMyList {
 message C_SellInMarket {
   int32 inventoryId = 1;
   int32 itemId = 2;
+  int32 gold =3;
 }
 //
 message S_SellInMarket {
@@ -405,7 +395,7 @@ message C_MarketSelectBuyName{
   string name = 3;
 }
 message S_MarketSelectBuyName{
-  repeated ItemInfo itemdata = 2;
+  repeated marketItemInfo itemdata = 2;
 }
 
 // 정보 구조체
@@ -517,7 +507,7 @@ message BtnInfo {
     int32 code =1;
   }
   message PartyInfo{
-    int32 partyId = 1 ;
+    string partyId = 1 ;
     string partyName = 2; // 파티 이름
     int32 partyLeaderId = 3; // 리더 아이디
     int32 maximum = 4;

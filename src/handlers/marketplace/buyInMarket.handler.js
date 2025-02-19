@@ -2,13 +2,13 @@
 
 import { PACKET_TYPE } from '../../constants/header.js';
 import { sellInMarket } from '../../db/marketplace/market.db.js';
-import { deletMarketSession, getMarketSession } from '../../session/market.session.js';
+import { deletMarketSession, getBuyIdInMarketSession } from '../../session/market.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 
 const check = async (user, marketId) => {
   try {
-    const marketData = getMarketSession(marketId);
+    const marketData = getBuyIdInMarketSession(marketId);
     if (!marketData) {
       throw new Error('더이상 존재하지 않는 물품입니다.');
     }
@@ -27,7 +27,6 @@ const check = async (user, marketId) => {
       marketId,
       gold: marketData.price,
     });
-
     return createResponse('town', 'S_BuyInMarket', PACKET_TYPE.S_BUYITEMRESPONSE, {
       success: true,
       message: '구매에 성공했습니다.',

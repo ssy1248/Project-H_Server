@@ -8,8 +8,8 @@ const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수를 상
 // 매칭 관련 다룰 클래스
 class Match {
   constructor() {
-    // 파티와 솔로 매치 큐를 초기화
     this.partyQueue = []; // 파티 매칭 대기열
+    this.matchTimeouts = {}; // 매칭을 진행하지 않을 파티 ID 저장
   }
 
   // 솔로가 던전 입장 누르면 무조건 파티 생성 후 입장이 가능합니다. 팝업띄어서 유저가 직접 파티 생성하게 -> 파티 세션 집어넣고 진행
@@ -29,7 +29,7 @@ class Match {
 
       // 던전 인덱스가 정상적인 값인지?
       // 임시 예외 처리
-      if (party.desiredDungeonIndex !== typeof Number) {
+      if (typeof party.dungeonIndex !== 'number') {
         console.log('숫자형이 아님');
         return;
       }
@@ -37,27 +37,31 @@ class Match {
       // 파티를 매칭 대기열에 추가
       this.partyQueue.push(party);
       console.log(
-        `파티 ${partyId}의 멤버들이 던전 ${party.desiredDungeonIndex} 매칭 대기열에 추가되었습니다.`,
+        `파티 ${partyId}의 멤버들이 던전 ${party.dungeonIndex} 매칭 대기열에 추가되었습니다.`,
       );
 
       // 매칭 시도 후 던전 세션을 반환 (매칭 성공 시)
-      return this.attemptMatch();
+      // const check = this.attemptMatch();
+      // console.log(check);
+      return this.attemptMatch(partyId);
     } catch (error) {
       console.error(`파티 ${partyId} 매칭 추가 실패: ${error.message}`);
     }
   }
 
   // 매칭 로직: 여러 큐를 활용하여 4명 조합 찾기
-  attemptMatch() {
+  attemptMatch(partyId) {
+    console.log('attemptMatch들어옴');
     // reduce를 이용해서 각 던전 인덱스를 키를 한 배열들을 만들고
     const groups = this.partyQueue.reduce((acc, party) => {
-      const dungeonIndex = party.desiredDungeonIndex;
+      const dungeonIndex = party.dungeonIndex;
       if (!acc[dungeonIndex]) {
         acc[dungeonIndex] = [];
       }
       acc[dungeonIndex].push(party);
       return acc;
     }, {});
+    console.log(groups);
 
     /**
      리턴값
@@ -119,12 +123,28 @@ class Match {
       }
     }
     // 무한재귀를 막기 위한 setTimeout 사용
-    // 매칭 조건이 아직 충족되지 않으면, 일정 시간 후 재시도
-    setTimeout(() => {
-      this.attemptMatch();
-    }, 1000); // 1초 후에 재시도
+    // 타임아웃을 설정하여 1초 후 재시도
+    const timeoutId = setTimeout(() => {
+      // 매칭 로직 처리 후, 재시도
+      this.attemptMatch(partyId);
+    }, 1000); // 1초 후 재시도ç
+
+    // 타임아웃 ID를 matchTimeouts 객체에 저장
+    console.log(partyId, 'partyID#$!@#!@#!@');
+
+    this.matchTimeouts[partyId] = timeoutId;
+
+    // 매칭을 진행하지 않을 파티인지 확인
+    if (!this.matchTimeouts[partyId]) {
+      console.log(
+        `파티 ${partyId}는 매칭을 진행하지 않아서 대기열에서 제거되고 타임아웃이 취소됩니다.`,
+      );
+
+      return null; // 재귀를 더 이상 진행하지 않음
+    }
 
     // 아직 매칭이 완료되지 않았음을 나타내기 위해 null을 반환
+    console.log('---------------------------');
     return null;
 
     // 매칭 취소
@@ -133,7 +153,31 @@ class Match {
 
   //cancelMatch
   // 매칭 취소? (아직 구현되지 않음)
-  cancelMatch(user) {}
+  cancelMatch(partyId) {
+    // 대기열에서 해당 파티를 제거
+
+    //이거 받아 올떄 파티 아이디가 아디라 몇번던전인지 아는 인덱스를 받음
+    this.partyQueue = this.partyQueue.filter((party) => party.id !== partyId);
+    console.log(`파티 ${partyId}가 매칭 대기열에서 제거되었습니다.`);
+
+    // 현재 진행 중인 타임아웃을 취소
+    console.log(partyId, 'partyId');
+    console.log(this.matchTimeouts[partyId], 'this.matchTimeouts[partyId]');
+    const timeoutId = this.matchTimeouts[partyId];
+    console.log(timeoutId, 'timeoutid');
+    console.log(this.matchTimeouts, 'this.matchTimeouts');
+    if (timeoutId) {
+      clearTimeout(timeoutId); // 해당 타임아웃을 취소
+      console.log(`파티 ${partyId}의 매칭이 취소되었습니다.`);
+      // matchTimeouts에서 해당 타임아웃 ID 제거
+      delete this.matchTimeouts[partyId];
+      console.log('제거후 ', this.matchTimeouts);
+      return true;
+    } else {
+      console.log(`파티 ${partyId}는 이미 매칭이 취소되었거나 대기 중이지 않습니다.`);
+      return false;
+    }
+  }
 
   // 던전 입장 함수: 매칭된 멤버들이 던전에 입장하도록 처리
   enterDungeon(party) {

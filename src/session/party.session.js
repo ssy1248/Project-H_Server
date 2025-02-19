@@ -48,7 +48,7 @@ export const searchPartySession = (id) => {
     throw new Error('파티 검색 시 id가 필요합니다.');
   }
 
-  const party = partySessions.find((party) => party.id === id);
+  const party = partySessions.find((party) => party.id.toString() === id.toString());
 
   if (!party) {
     throw new Error(`파티 id ${id}를 찾을 수 없습니다.`);

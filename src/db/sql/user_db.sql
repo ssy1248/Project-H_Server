@@ -92,3 +92,11 @@ CREATE TABLE IF NOT EXISTS Skill (
     castingTime FLOAT DEFAULT 0, 
     effect      INT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS Shop (
+    id          INT PRIMARY KEY AUTO_INCREMENT,
+    itemId      INT NOT NULL,         -- 판매할 아이템 ID (Items 테이블과 연결)
+    stock       INT DEFAULT -1,       -- 재고 (-1은 무한 재고)
+    price       INT NOT NULL,         -- 아이템 가격
+    FOREIGN KEY (itemId) REFERENCES Items(id)
+);

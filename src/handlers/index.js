@@ -24,7 +24,7 @@ import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
-import matchingHandler from './game/match.handler.js';
+import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
@@ -217,9 +217,13 @@ const handlers = {
     handler: animationHandler,
     protoType: 'town.S_SellInMarket',
   },
-  [PACKET_TYPE.C_BuyInMarket]: {
+  [PACKET_TYPE.C_BUYINMARKET]: {
     handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
+  },
+  [PACKET_TYPE.S_BUYINMARKET]: {
+    handler: buyInMarketHandler,
+    protoType: 'town.S_BuyInMarket',
   },
   [PACKET_TYPE.C_EMOTE]: {
     handler: chatHandler,
@@ -242,12 +246,16 @@ const handlers = {
     protoType: 'town.C_MarketSelectBuyName',
   },
   [PACKET_TYPE.C_MATCHSTOPREQUEST]: {
-    handler: undefined,
+    handler: matchStopHandler,
     protoType: 'match.C_MatchStopRequest',
   },
   [PACKET_TYPE.S_MATCHSTOPRESPONSE]: {
     handler: undefined,
     protoType: 'match.S_MatchStopResponse',
+  },
+  [PACKET_TYPE.S_MATCHINGNOTIFICATION]: {
+    handler: undefined,
+    protoType: 'match.S_MatchingNotification',
   },
   marketSelectBuyName,
 };
