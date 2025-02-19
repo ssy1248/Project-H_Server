@@ -1,6 +1,7 @@
 export const MONSTER_AI_BEHAVIOR = {
   IDLE: 0,            // 몬스터가 대기
   WANDER: 1,          // 몬스터가 주변을 돌아다님
+  CHASE_SETTING: 2,   // 추격 (세팅)
   CHASE_NORMAL: 2,    // 추격 (일반)
   CHASE_FLANK: 3,     // 추격 (측면이동)
   CHASE_PAUSE: 4,     // 추격 (대기)
