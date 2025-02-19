@@ -1,5 +1,7 @@
 import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
+import { createResponse } from "../../utils/response/createResponse.js";
+import { PACKET_TYPE } from '../../constants/header.js';
 
 export default class Inventory {
     constructor() {
@@ -9,8 +11,8 @@ export default class Inventory {
 
     async init(user) {
         this.user = user;
-        this.charId = user.PlayerInfo.charId;
-        this.inventory = await getInventoryFromCharId(charId);
+        this.charId = user.playerInfo.charId;
+        this.inventory = await getInventoryFromCharId(this.charId);
         if (!this.inventory) {
             console.log('inventory is empty');
             return;
