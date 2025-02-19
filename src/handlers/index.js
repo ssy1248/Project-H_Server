@@ -258,6 +258,14 @@ const handlers = {
     protoType: 'match.S_MatchingNotification',
   },
   marketSelectBuyName,
+  [PACKET_TYPE.C_SHOPINVENTORYREQUEST]: {
+    handler: shopHandler,
+    protoType: 'inventory.C_ShopInventoryRequest',
+  },
+  [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
+    handler: shopHandler,
+    protoType: 'inventory.S_ShopInventoryList',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
