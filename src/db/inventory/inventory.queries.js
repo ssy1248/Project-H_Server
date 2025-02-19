@@ -14,4 +14,5 @@ export const SQL_QUERIES = {
     'SELECT C.id, U.nickname, C.charStatId, C.level FROM Characters AS C JOIN User AS U ON C.userId = U.id ORDER BY U.id ASC',
   EQUIP_ITEM: 'UPDATE Inventory SET equiped = 1 WHERE id = ? AND charId = ?',
   DISROBE_ITEM: 'UPDATE Inventory SET equiped = 0 WHERE id = ? AND charId = ?',
+  GET_ITEM_BUY_INVENTORY: `SELECT * FROM Inventory WHERE charId = ? AND  id =?`,
 };
