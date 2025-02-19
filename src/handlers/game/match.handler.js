@@ -1,5 +1,4 @@
-import { searchPartySession } from '../../session/party.session.js';
-import { getUserBySocket } from '../../session/user.session.js';
+import { getUserBySocket, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -68,19 +67,19 @@ const matchingHandler = (socket, packetData) => {
     // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
     // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
     const matchingNotificationPayload = {
-      isStart: true,
-      message: '파티 매칭을 시작합니다.'
+      isStart: true
     };
     const matchingNotificationPacket = createResponse(
       'match',
       'S_MatchingNotification',      
-      PACKET_TYPE.S_MATCHINGNOTI,    
+      PACKET_TYPE.S_MATCHINGNOTIFICATION,    
       matchingNotificationPayload
     );
 
     // 파티원 전원에게 브로드캐스트
     party.Players.forEach((member) => {
-      member.userInfo.socket.write(matchingNotificationPacket);
+      const partyMember = getUserByNickname(member.playerName)
+      partyMember.userInfo.socket.write(matchingNotificationPacket);
     });
 
     let matchSession = matchSessions[0];
