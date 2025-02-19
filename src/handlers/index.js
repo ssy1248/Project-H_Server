@@ -82,15 +82,15 @@ const handlers = {
     protoType: 'chat.C_Chat',
   },
   [PACKET_TYPE.S_CHAT]: {
-    handler: animationHandler,
+    handler: chatHandler,
     protoType: 'chat.S_Chat',
   },
   [PACKET_TYPE.C_BUYITEMREQUEST]: {
-    handler: animationHandler,
+    handler: shopHandler,
     protoType: 'inventory.C_BuyItemRequest',
   },
   [PACKET_TYPE.S_BUYITEMRESPONSE]: {
-    handler: animationHandler,
+    handler: shopHandler,
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
