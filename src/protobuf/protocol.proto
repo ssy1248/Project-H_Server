@@ -311,8 +311,7 @@ message S_MatchResponse{
 }
 
 message C_MatchStopRequest {
-  bool stop = 1; // 매칭 중단 요청
-  string partyId = 2; //파티 아이디
+  PartyInfo party = 1; //파티 정보
 }
 
 message S_MatchStopResponse { 
