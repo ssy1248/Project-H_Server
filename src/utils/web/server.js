@@ -34,10 +34,10 @@ app.get('/api/items', async (req, res) => {
 
 // 아이템 추가
 app.post('/api/items', async (req, res) => {
-    const { name, itemType, stat, price } = req.body;
+    const { itemId, name, itemType, stat, price, stackable } = req.body;
     try {
         console.log('post');
-        const result = await createItem(name, itemType, stat, price);
+        const result = await createItem(itemId, name, itemType, stat, price, stackable);
         const newItem = await findItemById(result);
         res.status(201).json(newItem);
     } catch (error) {
