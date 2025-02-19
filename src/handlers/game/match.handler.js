@@ -59,12 +59,9 @@ const matchingHandler = (socket, packetData) => {
     //7.enterDungeon 메소드에서 던전을 생성하고 그에 따른 정보들을 받는다.
     //8. 패킷을 통해 던전,파티, 을 보낸다.
     //9. 매칭 완료 캐싱르 받으면 이제 클라이언트에서 던전입장 핸들러를 사용한다.
-
-    // 파티장이 매칭 신청 -> 그 후 매칭 리스판스는 모든 파티원에게 브로드캐스트 전송
     // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
     // 던전 인덱스의
 
-    // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
     // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
     const matchingNotificationPayload = {
       isStart: true
