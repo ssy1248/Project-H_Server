@@ -81,7 +81,7 @@ export const matchStopHandler = (socket, packetData) => {
     const { party } = packetData;
     console.log('stop', party);
 
-    const partyId = party.partId;
+    const partyId = party.partyId;
 
     const stopMatch = matchSessions[0].cancelMatch(partyId);
 
@@ -99,7 +99,7 @@ export const matchStopHandler = (socket, packetData) => {
       socket.write(matchStopResponse);
 
       const matchingNotificationPayload = {
-        isStart: true,
+        isStart: false,
       };
       const matchingNotificationPacket = createResponse(
         'match',

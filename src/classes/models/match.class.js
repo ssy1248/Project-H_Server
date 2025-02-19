@@ -63,14 +63,6 @@ class Match {
     }, {});
     console.log(groups);
 
-    /**
-     리턴값
-      {
-        2: [ { id: 1, desiredDungeonIndex: 2, ... }, { id: 3, desiredDungeonIndex: 2, ... } ],
-        3: [ { id: 2, desiredDungeonIndex: 3, ... } ]
-      }
-     */
-
     // 각 그룹별로 매칭을 시도
     for (const dungeonIndex in groups) {
       const group = groups[dungeonIndex];
