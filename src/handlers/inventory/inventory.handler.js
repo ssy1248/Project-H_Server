@@ -5,6 +5,7 @@ import { createResponse } from "../../utils/response/createResponse.js";
 
 export const inventoryHandler = async (socket, data) => {
     try {
+        console.log('inventory.handler.js:8');
         const { charId } = data;
 
         // socket의 플레이어가 charId인지 검증(남의 인벤토리는 볼 수 없음)
@@ -12,20 +13,8 @@ export const inventoryHandler = async (socket, data) => {
         if (user.PlayerInfo.charId !== charId) { // TODO : Class user.PlayerInfo에 charId가 있어야함 ('../../classes/models/user.class.js')
             throw new Error("Character ID is invalid!");
         }
-
-        // 유저의 인벤토리를 조회
-        let inventory = user.inventory.getInventory();
-
-        // 메시지 생성
-        const inventoryResponse = createResponse(
-            'inventory',
-            'S_InventoryResponse',
-            PACKET_TYPE.S_INVENTORYRESPONSE,
-            { inventory: inventory },
-        );
-
-        // 반환
-        socket.write(inventoryResponse);
+        
+        user.inventory.send();
     } catch (error) {
         handlerError(socket, error);
     }

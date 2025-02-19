@@ -65,7 +65,7 @@ export default class User {
       rot: this.generateRandomPlayerTransformInfo(0, 360),
     };
 
-    this.inventory.init(this.playerInfo.charId);
+    this.inventory.init(this);
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수

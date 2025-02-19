@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td>${item.itemType}</td>
             <td>${item.stat}</td>
             <td>${item.price}</td>
+            <td>${item.stackable ? 'O' : 'X'}</td>
             <td>
                 <button class="edit-button" data-id="${item.id}">수정</button>
                 <button class="delete-button" data-id="${item.id}">제거</button>
@@ -34,30 +35,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-
     // 아이템 생성 폼에 클릭 이벤트 콜백 추가
     createItemForm.addEventListener('click', async (event) => {
-        const formData = new FormData(createItemForm);
-        const data = {
-            name: formData.get('name'),
-            itemType: formData.get('itemType'),
-            stat: formData.get('stat'),
-            price: formData.get('price')
-        };
+        if (event.target.classList.contains('create-button')) {
+            const formData = new FormData(createItemForm);
+            const data = {
+                itemId: formData.get('id'),
+                name: formData.get('name'),
+                itemType: formData.get('itemType'),
+                stat: formData.get('stat'),
+                price: formData.get('price'),
+                stackable: formData.get('stackable') === 'on'
+            };
 
-        const response = await fetch('/api/items', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
+            const response = await fetch('/api/items', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
 
-        if (response.ok) {
-            await fetchItems();
-            createItemForm.reset();
-        } else {
-            console.error('Failed to add item');
+            if (response.ok) {
+                await fetchItems();
+                createItemForm.reset();
+            } else {
+                console.error('Failed to add item');
+            }
         }
     });
 
@@ -116,7 +120,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (response.ok) {
                 await fetchItems();
                 editFormContainer.style.display = 'none';
-                formContainer.style.display = 'block';
+                createItemFormContainer.style.display = 'block';
             } else {
                 console.error('Failed to update item');
             }
