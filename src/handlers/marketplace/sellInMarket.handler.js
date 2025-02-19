@@ -12,6 +12,7 @@ const check = async (data) => {
     if (!item) {
       throw new Error('인벤토리에 없습니다!');
     }
+    console.log(data);
     const marketDataTemp = await addMarket({
       charId: data.user.playerInfo.charId,
       inventoryId: data.inventoryId,
@@ -41,6 +42,7 @@ const check = async (data) => {
 //판매 목록 올리기
 const sellInMarketHandler = async (socket, payload) => {
   const { inventoryId, itemId, gold, count } = payload;
+  console.log(payload);
   const user = getUserBySocket(socket);
   if (!user) {
     return;
