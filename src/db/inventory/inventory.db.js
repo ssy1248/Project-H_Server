@@ -70,5 +70,6 @@ export const getCharacterTable = async () => {
 };
 
 export const getItemBuyInventoryId = async (charId, id) => {
-  return ([rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ITEM_BUY_INVENTORY, [charId, id]));
+  const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ITEM_BUY_INVENTORY, [charId, id]);
+  return rows;
 };
