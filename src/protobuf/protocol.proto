@@ -567,5 +567,5 @@ message C_ShopInventoryRequest {
 // 상점 인벤토리 응답
 message S_ShopInventoryList {
   uint32 MaxPage = 1;
-  repeated ShopItemData itemdata = 2;
+  repeated ItemInfo itemdata = 2;
 }
