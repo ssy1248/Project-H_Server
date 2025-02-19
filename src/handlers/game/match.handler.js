@@ -55,6 +55,7 @@ const matchingHandler = (socket, packetData) => {
 
     const partyInfo = party;
 
+    // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
       dungeonId,
       partyInfo,
