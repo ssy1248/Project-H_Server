@@ -220,6 +220,10 @@ export default class MovementSync {
       const userSyncsSize = Object.keys(this.entitySyncs).length;
       // 몬스터들이 있을때만  로직 실행.
       if (userSyncsSize !== 0) {
+        // 몬스터 업데이트
+        updateMonster();
+
+
         // 움직이고 있는 몬스터 솎아내기.
         const changedMonsters = Object.keys(this.entitySyncs)
           .filter(
