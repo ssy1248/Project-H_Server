@@ -5,33 +5,6 @@ import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
 
-/* 
-  message C_MatchRequest{
-    PartyInfo party = 1;
-  }
-
-  message S_MatchingResponse {
-    bool isStart = 1; // 매칭이 시작됬는지 체크
-  }
-
-  message S_MatchResponse{
-    int32 dungeonSessionNumber = 1;
-    repeated PartyInfo party = 2; // 합쳐진 파티 인포
-    bool success = 3; // 매칭 완료 불값
-    string message = 4; // 매칭 완료 
-  }
-
-  message C_MatchStopRequest {
-    bool stop = 1; // 매칭 중단 요청
-    int32 partyId = 2; //파티 아이디
-  }
-
-  message S_MatchStopResponse { 
-    bool stop = 1; // 매칭 중단 결과
-    string message = 2; // 매칭 중단 결과 메세지
-  }
-*/
-
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
@@ -46,7 +19,6 @@ const matchingHandler = (socket, packetData) => {
       return;
     }
 
-    // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
     // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
     const matchingNotificationPayload = {
       isStart: true,
