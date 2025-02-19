@@ -64,6 +64,8 @@ enum MsgId {
   C_MATCHSTOPREQUEST = 55;
   S_MATCHSTOPRESPONSE = 56;
   S_MATCHINGNOTIFICATION = 57;
+  C_SHOPINVENTORYREQUEST = 58;
+  S_SHOPINVENTORYLIST = 59;
 }
 
 //회원가입 요청
@@ -556,4 +558,14 @@ message S_SellItemResponse {
   bool success = 1;
   string message = 2;
   GlobalFailCode failCode = 3;
+}
+// 상점 인벤토리 요청
+message C_ShopInventoryRequest {
+  uint32 page = 1;
+  uint32 count = 2;
+}
+// 상점 인벤토리 응답
+message S_ShopInventoryList {
+  uint32 MaxPage = 1;
+  repeated ShopItemData itemdata = 2;
 }
