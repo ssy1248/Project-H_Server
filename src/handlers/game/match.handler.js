@@ -45,12 +45,12 @@ const matchingHandler = (socket, packetData) => {
     const leaderId = party.partyLeaderId;
     console.log(leaderId);
 
-    if(user.userInfo.userId !== leaderId) {
+    if (user.userInfo.userId !== leaderId) {
       console.log('리더만 매칭 신청을 할 수 있습니다.');
       return;
     }
     // 파티장이 신청하면 파티원들에게 매칭이 시작된다라는 것을 브로드캐스트로 보내줘서 매칭 ui 띄우기
-    // 매칭 취소를 누르면 매칭 취소 핸들러 
+    // 매칭 취소를 누르면 매칭 취소 핸들러
 
     //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
     //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
@@ -117,8 +117,9 @@ const matchingHandler = (socket, packetData) => {
 export const matchStopHandler = (socket, packetData) => {
   try {
     const { stop, partyId } = packetData;
+    console.log('stop', partyId);
 
-    const stopMatch = matchSessions.cancelMatch(partyId);
+    const stopMatch = matchSessions[0].cancelMatch(partyId);
 
     if (!stopMatch) {
       const matchStopPayload = {
