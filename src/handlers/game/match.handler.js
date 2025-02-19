@@ -64,7 +64,24 @@ const matchingHandler = (socket, packetData) => {
     // 파티장이 매칭 신청 -> 그 후 매칭 리스판스는 모든 파티원에게 브로드캐스트 전송
     // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
     // 던전 인덱스의
+
     // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
+    // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
+    const matchingNotificationPayload = {
+      isStart: true,
+      message: '파티 매칭을 시작합니다.'
+    };
+    const matchingNotificationPacket = createResponse(
+      'match',
+      'S_MatchingNotification',      
+      PACKET_TYPE.S_MATCHINGNOTI,    
+      matchingNotificationPayload
+    );
+
+    // 파티원 전원에게 브로드캐스트
+    party.Players.forEach((member) => {
+      member.userInfo.socket.write(matchingNotificationPacket);
+    });
 
     let matchSession = matchSessions[0];
     if (!matchSession) {
