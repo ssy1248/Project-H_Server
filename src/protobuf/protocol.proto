@@ -236,7 +236,7 @@ message C_PartyInviteRequest {
 
 // 파티 신청 패킷
 message C_PartyJoinRequest {
-  int32 partyId = 1;// 파티 id
+  string partyId = 1;// 파티 id
   int32 userId = 2;// 가입할 유저 id
 }
 
