@@ -1,5 +1,4 @@
-import { searchPartySession } from '../../session/party.session.js';
-import { getUserBySocket } from '../../session/user.session.js';
+import { getUserBySocket, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -11,8 +10,8 @@ import { matchSessions } from '../../session/sessions.js';
     PartyInfo party = 1;
   }
 
-  message S_MatchingNotification {
-    bool isStart = 1; // 시작했는지 
+  message S_MatchingResponse {
+    bool isStart = 1; // 매칭이 시작됬는지 체크
   }
 
   message S_MatchResponse{
@@ -36,19 +35,18 @@ import { matchSessions } from '../../session/sessions.js';
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
-    console.log('매칭핸들러 들어옴');
     // 파티 ,플레어 정보
     const { party } = packetData;
-    console.log(party);
-    const user = getUserBySocket(socket);
-    console.log(user);
-    const leaderId = party.partyLeaderId;
-    console.log(leaderId);
 
-    if (user.userInfo.userId !== leaderId) {
-      console.log('리더만 매칭 신청을 할 수 있습니다.');
+    const user = getUserBySocket(socket);
+    const leaderId = party.partyLeaderId;
+
+    if(user.userInfo.userId !== leaderId) {
+      console.log('파티장만 신청 가능합니다.');
       return;
     }
+
+    // 파티장이 신청했는지 예외 처리 파티장만 신청 가능하도록
     // 파티장이 신청하면 파티원들에게 매칭이 시작된다라는 것을 브로드캐스트로 보내줘서 매칭 ui 띄우기
     // 매칭 취소를 누르면 매칭 취소 핸들러
 
@@ -65,7 +63,24 @@ const matchingHandler = (socket, packetData) => {
     // 파티장이 매칭 신청 -> 그 후 매칭 리스판스는 모든 파티원에게 브로드캐스트 전송
     // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
     // 던전 인덱스의
+
     // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
+    // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
+    const matchingNotificationPayload = {
+      isStart: true
+    };
+    const matchingNotificationPacket = createResponse(
+      'match',
+      'S_MatchingNotification',      
+      PACKET_TYPE.S_MATCHINGNOTIFICATION,    
+      matchingNotificationPayload
+    );
+
+    // 파티원 전원에게 브로드캐스트
+    party.Players.forEach((member) => {
+      const partyMember = getUserByNickname(member.playerName)
+      partyMember.userInfo.socket.write(matchingNotificationPacket);
+    });
 
     let matchSession = matchSessions[0];
     if (!matchSession) {

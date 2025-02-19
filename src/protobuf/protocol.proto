@@ -236,7 +236,7 @@ message C_PartyInviteRequest {
 
 // 파티 신청 패킷
 message C_PartyJoinRequest {
-  int32 partyId = 1;// 파티 id
+  string partyId = 1;// 파티 id
   int32 userId = 2;// 가입할 유저 id
 }
 
@@ -312,7 +312,7 @@ message S_MatchResponse{
 
 message C_MatchStopRequest {
   bool stop = 1; // 매칭 중단 요청
-  int32 partyId = 2; //파티 아이디
+  string partyId = 2; //파티 아이디
 }
 
 message S_MatchStopResponse { 
@@ -375,6 +375,7 @@ message S_MarketMyList {
 message C_SellInMarket {
   int32 inventoryId = 1;
   int32 itemId = 2;
+  int32 gold =3;
 }
 //
 message S_SellInMarket {
@@ -507,7 +508,7 @@ message BtnInfo {
     int32 code =1;
   }
   message PartyInfo{
-    int32 partyId = 1 ;
+    string partyId = 1 ;
     string partyName = 2; // 파티 이름
     int32 partyLeaderId = 3; // 리더 아이디
     int32 maximum = 4;
