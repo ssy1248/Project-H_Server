@@ -63,6 +63,7 @@ enum MsgId {
   S_MARKETSELECTBUYNAME = 54;
   C_MATCHSTOPREQUEST = 55;
   S_MATCHSTOPRESPONSE = 56;
+  S_MATCHINGNOTIFICATION = 57;
 }
 
 //회원가입 요청
@@ -298,6 +299,10 @@ message C_MatchRequest{
   PartyInfo party = 1;
 }
 
+message S_MatchingNotification {
+    bool isStart = 1; // 시작했는지 체크
+}
+
 message S_MatchResponse{
   int32 dungeonSessionNumber = 1;
   repeated PartyInfo party = 2; // 합쳐진 파티 인포
@@ -307,6 +312,7 @@ message S_MatchResponse{
 
 message C_MatchStopRequest {
   bool stop = 1; // 매칭 중단 요청
+  int32 partyId = 2; //파티 아이디
 }
 
 message S_MatchStopResponse { 

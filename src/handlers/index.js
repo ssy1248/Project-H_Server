@@ -253,6 +253,10 @@ const handlers = {
     handler: undefined,
     protoType: 'match.S_MatchStopResponse',
   },
+  [PACKET_TYPE.S_MATCHINGNOTIFICATION]: {
+    handler: undefined,
+    protoType: 'match.S_MatchingNotification',
+  },
   marketSelectBuyName,
 };
 

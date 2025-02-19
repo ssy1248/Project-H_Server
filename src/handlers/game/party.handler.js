@@ -275,8 +275,8 @@ export const partyInviteHandler = async (socket, payload) => {
     await socket.write(partyResponse);
     await participater.userInfo.socket.write(partyResponse);
 
-    if (info.partyMembers.length > 0) {
-      const updatedPartyInfo = info.getPartyInfo();
+    if (partyInstance.partyMembers.length > 0) {
+      const updatedPartyInfo = partyInstance.getPartyInfo();
       const updateResponse = createResponse(
         'party',
         'S_PartyResponse',
@@ -290,8 +290,8 @@ export const partyInviteHandler = async (socket, payload) => {
         },
       );
       // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
-      party.partyMembers.forEach((member) => {
-        member.userInfo.socket.write(responsePacket);
+      partyInstance.partyMembers.forEach((member) => {
+        member.userInfo.socket.write(updateResponse);
       });
     }
 

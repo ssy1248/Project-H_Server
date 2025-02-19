@@ -60,6 +60,7 @@ export const packetNames = {
   },
   match: {
     C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
+    S_MatchingNotification: 'Google.Protobuf.Protocol.S_MatchingNotification',
     S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
     C_MatchStopRequest: 'Google.Protobuf.Protocol.C_MatchStopRequest',
     S_MatchStopResponse: 'Google.Protobuf.Protocol.S_MatchStopResponse',
