@@ -22,6 +22,8 @@ export const packetNames = {
     S_SellInMarket: 'Google.Protobuf.Protocol.S_SellInMarket',
     C_BuyInMarket: 'Google.Protobuf.Protocol.C_BuyInMarket',
     S_BuyInMarket: 'Google.Protobuf.Protocol.S_BuyInMarket',
+    C_MarketSelectBuyName: 'Google.Protobuf.Protocol.C_MarketSelectBuyName',
+    S_MarketSelectBuyName: 'Google.Protobuf.Protocol.S_MarketSelectBuyName',
   },
   party: {
     C_PartyRequest: 'Google.Protobuf.Protocol.C_PartyRequest',
@@ -56,10 +58,13 @@ export const packetNames = {
     C_SellItemRequest: 'Google.Protobuf.Protocol.C_SellItemRequest',
     S_SellItemResponse: 'Google.Protobuf.Protocol.S_SellItemResponse',
   },
-  // match: {
-  //   C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
-  //   S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
-  // },
+  match: {
+    C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
+    S_MatchingNotification: 'Google.Protobuf.Protocol.S_MatchingNotification',
+    S_MatchResponse: 'Google.Protobuf.Protocol.S_MatchResponse',
+    C_MatchStopRequest: 'Google.Protobuf.Protocol.C_MatchStopRequest',
+    S_MatchStopResponse: 'Google.Protobuf.Protocol.S_MatchStopResponse',
+  },
   dungeon: {
     C_EnterDungeon: 'Google.Protobuf.Protocol.C_EnterDungeon',
     S_EnterDungeon: 'Google.Protobuf.Protocol.S_EnterDungeon',

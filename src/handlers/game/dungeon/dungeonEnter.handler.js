@@ -1,12 +1,8 @@
 import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import {
-  addDungeonSession,
-  getDungeonSession,
-  getDungeonUser,
-} from '../../../session/dungeon.session.js';
+import { addDungeonSession, getDungeonSession } from '../../../session/dungeon.session.js';
 import { getGameSession } from '../../../session/game.session.js';
 import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
-import { getUserById, getUserBySocket } from '../../../session/user.session.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
@@ -18,7 +14,7 @@ import { PACKET_TYPE } from '../../../constants/header.js';
 const dungeonEnterHandler = (socket, packetData) => {
   try {
     // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보, 파티아이디
-    const { dungeonInfo, players, partyInfo } = packetData;
+    const { dungeonId, players, partyInfo } = packetData;
 
     /*지금 전체적인 흐름이 
    1. 파티장이 던전 입장 버튼을 클릭한다.
@@ -39,7 +35,6 @@ const dungeonEnterHandler = (socket, packetData) => {
     // 유저 Info에서 userId 찾기
     const userId = userInfo.userId;
 
-    const dungeonId = dungeonInfo.dungeonId;
     const dungeon = getDungeonSession(dungeonId);
 
     //유저 아이디가 없으면 오류를 뱉어야함
@@ -131,7 +126,7 @@ const dungeonEnterHandler = (socket, packetData) => {
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
     };
 
-    console.log(party)
+    console.log(party);
     //createResponse
     const dungeonEnterResponse = createResponse(
       'dungeon',

@@ -3,6 +3,8 @@ syntax = "proto3";
 package Google.Protobuf.Protocol;
 /* 유저 패킷 */
 
+
+// msgid 는 모두 대문자로 써주세요
 enum MsgId {
   C_REGISTERREQUEST = 0;
   S_REGISTERRESPONSE = 1;
@@ -53,8 +55,15 @@ enum MsgId {
   S_INVENTORYRESPONSE = 46;
   C_EMOTE = 47;
   S_EMOTE = 48;
-  C_SellItemRequest = 51;
-  S_SellItemResponse = 52;
+  C_MATCHREQUEST = 49;
+  S_MATCHRESPONSE = 50;
+  C_SELLITEMREQUEST = 51;
+  S_SELLITEMRESPONSE = 52;
+  C_MARKETSELECTBUYNAME = 53;
+  S_MARKETSELECTBUYNAME = 54;
+  C_MATCHSTOPREQUEST = 55;
+  S_MATCHSTOPRESPONSE = 56;
+  S_MATCHINGNOTIFICATION = 57;
 }
 
 //회원가입 요청
@@ -164,22 +173,6 @@ message S_BuyItemResponse  {
     string message = 2;
     GlobalFailCode failCode =3;
 }
-// message C_UploadItemRequest {
-//   // 등록할 아이템 이름
-//   string itemname = 1;
-//   // 아이템 가격
-//   int32 price = 2;
-//   // 판매할 개수
-//   int32 quantity = 3;   
-// }
-// message S_UploadItemResponse {
-//   // 성공 여부
-//   bool success = 1;
-//   // 결과 메시지
-//   string message = 2;
-//   // 실패 코드 (예: 잔액 부족, 아이템 없음 등)
-//   GlobalFailCode failCode = 3;
-// }
 
 /* 아이템 패킷 */
 
@@ -231,6 +224,7 @@ message S_ActiveItemResponse {
 message C_PartyRequest {
   int32 userId = 1;
   string partyName = 2;// 파티 이름 추가
+  int32 dungeonIndex = 3; // 선택한 던전 인덱스
 }
 
 // 초대용 패킷 
@@ -301,18 +295,29 @@ message S_PartyResponse {
 }
 
 /*매칭 */
-message C_matchRequest{
-  PartyInfo party =1;
-  int32 dungeonCode=2;
-  repeated PlayerStatus players=3;
+message C_MatchRequest{
+  PartyInfo party = 1;
 }
 
+message S_MatchingNotification {
+    bool isStart = 1; // 시작했는지 체크
+}
 
-message S_matchResponse{
-  repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
-  repeated PartyInfo party = 3;
-  string message = 4;
+message S_MatchResponse{
+  int32 dungeonSessionNumber = 1;
+  repeated PartyInfo party = 2; // 합쳐진 파티 인포
+  bool success = 3; // 매칭 완료 불값
+  string message = 4; // 매칭 완료 
+}
+
+message C_MatchStopRequest {
+  bool stop = 1; // 매칭 중단 요청
+  int32 partyId = 2; //파티 아이디
+}
+
+message S_MatchStopResponse { 
+   bool stop = 1; // 매칭 중단 결과
+   string message = 2; // 매칭 중단 결과 메세지
 }
 
 /* 던전 입장 */
@@ -383,6 +388,14 @@ message C_BuyInMarket {
 message S_BuyInMarket {
   bool success = 1;
   string message =2;
+}
+message C_MarketSelectBuyName{
+  int32 page = 1;
+  int32 count = 2;
+  string name = 3;
+}
+message S_MarketSelectBuyName{
+  repeated marketItemInfo itemdata = 2;
 }
 
 // 정보 구조체
@@ -498,7 +511,8 @@ message BtnInfo {
     string partyName = 2; // 파티 이름
     int32 partyLeaderId = 3; // 리더 아이디
     int32 maximum = 4;
-    repeated PlayerStatus Players = 5;
+    int32 dungeonIndex = 5; // 들어갈 던전 인덱스
+    repeated PlayerStatus Players = 6;
   }
   message ItemInfo{
     int32 id =1;
@@ -510,13 +524,13 @@ message BtnInfo {
     int32 rarity =7; 
   }
 
-
  message marketItemInfo{
     int32 marketId = 1;
     int32 itemId =2;
-    int32 upgrade =3;
-    int64 endTime = 4;
-    int32 price = 5;
+    string name = 3;
+    int32 upgrade =4;
+    int64 endTime = 5;
+    int32 price = 6;
  }
 
 message C_Emote{

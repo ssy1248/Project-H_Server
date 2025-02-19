@@ -23,6 +23,7 @@ export const partySearchHandler = async (socket, payload) => {
     if (!partyName || partyName.trim() === '') {
       const responsePayload = {
         info: [],
+        case: 2,
         success: true,
         message: '검색어가 입력되지 않았습니다.',
       };
@@ -44,8 +45,6 @@ export const partySearchHandler = async (socket, payload) => {
       if (!info || !info.partyName) return false;
       return info.partyName.toLowerCase().includes(partyName.toLowerCase());
     });
-
-    console.log(`검색 결과 : ${matchingParties}`);
 
     // 검색 결과를 PartyInfo 형식의 객체 배열로 변환합니다.
     const partyInfoList = matchingParties.map((party) => party.getPartyInfo());
@@ -137,7 +136,7 @@ const generatePartyId = () => {
 export const partyHandler = async (socket, payload) => {
   try {
     // payload로 받아온 데이터를 파싱
-    const { userId, partyName } = payload;
+    const { userId, partyName, dungeonIndex } = payload;
     // 보낼 파티 패킷(스코프때문에 외부로 빼놓음)
     let partyPacket = {};
     // 파티 아이디 설정
@@ -158,7 +157,7 @@ export const partyHandler = async (socket, payload) => {
       };
     } else {
       // 파티 생성
-      const party = createPartySession(partyId, partyName, userId);
+      const party = createPartySession(partyId, partyName, userId, dungeonIndex);
       // 파티에 유저 추가
       party.addPartyMember(user);
       console.log(party);
@@ -275,6 +274,27 @@ export const partyInviteHandler = async (socket, payload) => {
     // 2명 이상일때는 info의 player를 다 순회하면서 socket찾아서 던져주면 될듯?
     await socket.write(partyResponse);
     await participater.userInfo.socket.write(partyResponse);
+
+    if (partyInstance.partyMembers.length > 0) {
+      const updatedPartyInfo = partyInstance.getPartyInfo();
+      const updateResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        {
+          party: updatedPartyInfo,
+          case: 4, // 업데이트된 파티 정보
+          success: true,
+          message: '파티 정보가 업데이트되었습니다.',
+          failCode: 0,
+        },
+      );
+      // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
+      partyInstance.partyMembers.forEach((member) => {
+        member.userInfo.socket.write(updateResponse);
+      });
+    }
+
     console.log(GetAllPartySession());
   } catch (e) {
     handlerError(socket, e);
@@ -363,7 +383,7 @@ export const partyJoinHandler = (socket, payload) => {
     // 업데이트 리스판스를 보내줘야 할듯
     // 파티에 속한 다른 멤버들에게도 업데이트된 파티 정보를 브로드캐스트
     party.partyMembers.forEach(member => {
-      broadcastToUsers(member.userInfo.socket, responsePacket);
+      member.userInfo.socket.write(responsePacket);
     });
     
     console.log(`파티 ${partyId}에 user ${userId}가 가입했습니다.`);
@@ -477,7 +497,7 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        broadcastToUsers(member.userInfo.socket, updateResponse);
+        member.userInfo.socket.write(responsePacket);
       });
       socket.write(updateResponse);
     }
@@ -579,7 +599,7 @@ export const partyExitHandler = (socket, payload) => {
       );
       // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
       party.partyMembers.forEach((member) => {
-        broadcastToUsers(member.userInfo.socket, updateResponse);
+        member.userInfo.socket.write(responsePacket);
       });
     }
   } catch (e) {

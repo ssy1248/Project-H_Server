@@ -15,12 +15,12 @@ class Item {
     this.stackable = false; // bool
   }
   initItem(data) {
+    this.id = data.id;
     this.name = data.name; // string
     this.itemType = data.itemType; // int
     this.stat = data.stat; // float
     this.price = data.price; // int
     this.rarity = data.rarity; // int
-
     addItemSession(data);
   }
   // 소모성 아이템일 경우 아이템 사용 효과

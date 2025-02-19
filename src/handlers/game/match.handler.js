@@ -1,16 +1,56 @@
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
-import CustomError from '../../utils/error/customError.js';
-import { ErrorCodes } from '../../utils/error/errorCodes.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMatchSession, getMatchSession } from '../../session/match.session.js';
+import { addMatchSession } from '../../session/match.session.js';
+import { matchSessions } from '../../session/sessions.js';
 
+/* 
+  message C_MatchRequest{
+    PartyInfo party = 1;
+  }
+
+  message S_MatchingNotification {
+    bool isStart = 1; // 시작했는지 
+  }
+
+  message S_MatchResponse{
+    int32 dungeonSessionNumber = 1;
+    repeated PartyInfo party = 2; // 합쳐진 파티 인포
+    bool success = 3; // 매칭 완료 불값
+    string message = 4; // 매칭 완료 
+  }
+
+  message C_MatchStopRequest {
+    bool stop = 1; // 매칭 중단 요청
+    int32 partyId = 2; //파티 아이디
+  }
+
+  message S_MatchStopResponse { 
+    bool stop = 1; // 매칭 중단 결과
+    string message = 2; // 매칭 중단 결과 메세지
+  }
+*/
+
+//C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
+    console.log('매칭핸들러 들어옴');
     // 파티 ,플레어 정보
-    const { partyinfo, dungeonCode, players } = packetData;
+    const { party } = packetData;
+    console.log(party);
+    const user = getUserBySocket(socket);
+    console.log(user);
+    const leaderId = party.partyLeaderId;
+    console.log(leaderId);
+
+    if(user.userInfo.userId !== leaderId) {
+      console.log('리더만 매칭 신청을 할 수 있습니다.');
+      return;
+    }
+    // 파티장이 신청하면 파티원들에게 매칭이 시작된다라는 것을 브로드캐스트로 보내줘서 매칭 ui 띄우기
+    // 매칭 취소를 누르면 매칭 취소 핸들러 
 
     //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
     //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
@@ -22,42 +62,29 @@ const matchingHandler = (socket, packetData) => {
     //8. 패킷을 통해 던전,파티, 을 보낸다.
     //9. 매칭 완료 캐싱르 받으면 이제 클라이언트에서 던전입장 핸들러를 사용한다.
 
-    //일단 파티 partyinfo에서 partyId 추출
-    const partyId = partyinfo.partyId;
+    // 파티장이 매칭 신청 -> 그 후 매칭 리스판스는 모든 파티원에게 브로드캐스트 전송
+    // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
+    // 던전 인덱스의
+    // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
 
-    //partId로 파티 찾기
-    const party = searchPartySession(partyId);
-
-    //소켓으로 유저 찾기
-    const user = getUserBySocket(socket);
-
-    let matchSession = getMatchSession(dungeonCode);
+    let matchSession = matchSessions[0];
     if (!matchSession) {
       console.log('이 던전의 매칭은 만들어지지 않았습니다');
-      matchSession = addMatchSession(dungeonCode);
+      matchSession = addMatchSession();
     }
 
-    let dungeon;
-
-    //파티가 없는경우
-    if (!party) {
-      dungeon = matchSession.addSoloMatchQueue();
+    console.log(party.partyId);
+    const dungeon = matchSession.addPartyMatchQueue(party.partyId);
+    if (!dungeon) {
+      // 매칭이 아직 안 됐으므로, 던전 정보가 없다.
+      console.log('아직 매칭이 완료되지 않았습니다.');
+      return;
     }
-    //파티가 있는경우
-    else if (party) {
-      dungeon = addPartyMatchQueue(partyId);
-    }
-    // 여기서 나온 던전 세션을 새로 만드는 던전 인포에 맞게 넣어야한다.
-    //dungeonInfo 에 들어가야 할것
 
-    const dungeonInfo = {
-      dungeonId: dungeon.dungeonId,
-      dungeonIndex: dungeon.dungeonIndex,
-      dungeonUser: dungeon.users,
-      dungeonState: dungeon.sState,
-    };
+    // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
+    const dungeonId = dungeon.dungeonId;
 
-    const partyInfo = party.partyInfo;
+    const partyInfo = party;
 
     //dungeonId : 던전 아이디
     //dungeonIndex : 어떤 던전인지 아는 던전 번호
@@ -66,16 +93,58 @@ const matchingHandler = (socket, packetData) => {
 
     //여기서 던전 세션을 만들어야한고 클라이언트에 보내줘야한다.일단 받은 데이터는 다 보내자
 
-    const MatcchPayload = {
-      dungeonInfo,
-      players,
+    const matchPayload = {
+      dungeonId,
       partyInfo,
+      success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };
 
     //createResponse
-    const matchResponse = createResponse('match', 'S_Match', PACKET_TYPE.S_Match, MatcchPayload);
+    const matchResponse = createResponse(
+      'match',
+      'S_MatchResponse',
+      PACKET_TYPE.S_MATCHRESPONSE,
+      matchPayload,
+    );
     socket.write(matchResponse);
+  } catch (e) {
+    handlerError(socket, e);
+  }
+};
+
+// C_MatchStopRequest
+export const matchStopHandler = (socket, packetData) => {
+  try {
+    const { stop, partyId } = packetData;
+
+    const stopMatch = matchSessions.cancelMatch(partyId);
+
+    if (!stopMatch) {
+      const matchStopPayload = {
+        bool: true,
+        message: '매칭 종료가 성공정으로 진행되었습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+    } else {
+      const matchStopPayload = {
+        bool: false,
+        message: '매칭 종료를 실패했습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+    }
   } catch (e) {
     handlerError(socket, e);
   }
