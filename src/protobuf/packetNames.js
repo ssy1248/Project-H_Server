@@ -57,6 +57,8 @@ export const packetNames = {
     S_InventoryResponse: 'Google.Protobuf.Protocol.S_InventoryResponse',
     C_SellItemRequest: 'Google.Protobuf.Protocol.C_SellItemRequest',
     S_SellItemResponse: 'Google.Protobuf.Protocol.S_SellItemResponse',
+    C_ShopInventoryRequest: 'Google.Protobuf.Protocol.C_ShopInventoryRequest',
+    S_ShopInventoryList: 'Google.Protobuf.Protocol.S_ShopInventoryList',
   },
   match: {
     C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
