@@ -5,33 +5,6 @@ import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
 
-/* 
-  message C_MatchRequest{
-    PartyInfo party = 1;
-  }
-
-  message S_MatchingResponse {
-    bool isStart = 1; // 매칭이 시작됬는지 체크
-  }
-
-  message S_MatchResponse{
-    int32 dungeonSessionNumber = 1;
-    repeated PartyInfo party = 2; // 합쳐진 파티 인포
-    bool success = 3; // 매칭 완료 불값
-    string message = 4; // 매칭 완료 
-  }
-
-  message C_MatchStopRequest {
-    bool stop = 1; // 매칭 중단 요청
-    int32 partyId = 2; //파티 아이디
-  }
-
-  message S_MatchStopResponse { 
-    bool stop = 1; // 매칭 중단 결과
-    string message = 2; // 매칭 중단 결과 메세지
-  }
-*/
-
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
@@ -46,25 +19,6 @@ const matchingHandler = (socket, packetData) => {
       return;
     }
 
-    // 파티장이 신청했는지 예외 처리 파티장만 신청 가능하도록
-    // 파티장이 신청하면 파티원들에게 매칭이 시작된다라는 것을 브로드캐스트로 보내줘서 매칭 ui 띄우기
-    // 매칭 취소를 누르면 매칭 취소 핸들러 
-
-    //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
-    //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
-    //3.받은 던전 종류 index를 가지고 매칭 세션이 있는지 확인 없으면 만든다.
-    //4.파티가 업승면 soloMatch, 있으면 partyMatch 메소드 실행Ï
-    //5.저 메소드에서 매칭큐에 넣고 매칭 메소드를 실행해준다.
-    //6.매칭이 끝난후 지금 기준으로 enterDungeon메소드가 (이 메소드이름을 바꿀수 있다.) 실행된다.
-    //7.enterDungeon 메소드에서 던전을 생성하고 그에 따른 정보들을 받는다.
-    //8. 패킷을 통해 던전,파티, 을 보낸다.
-    //9. 매칭 완료 캐싱르 받으면 이제 클라이언트에서 던전입장 핸들러를 사용한다.
-
-    // 파티장이 매칭 신청 -> 그 후 매칭 리스판스는 모든 파티원에게 브로드캐스트 전송
-    // 파티아이디로 파티 세션 검색 후 파티 인포를 던전관련 핸들러에 전송
-    // 던전 인덱스의
-
-    // 이부분에서 S_MatchingNotification을 Party의 partyMembers에게 모두 전송
     // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
     const matchingNotificationPayload = {
       isStart: true
