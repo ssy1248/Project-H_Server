@@ -112,6 +112,7 @@ message S_Spawn {
   int32 userId = 1;
   repeated PlayerInfo players = 2;
   repeated ItemInfo storeList = 3;
+  repeated ItemData itemData = 4;
 }
 
   // 캐릭터 없애주기!
@@ -524,6 +525,15 @@ message BtnInfo {
     float stat =5;
     bool equiped =6;
     int32 rarity =7; 
+  }
+
+  message ItemData{
+    int32 id =1;
+    string name = 2;
+    int32 itemType =3;
+    float stat = 4;
+    int32 price = 5;
+    int32 rarity = 6;
   }
 
  message marketItemInfo{
