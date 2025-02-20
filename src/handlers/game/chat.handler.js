@@ -102,6 +102,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
       // 감정표현
       case ChatType.EMOTE:
         await broadcastToUsersAsync(
+          socket,
           createResponse('town', 'S_Emote', PACKET_TYPE.S_EMOTE, { playerId, animCode: chatMsg }),
         );
         break;
