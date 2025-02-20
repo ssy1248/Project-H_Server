@@ -22,6 +22,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
       // 전체 채팅
       case ChatType.GLOBAL:
         await broadcastToUsersAsync(
+          socket,
           createResponse('chat', 'S_Chat', PACKET_TYPE.S_CHAT, {
             playerId,
             type,
@@ -46,6 +47,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
         }
 
         await broadcastToUsersAsync(
+          socket,
           createResponse('chat', 'S_Chat', PACKET_TYPE.S_CHAT, {
             playerId,
             type,
