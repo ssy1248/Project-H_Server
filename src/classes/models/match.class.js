@@ -101,15 +101,38 @@ class Match {
             // 두 파티 중 레벨이 높은 리더를 기준으로 결합하거나 원하는 로직으로 처리
             const party1LeaderLevel = party1.partyLeader.playerInfo.level;
             const party2LeaderLevel = party2.partyLeader.playerInfo.level;
+            const party1Id = party1.id;
+            const party2Id = party1.id;
             if (party1LeaderLevel >= party2LeaderLevel) {
+              //해체되는 파티의 timoutId를 찾아서
+              const timeoutId = this.matchTimeouts[party2Id];
+
+              //setTimeOut를 멈추고
+              clearTimeout(timeoutId);
+
+              //timeOut기록들을 지운다
+              delete this.matchTimeouts[party1Id];
+              delete this.matchTimeouts[party2Id];
+
               const membersToAdd = [...party2.partyMembers];
               // party2를 해체하기 전에, party1에 파티2의 각 멤버를 한명씩 추가
               membersToAdd.forEach((member) => {
                 party1.addPartyMember(member);
               });
               party2.PartyBreakUp(party2.partyLeader); // party2 해체
+
               return this.enterDungeon(party1);
             } else {
+              //해체되는 파티의 timoutId를 찾아서
+              const timeoutId = this.matchTimeouts[party1Id];
+
+              //setTimeOut를 멈추고
+              clearTimeout(timeoutId);
+
+              //timeOut기록들을 지운다
+              delete this.matchTimeouts[party1Id];
+              delete this.matchTimeouts[party1Id];
+
               const membersToAdd = [...party1.partyMembers];
               // party2를 해체하기 전에, party1에 파티2의 각 멤버를 한명씩 추가
               membersToAdd.forEach((member) => {
