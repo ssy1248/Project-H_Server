@@ -102,12 +102,20 @@ class Match {
             const party1LeaderLevel = party1.partyLeader.playerInfo.level;
             const party2LeaderLevel = party2.partyLeader.playerInfo.level;
             if (party1LeaderLevel >= party2LeaderLevel) {
-              party2.PartyBreakUp(); // party2 해체
-              party1.addPartyMember(...party2.partyMembers); // party2 멤버를 party1에 추가
+              const membersToAdd = [...party2.partyMembers];
+              // party2를 해체하기 전에, party1에 파티2의 각 멤버를 한명씩 추가
+              membersToAdd.forEach((member) => {
+                party1.addPartyMember(member);
+              });
+              party2.PartyBreakUp(party2.partyLeader); // party2 해체
               return this.enterDungeon(party1);
             } else {
-              party1.PartyBreakUp();
-              party2.addPartyMember(...party1.partyMembers);
+              const membersToAdd = [...party1.partyMembers];
+              // party2를 해체하기 전에, party1에 파티2의 각 멤버를 한명씩 추가
+              membersToAdd.forEach((member) => {
+                party2.addPartyMember(member);
+              });
+              party1.PartyBreakUp(party1.partyLeader);
               return this.enterDungeon(party2);
             }
           }

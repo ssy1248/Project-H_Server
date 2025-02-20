@@ -1,6 +1,5 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 
-// 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
   constructor(id, partyName, userId, dungeonIndex) {
     // 파티 아이디

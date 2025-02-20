@@ -4,6 +4,7 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
+import { searchPartySession } from '../../session/party.session.js';
 
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
@@ -53,7 +54,12 @@ const matchingHandler = (socket, packetData) => {
     // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
     const dungeonId = dungeon.dungeonId;
 
-    const partyInfo = party;
+    const info = searchPartySession(party.partyId);
+    console.log(info);
+    
+    const partyInfo = info.getPartyInfo();;
+    console.log('매칭 완료 파티 인포');
+    console.log(partyInfo);
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
