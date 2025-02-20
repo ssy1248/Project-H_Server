@@ -25,7 +25,6 @@ const check = async (data) => {
     if (!marketDataTemp) {
       throw new Error('거래 실패입니다!');
     }
-    console.log('생성 완료', marketDataTemp);
     // 생성까지 완료 해주기
     new marketData(
       {
