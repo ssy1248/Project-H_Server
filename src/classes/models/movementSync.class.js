@@ -136,6 +136,9 @@ export default class MovementSync {
       this.entitySyncs[id].currentTransform.posZ += velocity.z * deltaTime;
       this.entitySyncs[id].currentTransform.rot = lastSyncedTransform.rot;
 
+      //console.log("현재좌표 : ", this.entitySyncs[id].currentTransform);
+      //console.log("방향 : ", velocity);
+      //console.log("델타 : ", deltaTime);
       // 목표지점에 도착했는가.
       const posDiff = this.validateTransform(
         this.entitySyncs[id].currentTransform,
@@ -166,6 +169,7 @@ export default class MovementSync {
 
       // 마지막 업데이트 갱신.
       this.entitySyncs[id].lastUpdateTime = Date.now();
+      //console.log("마지막 업데이트 : ",this.entitySyncs[id].lastUpdateTime);
     }
   }
 
@@ -220,24 +224,28 @@ export default class MovementSync {
       const userSyncsSize = Object.keys(this.entitySyncs).length;
       // 몬스터들이 있을때만  로직 실행.
       if (userSyncsSize !== 0) {
-        // 몬스터 업데이트
-        updateMonster();
+        
 
         // 움직이고 있는 몬스터 솎아내기.
         const changedMonsters = Object.keys(this.entitySyncs)
           .filter(
             (key) =>
-              this.entitySyncs[key].isMoving === true && this.entitySyncs[key].type === 'monster',
+              this.entitySyncs[key].type === 'monster',
           )
           .map((key) => this.entitySyncs[key]);
 
         // 움직이고 있는 몬스터들이 있을 경우 로직 실행.
         if (changedMonsters.length !== 0) {
+
           // 변경된 몬스터들로 패킷을 만들자. []
           const syncTransformInfoDatas = [];
 
           // 데이터 업데이트 및 패킷 전송 준비.
           for (const monster of changedMonsters) {
+            // 몬스터 업데이트
+            updateMonster(monster.id);
+
+
             this.syncTransformFromSnapshot(monster.id);
 
             const findMonsterInfo = findMonster(monster.id);
@@ -246,7 +254,7 @@ export default class MovementSync {
             const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
             syncTransformInfoDatas.push(syncData);
           }
-
+          //console.log("몬스터이동 : ", syncTransformInfoDatas);
           const sMonsterMove = {
             transformInfo: syncTransformInfoDatas,
           };
@@ -255,7 +263,7 @@ export default class MovementSync {
           const initialResponse = createResponse(
             'town',
             'S_MonsterMove',
-            PACKET_TYPE.S_MONSTER_MOVE,
+            PACKET_TYPE.S_MONSTERMOVE,
             sMonsterMove,
           );
 
@@ -273,37 +281,48 @@ export default class MovementSync {
   async processMonsterSpawn() {
     // 100ms마다 이동 관련 로직을 실행
     this.monsterSpawnInterval = setInterval(async () => {
-      const monsterId = uuidv4();
-      addMonster('town', monsterId, 1, 1, 'test', 10);
+      const entitySyncsSize = Object.keys(this.entitySyncs).length;
+      if (entitySyncsSize > 0) {
+        const monsterId = uuidv4();
+        const randomNum = Math.floor(Math.random() * 30) + 1;
+        addMonster('town', monsterId, randomNum, randomNum, 'test', 10);
 
-      // 몬스터들만 빼오자.
-      const Monsters = Object.keys(this.entitySyncs)
-        .filter((key) => this.entitySyncs[key].type === 'monster')
-        .map((key) => this.entitySyncs[key]);
+        // 몬스터들만 빼오자.
+        const Monsters = Object.keys(this.entitySyncs)
+          .filter((key) => this.entitySyncs[key].type === 'monster')
+          .map((key) => this.entitySyncs[key]);
 
-      // 데이터 업데이트 및 패킷 전송 준비.
-      if (Monsters.length !== 0) {
-        const monstersInfo = [];
-        for (const monster of changedMonsters) {
-          const findMonsterInfo = findMonster(monster.id);
-          const monsterInfo = findMonsterInfo.monsterInfo;
 
-          const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
-          monstersInfo.push(syncData);
+          if(Monsters.length > 5) {
+            clearInterval(this.monsterSpawnInterval);
+          }
+        //console.log('크기', Monsters.length);
+
+        // 데이터 업데이트 및 패킷 전송 준비.
+        if (Monsters.length !== 0) {
+          const monstersInfo = [];
+          for (const monster of Monsters) {
+            const findMonsterInfo = findMonster(monster.id);
+
+            const monsterInfo = findMonsterInfo.monsterInfo;
+
+            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
+            monstersInfo.push(syncData);
+          }
+
+          const sMonsterSpawn = {
+            monsterInfo: monstersInfo,
+          };
+          // 만들어진 패킷을 직렬화.
+          const initialResponse = createResponse(
+            'town',
+            'S_MonsterSpawn',
+            PACKET_TYPE.S_MONSTERSPAWN,
+            sMonsterSpawn,
+          );
+          // 브로드캐스트.
+          await this.broadcastChangedUsers(initialResponse);
         }
-
-        const sMonsterSpawn = {
-          monsterInfo: monstersInfo,
-        };
-        // 만들어진 패킷을 직렬화.
-        const initialResponse = createResponse(
-          'town',
-          'S_MonsterSpawn',
-          PACKET_TYPE.S_MONSTER_SPAWN,
-          sMonsterSpawn,
-        );
-        // 브로드캐스트.
-        await this.broadcastChangedUsers(initialResponse);
       }
     }, MONSTER_SPAWN_INTERVAL);
   }
@@ -346,6 +365,8 @@ export default class MovementSync {
       transform: monster.currentTransform,
       speed: monster.speed,
     };
+
+    //console.log(SyncTransformInfo.monsterId);
 
     return SyncTransformInfo;
   }

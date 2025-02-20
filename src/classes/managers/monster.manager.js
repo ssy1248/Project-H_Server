@@ -8,7 +8,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 const monsters = {}; // 몬스터를 담을 배열.
-const SPEED = 4; // 몬스터 스피드.
+const SPEED = 12; // 몬스터 스피드.
 const RADIUS = 3; // 유저 주변 원.
 const RETREAT_DISTANCE = 3; // 몬스터가 뒤로 이동할 거리
 
@@ -17,77 +17,87 @@ export const addMonster = (movementSyncId, monsterId, index, model, name, hp) =>
   // 몬스터생성.
   //const monsterId = uuidv4();
   monsters[monsterId] = new Monster(movementSyncId, monsterId, index, model, name, hp);
+  //console.log("몬스터 확인: ", monsters[monsterId]);
+  //console.dir(monsters[monsterId], { depth: null });
   const transform = monsters[monsterId].getTransformInfo();
+  //console.log(transform);
 
   // 동기화 엔티티 추가
   addEntitySync(movementSyncId, monsterId, 'monster', null, transform);
 };
 
-// 몬스터 찾기. 
+// 몬스터 찾기.
 export const findMonster = (id) => {
   return monsters[id];
-}
+};
 
 // 몬스터 업데이트
-export const updateMonster = () => {
-  const monsterSize = Object.keys(monsters).length;
+export const updateMonster = (id) => {
+  const monster = monsters[id];
+  //console.log("몬스터 확인: ", monster);
+  //console.log("몬스터 타입 확인: ", monster instanceof Monster);
 
-  // 사이즈가 존재 할경우
-  if (monsterSize > 0) {
-    for (let monster of monsters) {
-      const behavior = monster.getBehavior;
+  if (monster) {
+    const behavior = monster.getBehavior();
 
-      // 현재 몬스터가 대기 상태일 경우.
-      if (behavior === MONSTER_AI_BEHAVIOR.IDLE) {
-        // 타겟 정해지기전 단 한번.
-        monsterAiBehaviorIDLE(monster);
-      } else {
-        // 이동 관련.
-        // CHASE_NORMAL 아니라면 로직 실행 x
-        const targetInfo = monster.targetInfo;
-        const user = findEntitySync(monsterInfo.movementSyncId, targetInfo.userId);
-
-        if (!user) {
-          return console.log('타겟 유저가 없습니다.');
-        }
-
-        monsterAiBehaviorCHASE_NORMAL(monster, user);
-
-        // 한번 정해지면 도착할때 까지 경로 탐색 x
-        switch (behavior) {
-          case MONSTER_AI_BEHAVIOR.CHASE_NORMAL:
-            monsterAiBehaviorCHASE_NORMAL(monster);
-            break;
-          case MONSTER_AI_BEHAVIOR.CHASE_FLANK:
-            console.log(MONSTER_AI_BEHAVIOR.CHASE_FLANK);
-            break;
-          case MONSTER_AI_BEHAVIOR.CHASE_PAUSE:
-            console.log(MONSTER_AI_BEHAVIOR.CHASE_PAUSE);
-            break;
-          case MONSTER_AI_BEHAVIOR.CHASE_RETREAT:
-            console.log(MONSTER_AI_BEHAVIOR.CHASE_RETREAT);
-            break;
-          case MONSTER_AI_BEHAVIOR.RETURN:
-            console.log(MONSTER_AI_BEHAVIOR.RETURN);
-            break;
-
-          default:
-            break;
-        }
+    if (behavior === MONSTER_AI_BEHAVIOR.IDLE) {
+      monsterAiBehaviorIDLE(monster);
+    } else {
+      const targetInfo = monster.targetInfo;
+      const user = findEntitySync('town', targetInfo.userId);
+      
+      // 몬스터 현재 좌표 갱신.
+      const monsterId = monster.getMonsterInfo();
+      const monsterUpdateTransform = findEntitySync('town', monsterId);
+      monster.SetTransformInfo(monsterUpdateTransform.currentTransform);
+      
+      if (!user) {
+        return console.log('타겟 유저가 없습니다.');
       }
 
-      // 업데이트.
-      updateEntitySync(
-        'town',
-        monster.monsterInfo.id,
-        monster.targetInfo.transform,
-        0,
-        true,
-        monster.targetInfo.velocity,
-        SPEED,
-      );
+      
+      monsterAiBehaviorCHASE_NORMAL(monster, user);
+
+      // 한번 정해지면 도착할때 까지 경로 탐색 x
+      // switch (behavior) {
+      //   case MONSTER_AI_BEHAVIOR.CHASE_NORMAL:
+      //     console.log(MONSTER_AI_BEHAVIOR.CHASE_NORMAL);
+      //     break;
+      //   case MONSTER_AI_BEHAVIOR.CHASE_FLANK:
+      //     console.log(MONSTER_AI_BEHAVIOR.CHASE_FLANK);
+      //     break;
+      //   case MONSTER_AI_BEHAVIOR.CHASE_PAUSE:
+      //     console.log(MONSTER_AI_BEHAVIOR.CHASE_PAUSE);
+      //     break;
+      //   case MONSTER_AI_BEHAVIOR.CHASE_RETREAT:
+      //     console.log(MONSTER_AI_BEHAVIOR.CHASE_RETREAT);
+      //     break;
+      //   case MONSTER_AI_BEHAVIOR.RETURN:
+      //     console.log(MONSTER_AI_BEHAVIOR.RETURN);
+      //     break;
+
+      //   default:
+      //     break;
+      // }
     }
   }
+
+  const monsterInfo = monster.getMonsterInfo();
+  const monsterTargetInfo = monster.getTargetInfo();
+
+  console.log("몬스터인포 : " , monsterInfo);
+  console.log("타겟인포 : " , monsterTargetInfo);
+  // 업데이트. (여기문제임 밥먹고 찾자.)
+  // 타겟 인포가 저장이안됨 이거고치자.
+  updateEntitySync(
+    'town',
+    monsterInfo.id,
+    monsterTargetInfo.transform,
+    0,
+    true,
+    monsterTargetInfo.velocity,
+    SPEED,
+  );
 };
 
 /////////////////////////////////////// 몬스터 삭제 추가해야함.
@@ -111,12 +121,14 @@ const monsterAiBehaviorIDLE = (monster) => {
     const userTransform = user.currentTransform; // 유저의 트랜스폼 정보
 
     const distance = validateTransform(monsterTransform, userTransform); // 거리 계산
-
     if (distance < minDistance) {
+     
       minDistance = distance;
       closestUser = user;
     }
   });
+
+  //console.log("가장 가까운 유저 : ",closestUser);
 
   // 몬스터 행동 상태를 변경한다. (추격)
   if (closestUser) {
@@ -127,20 +139,28 @@ const monsterAiBehaviorIDLE = (monster) => {
       SPEED,
     );
 
+    //console.log(velocity);
+
     // 타겟 설정.
     monsterTarget(
       monster,
       MONSTER_AI_BEHAVIOR.CHASE_SETTING,
-      closestUser.userId,
+      closestUser.id,
       closestUser.currentTransform,
       velocity,
     );
+
+    
+    // console.log('타겟 id : ', closestUser.userId);
+    // console.log('타겟 트랜스폼 : ', closestUser.currentTransform);
   }
 };
 
 // [ 몬스터 행동 패턴 ] - CHASE_CHASE_NORMAL
 const monsterAiBehaviorCHASE_NORMAL = (monster, user) => {
-  const userId = user.userId;
+  const userId = user.id;
+
+  
   const monsterTransform = monster.transformInfo; // 몬스터 좌표
   const userTransform = { ...user.currentTransform }; // 유저 좌표.
 
@@ -157,39 +177,39 @@ const monsterAiBehaviorCHASE_NORMAL = (monster, user) => {
   // 타겟과 거리가 일정 수준으로 멀어지면
   // 거리가 10보다 멀면 : 스폰 지역으로 이동.
 
-  if (posDiff <= 2) {
-    // 행동 패턴 변경.
-    if (monster.getBehavior === MONSTER_AI_BEHAVIOR.CHASE_NORMAL) {
-      // 조건에 안맞다면 CHASE_NORMAL 진행.
-      const randomNumber = Math.floor(Math.random() * 4);
-      if (randomNumber === 0) {
-        // 측면 이동
-        monsterAiBehaviorCHASE_FLANK(monster, user);
-        return;
-      } else if (randomNumber === 1) {
-        // 잠시 대기
-        // monsterAiBehaviorCHASE_PAUSE(monster, user);
+  // if (posDiff <= 2) {
+  //   // 행동 패턴 변경.
+  //   if (monster.getBehavior === MONSTER_AI_BEHAVIOR.CHASE_NORMAL) {
+  //     // 조건에 안맞다면 CHASE_NORMAL 진행.
+  //     const randomNumber = Math.floor(Math.random() * 4);
+  //     if (randomNumber === 0) {
+  //       // 측면 이동
+  //       monsterAiBehaviorCHASE_FLANK(monster, user);
+  //       return;
+  //     } else if (randomNumber === 1) {
+  //       // 잠시 대기
+  //       // monsterAiBehaviorCHASE_PAUSE(monster, user);
 
-        // 공격 및 기타 작업을 위해..
-        // 일단 생략.
+  //       // 공격 및 기타 작업을 위해..
+  //       // 일단 생략.
 
-        return;
-      } else if (randomNumber === 2) {
-        // 후퇴.
-        monsterAiBehaviorCHASE_RETREAT(monster, user);
-        return;
-      }
-    } else {
-      return;
-    }
-  } else if (posDiff >= 10) {
-    // 거리가 너무 멀어지면 스폰장소로 이동.
-    monsterAiBehaviorRETURN(monster);
-    return;
-  }
+  //       return;
+  //     } else if (randomNumber === 2) {
+  //       // 후퇴.
+  //       monsterAiBehaviorCHASE_RETREAT(monster, user);
+  //       return;
+  //     }
+  //   } else {
+  //     return;
+  //   }
+  // } else if (posDiff >= 10) {
+  //   // 거리가 너무 멀어지면 스폰장소로 이동.
+  //   monsterAiBehaviorRETURN(monster);
+  //   return;
+  // }
 
   // 추격 세팅할때 한번만 들어옴.
-  if (monster.getBehavior === MONSTER_AI_BEHAVIOR.CHASE_SETTING) {
+  if (monster.getBehavior() === MONSTER_AI_BEHAVIOR.CHASE_SETTING) {
     // 타겟 좌표를 구하자.
     const randomNumber = Math.floor(Math.random() * 5);
 
@@ -204,11 +224,16 @@ const monsterAiBehaviorCHASE_NORMAL = (monster, user) => {
       userTransform.posX -= 1; // 왼쪽
     }
 
+    // console.log("몬스터 : ", monsterTransform);
+    // console.log("유저 : ", userTransform);
     // [ velocity ] - (방향 + 속도) 백터 구하기
     const velocity = calculateDirectionAndVelocity(monsterTransform, userTransform, SPEED);
 
+    // console.log("방향+속도 : ", velocity);
+
     // 타겟 재설정.
-    monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_NORMAL, userId, userTransform, velocity);
+    // monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_NORMAL, userId, userTransform, velocity);
+    monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_SETTING, userId, userTransform, velocity);
   }
 };
 
@@ -235,7 +260,8 @@ const monsterAiBehaviorCHASE_FLANK = (monster, user) => {
   const velocity = calculateDirectionAndVelocity(monsterTransform, targetTransform, SPEED);
 
   // 타겟 설정
-  monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_FLANK, user.userId, targetTransform, velocity);
+  //monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_FLANK, user.userId, targetTransform, velocity);
+  monsterTarget(monster, MONSTER_AI_BEHAVIOR.CHASE_SETTING, user.userId, targetTransform, velocity);
 };
 
 // [ 몬스터 행동 패턴 ] - CHASE_PAUSE
@@ -334,6 +360,9 @@ const calculateDirectionAndVelocity = (monsterTransform, userTransform, speed) =
 
 // [ 몬스터 타겟 ]
 const monsterTarget = (monster, behavior, id, transform, velocity) => {
-  monster.getBehavior = behavior;
+  monster.getBehavior(behavior);
   monster.SetTargetInfo(id, transform, velocity);
+  //console.log("방향",velocity);
+
+  // 방향은 잘들어옴. 
 };

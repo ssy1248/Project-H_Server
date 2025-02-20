@@ -109,9 +109,9 @@ export class Monster {
 
   // [Set] - targetInfo
   SetTargetInfo(userId, transform , velocity) {
-    this.spawnTransform.userId = userId;
-    this.spawnTransform.transform = transform;
-    this.spawnTransform.velocity = velocity;
+    this.targetInfo.userId = userId;
+    this.targetInfo.transform = transform;
+    this.targetInfo.velocity = velocity;
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수

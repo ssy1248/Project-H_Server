@@ -23,5 +23,5 @@ export const ChatErrorCodes = {
 export const MAX_POSITION_DIFFERENCE = 0.5;  
 export const MAX_ROTATION_DIFFERENCE = 1; 
 export const SERVER_TIME_OFFSET  = 10;
-export const MONSTER_SPAWN_INTERVAL  = 100;
-export const MONSTER_UPDATE_INTERVAL  = 10000;
+export const MONSTER_SPAWN_INTERVAL  = 10000;
+export const MONSTER_UPDATE_INTERVAL  = 100;

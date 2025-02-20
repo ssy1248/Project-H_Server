@@ -435,7 +435,7 @@ message SyncTransformInfo {
 
 // [추가] 몬스터 동기화에 사용할 패킷
 message SyncMonsterTransformInfo {
-  int32 monsterId = 1; // 몬스터 id 
+  string monsterId = 1; // 몬스터 id 
   MonsterStatus monsterStatus = 2; // 몬스터 정보.
   TransformInfo transform = 3; // 트랜스폼 정보
   float speed = 4; // 스피드
