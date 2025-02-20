@@ -123,7 +123,7 @@ export const disrobeItemHandler = async (socket, data) => {
         const { itemId } = data;
 
         const user = getUserBySocket(socket);
-        
+
         // 아이템 해제
         await user.inventory.disrobe(itemId);
 
@@ -132,18 +132,27 @@ export const disrobeItemHandler = async (socket, data) => {
             'inventory',
             'S_DisrobeItemResponse',
             PACKET_TYPE.S_DISROBEITEMRESPONSE,
-            { 
+            {
                 itemId: itemId,
                 success: true,
                 message: '',
                 failCode: {
                     code: 200,
                 }
-             },
+            },
         );
 
         // 반환
         socket.write(inventoryResponse);
+    } catch (error) {
+        handlerError(socket, error);
+    }
+}
+
+export const MoveItemHandler = async (socket, data) => {
+    try {
+        console.log('moveItemHandler');
+        console.log(data);
     } catch (error) {
         handlerError(socket, error);
     }
