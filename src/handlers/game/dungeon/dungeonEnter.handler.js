@@ -18,7 +18,7 @@ import { PACKET_TYPE } from '../../../constants/header.js';
 const dungeonEnterHandler = (socket, packetData) => {
   try {
     // 매칭핸들러에서 받은 데이터 던전아이디, 플레이어정보, 파티아이디
-    const { dungeonId, players, partyInfo } = packetData;
+    const { dungeonId, partyInfo } = packetData;
 
     /*지금 전체적인 흐름이 
    1. 파티장이 던전 입장 버튼을 클릭한다.
@@ -102,8 +102,9 @@ const dungeonEnterHandler = (socket, packetData) => {
     const dungeonInfoResponse = {
       dungeonId: dungeon.dungeonId,
       dungeonIndex: dungeon.dungeonIndex,
-      dungeonUser: dungeon.users,
-      dungeonState: dungeon.sState,
+      dungeonState: dungeon.State,
+      player: dungeon.users,
+      monster: null,
     };
 
     // 던전 세션을 보내주는것이 맞나?
