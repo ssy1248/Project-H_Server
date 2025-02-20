@@ -39,7 +39,11 @@ export const addMarket = async (data) => {
   try {
     await connection.beginTransaction();
 
-    await connection.execute(INVENTORY.REMOVE_ITEM_FROM_INVENTORY, [data.inventoryId, data.charId]);
+    await connection.execute(INVENTORY.REMOVE_ITEM_FROM_INVENTORY, [
+      data.inventoryId,
+      data.charId,
+      data.upgrade,
+    ]);
     const marketData = await connection.execute(MARKET.ADD_MARKET_DATA, [
       data.charId,
       data.itemIndex,
@@ -58,6 +62,7 @@ export const addMarket = async (data) => {
 };
 // 아이템 등록 취소
 export const cancelMarket = async (data) => {
+  console.log(data);
   const connection = await pools.USER_DB.getConnection();
   try {
     await connection.beginTransaction();

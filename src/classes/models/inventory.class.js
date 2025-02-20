@@ -1,5 +1,7 @@
 import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
+import { createResponse } from "../../utils/response/createResponse.js";
+import { PACKET_TYPE } from '../../constants/header.js';
 
 export default class Inventory {
     constructor() {
@@ -7,13 +9,28 @@ export default class Inventory {
         this.equipment = []; // 장비중인 아이템 인벤토리
     }
 
-    async init(charId) {
-        this.charId = charId;
-        this.inventory = await getInventoryFromCharId(charId);
+    async init(user) {
+        this.user = user;
+        this.charId = user.playerInfo.charId;
+        this.inventory = await getInventoryFromCharId(this.charId);
         if (!this.inventory) {
             console.log('inventory is empty');
             return;
         }
+        this.send();
+    }
+
+    send() {
+        // 메시지 생성
+        const inventoryResponse = createResponse(
+            'inventory',
+            'S_InventoryResponse',
+            PACKET_TYPE.S_INVENTORYRESPONSE,
+            { inventory: this.inventory },
+        );
+
+        // 전송
+        this.user.userInfo.socket.write(inventoryResponse);
     }
 
     // 아이템 장비하기

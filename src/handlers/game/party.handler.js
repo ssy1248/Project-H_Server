@@ -6,7 +6,7 @@ import {
   searchPartyInPlayerSession,
   searchPartySession,
 } from '../../session/party.session.js';
-import { broadcastToUsers, getUserById, getUserByNickname } from '../../session/user.session.js';
+import { getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -125,7 +125,7 @@ export const partyListHandler = async (socket, payload) => {
 const generatePartyId = () => {
   // uuid는 같은 값이 나올 가능성이 낮다
   const id = uuidv4();
-  return parseInt(`${id}`);
+  return id;
 };
 
 // C_PartyRequest가 날라오면 처리할 핸들러
@@ -274,6 +274,27 @@ export const partyInviteHandler = async (socket, payload) => {
     // 2명 이상일때는 info의 player를 다 순회하면서 socket찾아서 던져주면 될듯?
     await socket.write(partyResponse);
     await participater.userInfo.socket.write(partyResponse);
+
+    if (partyInstance.partyMembers.length > 0) {
+      const updatedPartyInfo = partyInstance.getPartyInfo();
+      const updateResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        {
+          party: updatedPartyInfo,
+          case: 4, // 업데이트된 파티 정보
+          success: true,
+          message: '파티 정보가 업데이트되었습니다.',
+          failCode: 0,
+        },
+      );
+      // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
+      partyInstance.partyMembers.forEach((member) => {
+        member.userInfo.socket.write(updateResponse);
+      });
+    }
+
     console.log(GetAllPartySession());
   } catch (e) {
     handlerError(socket, e);
@@ -362,7 +383,7 @@ export const partyJoinHandler = (socket, payload) => {
     // 업데이트 리스판스를 보내줘야 할듯
     // 파티에 속한 다른 멤버들에게도 업데이트된 파티 정보를 브로드캐스트
     party.partyMembers.forEach(member => {
-      broadcastToUsers(member.userInfo.socket, responsePacket);
+      member.userInfo.socket.write(responsePacket);
     });
     
     console.log(`파티 ${partyId}에 user ${userId}가 가입했습니다.`);
@@ -476,7 +497,7 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        broadcastToUsers(member.userInfo.socket, updateResponse);
+        member.userInfo.socket.write(responsePacket);
       });
       socket.write(updateResponse);
     }
@@ -578,7 +599,7 @@ export const partyExitHandler = (socket, payload) => {
       );
       // 브로드캐스트: 파티에 남아있는 모든 멤버의 소켓으로 전송
       party.partyMembers.forEach((member) => {
-        broadcastToUsers(member.userInfo.socket, updateResponse);
+        member.userInfo.socket.write(responsePacket);
       });
     }
   } catch (e) {
