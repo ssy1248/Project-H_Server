@@ -101,13 +101,41 @@ class Match {
             // 두 파티 중 레벨이 높은 리더를 기준으로 결합하거나 원하는 로직으로 처리
             const party1LeaderLevel = party1.partyLeader.playerInfo.level;
             const party2LeaderLevel = party2.partyLeader.playerInfo.level;
+            const party1Id = party1.id;
+            const party2Id = party1.id;
             if (party1LeaderLevel >= party2LeaderLevel) {
-              party2.PartyBreakUp(); // party2 해체
-              party1.addPartyMember(...party2.partyMembers); // party2 멤버를 party1에 추가
+              //해체되는 파티의 timoutId를 찾아서
+              const timeoutId = this.matchTimeouts[party2Id];
+
+              //setTimeOut를 멈추고
+              clearTimeout(timeoutId);
+
+              //timeOut기록들을 지운다
+              delete this.matchTimeouts[partyId];
+              delete this.matchTimeouts[party2Id];
+
+              // party2 해체
+              party2.PartyBreakUp();
+
+              party1.addPartyMember(...party2.partyMembers);
+
               return this.enterDungeon(party1);
             } else {
+              //해체되는 파티의 timoutId를 찾아서
+              const timeoutId = this.matchTimeouts[party1Id];
+
+              //setTimeOut를 멈추고
+              clearTimeout(timeoutId);
+
+              //timeOut기록들을 지운다
+              delete this.matchTimeouts[partyId];
+              delete this.matchTimeouts[party1Id];
+
+              //파티1 해체
               party1.PartyBreakUp();
+              //party1 멤버를 party2에 추가
               party2.addPartyMember(...party1.partyMembers);
+
               return this.enterDungeon(party2);
             }
           }
