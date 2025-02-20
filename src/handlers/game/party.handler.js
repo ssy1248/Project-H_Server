@@ -11,6 +11,24 @@ import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+  message C_PartyLeaderChangeRequest {
+    int32 requesterId = 1; // 요청한 유저 id
+    int32 changeUserId = 2; // 변경할 유저 id
+  }
+
+  message S_PartyLeaderChangeResponse {
+    PartyInfo info = 1; // 변경된 파티 인포
+    bool success = 2; // 변경 성공 여부
+    string message = 3; //변경 성공 메세지 
+  }
+ */
+
+// 파티장 변경하는 핸들러도 필요하지 않나? 요청자, 지정한 사람을 클라에서 보내서 서버에서 확인 후 보내기
+export const partyLeaderChangeHandler = async (socket, payload) => {
+  // 리더 교체 함수도 일단 교체 해야할듯 -> 매개변수가 요청한 사람만 들어간다
+}
+
 // C_SearchPartyRequest
 // S_PartySearchResponse -> 보내주는
 // 파티 이름 검색을 해서 조회한 값을 전송
