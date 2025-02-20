@@ -1,5 +1,9 @@
 import { MAX_PARTY_MEMBER } from '../../../constants/constants.js';
-import { addDungeonSession, getDungeonSession } from '../../../session/dungeon.session.js';
+import {
+  addDungeonSession,
+  getDungeonSession,
+  getDungeonUser,
+} from '../../../session/dungeon.session.js';
 import { getGameSession } from '../../../session/game.session.js';
 import { searchPartyInPlayerSession, searchPartySession } from '../../../session/party.session.js';
 import { getUserBySocket } from '../../../session/user.session.js';
@@ -62,33 +66,37 @@ const dungeonEnterHandler = (socket, packetData) => {
       throw new Error('던전이 매칭 상태가 아닙니다.');
     }
 
-    // 지금은 던전을 임시로 여기서 만들지만 매칭 핸들러에서 만들어 주므로 매칭 핸들러가 만들어지면 주석을 풀어야한다.
-    // // 유저가 던전 세션에 있는가 (이거 있으면 에러를 띠워야지)
-    // const dungeonUser = getDungeonUser(userId);
-    // if (dungeonUser) {
-    //   throw new Error('유저가 던전에 있습니다');
-    // }
+    // 유저가 던전 세션에 있는가 (이거 있으면 에러를 띠워야지)
+    const dungeonUser = getDungeonUser(userId);
+    if (dungeonUser) {
+      throw new Error('유저가 던전에 있습니다');
+    }
 
-    //지금은 파티가 안만들어져서 주석처리 이지만 파티가 만들어지면 주석을 풀어야한다.
-    //받아온 파티 아이디로 파티 찾기 예도 다른 검증이 플요할수도 있다.
-    // const party = searchPartySession(partyId);
-    // console.log('파티', party);
+    if (dungeon.partyInfo.partyId !== partyInfo.partyId) {
+      throw new Error('이던전은 속해있는 파티의 던전이 아님니다.');
+    }
 
-    // if (!party) {
-    //   throw new ErrorCodes('파티가 없습니다.');
-    // }
+    // 받아온 파티 아이디로 파티 찾기 예도 다른 검증이 플요할수도 있다.
+    const party = searchPartySession(partyInfo.partyId);
+    console.log('파티', party);
 
-    // //만약 파티에 속한멤버수가 특정값 보다 적으면
-    // if (party.partyMembers.length < MAX_PARTY_MEMBER) {
-    //   console.log('파티 인원이 부족합니다.');
-    // }
+    if (!party) {
+      throw new ErrorCodes('파티가 없습니다.');
+    }
+
+    //만약 파티에 속한멤버수가 특정값 보다 적으면
+    if (party.partyMembers.length < MAX_PARTY_MEMBER) {
+      console.log('파티 인원이 부족합니다.');
+    }
 
     // 던전 세션이 유저를 입장시킨다.
     dungeon.addUser(user);
+
     console.log(dungeon);
 
     //유저 세션에서 유저 제거
     removeUser(socket);
+
     console.log(userSessions);
 
     //일단 만약 던전에 max 인원이 있으면 상태를 변경하게 했다.
@@ -126,7 +134,6 @@ const dungeonEnterHandler = (socket, packetData) => {
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
     };
 
-    console.log(party);
     //createResponse
     const dungeonEnterResponse = createResponse(
       'dungeon',
