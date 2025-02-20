@@ -125,8 +125,6 @@ class Match {
 
               party2.partyMembers.forEach((member) => {
                 party1.addPartyMember(member);
-                console.log('들어감');
-                console.log(party1.partyMembers);
               });
               party2.PartyBreakUp(party2.partyLeader); // party2 해체
               return this.enterDungeon(party1);
@@ -150,8 +148,6 @@ class Match {
 
               party1.partyMembers.forEach((member) => {
                 party2.addPartyMember(member);
-                console.log('들어감');
-                console.log(party2.partyMembers);
               });
               party1.PartyBreakUp(party1.partyLeader);
               return this.enterDungeon(party2);
