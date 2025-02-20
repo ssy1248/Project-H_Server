@@ -327,16 +327,14 @@ message S_MatchStopResponse {
 // 응답 패킷 - S_EnterDungeon
 //partyId와 party중에 고민중
 message C_EnterDungeon {
-  repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
-  repeated PartyInfo party = 3;
+  int32 dungeonId = 1;
+  repeated PartyInfo party = 2;
 }
 
 // Me
 // 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
   repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
   repeated PartyInfo party = 3;
   optional ScreenText screenText = 4;
 }
@@ -469,8 +467,8 @@ message DungeonInfo {
   int32 dungeonId = 1;
   int32 DungeonIndex=2;
   string dungeonState=3;
-  repeated PlayerStatus Player=4;
-  repeated MonsterStatus monsters = 5;
+  repeated PlayerStatus Player=4; 
+  int32 monsterId = 5;
 }
 
 message MonsterStatus {
