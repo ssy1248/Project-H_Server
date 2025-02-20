@@ -17,6 +17,7 @@ import { PACKET_TYPE } from '../../constants/header.js';
 import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
 import { findUserSync } from '../../classes/managers/movementSync.manager.js';
+import { getAllItemSession } from '../../session/item.session.js';
 
 const setCharacterStat = async () => {
   // 현재 테이블의 행 개수를 조회합니다.
@@ -88,11 +89,10 @@ const syncSpawnedUser = async (socket, user) => {
     const users = getAllUsers(socket);
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
     const playerData = users.map((value) => {
-      
       // 유저 최신 좌표 가져오기.
       const userInfo = value.getUserInfo();
-      const user = findUserSync("town", userInfo.userId);
-      if(user !== null){
+      const user = findUserSync('town', userInfo.userId);
+      if (user !== null) {
         value.setTransformInfo(user.currentTransform);
       }
 
@@ -100,6 +100,18 @@ const syncSpawnedUser = async (socket, user) => {
       return playerInfo;
     });
 
+    const items = getAllItemSession();
+    let itemData = [];
+    for (let [id, value] of items) {
+      itemData.push({
+        id,
+        name: value.name,
+        itemType: value.itemType,
+        stat: value.stat,
+        price: value.price,
+        rarity: value.rarity,
+      });
+    }
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const userInfo = user.getUserInfo();
@@ -107,9 +119,14 @@ const syncSpawnedUser = async (socket, user) => {
       userId: userInfo.userId,
       players: playerData,
       storeList: getItemList(),
+      itemData,
     };
 
-    console.log(`유저 아이디 : ${userInfo.userId}, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`);
+    console.log(
+      `유저 아이디 : ${
+        userInfo.userId
+      }, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`,
+    );
 
     console.log(
       `유저 아이디 : ${
@@ -123,8 +140,6 @@ const syncSpawnedUser = async (socket, user) => {
 
     // 본인을 스폰된 상태로 설정
     user.setIsSpawn(true);
-
-    
 
     // 2. 다른 유저들에게 본인이 스폰되었음을 알리는 패킷 브로드캐스트
     const playerPacketData = createPlayerInfoPacketData(user);
