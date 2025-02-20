@@ -18,7 +18,7 @@ import {
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
-import { inventoryHandler } from './inventory/inventory.handler.js';
+import { disrobeItemHandler, equipItemHandler, inventoryHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
@@ -94,27 +94,19 @@ const handlers = {
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
-    handler: animationHandler,
+    handler: equipItemHandler,
     protoType: 'inventory.C_EquipItemRequest',
   },
-  [PACKET_TYPE.S_EQUIPITEMRESPONSE]: {
-    handler: animationHandler,
-    protoType: 'inventory.S_EquipItemResponse',
-  },
   [PACKET_TYPE.C_DISROBEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: disrobeItemHandler,
     protoType: 'inventory.C_DisrobeItemRequest',
   },
-  [PACKET_TYPE.S_DISROBEITEMRESPONSE]: {
-    handler: animationHandler,
-    protoType: 'inventory.S_DisrobeItemResponse',
-  },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: animationHandler, // TODO : 핸들러 연결
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: animationHandler, // TODO : 핸들러 연결
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
@@ -156,10 +148,6 @@ const handlers = {
   [PACKET_TYPE.C_INVENTORYREQUEST]: {
     handler: inventoryHandler,
     protoType: 'inventory.C_InventoryRequest',
-  },
-  [PACKET_TYPE.S_INVENTORYRESPONSE]: {
-    handler: inventoryHandler,
-    protoType: 'inventory.S_InventoryResponse',
   },
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
     handler: partyInviteHandler,
