@@ -6,8 +6,8 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import {
   getUserBySocket,
   getUserByNickname,
-  broadcastToAllUsersAsync,
   getAllUsers,
+  broadcastToUsersAsync,
 } from '../../session/user.session.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 
@@ -21,7 +21,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
     switch (type) {
       // 전체 채팅
       case ChatType.GLOBAL:
-        await broadcastToAllUsersAsync(
+        await broadcastToUsersAsync(
           createResponse('chat', 'S_Chat', PACKET_TYPE.S_CHAT, {
             playerId,
             type,
@@ -45,7 +45,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
           return;
         }
 
-        await broadcastToAllUsersAsync(
+        await broadcastToUsersAsync(
           createResponse('chat', 'S_Chat', PACKET_TYPE.S_CHAT, {
             playerId,
             type,
@@ -99,7 +99,7 @@ const chatHandler = async (socket, { playerId, type, senderName, chatMsg }) => {
 
       // 감정표현
       case ChatType.EMOTE:
-        await broadcastToAllUsersAsync(
+        await broadcastToUsersAsync(
           createResponse('town', 'S_Emote', PACKET_TYPE.S_EMOTE, { playerId, animCode: chatMsg }),
         );
         break;
