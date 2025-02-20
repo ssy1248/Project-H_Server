@@ -141,7 +141,6 @@ class Party {
     this.partyMembers.push(member);
 
     this.setPartyInfo();
-    console.log(this.setPartyInfo(), '업데이트 완료', this.partyInfo);
     // 리더가 없다면 리더를 0번 인덱스로 설정
     if(this.setPartyLeader === null || this.setPartyLeader === undefined)
     {
