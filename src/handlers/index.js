@@ -18,7 +18,7 @@ import {
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
-import { disrobeItemHandler, equipItemHandler, inventoryHandler } from './inventory/inventory.handler.js';
+import { disrobeItemHandler, equipItemHandler, inventoryHandler, MoveItemHandler } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
@@ -100,6 +100,10 @@ const handlers = {
   [PACKET_TYPE.C_DISROBEITEMREQUEST]: {
     handler: disrobeItemHandler,
     protoType: 'inventory.C_DisrobeItemRequest',
+  },
+  [PACKET_TYPE.C_MOVEITEMREQUEST]: {
+    handler: MoveItemHandler,
+    protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
     handler: animationHandler, // TODO : 핸들러 연결
