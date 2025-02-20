@@ -26,7 +26,7 @@ const dungeonEnterHandler = (socket, packetData) => {
    3. 매칭이 완료되면 던전을 생성하고 던전아이디, playerinfo가 온다.
    4. 일단 들어온 코드에 검증을 한다 던전아이디의 던전이 있는지 playerinfo는 적절한지  
    5. 이 정보를 가지고 던전아이디에 자신을 던전 세션에 입장 시킨다. 
-   6. 자신을 게임(마을)세션에서 자신을 제거한다.ç
+   6. 자신을 게임(마을)세션에서 자신을 제거한다.
    7. 클라이언트에게 완료코드를 보낸다.
     */
 
@@ -39,21 +39,13 @@ const dungeonEnterHandler = (socket, packetData) => {
     // 유저 Info에서 userId 찾기
     const userId = userInfo.userId;
 
-    const dungeon = getDungeonSession(dungeonId);
-
     //유저 아이디가 없으면 오류를 뱉어야함
     if (!userInfo) {
       throw new Error('플레이어 아이디가 없습니다.');
     }
 
     // 받아온 던전 아이디로 던전 세션을 찾는다.
-
-    //임시로 만든 던전 코드 밑의  addDungeonSession 과 함꺠 재대로 되는지 확인하려면 지우고 위의 payload를 dungeon을 dungeonId로 바꾸야 한다.
-    const dungeonIdEX = 10;
-
-    const dungeonEX = addDungeonSession(dungeonId, 1);
-
-    console.log('던전 입장전', dungeonEX);
+    const dungeon = getDungeonSession(dungeonId);
 
     if (!dungeon) {
       //일단 있는지 없느지 부터 확인을 했는데 검증도 필요할수도
@@ -78,6 +70,7 @@ const dungeonEnterHandler = (socket, packetData) => {
 
     // 받아온 파티 아이디로 파티 찾기 예도 다른 검증이 플요할수도 있다.
     const party = searchPartySession(partyInfo.partyId);
+
     console.log('파티', party);
 
     if (!party) {
@@ -112,15 +105,6 @@ const dungeonEnterHandler = (socket, packetData) => {
       dungeonUser: dungeon.users,
       dungeonState: dungeon.sState,
     };
-
-    /*
-    그런 다음 완료 코드를 보낸다.
-    dungeonId,
-    players,
-    party,
-    message,
-    dungeonEnterSuccess
-    */
 
     // 던전 세션을 보내주는것이 맞나?
     // players는 받은 데이터 돌렺주는거고
