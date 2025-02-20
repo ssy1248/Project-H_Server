@@ -13,7 +13,7 @@ const marketMyListHandler = (socket, payload) => {
   const data = [];
   for (let i = (page - 1) * count; i < page * count; i++) {
     if (!inventory.length <= i) {
-      if (inventory[i].equiped === 0) {
+      if (inventory[i] && inventory[i].equiped === 0) {
         data.push({
           id: inventory[i].id,
           price: inventory[i].price,
@@ -28,7 +28,7 @@ const marketMyListHandler = (socket, payload) => {
   }
   const maxPage = inventory.length / count;
   const packet = createResponse('town', 'S_MarketMyList', PACKET_TYPE.S_MARKETMYLIST, {
-    MaxPage: maxPage,
+    maxPage: maxPage,
     itemdata: data,
   });
   socket.write(packet);

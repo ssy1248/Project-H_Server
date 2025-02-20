@@ -24,10 +24,11 @@ export function getBuyIdInMarketSession(id) {
 }
 // 최대 길이 구하기
 export function getMaxMarketList(count) {
+  console.log('마켓 길이', marketSessions.size);
   if (marketSessions.size <= 0) {
     return 0;
   }
-  return parseInt(marketSessions.size / count);
+  return Math.ceil(marketSessions.size / count);
 }
 
 // 이름 기준으로 검색하기

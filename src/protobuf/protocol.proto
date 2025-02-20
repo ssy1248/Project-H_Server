@@ -179,19 +179,23 @@ message S_BuyItemResponse  {
 
 /* 아이템 패킷 */
 
+// 인벤토리 전체 정보 요청
 message C_InventoryRequest {
   int32 charId = 1;
 }
 
+// 인벤토리 전체 정보 응답
 message S_InventoryResponse {
   repeated ItemInfo inventory = 1;
 }
 
 /* 장착 관련 */
+// 아이템 장착 요청
 message C_EquipItemRequest {
   int32 itemId = 1;
 }
 
+// 아이템 장착 응답
 message S_EquipItemResponse {
   int32 itemId = 1;
   bool success = 2;
@@ -199,10 +203,12 @@ message S_EquipItemResponse {
   GlobalFailCode failCode = 4;
 }
 
+// 아이템 해제 요청
 message C_DisrobeItemRequest {
   int32 itemId = 1;
 }
 
+// 아이템 해제 응답
 message S_DisrobeItemResponse {
   int32 itemId = 1;
   bool success = 2;
@@ -220,6 +226,18 @@ message S_ActiveItemResponse {
   bool success = 2;
   string message = 3;
   GlobalFailCode failCode = 4;
+}
+
+// 아이템 이동 요청
+message C_MoveItemRequest {
+  int32 itemId =1;
+  int32 position =2;
+}
+
+// 아이템 이동 응답
+message S_MoveItemResponse {
+  int32 itemId = 1;
+  int32 position = 2;
 }
 
 /* 파티 패킷 */
@@ -327,16 +345,14 @@ message S_MatchStopResponse {
 // 응답 패킷 - S_EnterDungeon
 //partyId와 party중에 고민중
 message C_EnterDungeon {
-  repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
-  repeated PartyInfo party = 3;
+  int32 dungeonId = 1;
+  repeated PartyInfo party = 2;
 }
 
 // Me
 // 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
   repeated DungeonInfo dungeon = 1;
-  repeated PlayerInfo players = 2;
   repeated PartyInfo party = 3;
   optional ScreenText screenText = 4;
 }
@@ -469,8 +485,8 @@ message DungeonInfo {
   int32 dungeonId = 1;
   int32 DungeonIndex=2;
   string dungeonState=3;
-  repeated PlayerStatus Player=4;
-  repeated MonsterStatus monsters = 5;
+  repeated PlayerStatus Player=4; 
+  int32 monsterId = 5;
 }
 
 message MonsterStatus {
@@ -525,6 +541,7 @@ message BtnInfo {
     float stat =5;
     bool equiped =6;
     int32 rarity =7; 
+    int32 position =8;
   }
 
   message ItemData{

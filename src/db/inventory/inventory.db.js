@@ -11,7 +11,7 @@ export const getInventoryFromCharId = async (charId) => {
   }
 };
 
-export const addItemToInventory = async (charId, itemId, rarity, equipped, quantity = 1) => {
+export const addItemToInventory = async (charId, itemId, rarity, equipped, quantity = 1, position = null) => {
   try {
     const result = await pools.USER_DB.query(SQL_QUERIES.ADD_ITEM_TO_INVENTORY, [
       charId,
@@ -19,6 +19,7 @@ export const addItemToInventory = async (charId, itemId, rarity, equipped, quant
       rarity,
       equipped,
       quantity,
+      position,
     ]);
     return result;
   } catch (error) {
@@ -27,13 +28,21 @@ export const addItemToInventory = async (charId, itemId, rarity, equipped, quant
   }
 };
 
-export const updateItemQuantity = async (charId, itemId, rarity, quantity) => {
+export const updateItemQuantity = async (charId, itemId, quantity) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_QUANTITY, [quantity, itemId, charId, rarity]);
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_QUANTITY, [quantity, itemId, charId]);
   } catch (error) {
     console.error(error);
   }
 };
+
+export const updateItemPosition = async (charId, itemId, position) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_POSITION, [position, itemId, charId]);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export const removeItemFromInventory = async (charId, inventoryId) => {
   try {
