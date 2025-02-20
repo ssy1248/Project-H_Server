@@ -1,5 +1,6 @@
 // 전역 변수 저장할 js
-export const MAX_PARTY_MEMBER = 4;
+// 임시 2명 기존 기획 4명
+export const MAX_PARTY_MEMBER = 2;
 
 export const ChatType = {
   // 0: 전체, 1: 공지사항, 2: 파티, 3: 귓속말, 4: 감정표현

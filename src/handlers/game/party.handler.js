@@ -6,7 +6,7 @@ import {
   searchPartyInPlayerSession,
   searchPartySession,
 } from '../../session/party.session.js';
-import { broadcastToUsers, getUserById, getUserByNickname } from '../../session/user.session.js';
+import { getUserById, getUserByNickname } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
