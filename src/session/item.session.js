@@ -13,6 +13,9 @@ export function addItemSession(item) {
 export function deletItemSession(id) {
   itemSessions.delete(id);
 }
+export function getAllItemSession() {
+  return itemSessions;
+}
 // 해당 데이터 받아오기
 export function getItemSession(id) {
   return itemSessions.get(id);

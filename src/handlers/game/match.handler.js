@@ -4,6 +4,7 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
+import { searchPartySession } from '../../session/party.session.js';
 
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
@@ -50,10 +51,14 @@ const matchingHandler = (socket, packetData) => {
       return;
     }
 
+    console.log(dungeon , '매칭 완료 던전 결과값');
     // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
     const dungeonId = dungeon.dungeonId;
 
-    const partyInfo = party;
+    // 매칭이 완료되고 리턴이 되서 날라온 값을 통해서 사용을 해야지 기존에 들어온 값으로 세팅을 하니 계속 1명이지
+    const partyInfo = dungeon.partyInfo;
+    console.log('매칭 완료 파티 인포');
+    console.log(partyInfo);
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
