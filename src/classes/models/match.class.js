@@ -103,12 +103,21 @@ class Match {
             const party2LeaderLevel = party2.partyLeader.playerInfo.level;
             const party1Id = party1.id;
             const party2Id = party2.id;
+
             if (party1LeaderLevel >= party2LeaderLevel) {
               //해체되는 파티의 timoutId를 찾아서
-              const timeoutId = this.matchTimeouts[party2Id];
+              const timeout1Id = this.matchTimeouts[party1Id];
+              const timeout2Id = this.matchTimeouts[party2Id];
 
               //setTimeOut를 멈추고
-              clearTimeout(timeoutId);
+
+              if (timeout1Id) {
+                clearTimeout(timeout1Id);
+              }
+
+              if (timeout2Id) {
+                clearTimeout(timeout2Id);
+              }
 
               //timeOut기록들을 지운다
               delete this.matchTimeouts[party1Id];
@@ -121,10 +130,17 @@ class Match {
               return this.enterDungeon(party1);
             } else {
               //해체되는 파티의 timoutId를 찾아서
-              const timeoutId = this.matchTimeouts[party1Id];
+              const timeout1Id = this.matchTimeouts[party1Id];
+              const timeout2Id = this.matchTimeouts[party2Id];
 
               //setTimeOut를 멈추고
-              clearTimeout(timeoutId);
+              if (timeout1Id) {
+                clearTimeout(timeout1Id);
+              }
+
+              if (timeout2Id) {
+                clearTimeout(timeout2Id);
+              }
 
               //timeOut기록들을 지운다
               delete this.matchTimeouts[party1Id];
