@@ -14,7 +14,7 @@ import {
 import { PACKET_TYPE } from '../../constants/header.js';
 
 // 아이템 구매
-const handleBuyItem = async (socket, packetData) => {
+export const handleBuyItem = async (socket, packetData) => {
   const { shopId, price } = packetData;
   const user = getUserBySocket(socket);
 
@@ -61,7 +61,7 @@ const handleBuyItem = async (socket, packetData) => {
 };
 
 // 아이템 판매
-const handleSellItem = async (socket, packetData) => {
+export const handleSellItem = async (socket, packetData) => {
   const { inventoryId, price } = packetData;
   const user = getUserBySocket(socket);
 
@@ -89,7 +89,7 @@ const handleSellItem = async (socket, packetData) => {
   socket.write(response);
 };
 // 인벤토리 조회 (상점에서 사용)
-const handleInventoryList = (socket, packetData) => {
+export const handleInventoryList = (socket, packetData) => {
   const { page, count } = packetData;
 
   if (count <= 0) {
@@ -126,27 +126,7 @@ const handleInventoryList = (socket, packetData) => {
     itemData: data,
   });
 
+  console.log('[SEND] S_ShopInventoryList:', JSON.stringify(response, null, 2));
+
   socket.write(response);
 };
-// 상점 패킷 처리
-const shopHandler = (socket, packetId, packetData) => {
-  try {
-    switch (packetId) {
-      case PACKET_TYPE.C_BUYITEMREQUEST:
-        handleBuyItem(socket, packetData);
-        break;
-      case PACKET_TYPE.C_SELLITEMREQUEST:
-        handleSellItem(socket, packetData);
-        break;
-      case PACKET_TYPE.C_SHOPINVENTORYREQUEST:
-        handleInventoryList(socket, packetData);
-        break;
-      default:
-        throw new CustomError(ErrorCodes.INVALID_PACKET, '유효하지 않은 패킷 ID');
-    }
-  } catch (e) {
-    handlerError(socket, e);
-  }
-};
-
-export default shopHandler;
