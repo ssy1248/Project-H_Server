@@ -88,7 +88,46 @@ const handleSellItem = async (socket, packetData) => {
   });
   socket.write(response);
 };
+// 인벤토리 조회 (상점에서 사용)
+const handleInventoryList = (socket, packetData) => {
+  const { page, count } = packetData;
 
+  if (count <= 0) {
+    return;
+  }
+
+  const user = getUserBySocket(socket);
+  if (!user) {
+    throw new CustomError(ErrorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+  }
+
+  const inventory = user.inventory.getInventory();
+  const data = [];
+
+  for (let i = (page - 1) * count; i < page * count; i++) {
+    if (inventory.length <= i) break;
+    if (inventory[i].equiped === 0) {
+      data.push({
+        id: inventory[i].id,
+        price: inventory[i].price,
+        itemType: inventory[i].itemType,
+        name: inventory[i].name,
+        stat: inventory[i].stat,
+        equiped: inventory[i].equiped,
+        rarity: inventory[i].rarity,
+      });
+    }
+  }
+
+  const maxPage = Math.ceil(inventory.length / count);
+
+  const response = createResponse('shop', 'S_ShopInventoryList', PACKET_TYPE.S_SHOPINVENTORYLIST, {
+    maxPage: maxPage,
+    itemData: data,
+  });
+
+  socket.write(response);
+};
 // 상점 패킷 처리
 const shopHandler = (socket, packetId, packetData) => {
   try {
@@ -98,6 +137,9 @@ const shopHandler = (socket, packetId, packetData) => {
         break;
       case PACKET_TYPE.C_SELLITEMREQUEST:
         handleSellItem(socket, packetData);
+        break;
+      case PACKET_TYPE.C_SHOPINVENTORYREQUEST:
+        handleInventoryList(socket, packetData);
         break;
       default:
         throw new CustomError(ErrorCodes.INVALID_PACKET, '유효하지 않은 패킷 ID');

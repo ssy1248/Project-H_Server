@@ -64,6 +64,8 @@ enum MsgId {
   C_MATCHSTOPREQUEST = 55;
   S_MATCHSTOPRESPONSE = 56;
   S_MATCHINGNOTIFICATION = 57;
+  C_SHOPINVENTORYREQUEST = 58;
+  S_SHOPINVENTORYLIST = 59;
 }
 
 //회원가입 요청
@@ -110,6 +112,7 @@ message S_Spawn {
   int32 userId = 1;
   repeated PlayerInfo players = 2;
   repeated ItemInfo storeList = 3;
+  repeated ItemData itemData = 4;
 }
 
   // 캐릭터 없애주기!
@@ -524,6 +527,15 @@ message BtnInfo {
     int32 rarity =7; 
   }
 
+  message ItemData{
+    int32 id =1;
+    string name = 2;
+    int32 itemType =3;
+    float stat = 4;
+    int32 price = 5;
+    int32 rarity = 6;
+  }
+
  message marketItemInfo{
     int32 marketId = 1;
     int32 itemId =2;
@@ -556,4 +568,14 @@ message S_SellItemResponse {
   bool success = 1;
   string message = 2;
   GlobalFailCode failCode = 3;
+}
+// 상점 인벤토리 요청
+message C_ShopInventoryRequest {
+  uint32 page = 1;
+  uint32 count = 2;
+}
+// 상점 인벤토리 응답
+message S_ShopInventoryList {
+  uint32 MaxPage = 1;
+  repeated ItemInfo itemdata = 2;
 }

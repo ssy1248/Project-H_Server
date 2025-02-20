@@ -82,15 +82,15 @@ const handlers = {
     protoType: 'chat.C_Chat',
   },
   [PACKET_TYPE.S_CHAT]: {
-    handler: animationHandler,
+    handler: chatHandler,
     protoType: 'chat.S_Chat',
   },
   [PACKET_TYPE.C_BUYITEMREQUEST]: {
-    handler: animationHandler,
+    handler: shopHandler,
     protoType: 'inventory.C_BuyItemRequest',
   },
   [PACKET_TYPE.S_BUYITEMRESPONSE]: {
-    handler: animationHandler,
+    handler: shopHandler,
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
@@ -246,6 +246,14 @@ const handlers = {
     protoType: 'match.S_MatchingNotification',
   },
   marketSelectBuyName,
+  [PACKET_TYPE.C_SHOPINVENTORYREQUEST]: {
+    handler: shopHandler,
+    protoType: 'inventory.C_ShopInventoryRequest',
+  },
+  [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
+    handler: shopHandler,
+    protoType: 'inventory.S_ShopInventoryList',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
