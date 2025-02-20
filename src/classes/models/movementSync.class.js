@@ -223,7 +223,6 @@ export default class MovementSync {
         // 몬스터 업데이트
         updateMonster();
 
-
         // 움직이고 있는 몬스터 솎아내기.
         const changedMonsters = Object.keys(this.entitySyncs)
           .filter(
@@ -240,7 +239,11 @@ export default class MovementSync {
           // 데이터 업데이트 및 패킷 전송 준비.
           for (const monster of changedMonsters) {
             this.syncTransformFromSnapshot(monster.id);
-            const syncData = this.createSyncMonsterTransformInfoData(monster);
+
+            const findMonsterInfo = findMonster(monster.id);
+            const monsterInfo = findMonsterInfo.monsterInfo;
+
+            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
             syncTransformInfoDatas.push(syncData);
           }
 
@@ -273,29 +276,35 @@ export default class MovementSync {
       const monsterId = uuidv4();
       addMonster('town', monsterId, 1, 1, 'test', 10);
 
-      ///
-      const monster = findMonster(monsterId);
-      const monsterInfo = monster.monsterInfo;
+      // 몬스터들만 빼오자.
+      const Monsters = Object.keys(this.entitySyncs)
+        .filter((key) => this.entitySyncs[key].type === 'monster')
+        .map((key) => this.entitySyncs[key]);
 
-      const sMonsterSpawn = {
-        monstId: monsterId,
-        monsterStatus: {
-          monsterIdx: monsterInfo.index,
-          monsterModel:  monsterInfo.model,
-          monsterName: monsterInfo.name,
-          monsterHp: monsterInfo.hp,
-        },
-        transformInfo: entitySyncs[monsterId].currentTransform,
-      };
-      // 만들어진 패킷을 직렬화.
-      const initialResponse = createResponse(
-        'town',
-        'S_MonsterSpawn',
-        PACKET_TYPE.S_MONSTER_SPAWN,
-        sMonsterSpawn,
-      );
-      // 브로드캐스트.
-      await this.broadcastChangedUsers(initialResponse);
+      // 데이터 업데이트 및 패킷 전송 준비.
+      if (Monsters.length !== 0) {
+        const monstersInfo = [];
+        for (const monster of changedMonsters) {
+          const findMonsterInfo = findMonster(monster.id);
+          const monsterInfo = findMonsterInfo.monsterInfo;
+
+          const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
+          monstersInfo.push(syncData);
+        }
+
+        const sMonsterSpawn = {
+          monsterInfo: monstersInfo,
+        };
+        // 만들어진 패킷을 직렬화.
+        const initialResponse = createResponse(
+          'town',
+          'S_MonsterSpawn',
+          PACKET_TYPE.S_MONSTER_SPAWN,
+          sMonsterSpawn,
+        );
+        // 브로드캐스트.
+        await this.broadcastChangedUsers(initialResponse);
+      }
     }, MONSTER_SPAWN_INTERVAL);
   }
 
@@ -324,10 +333,16 @@ export default class MovementSync {
     return SyncTransformInfo;
   }
 
-  // [ 패킷 생성 ] - 몬스터 이동
-  createSyncMonsterTransformInfoData(monster) {
+  // [ 패킷 생성 ] - 몬스터
+  createSyncMonsterTransformInfoData(monster, monsterInfo) {
     const SyncTransformInfo = {
       monsterId: monster.id,
+      monsterStatus: {
+        monsterIdx: monsterInfo.index,
+        monsterModel: monsterInfo.model,
+        monsterName: monsterInfo.name,
+        monsterHp: monsterInfo.hp,
+      },
       transform: monster.currentTransform,
       speed: monster.speed,
     };

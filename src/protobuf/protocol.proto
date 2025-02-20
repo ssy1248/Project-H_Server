@@ -398,9 +398,7 @@ message S_MarketSelectBuyName{
 // [추가] - 몬스터 관련 패킷 (수정할수 있음.)
 // 스폰은 서버에서.
 message S_MonsterSpawn{
-  int32 monstId = 1;
-  MonsterStatus monsterStatus = 2;
-  TransformInfo transformInfo = 3;
+  repeated SyncMonsterTransformInfo monsterInfo = 1;
 }
 
 // 클라 -> 서버 (서버에서 보낸 패킷 응답용.)
@@ -437,9 +435,10 @@ message SyncTransformInfo {
 
 // [추가] 몬스터 동기화에 사용할 패킷
 message SyncMonsterTransformInfo {
-  int32 monsterId = 1; // 유저 id 
-  TransformInfo transform = 2; // 트랜스폼 정보
-  float speed = 3; // 스피드
+  int32 monsterId = 1; // 몬스터 id 
+  MonsterStatus monsterStatus = 2; // 몬스터 정보.
+  TransformInfo transform = 3; // 트랜스폼 정보
+  float speed = 4; // 스피드
 }
 
 // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
