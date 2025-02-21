@@ -15,6 +15,7 @@ import {
   partyInviteHandler,
   partyJoinHandler,
   partyKickHandler,
+  partyLeaderChangeHandler,
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
@@ -104,6 +105,10 @@ const handlers = {
   [PACKET_TYPE.C_DISROBEITEMREQUEST]: {
     handler: disrobeItemHandler,
     protoType: 'inventory.C_DisrobeItemRequest',
+  },
+  [PACKET_TYPE.C_MOVEITEMREQUEST]: {
+    handler: MoveItemHandler,
+    protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
     handler: animationHandler, // TODO : 핸들러 연결
@@ -257,6 +262,10 @@ const handlers = {
   [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
     handler: handleInventoryList,
     protoType: 'inventory.S_ShopInventoryList',
+  },
+  [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
+    handler: partyLeaderChangeHandler,
+    protoType: 'inventory.C_PartyLeaderChangeRequest',
   },
 };
 

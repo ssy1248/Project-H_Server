@@ -37,6 +37,7 @@ export const packetNames = {
     S_PartySearchResponse: 'Google.Protobuf.Protocol.S_PartySearchResponse',
     S_PartyResultResponse: 'Google.Protobuf.Protocol.S_PartyResultResponse',
     S_PartyResponse: 'Google.Protobuf.Protocol.S_PartyResponse',
+    C_PartyLeaderChangeRequest: 'Google.Protobuf.Protocol.C_PartyLeaderChangeRequest',
   },
   chat: {
     C_Chat: 'Google.Protobuf.Protocol.C_Chat',
@@ -59,6 +60,8 @@ export const packetNames = {
     S_SellItemResponse: 'Google.Protobuf.Protocol.S_SellItemResponse',
     C_ShopInventoryRequest: 'Google.Protobuf.Protocol.C_ShopInventoryRequest',
     S_ShopInventoryList: 'Google.Protobuf.Protocol.S_ShopInventoryList',
+    C_MoveItemRequest: 'Google.Protobuf.Protocol.C_MoveItemRequest',
+    S_MoveItemResponse: 'Google.Protobuf.Protocol.S_MoveItemResponse',
   },
   match: {
     C_MatchRequest: 'Google.Protobuf.Protocol.C_MatchRequest',
