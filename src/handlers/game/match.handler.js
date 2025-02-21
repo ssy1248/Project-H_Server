@@ -80,8 +80,8 @@ const matchingHandler = (socket, packetData) => {
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
-      dungeonId,
-      partyInfo,
+      dungeonSessionNumber: dungeonId,
+      party: partyInfo,
       success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };
