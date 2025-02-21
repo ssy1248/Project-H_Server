@@ -2,6 +2,7 @@ import pools from '../database.js';
 import { SQL_QUERIES as MARKET } from './market.queries.js';
 import { SQL_QUERIES as INVENTORY } from '../inventory/inventory.queries.js';
 import { SQL_QUERIES as USER } from '../user/user.queries.js';
+import { addItemToInventory } from '../inventory/inventory.db.js';
 // 모든 데이터 받고 서버에서 관리 경매 종료를 위한 관리
 export const getAllMarketData = async () => {
   const [data] = await pools.USER_DB.execute(MARKET.GET_MARKET_DATAS);
@@ -66,13 +67,13 @@ export const cancelMarket = async (data) => {
   const connection = await pools.USER_DB.getConnection();
   try {
     await connection.beginTransaction();
-    const item = await connection.execute(INVENTORY.ADD_ITEM_TO_INVENTORY, [
+    const item = await addItemToInventory(
       data.charId,
       data.itemId,
       data.rarity,
       false,
       1,
-    ]);
+    )
     await connection.execute(MARKET.REMOVE_MARKET_DATA, [data.makrketId]);
     await connection.commit();
   } catch (err) {
