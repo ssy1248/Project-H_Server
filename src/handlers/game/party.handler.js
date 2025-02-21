@@ -46,6 +46,7 @@ export const partyLeaderChangeHandler = async (socket, payload) => {
       return;
     }
     
+    // 파티 인포나 파티 클래스 내에서 방장이 안바뀌는거 같음
     // 4. 파티 리더 변경: 파티 클래스의 changePartyLeader 메서드 사용
     party.changePartyLeader(party.partyLeader, newLeader);
     // partyInfo에도 반영 (필요에 따라)
