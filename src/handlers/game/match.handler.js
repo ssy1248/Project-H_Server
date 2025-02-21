@@ -12,7 +12,10 @@ const matchingHandler = (socket, packetData) => {
     // 파티 ,플레어 정보
     const { party } = packetData;
 
+    //socket으로 유저 찾기
     const user = getUserBySocket(socket);
+
+    //받아온 파티를 통해서 파티리더 아리디 찾기
     const leaderId = party.partyLeaderId;
 
     if (user.userInfo.userId !== leaderId) {
@@ -24,6 +27,7 @@ const matchingHandler = (socket, packetData) => {
     const matchingNotificationPayload = {
       isStart: true,
     };
+
     const matchingNotificationPacket = createResponse(
       'match',
       'S_MatchingNotification',
@@ -44,6 +48,7 @@ const matchingHandler = (socket, packetData) => {
     }
 
     const dungeon = matchSession.addPartyMatchQueue(party.partyId);
+
     if (!dungeon) {
       // 매칭이 아직 안 됐으므로, 던전 정보가 없다.
       console.log('아직 매칭이 완료되지 않았습니다.');
@@ -51,7 +56,14 @@ const matchingHandler = (socket, packetData) => {
     }
 
     // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
-    const dungeonId = dungeon.dungeonId;
+    const dungeonInfoResponse = {
+      dungeonId: dungeon.dungeonId,
+      dungeonIndex: dungeon.dungeonIndex,
+      partyInfo: dungeon.partyInfo,
+      dungeonState: dungeon.State,
+      monster: null,
+    };
+
     // 매칭이 완료되서 하나가 된 파티 인포(파티 + 파티) / 풀파티가 들어간 경우는 같은 값이 리턴
     const partyInfo = dungeon.partyInfo;
 
@@ -80,7 +92,7 @@ const matchingHandler = (socket, packetData) => {
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
-      dungeonId,
+      dungeonInfoResponse,
       partyInfo,
       success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지

@@ -7,21 +7,16 @@ class Dungeon {
     // 어떤 던전의 종류을 알수있는 인게스(이건 던전에 어떤 던전인지 아는 즉 0번이면 초원던전 1번이면 동굴던전)
     // 파티 인포를 받아서 그 안에 dungeonIndex를 사용
     this.partyInfo = partyInfo;
-    // 던전에 들어간 유저들 유저고유의 아이디만 넣을거다.
-    this.users = [];
     // 혹시 쓸수도 있는 인터벌 매니더
     this.intervalManager = new IntervalManager();
     // 던전 상태  시작을 matching,  진행중(이떄는 던전에 참가가 안된다)progress  끝(end일떄 세션 삭제)end
     this.isState = 'matching';
     // 몬스터 종류
-
+    this.monsterId = [];
     // 앞으로 추가할것들은 나올수 있는 몬스터 종류
   }
 
-  //던전에 user 추가
-  addUser(userId) {
-    this.users.push(userId);
-  }
+  //getUser와 getUserBySocket을 partyInfo에서 찾을수 있게 해야된다.
 
   //던전의 특정 유저를 찾는것
   getUser(userId) {
