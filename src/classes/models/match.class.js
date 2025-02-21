@@ -218,6 +218,8 @@ class Match {
     // 던전 세션 추가
     const dungeonSession = addDungeonSession(dungeonId, party.partyInfo);
 
+    //여기에서 던전인덱스에 따라서 던전 몬스터들 추가
+
     party.partyInfo.Players.forEach((member) => {
       const userSock = getUserByNickname(member.playerName);
       removeUser(userSock.userInfo.socket);

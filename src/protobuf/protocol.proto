@@ -490,10 +490,9 @@ message Color {
 // 이던전 인포를 던전클래스에 있는것들로 바꾸야힌다.
 message DungeonInfo {
   string dungeonId = 1;
-  int32 DungeonIndex = 2;
-  repeated partyInfo PartyInfo=3;
-  string dungeonState = 4;
-  repeated monsterId = 5;
+  repeated partyInfo PartyInfo = 2;
+  string dungeonState = 3;
+  int32 monsterId = 4;
 }
 
 message MonsterStatus {

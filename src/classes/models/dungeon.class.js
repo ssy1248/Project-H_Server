@@ -1,10 +1,10 @@
+import { searchPartySession } from '../../session/party.session.js';
 import IntervalManager from '../managers/interval.manager.js';
 
 class Dungeon {
   constructor(id, partyInfo) {
     // 이게 던전 고유 아이디 (이건 던전의 고유값 대부분이 값을 통해서 어떤 던전에 접근할것지 파악)
     this.id = id;
-    // 어떤 던전의 종류을 알수있는 인게스(이건 던전에 어떤 던전인지 아는 즉 0번이면 초원던전 1번이면 동굴던전)
     // 파티 인포를 받아서 그 안에 dungeonIndex를 사용
     this.partyInfo = partyInfo;
     // 혹시 쓸수도 있는 인터벌 매니더
@@ -17,15 +17,21 @@ class Dungeon {
   }
 
   //getUser와 getUserBySocket을 partyInfo에서 찾을수 있게 해야된다.
-
-  //던전의 특정 유저를 찾는것
-  getUser(userId) {
-    return this.users.find((user) => user.id === userId) || null; // 유저가 없으면 null 반환
+  //파티 인포 넣기
+  setPartyInfo(party) {
+    this.partyInfo = party;
   }
 
-  //유저에서 소켓으로 찾는것
-  getUserBySocket(socket) {
-    return this.users.find((user) => user.socket === socket) || null;
+  //파티 인포 가져오기
+  getPartyInfo() {
+    return this.partyInfo;
+  }
+
+  //던전에 속해있는 파티 찾기
+  getparty() {
+    const partyId = this.partyInfo.partyId;
+    const party = searchPartySession(partyId);
+    return party;
   }
 
   //던전 상태 찾기
@@ -38,18 +44,14 @@ class Dungeon {
     this.isState = state;
   }
 
-  //던전 유저수 세기
-  getUserCount() {
-    return this.users.length;
+  //나오는 몬스터 아이디 설정
+  setMonsterId(id) {
+    this.monsterId.push(id);
   }
 
-  //던전에 특정 유저 제거하는것
-  removeUser(userId) {
-    const index = this.users.findIndex((user) => user.id === userId);
-    if (index !== -1) {
-      return this.users.splice(index, 1)[0]; // 제거된 유저 객체 반환
-    }
-    return null; // 유저가 없으면 null 반환
+  // 나오는 몬스터아이디
+  getMonsterId() {
+    return this.monsterId;
   }
 }
 

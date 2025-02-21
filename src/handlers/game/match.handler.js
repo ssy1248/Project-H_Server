@@ -55,10 +55,9 @@ const matchingHandler = (socket, packetData) => {
       return;
     }
 
-    // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
+    // 던전인포
     const dungeonInfoResponse = {
       dungeonId: dungeon.dungeonId,
-      dungeonIndex: dungeon.dungeonIndex,
       partyInfo: dungeon.partyInfo,
       dungeonState: dungeon.State,
       monster: null,
