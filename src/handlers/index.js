@@ -23,6 +23,7 @@ import {
   disrobeItemHandler,
   equipItemHandler,
   inventoryHandler,
+  MoveItemHandler,
 } from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
@@ -265,7 +266,7 @@ const handlers = {
   },
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
     handler: partyLeaderChangeHandler,
-    protoType: 'inventory.C_PartyLeaderChangeRequest',
+    protoType: 'party.C_PartyLeaderChangeRequest',
   },
 };
 
