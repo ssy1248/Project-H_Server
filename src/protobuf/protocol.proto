@@ -335,8 +335,8 @@ message S_MatchingNotification {
 }
 
 message S_MatchResponse{
-  string dungeonSessionNumber = 1;
-  PartyInfo party = 2; // 합쳐진 파티 인포
+  repeated dungeonInfo dungeonSession = 1;
+  repeated PartyInfo party = 2; // 합쳐진 파티 인포
   bool success = 3; // 매칭 완료 불값
   string message = 4; // 매칭 완료 
 }
@@ -363,8 +363,7 @@ message C_EnterDungeon {
 // 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
   repeated DungeonInfo dungeon = 1;
-  repeated PartyInfo party = 3;
-  optional ScreenText screenText = 4;
+  string message =2;
 }
 
 // Me
@@ -530,11 +529,10 @@ message Color {
 
 // 이던전 인포를 던전클래스에 있는것들로 바꾸야힌다.
 message DungeonInfo {
-  int32 dungeonId = 1;
-  int32 DungeonIndex=2;
-  string dungeonState=3;
-  repeated PlayerStatus Player=4; 
-  int32 monsterId = 5;
+  string dungeonId = 1;
+  repeated partyInfo PartyInfo = 2;
+  string dungeonState = 3;
+  repeated int32 monsterId = 4; // monsterId를 배열로 변경
 }
 
 message MonsterStatus {
