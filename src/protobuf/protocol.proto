@@ -66,6 +66,9 @@ enum MsgId {
   S_MATCHINGNOTIFICATION = 57;
   C_SHOPINVENTORYREQUEST = 58;
   S_SHOPINVENTORYLIST = 59;
+  C_MOVEITEMREQUEST = 60;
+  S_MOVEITEMRESPONSE = 61;
+  C_PARTYLEADERCHANGEREQUEST = 62;
 }
 
 //회원가입 요청
@@ -415,6 +418,11 @@ message C_MarketSelectBuyName{
 }
 message S_MarketSelectBuyName{
   repeated marketItemInfo itemdata = 2;
+}
+
+message C_PartyLeaderChangeRequest {
+    int32 requesterId = 1; // 요청한 유저 id
+    int32 changeUserId = 2; // 변경할 유저 id
 }
 
 // 정보 구조체
