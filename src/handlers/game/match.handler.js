@@ -4,7 +4,6 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
-import { searchPartySession } from '../../session/party.session.js';
 
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {

@@ -532,7 +532,7 @@ message DungeonInfo {
   string dungeonId = 1;
   repeated partyInfo PartyInfo = 2;
   string dungeonState = 3;
-  int32 monsterId = 4;
+  repeated int32 monsterId = 4; // monsterId를 배열로 변경
 }
 
 message MonsterStatus {
