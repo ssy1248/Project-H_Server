@@ -15,14 +15,66 @@ import { v4 as uuidv4 } from 'uuid';
   message C_PartyLeaderChangeRequest {
     int32 requesterId = 1; // 요청한 유저 id
     int32 changeUserId = 2; // 변경할 유저 id
-  }
+}
 
   S_PartyResponse case = 4로 보내면 될듯
  */
 
 // 파티장 변경하는 핸들러도 필요하지 않나? 요청자, 지정한 사람을 클라에서 보내서 서버에서 확인 후 보내기
 export const partyLeaderChangeHandler = async (socket, payload) => {
-  // 리더 교체 함수도 일단 교체 해야할듯 -> 매개변수가 요청한 사람만 들어간다
+  try {
+    const { requesterId, changeUserId } = payload;
+    
+    // 1. 요청한 사람이 속한 파티를 조회 (한 유저는 하나의 파티에 속한다고 가정)
+    const parties = searchPartyInPlayerSession(requesterId);
+    if (parties.length === 0) {
+      console.log(`요청자 ${requesterId}는 파티에 속해 있지 않습니다.`);
+      return;
+    }
+    const party = parties[0];
+    
+    // 2. 요청자가 파티 리더인지 확인
+    if (party.partyLeader.userInfo.userId !== requesterId) {
+      console.log('리더 교체는 파티 리더만 할 수 있습니다.');
+      return;
+    }
+    
+    // 3. 교체할 대상이 같은 파티에 속해 있는지 확인
+    const newLeader = party.partyMembers.find(member => member.userInfo.userId === changeUserId);
+    if (!newLeader) {
+      console.log(`교체 대상 ${changeUserId}은(는) 해당 파티에 속해 있지 않습니다.`);
+      return;
+    }
+    
+    // 4. 파티 리더 변경: 파티 클래스의 changePartyLeader 메서드 사용
+    party.changePartyLeader(party.partyLeader, newLeader);
+    // partyInfo에도 반영 (필요에 따라)
+    party.partyInfo.partyLeaderId = changeUserId;
+    
+    // 5. 모든 파티원에게 업데이트 브로드캐스트 (case = 4: 업데이트된 파티 정보)
+    const updatedPartyInfo = party.getPartyInfo();
+    const updatePayload = {
+      party: updatedPartyInfo,
+      case: 4,
+      success: true,
+      message: '파티 리더가 변경되었습니다.',
+      failCode: 0,
+    };
+    const updateResponse = createResponse(
+      'party',
+      'S_PartyResponse',
+      PACKET_TYPE.S_PARTYRESPONSE,
+      updatePayload,
+    );
+    
+    // 파티에 속한 모든 멤버의 소켓으로 전송
+    party.partyMembers.forEach(member => {
+      member.userInfo.socket.write(updateResponse);
+    });
+    
+  } catch (e) {
+    handlerError(socket, e);
+  }
 }
 
 // C_SearchPartyRequest
@@ -511,7 +563,7 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        member.userInfo.socket.write(responsePacket);
+        member.userInfo.socket.write(updateResponse);
       });
       socket.write(updateResponse);
     }
