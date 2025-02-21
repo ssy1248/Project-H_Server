@@ -1,11 +1,12 @@
 import IntervalManager from '../managers/interval.manager.js';
 
 class Dungeon {
-  constructor(id, index) {
+  constructor(id, partyInfo) {
     // 이게 던전 고유 아이디 (이건 던전의 고유값 대부분이 값을 통해서 어떤 던전에 접근할것지 파악)
     this.id = id;
     // 어떤 던전의 종류을 알수있는 인게스(이건 던전에 어떤 던전인지 아는 즉 0번이면 초원던전 1번이면 동굴던전)
-    this.index = index;
+    // 파티 인포를 받아서 그 안에 dungeonIndex를 사용
+    this.partyInfo = partyInfo;
     // 던전에 들어간 유저들 유저고유의 아이디만 넣을거다.
     this.users = [];
     // 혹시 쓸수도 있는 인터벌 매니더

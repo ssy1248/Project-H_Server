@@ -1,6 +1,7 @@
 import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
+import { removePartySession } from '../../session/party.session.js';
+import { getUserById } from '../../session/user.session.js';
 
-// 클라이언트에서 userId를 보내주니 party가 생성이 될 떄 userId를 사용해서 그 userId를 파티장으로 설정
 class Party {
   constructor(id, partyName, userId, dungeonIndex) {
     // 파티 아이디
@@ -10,7 +11,7 @@ class Party {
     // 파티 인원을 담은 배열 = User
     this.partyMembers = [];
     // 파티 리더
-    this.partyLeader = null;
+    this.partyLeader = getUserById(userId);
     // 들어갈 던전
     this.dungeonIndex = dungeonIndex;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
@@ -24,6 +25,8 @@ class Party {
       dungeonIndex: dungeonIndex,
     };
   }
+
+  //파티장 변경 패킷
 
   getPartyInfo() {
     // partyMembers 배열의 각 유저(User 인스턴스)에서 필요한 정보를 추출
@@ -52,6 +55,33 @@ class Party {
       dungeonIndex: this.dungeonIndex,
       Players: players,
     };
+  }
+
+  setPartyInfo() {
+    const players = this.partyMembers.map((member) => {
+      // 유저 클래스의 메서드를 통해 정보를 가져옵니다.
+      const playerInfo = member.getPlayerInfo();
+      const playerStatInfo = member.getPlayerStatInfo();
+      const userInfo = member.getUserInfo();
+      return {
+        playerClass: playerInfo.playerClass,
+        playerLevel: playerInfo.level,
+        playerName: userInfo.nickname,
+        playerFullHp: playerStatInfo.maxHp,
+        playerFullMp: playerStatInfo.maxMp,
+        playerCurHp: playerStatInfo.hp,
+        playerCurMp: playerStatInfo.mp,
+      };
+    });
+
+    this.partyInfo = {
+      partyId: this.id,
+      partyName: this.partyName,
+      partyLeaderId: this.partyLeader.userInfo.userId,
+      maximum: MAX_PARTY_MEMBER,
+      dungeonIndex: this.dungeonIndex,
+      Players: players,
+    }
   }
 
   // 만약 던전 선택을 변경을 한다면 사용할 함수
@@ -110,8 +140,12 @@ class Party {
 
     this.partyMembers.push(member);
 
+    this.setPartyInfo();
     // 리더가 없다면 리더를 0번 인덱스로 설정
-    this.setPartyLeader(this.partyMembers[0]);
+    if(this.setPartyLeader === null || this.setPartyLeader === undefined)
+    {
+      this.setPartyLeader(this.partyMembers[0]);
+    }
   }
 
   // 파티 초대
@@ -198,12 +232,16 @@ class Party {
       return;
     }
 
-    // 파티 해체
-    // 세션도 삭제 해줘야 함
-    this.partyMembers = [];
-    this.partyLeader = null;
-
-    console.log('파티가 해체되었습니다.');
+     // 여기서 글로벌 파티 세션에서 현재 파티 세션만 삭제하도록 호출
+     let removed = removePartySession(this.id);
+     if (removed)
+     {
+        console.log('해당 파티 세션이 해체되었습니다.');
+     }
+     else
+     {
+        console.log('파티 세션 해체에 실패했습니다.');
+     }
   }
 }
 

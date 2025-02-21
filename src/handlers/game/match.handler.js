@@ -4,6 +4,7 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
+import { searchPartySession } from '../../session/party.session.js';
 
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
@@ -42,7 +43,6 @@ const matchingHandler = (socket, packetData) => {
       matchSession = addMatchSession();
     }
 
-    console.log(party.partyId);
     const dungeon = matchSession.addPartyMatchQueue(party.partyId);
     if (!dungeon) {
       // 매칭이 아직 안 됐으므로, 던전 정보가 없다.
@@ -52,8 +52,31 @@ const matchingHandler = (socket, packetData) => {
 
     // 매칭이 성공하여 dungeon이 존재한다면, 이제 dungeonId 참조 가능
     const dungeonId = dungeon.dungeonId;
+    // 매칭이 완료되서 하나가 된 파티 인포(파티 + 파티) / 풀파티가 들어간 경우는 같은 값이 리턴
+    const partyInfo = dungeon.partyInfo;
 
-    const partyInfo = party;
+    // 업데이트 파티 리스트를 브로드캐스팅
+    if (dungeon.partyInfo.Players.length > 0) {
+      const updatedPartyInfo = dungeon.partyInfo;
+      const updateResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        {
+          party: updatedPartyInfo,
+          case: 4, // 업데이트된 파티 정보
+          success: true,
+          message: '파티 정보가 업데이트되었습니다.',
+          failCode: 0,
+        },
+      );
+      //  파티의 다른 멤버들에게도 브로드캐스트
+      dungeon.partyInfo.Players.forEach((member) => {
+        const userSock = getUserByNickname(member.playerName);
+        userSock.userInfo.socket.write(updateResponse);
+      });
+      socket.write(updateResponse);
+    }
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
@@ -70,6 +93,11 @@ const matchingHandler = (socket, packetData) => {
       PACKET_TYPE.S_MATCHRESPONSE,
       matchPayload,
     );
+    // 파티원들에게 브로드캐스팅
+    dungeon.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      userSock.userInfo.socket.write(matchResponse);
+    });
     socket.write(matchResponse);
   } catch (e) {
     handlerError(socket, e);

@@ -102,40 +102,54 @@ class Match {
             const party1LeaderLevel = party1.partyLeader.playerInfo.level;
             const party2LeaderLevel = party2.partyLeader.playerInfo.level;
             const party1Id = party1.id;
-            const party2Id = party1.id;
+            const party2Id = party2.id;
+
             if (party1LeaderLevel >= party2LeaderLevel) {
               //해체되는 파티의 timoutId를 찾아서
-              const timeoutId = this.matchTimeouts[party2Id];
+              const timeout1Id = this.matchTimeouts[party1Id];
+              const timeout2Id = this.matchTimeouts[party2Id];
 
               //setTimeOut를 멈추고
-              clearTimeout(timeoutId);
+
+              if (timeout1Id) {
+                clearTimeout(timeout1Id);
+              }
+
+              if (timeout2Id) {
+                clearTimeout(timeout2Id);
+              }
 
               //timeOut기록들을 지운다
-              delete this.matchTimeouts[partyId];
+              delete this.matchTimeouts[party1Id];
               delete this.matchTimeouts[party2Id];
 
-              // party2 해체
-              party2.PartyBreakUp();
-
-              party1.addPartyMember(...party2.partyMembers);
-
+              party2.partyMembers.forEach((member) => {
+                party1.addPartyMember(member);
+              });
+              party2.PartyBreakUp(party2.partyLeader); // party2 해체
               return this.enterDungeon(party1);
             } else {
               //해체되는 파티의 timoutId를 찾아서
-              const timeoutId = this.matchTimeouts[party1Id];
+              const timeout1Id = this.matchTimeouts[party1Id];
+              const timeout2Id = this.matchTimeouts[party2Id];
 
               //setTimeOut를 멈추고
-              clearTimeout(timeoutId);
+              if (timeout1Id) {
+                clearTimeout(timeout1Id);
+              }
+
+              if (timeout2Id) {
+                clearTimeout(timeout2Id);
+              }
 
               //timeOut기록들을 지운다
-              delete this.matchTimeouts[partyId];
               delete this.matchTimeouts[party1Id];
+              delete this.matchTimeouts[party2Id];
 
-              //파티1 해체
-              party1.PartyBreakUp();
-              //party1 멤버를 party2에 추가
-              party2.addPartyMember(...party1.partyMembers);
-
+              party1.partyMembers.forEach((member) => {
+                party2.addPartyMember(member);
+              });
+              party1.PartyBreakUp(party1.partyLeader);
               return this.enterDungeon(party2);
             }
           }
@@ -204,10 +218,10 @@ class Match {
     // 던전 고유 번호 생성
     const dungeonId = uuidv4();
     // 던전 세션 추가
-    const dungeonSession = addDungeonSession(dungeonId, party.desiredDungeonIndex);
+    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo);
 
     // 실제 게임 로직에서는 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행
-    console.log('던전 입장 처리 중...', party.partyMembers);
+    console.log('던전 입장 처리 중...', party.partyInfo.Players);
     return dungeonSession; // 생성된 던전 세션 반환
   }
 }
