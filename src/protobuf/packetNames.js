@@ -37,6 +37,7 @@ export const packetNames = {
     S_PartySearchResponse: 'Google.Protobuf.Protocol.S_PartySearchResponse',
     S_PartyResultResponse: 'Google.Protobuf.Protocol.S_PartyResultResponse',
     S_PartyResponse: 'Google.Protobuf.Protocol.S_PartyResponse',
+    C_PartyLeaderChangeRequest: 'Google.Protobuf.Protocol.C_PartyLeaderChangeRequest',
   },
   chat: {
     C_Chat: 'Google.Protobuf.Protocol.C_Chat',
