@@ -563,7 +563,7 @@ export const partyKickHandler = (socket, payload) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       party.partyMembers.forEach((member) => {
-        member.userInfo.socket.write(responsePacket);
+        member.userInfo.socket.write(updateResponse);
       });
       socket.write(updateResponse);
     }
