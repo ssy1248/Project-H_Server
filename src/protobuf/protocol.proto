@@ -419,6 +419,39 @@ message S_MarketSelectBuyName{
   repeated marketItemInfo itemdata = 2;
 }
 
+// 경매 시스템 현재 데이터 보내주기
+message S_SetAuctionData{
+  int32 itemid = 1;
+  int32 time = 2;
+}
+// 입력한 값만
+message C_EnterAuctionBid{
+  int32 gold =1;
+}
+// 모두에게 보내줌 
+message S_EnterAuctionBid{
+  int32 name = 1;
+  int32 gold = 2;
+  int32 time = 3;
+}
+// 획득한 아이템 보여줌 
+message S_FinalizeBuyAuction{
+  int32 name =1;
+  int32 itemId =2;
+}
+// 받을 골드수량 보여줌
+message S_FinalizeAllAuction{
+  int32 name =1;
+  int32 gold =2;
+}
+// 경매 대기 10초간 
+message S_WaitAuction{
+  bool isWait = 1;
+}
+// 경매 끝
+message S_EndAuction{
+  bool isEnd = 1;
+}
 // 정보 구조체
 
 message PlayerInfo {
