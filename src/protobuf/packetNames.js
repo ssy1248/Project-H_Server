@@ -76,5 +76,12 @@ export const packetNames = {
     S_LeaveDungeon: 'Google.Protobuf.Protocol.S_LeaveDungeon',
     S_ScreenText: 'Google.Protobuf.Protocol.S_ScreenText',
     S_ScreenDone: 'Google.Protobuf.Protocol.S_ScreenDone',
+    S_SetAuctionData: 'Google.Protobuf.Protocol.S_SetAuctionData',
+    C_EnterAuctionBid: 'Google.Protobuf.Protocol.C_EnterAuctionBid',
+    S_EnterAuctionBid: 'Google.Protobuf.Protocol.S_EnterAuctionBid',
+    S_FinalizeBuyAuction: 'Google.Protobuf.Protocol.S_FinalizeBuyAuction',
+    S_FinalizeAllAuction: 'Google.Protobuf.Protocol.S_FinalizeAllAuction',
+    S_WaitAuction: 'Google.Protobuf.Protocol.S_WaitAuction',
+    S_EndAuction: 'Google.Protobuf.Protocol.S_EndAuction',
   },
 };

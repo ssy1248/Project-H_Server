@@ -20,6 +20,7 @@ export const sellInMarket = async (data) => {
       data.rarity,
       false,
       1,
+      null,
     ]);
     await connection.execute(MARKET.REMOVE_MARKET_DATA, [data.marketId]);
     await connection.execute(USER.UPDATE_SUBTRACT_GOLD, [data.gold, data.BuyCharId]);
@@ -73,7 +74,8 @@ export const cancelMarket = async (data) => {
       data.rarity,
       false,
       1,
-    )
+      null,
+    );
     await connection.execute(MARKET.REMOVE_MARKET_DATA, [data.makrketId]);
     await connection.commit();
   } catch (err) {
