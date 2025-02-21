@@ -328,8 +328,8 @@ message S_MatchingNotification {
 }
 
 message S_MatchResponse{
-  int32 dungeonSessionNumber = 1;
-  repeated PartyInfo party = 2; // 합쳐진 파티 인포
+  string dungeonSessionNumber = 1;
+  PartyInfo party = 2; // 합쳐진 파티 인포
   bool success = 3; // 매칭 완료 불값
   string message = 4; // 매칭 완료 
 }
