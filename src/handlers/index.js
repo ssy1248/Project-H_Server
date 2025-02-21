@@ -15,6 +15,7 @@ import {
   partyInviteHandler,
   partyJoinHandler,
   partyKickHandler,
+  partyLeaderChangeHandler,
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
@@ -257,6 +258,10 @@ const handlers = {
   [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
     handler: shopHandler,
     protoType: 'inventory.S_ShopInventoryList',
+  },
+  [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
+    handler: partyLeaderChangeHandler,
+    protoType: 'inventory.C_PartyLeaderChangeRequest',
   },
 };
 

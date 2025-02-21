@@ -17,11 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
     int32 changeUserId = 2; // 변경할 유저 id
   }
 
-  message S_PartyLeaderChangeResponse {
-    PartyInfo info = 1; // 변경된 파티 인포
-    bool success = 2; // 변경 성공 여부
-    string message = 3; //변경 성공 메세지 
-  }
+  S_PartyResponse case = 4로 보내면 될듯
  */
 
 // 파티장 변경하는 핸들러도 필요하지 않나? 요청자, 지정한 사람을 클라에서 보내서 서버에서 확인 후 보내기
