@@ -442,18 +442,18 @@ message C_EnterAuctionBid{
 }
 // 모두에게 보내줌 
 message S_EnterAuctionBid{
-  int32 name = 1;
+  string name = 1;
   int32 gold = 2;
   int32 time = 3;
 }
 // 획득한 아이템 보여줌 
 message S_FinalizeBuyAuction{
-  int32 name =1;
+  string name =1;
   int32 itemId =2;
 }
 // 받을 골드수량 보여줌
 message S_FinalizeAllAuction{
-  int32 name =1;
+  string name =1;
   int32 gold =2;
 }
 // 경매 대기 10초간 
