@@ -261,7 +261,7 @@ const handlers = {
   },
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
     handler: partyLeaderChangeHandler,
-    protoType: 'inventory.C_PartyLeaderChangeRequest',
+    protoType: 'party.C_PartyLeaderChangeRequest',
   },
 };
 
