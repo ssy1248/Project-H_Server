@@ -146,7 +146,6 @@ export const getSkillStatsTableStructure = async () => {
   return results.map((column) => column.Field); // 컬럼명만 반환
 };
 
-
 // CREATE_SKILL
 export const createSkill = async (name, job, cooldown, cost, castingTime, effect) => {
   const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_SKILL, [
@@ -172,7 +171,13 @@ export const deleteSkill = async (id) => {
 // UPDATE_SKILL
 export const updateSkill = async (id, name, job, cooldown, cost, castingTime, effect) => {
   const [result] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_SKILL, [
-    name, job, cooldown, cost, castingTime, effect, id
+    name,
+    job,
+    cooldown,
+    cost,
+    castingTime,
+    effect,
+    id,
   ]);
 
   // 쿼리가 변경하거나 영향을 준 행의 개수를 검사 (업데이트 성공여부 확인용)
@@ -187,3 +192,9 @@ export const findAllSkills = async () => {
   return skills.length > 0 ? skills : [];
 };
 
+export const updateAddGold = async (id, gold) => {
+  // 전체 데이터 조회
+  const [skills] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_ADD_GOLD);
+  // 데이터를 반환, 없으면 빈 배열 반환
+  return skills.length > 0 ? skills : [];
+};

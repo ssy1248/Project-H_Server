@@ -1,7 +1,10 @@
-import { PACKET_TYPE } from '../../constants/header';
-import { getItemSession } from '../../session/item.session';
-import { getUserByNickname } from '../../session/user.session';
+import { PACKET_TYPE } from '../../constants/header.js';
+import { getAutionItem } from '../../db/auction/auction.db.js';
+import { updateAddGold } from '../../db/user/user.db.js';
+import { getItemSession } from '../../session/item.session.js';
+import { getUserByNickname } from '../../session/user.session.js';
 
+// 나중에 log로 기록 처리
 class RewardAuction {
   constructor(items, partyInfo) {
     this.items = items;
@@ -14,7 +17,15 @@ class RewardAuction {
     this.time = this.timeLimit;
     this.state = 'stop'; /// stop , stay , end 이 순서
     this.interval = null;
+    this.rarity = 1; // 여기서 랜덤으로 지정
     this.startAuction();
+  }
+  //임시 브로드캐스트
+  brodcast(packet) {
+    for (let player of this.partyInfo) {
+      const user = getUserByNickname(player.playerName);
+      user.userInfo.socket.write(packet);
+    }
   }
   // 경매 시작
   startAuction() {
@@ -24,7 +35,9 @@ class RewardAuction {
     const packet = createResponse('dungeon', 'S_SetAuctionData', PACKET_TYPE.S_SETAUCTIONDATA, {
       itemid: this.items[0],
       time: this.time,
+      rarity: this.rarity,
     });
+    this.brodcast(packet);
     this.interval = setInterval(this.stayAuction.bind(this), 1000);
   }
   // 경매 중
@@ -41,6 +54,7 @@ class RewardAuction {
         const packet = createResponse('dungeon', 'S_WaitAuction', PACKET_TYPE.S_WAITAUCTION, {
           isWait: true,
         });
+        this.brodcast(packet);
         setTimeout(this.startAuction.bind(this), 10000); // 10초간 대기시간.
         return;
       }
@@ -53,6 +67,7 @@ class RewardAuction {
     const packet = createResponse('dungeon', 'S_EndAuction', PACKET_TYPE.S_ENDAUCTION, {
       isEnd: true,
     });
+    this.brodcast(packet);
     // 종료를 모두에게 알려주기
   }
   // 경매 분배
@@ -62,6 +77,7 @@ class RewardAuction {
       const givGold = (this.nowPrice - this.nowPrice / this.auctionFee) / this.partyInfo.lenght;
       for (let player of this.partyInfo) {
         const user = getUserByNickname(player.playerName);
+        updateAddGold(user.playerInfo.charId, givGold);
         const packet = createResponse(
           'dungeon',
           'S_FinalizeAllAuction',
@@ -71,6 +87,7 @@ class RewardAuction {
             gold: givGold,
           },
         );
+        user.userInfo.socket.write(packet);
       }
       return;
     }
@@ -79,6 +96,12 @@ class RewardAuction {
     for (let player of partyInfo) {
       if (this.name === player.playerName) {
         const user = getUserByNickname(player.playerName);
+        getAutionItem({
+          CharId: user.playerInfo.charId,
+          itemId: itemId,
+          rarity: this.rarity,
+          gold: this.nowPrice,
+        });
         const packet = createResponse(
           'dungeon',
           'S_FinalizeBuyAuction',
@@ -88,8 +111,10 @@ class RewardAuction {
             itemId: itemId,
           },
         );
+        user.userInfo.socket.write(packet);
       } else {
         const user = getUserByNickname(player.playerName);
+        updateAddGold(user.playerInfo.charId, givGold);
         const packet = createResponse(
           'dungeon',
           'S_FinalizeAllAuction',
@@ -99,6 +124,7 @@ class RewardAuction {
             gold: givGold,
           },
         );
+        user.userInfo.socket.write(packet);
       }
     }
   }
@@ -115,6 +141,7 @@ class RewardAuction {
       gold: this.nowPrice,
       time: this.time,
     });
+    this.brodcast(packet);
   }
 }
 export default RewardAuction;
