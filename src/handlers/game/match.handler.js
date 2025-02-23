@@ -82,7 +82,10 @@ const matchingHandler = (socket, packetData) => {
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
       dungeon.partyInfo.Players.forEach((member) => {
+        console.log('member', member);
+        console.log('member.playerName', member.playerName);
         const userSock = getUserByNickname(member.playerName);
+        console.log('userSock', userSock);
         userSock.userInfo.socket.write(updateResponse);
       });
       socket.write(updateResponse);

@@ -16,7 +16,7 @@ class Dungeon {
     // 앞으로 추가할것들은 나올수 있는 몬스터 종류
   }
 
-  //getUser와 getUserBySocket을 partyInfo에서 찾을수 있게 해야된다.
+
   //파티 인포 넣기
   setPartyInfo(party) {
     this.partyInfo = party;

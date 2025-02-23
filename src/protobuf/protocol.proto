@@ -335,7 +335,7 @@ message S_MatchingNotification {
 }
 
 message S_MatchResponse{
-  repeated dungeonInfo dungeonSession = 1;
+  repeated DungeonInfo dungeonSession = 1;
   repeated PartyInfo party = 2; // 합쳐진 파티 인포
   bool success = 3; // 매칭 완료 불값
   string message = 4; // 매칭 완료 
@@ -530,7 +530,7 @@ message Color {
 // 이던전 인포를 던전클래스에 있는것들로 바꾸야힌다.
 message DungeonInfo {
   string dungeonId = 1;
-  repeated partyInfo PartyInfo = 2;
+  PartyInfo PartyInfo = 2;
   string dungeonState = 3;
   repeated int32 monsterId = 4; // monsterId를 배열로 변경
 }
