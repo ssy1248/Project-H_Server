@@ -76,6 +76,7 @@ enum MsgId {
   S_FINALIZEALLAUCTION =67;
   S_WAITAUCTION = 68;
   S_ENDAUCTION = 69;
+  S_SHOPITEMLIST = 70;
 }
 
 //회원가입 요청
@@ -641,4 +642,7 @@ message C_ShopInventoryRequest {
 message S_ShopInventoryList {
   uint32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
+}
+message S_ShopItemList {
+  repeated ItemInfo items = 1;
 }
