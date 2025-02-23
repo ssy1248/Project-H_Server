@@ -9,15 +9,29 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyExitHandler, partyHandler, partyInviteHandler, partyJoinHandler, partyKickHandler, partyLeaderChangeHandler, partyListHandler, partySearchHandler, } from './game/party.handler.js';
-import { disrobeItemHandler, equipItemHandler, inventoryHandler, MoveItemHandler } from './inventory/inventory.handler.js';
+import {
+  partyExitHandler,
+  partyHandler,
+  partyInviteHandler,
+  partyJoinHandler,
+  partyKickHandler,
+  partyLeaderChangeHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
+import {
+  disrobeItemHandler,
+  equipItemHandler,
+  inventoryHandler,
+  MoveItemHandler,
+} from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler, { matchStopHandler } from './game/match.handler.js';
-import shopHandler from './game/shop.handler.js';
+import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 
 const handlers = {
@@ -78,11 +92,11 @@ const handlers = {
     protoType: 'chat.S_Chat',
   },
   [PACKET_TYPE.C_BUYITEMREQUEST]: {
-    handler: shopHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.C_BuyItemRequest',
   },
   [PACKET_TYPE.S_BUYITEMRESPONSE]: {
-    handler: shopHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
@@ -218,11 +232,11 @@ const handlers = {
     protoType: 'chat.S_Emote',
   },
   [PACKET_TYPE.C_SellItemRequest]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.C_SellItemRequest',
   },
   [PACKET_TYPE.S_SellItemResponse]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.S_SellItemResponse',
   },
   [PACKET_TYPE.C_MARKETSELECTBUYNAME]: {
@@ -243,11 +257,11 @@ const handlers = {
   },
   marketSelectBuyName,
   [PACKET_TYPE.C_SHOPINVENTORYREQUEST]: {
-    handler: shopHandler,
+    handler: handleInventoryList,
     protoType: 'inventory.C_ShopInventoryRequest',
   },
   [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
-    handler: shopHandler,
+    handler: handleInventoryList,
     protoType: 'inventory.S_ShopInventoryList',
   },
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
