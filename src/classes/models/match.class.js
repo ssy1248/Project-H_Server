@@ -2,6 +2,8 @@ import { MAX_PARTY_MEMBER } from '../../constants/constants.js';
 import { createPartySession, searchPartySession } from '../../session/party.session.js';
 import { addDungeonSession } from '../../session/dungeon.session.js';
 import { v4 as uuidv4 } from 'uuid';
+import { getUserByNickname, removeUser } from '../../session/user.session.js';
+import { userSessions } from '../../session/sessions.js';
 
 const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수를 상수로 지정
 
@@ -13,9 +15,6 @@ class Match {
   }
 
   // 솔로가 던전 입장 누르면 무조건 파티 생성 후 입장이 가능합니다. 팝업띄어서 유저가 직접 파티 생성하게 -> 파티 세션 집어넣고 진행
-
-  // 두개의 파티가 합쳐질 때, 합쳐진 파티의 새로운 파티장 설정 로직 -> 두개의 파티에서 파티장들의 레벨 비교 -> 레벨 높은 사람이 파티장
-  // 튕긴 파티원 처리 로직 -> 재접속/포기 UI 처리 로직
 
   // 파티로 매칭 시도
   addPartyMatchQueue(partyId) {
@@ -164,7 +163,7 @@ class Match {
     }, 1000); // 1초 후 재시도ç
 
     // 타임아웃 ID를 matchTimeouts 객체에 저장
-    console.log(partyId, 'partyID#$!@#!@#!@');
+    console.log(partyId, 'partyId');
 
     this.matchTimeouts[partyId] = timeoutId;
 
@@ -180,9 +179,6 @@ class Match {
     // 아직 매칭이 완료되지 않았음을 나타내기 위해 null을 반환
     console.log('---------------------------');
     return null;
-
-    // 매칭 취소
-    //cancelMatch();
   }
 
   //cancelMatch
@@ -197,7 +193,9 @@ class Match {
     // 현재 진행 중인 타임아웃을 취소
     console.log(partyId, 'partyId');
     console.log(this.matchTimeouts[partyId], 'this.matchTimeouts[partyId]');
+
     const timeoutId = this.matchTimeouts[partyId];
+
     console.log(timeoutId, 'timeoutid');
     console.log(this.matchTimeouts, 'this.matchTimeouts');
     if (timeoutId) {
@@ -219,6 +217,20 @@ class Match {
     const dungeonId = uuidv4();
     // 던전 세션 추가
     const dungeonSession = addDungeonSession(dungeonId, party.partyInfo);
+
+    //여기에서 던전인덱스에 따라서 던전 몬스터들 추가
+
+    party.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      removeUser(userSock.userInfo.socket);
+    });
+
+    //여기서 파티원들 전부 usersessions에서 삭제해야되지 않나
+    console.log(party, 'party');
+
+    dungeonSession.setDungeonState('progress');
+
+    console.log(dungeonSession);
 
     // 실제 게임 로직에서는 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행
     console.log('던전 입장 처리 중...', party.partyInfo.Players);
