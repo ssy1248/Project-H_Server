@@ -18,6 +18,7 @@ import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
 import { findUserSync } from '../../classes/managers/movementSync.manager.js';
 import { getAllItemSession } from '../../session/item.session.js';
+import { handleShopItemList } from '../game/shop.handler.js';
 
 const setCharacterStat = async () => {
   // 현재 테이블의 행 개수를 조회합니다.
@@ -99,6 +100,9 @@ const syncSpawnedUser = async (socket, user) => {
       const playerInfo = createPlayerInfoPacketData(value);
       return playerInfo;
     });
+
+    // 상점 아이템 목록 추가
+    await handleShopItemList(socket);
 
     const items = getAllItemSession();
     let itemData = [];
