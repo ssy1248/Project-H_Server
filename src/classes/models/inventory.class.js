@@ -1,4 +1,4 @@
-import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemQuantity } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
 import { createResponse } from "../../utils/response/createResponse.js";
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -126,6 +126,20 @@ export default class Inventory {
             } else {
                 throw new Error('item not found');
             }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // 아이템 슬롯 이동
+    async move(itemId, position) {
+        try {
+            var item = this.inventory.find((item) => item.id === itemId);
+            // DB의 위치 정보 업데이트
+            await updateItemPosition(this.charId, itemId, position);
+            // 서버의 위치 정보 업데이트
+            if (!item) throw new Error('item not found');
+            item.position = position;
         } catch (error) {
             console.error(error);
         }

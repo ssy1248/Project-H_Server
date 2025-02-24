@@ -49,3 +49,9 @@ export const updateUserGoldAfterSell = async (charId, price) => {
   ]);
   return result.affectedRows > 0;
 };
+
+// 상점 아이템 목록 조회
+export const getShopItems = async () => {
+  const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_SHOP_ITEMS);
+  return rows;
+};

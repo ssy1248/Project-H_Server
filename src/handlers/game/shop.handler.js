@@ -10,11 +10,12 @@ import {
   updateShopStockAfterBuy,
   sellItem,
   updateUserGoldAfterSell,
+  getShopItems,
 } from '../../db/shop/shop.db.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 
 // 아이템 구매
-const handleBuyItem = async (socket, packetData) => {
+export const handleBuyItem = async (socket, packetData) => {
   const { shopId, price } = packetData;
   const user = getUserBySocket(socket);
 
@@ -61,7 +62,7 @@ const handleBuyItem = async (socket, packetData) => {
 };
 
 // 아이템 판매
-const handleSellItem = async (socket, packetData) => {
+export const handleSellItem = async (socket, packetData) => {
   const { inventoryId, price } = packetData;
   const user = getUserBySocket(socket);
 
@@ -88,8 +89,81 @@ const handleSellItem = async (socket, packetData) => {
   });
   socket.write(response);
 };
+
+// 상점 아이템 목록 조회
+// export const handleShopItemList = (socket) => {
+//   console.log('✅ handleShopItemList 실행됨!');
+
+//   try {
+//     const items = getShopItems();
+
+//     if (!items || items.length === 0) {
+//       throw new CustomError(ErrorCodes.ITEM_NOT_FOUND, '상점에 등록된 아이템이 없습니다.');
+//     }
+
+//     console.log('[상점 목록 데이터]:', items);
+
+//     const response = createResponse('town', 'S_ShopItemList', PACKET_TYPE.S_SHOPITEMLIST, {
+//       items,
+//     });
+//     socket.write(response);
+
+//     console.log('📢 상점 아이템 목록 전송 완료! 인벤토리 목록도 전송 시작');
+//     handleInventoryList(socket, { page: 1, count: 20 });
+//   } catch (error) {
+//     console.error('handleShopItemList 오류:', error);
+//   }
+// };
 // 인벤토리 조회 (상점에서 사용)
-const handleInventoryList = (socket, packetData) => {
+// export const handleInventoryList = (socket, packetData) => {
+//   const { page, count } = packetData;
+
+//   if (count <= 0) return;
+
+//   const user = getUserBySocket(socket);
+//   if (!user) {
+//     throw new CustomError(ErrorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+//   }
+
+//   const inventory = user.inventory.getInventory();
+//   console.log('인벤토리 데이터:', inventory);
+
+//   if (!inventory || inventory.length === 0) {
+//     console.warn('인벤토리가 비어 있습니다! 데이터베이스 또는 유저 세션을 확인하세요.');
+//     return;
+//   }
+
+//   const startIdx = Math.max(0, (page - 1) * count);
+//   const endIdx = startIdx + count;
+//   const data = inventory
+//     .slice(startIdx, endIdx)
+//     .filter((item) => item.equiped === 0)
+//     .map(({ id, price, itemType, name, stat, equiped, rarity }) => ({
+//       id,
+//       price,
+//       itemType,
+//       name,
+//       stat,
+//       equiped,
+//       rarity,
+//     }));
+
+//   const maxPage = Math.ceil(inventory.length / count);
+
+//   const response = createResponse(
+//     'inventory',
+//     'S_ShopInventoryList',
+//     PACKET_TYPE.S_SHOPINVENTORYLIST,
+//     {
+//       maxPage,
+//       itemData: data,
+//     },
+//   );
+
+//   console.log('[전송] S_ShopInventoryList:', JSON.stringify(response, null, 2));
+//   socket.write(response);
+// };
+export const handleInventoryList = (socket, packetData) => {
   const { page, count } = packetData;
 
   if (count <= 0) {
@@ -102,10 +176,28 @@ const handleInventoryList = (socket, packetData) => {
   }
 
   const inventory = user.inventory.getInventory();
-  const data = [];
+  console.log('인벤토리 데이터:', inventory);
 
-  for (let i = (page - 1) * count; i < page * count; i++) {
-    if (inventory.length <= i) break;
+  if (!inventory || inventory.length === 0) {
+    console.warn('인벤토리가 비어 있습니다! 데이터베이스 또는 유저 세션을 확인하세요.');
+  }
+
+  // 상점 아이템 목록 가져오기
+  const shopItems = getShopItems();
+  console.log('[상점 목록 데이터]:', shopItems);
+
+  const data = [];
+  let startIdx = (page - 1) * count;
+  const endIdx = page * count;
+
+  if (startIdx < 0) {
+    console.warn(`잘못된 페이지 요청 (${startIdx}). 0으로 초기화합니다.`);
+    startIdx = 0;
+  }
+
+  for (let i = startIdx; i < endIdx; i++) {
+    if (inventory.length <= i || !inventory[i]) break;
+
     if (inventory[i].equiped === 0) {
       data.push({
         id: inventory[i].id,
@@ -121,32 +213,18 @@ const handleInventoryList = (socket, packetData) => {
 
   const maxPage = Math.ceil(inventory.length / count);
 
-  const response = createResponse('shop', 'S_ShopInventoryList', PACKET_TYPE.S_SHOPINVENTORYLIST, {
-    maxPage: maxPage,
-    itemData: data,
-  });
+  const response = createResponse(
+    'inventory',
+    'S_ShopInventoryList',
+    PACKET_TYPE.S_SHOPINVENTORYLIST,
+    {
+      maxPage: maxPage,
+      itemData: data,
+      shopItems: shopItems,
+    },
+  );
+
+  console.log('[전송] S_ShopInventoryList:', JSON.stringify(response, null, 2));
 
   socket.write(response);
 };
-// 상점 패킷 처리
-const shopHandler = (socket, packetId, packetData) => {
-  try {
-    switch (packetId) {
-      case PACKET_TYPE.C_BUYITEMREQUEST:
-        handleBuyItem(socket, packetData);
-        break;
-      case PACKET_TYPE.C_SELLITEMREQUEST:
-        handleSellItem(socket, packetData);
-        break;
-      case PACKET_TYPE.C_SHOPINVENTORYREQUEST:
-        handleInventoryList(socket, packetData);
-        break;
-      default:
-        throw new CustomError(ErrorCodes.INVALID_PACKET, '유효하지 않은 패킷 ID');
-    }
-  } catch (e) {
-    handlerError(socket, e);
-  }
-};
-
-export default shopHandler;
