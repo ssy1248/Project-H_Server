@@ -116,7 +116,6 @@ const syncSpawnedUser = async (socket, user) => {
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const userInfo = user.getUserInfo();
     const storeItem = await getItemList();
-    console.log('상점 아이템 리스트:', storeItem);
 
     const sSpawn = {
       userId: userInfo.userId,
