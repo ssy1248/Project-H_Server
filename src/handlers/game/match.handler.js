@@ -1,4 +1,4 @@
-import { getUserBySocket, getUserByNickname } from '../../session/user.session.js';
+import { getUserBySocket, getUserByNickname, removeUser } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -112,6 +112,11 @@ const matchingHandler = (socket, packetData) => {
       userSock.userInfo.socket.write(matchResponse);
     });
     socket.write(matchResponse);
+
+    dungeon.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      removeUser(userSock.userInfo.socket);
+    });
   } catch (e) {
     handlerError(socket, e);
   }

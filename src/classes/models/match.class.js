@@ -220,14 +220,6 @@ class Match {
 
     //여기에서 던전인덱스에 따라서 던전 몬스터들 추가
 
-    party.partyInfo.Players.forEach((member) => {
-      const userSock = getUserByNickname(member.playerName);
-      console.log('userSock', userSock);
-      removeUser(userSock.userInfo.socket);
-    });
-
-    console.log('userSessions', userSessions);
-
     //여기서 파티원들 전부 usersessions에서 삭제해야되지 않나
     console.log(party, 'party');
 
