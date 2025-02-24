@@ -91,20 +91,6 @@ export const handleSellItem = async (socket, packetData) => {
   socket.write(response);
 };
 
-// export const createItemData = (items) => {
-//   console.log('아이템 데이터 생성 : ', items);
-//   return items.map((item) => {
-//     return {
-//       id: item.id,
-//       name: item.name,
-//       itemType: item.itemType,
-//       stat: item.stat,
-//       price: item.price,
-//       rarity: item.rarity,
-//     };
-//   });
-// }
-
 // 인벤토리 조회 (상점에서 사용)
 export const handleInventoryList = (socket, packetData) => {
   const { page, count } = packetData;

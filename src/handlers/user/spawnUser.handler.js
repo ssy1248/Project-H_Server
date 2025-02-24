@@ -17,7 +17,6 @@ import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
 import { findUserSync } from '../../classes/managers/movementSync.manager.js';
 import { getAllItemSession } from '../../session/item.session.js';
-import { createItemData } from '../game/shop.handler.js';
 import { findAllItems } from '../../db/shop/shop.db.js';
 
 const setCharacterStat = async () => {
@@ -116,7 +115,7 @@ const syncSpawnedUser = async (socket, user) => {
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const userInfo = user.getUserInfo();
-    const storeItem = getItemList();
+    const storeItem = await getItemList();
     console.log('상점 아이템 리스트:', storeItem);
 
     const sSpawn = {
@@ -125,12 +124,6 @@ const syncSpawnedUser = async (socket, user) => {
       storeList: storeItem,
       itemData,
     };
-
-    console.log(
-      `유저 아이디 : ${
-        userInfo.userId
-      }, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`,
-    );
 
     console.log(
       `유저 아이디 : ${
@@ -197,7 +190,6 @@ const initializeCharacter = (result) => {
 const getItemList = async () => {
   // 데이터 베이스에 있는 아이템리스트 가져오기
   const itemListData = await findAllItems();
-
   if (!Array.isArray(itemListData)) {
     console.error('아이템 리스트 데이터가 배열이 아닙니다:', itemListData);
     return [];
