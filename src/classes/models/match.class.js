@@ -222,7 +222,8 @@ class Match {
 
     party.partyInfo.Players.forEach((member) => {
       const userSock = getUserByNickname(member.playerName);
-      removeUser(userSock.userInfo.socket);
+      // 유저 세션에서 지우면 나중에 userSession의 값을 못찾음 그래서 유저 안에 inState를 추가해서 Town, Dungeon으로 나눠서 관리하면 어떨지
+      //removeUser(userSock.userInfo.socket);
     });
 
     //여기서 파티원들 전부 usersessions에서 삭제해야되지 않나
