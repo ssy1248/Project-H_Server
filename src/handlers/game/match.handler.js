@@ -83,6 +83,7 @@ const matchingHandler = (socket, packetData) => {
       //  파티의 다른 멤버들에게도 브로드캐스트
       updatedPartyInfo.Players.forEach((member) => {
         const userSock = getUserByNickname(member.playerName);
+        console.log('userSock', userSock);
         userSock.userInfo.socket.write(updateResponse);
       });
       socket.write(updateResponse);
@@ -109,6 +110,11 @@ const matchingHandler = (socket, packetData) => {
       userSock.userInfo.socket.write(matchResponse);
     });
     socket.write(matchResponse);
+
+    dungeon.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      removeUser(userSock.userInfo.socket);
+    });
   } catch (e) {
     handlerError(socket, e);
   }
