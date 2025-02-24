@@ -1,4 +1,4 @@
-import { getUserBySocket, getUserByNickname, removeUser } from '../../session/user.session.js';
+import { getUserBySocket, getUserByNickname, getAllUsers } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -81,9 +81,7 @@ const matchingHandler = (socket, packetData) => {
         },
       );
       //  파티의 다른 멤버들에게도 브로드캐스트
-      dungeon.partyInfo.Players.forEach((member) => {
-        console.log('member', member);
-        console.log('member.playerName', member.playerName);
+      updatedPartyInfo.Players.forEach((member) => {
         const userSock = getUserByNickname(member.playerName);
         console.log('userSock', userSock);
         userSock.userInfo.socket.write(updateResponse);
@@ -93,8 +91,8 @@ const matchingHandler = (socket, packetData) => {
 
     // 던전 아이디에 맞는 씬으로 이동
     const matchPayload = {
-      dungeonInfoResponse,
-      partyInfo,
+      dungeonSession: dungeonInfoResponse,
+      party : dungeon.partyInfo,
       success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };

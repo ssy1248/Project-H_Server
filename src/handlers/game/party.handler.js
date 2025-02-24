@@ -11,16 +11,7 @@ import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
 
-/**
-  message C_PartyLeaderChangeRequest {
-    int32 requesterId = 1; // 요청한 유저 id
-    int32 changeUserId = 2; // 변경할 유저 id
-}
 
-  S_PartyResponse case = 4로 보내면 될듯
- */
-
-// 파티장 변경하는 핸들러도 필요하지 않나? 요청자, 지정한 사람을 클라에서 보내서 서버에서 확인 후 보내기
 export const partyLeaderChangeHandler = async (socket, payload) => {
   try {
     const { requesterId, changeUserId } = payload;
