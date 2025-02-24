@@ -13,6 +13,7 @@ import {
   getShopItems,
 } from '../../db/shop/shop.db.js';
 import { PACKET_TYPE } from '../../constants/header.js';
+import { createItem } from '../../db/inventory/item.db.js';
 
 // 아이템 구매
 export const handleBuyItem = async (socket, packetData) => {
@@ -90,42 +91,19 @@ export const handleSellItem = async (socket, packetData) => {
   socket.write(response);
 };
 
-// 상점 아이템 목록 조회
-export const handleShopItemList = async (socket) => {
-  console.log('handleShopItemList 실행됨!');
-
-  try {
-    // 상점 아이템 목록 가져오기
-    const items = await getShopItems();
-    console.log('[상점 목록 데이터]:', items);
-
-    if (!items || items.length === 0) {
-      throw new CustomError(ErrorCodes.ITEM_NOT_FOUND, '상점에 등록된 아이템이 없습니다.');
-    }
-
-    // 아이템 데이터를 S_Spawn 패킷에 맞게 변환
-    const itemData = items.map(({ id, name, itemType, stat, price, rarity }) => ({
-      id,
-      name,
-      itemType,
-      stat,
-      price,
-      rarity,
-    }));
-
-    // S_Spawn 패킷 생성 후 전송
-    const sSpawn = {
-      storeList: itemData,
-    };
-
-    const response = createResponse('user', 'S_Spawn', PACKET_TYPE.S_SPAWN, sSpawn);
-    await socket.write(response);
-
-    console.log('상점 아이템 목록 전송 완료!');
-  } catch (error) {
-    console.error('handleShopItemList 오류:', error);
-  }
-};
+// export const createItemData = (items) => {
+//   console.log('아이템 데이터 생성 : ', items);
+//   return items.map((item) => {
+//     return {
+//       id: item.id,
+//       name: item.name,
+//       itemType: item.itemType,
+//       stat: item.stat,
+//       price: item.price,
+//       rarity: item.rarity,
+//     };
+//   });
+// }
 
 // 인벤토리 조회 (상점에서 사용)
 export const handleInventoryList = (socket, packetData) => {
