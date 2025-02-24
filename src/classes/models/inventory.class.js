@@ -37,9 +37,15 @@ export default class Inventory {
     async equip(inventoryId) {
         try {
             var item = this.inventory.find((item) => item.id === inventoryId);
+            // 이미 장비된 아이템이 있다면 장비 해제
+            var equipped = this.inventory.find((e) => e.equiped === true && e.itemType === item.itemType);
             if (!item) throw new Error('item not found');
+            if (equipped) {
+                await disrobeItem(this.charId, equipped.id);
+                equipped.equiped = false;
+            }
             // DB 업데이트
-            await equipItem(this.charId, inventoryId);
+            await equipItem(this.charId, item.id);
             // 서버 업데이트
             item.equiped = true;
         } catch (error) {
