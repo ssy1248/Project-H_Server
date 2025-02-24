@@ -121,7 +121,7 @@ message S_Enter {
 message S_Spawn {
   int32 userId = 1;
   repeated PlayerInfo players = 2;
-  repeated ItemInfo storeList = 3;
+  repeated StoreItemInfo storeList = 3;
   repeated ItemData itemData = 4;
 }
 
@@ -579,6 +579,13 @@ message BtnInfo {
     int32 dungeonIndex = 5; // 들어갈 던전 인덱스
     repeated PlayerStatus Players = 6;
   }
+  message StoreItemInfo {
+    int32 id = 1;
+    int32 itemId = 2;
+    int32 stock = 3;
+    int32 price = 4;
+  }
+
   message ItemInfo{
     int32 id =1;
     int32 price = 2;
