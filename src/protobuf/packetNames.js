@@ -24,7 +24,6 @@ export const packetNames = {
     S_BuyInMarket: 'Google.Protobuf.Protocol.S_BuyInMarket',
     C_MarketSelectBuyName: 'Google.Protobuf.Protocol.C_MarketSelectBuyName',
     S_MarketSelectBuyName: 'Google.Protobuf.Protocol.S_MarketSelectBuyName',
-    S_ShopItemList: 'Google.Protobuf.Protocol.S_ShopItemList',
   },
   party: {
     C_PartyRequest: 'Google.Protobuf.Protocol.C_PartyRequest',
