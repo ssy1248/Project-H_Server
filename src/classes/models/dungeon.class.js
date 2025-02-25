@@ -128,6 +128,8 @@ class Dungeon {
   setPlayerStatus(nickname) {
     const user = getUserByNickname(nickname);
 
+    console.log(user, 'user');
+
     //이게 들어오면 객체 하나 생성
     if (user) {
       const playerStat = user.playerStatInfo;
@@ -142,6 +144,7 @@ class Dungeon {
         speed: playerStat.speed,
       };
     }
+    console.log(this.playerStatus);
   }
 
   // 플레이어의 HP 값 가져오기

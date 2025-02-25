@@ -113,7 +113,7 @@ const matchingHandler = (socket, packetData) => {
 
     dungeon.partyInfo.Players.forEach((member) => {
       const userSock = getUserByNickname(member.playerName);
-      removeUser(userSock.userInfo.socket);
+      // removeUser(userSock.userInfo.socket);
     });
   } catch (e) {
     handlerError(socket, e);
