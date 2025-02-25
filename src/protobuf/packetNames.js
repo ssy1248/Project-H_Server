@@ -85,5 +85,9 @@ export const packetNames = {
     S_EndAuction: 'Google.Protobuf.Protocol.S_EndAuction',
     C_PlayerAction: 'Google.Protobuf.Protocol.C_PlayerAction',
     S_PlayerAction: 'Google.Protobuf.Protocol.S_PlayerAction',
+    C_DungeonEnter: 'Google.Protobuf.Protocol.C_DungeonEnter',
+    S_DungeonSpawn: 'Google.Protobuf.Protocol.S_DungeonSpawn',
+    S_DungeonDeSpawn: 'Google.Protobuf.Protocol.S_DungeonDeSpawn',
+    C_DungeonExit: 'Google.Protobuf.Protocol.C_DungeonExit',
   },
 };

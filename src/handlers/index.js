@@ -33,6 +33,7 @@ import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
+import enterAuctionBid from './game/enterAuctionBid.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -267,6 +268,10 @@ const handlers = {
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
     handler: partyLeaderChangeHandler,
     protoType: 'party.C_PartyLeaderChangeRequest',
+  },
+  [PACKET_TYPE.C_ENTERAUCTIONBID]: {
+    handler: enterAuctionBid,
+    protoType: 'dungeon.C_EnterAuctionBid',
   },
   [PACKET_TYPE.C_PLAYERACTION]: {
     handler: undefined,
