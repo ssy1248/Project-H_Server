@@ -83,5 +83,7 @@ export const packetNames = {
     S_FinalizeAllAuction: 'Google.Protobuf.Protocol.S_FinalizeAllAuction',
     S_WaitAuction: 'Google.Protobuf.Protocol.S_WaitAuction',
     S_EndAuction: 'Google.Protobuf.Protocol.S_EndAuction',
+    C_PlayerAction: 'Google.Protobuf.Protocol.C_PlayerAction',
+    S_PlayerAction: 'Google.Protobuf.Protocol.S_PlayerAction',
   },
 };

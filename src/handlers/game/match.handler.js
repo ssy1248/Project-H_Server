@@ -4,7 +4,6 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMatchSession } from '../../session/match.session.js';
 import { matchSessions } from '../../session/sessions.js';
-import Players from '../../classes/models/player.class.js';
 
 //C_MatchRequest
 const matchingHandler = (socket, packetData) => {
@@ -110,12 +109,6 @@ const matchingHandler = (socket, packetData) => {
       userSock.userInfo.socket.write(matchResponse);
     });
     socket.write(matchResponse);
-
-    // 플레이어 클래스 생성
-    const players = partyInfo.Players.map(member => {
-      return new Players(member); // 배열의 각 원소(member)에 대해 Player 인스턴스를 생성
-    });
-    console.log('생성된 플레이어 : ', players);
   } catch (e) {
     handlerError(socket, e);
   }
