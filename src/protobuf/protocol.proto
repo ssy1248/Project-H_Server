@@ -464,6 +464,85 @@ message S_WaitAuction{
 message S_EndAuction{
   bool isEnd = 1;
 }
+
+// 던전에서 사용할 프로토버퍼
+message C_PlayerAction {
+  oneof action {
+    NormalAttack normalAttack = 1;
+    SkillAttack skillAttack   = 2;
+    DodgeAction dodgeAction   = 3;
+    HitAction   hitAction     = 4; // 피격
+  }
+}
+
+// 일반 공격
+message NormalAttack {
+  int32 targetId = 1;
+  // 필요하다면 위치나 방향, etc.
+}
+
+// 스킬 공격
+message SkillAttack {
+  int32 skillId = 1;
+  int32 targetId = 2; 
+  // 혹은 범위 정보, 마나 소모 등
+}
+
+// 회피
+message DodgeAction {
+  float dodgeDistance = 1;
+  // 방향 등
+}
+
+// 피격
+message HitAction {
+  int32 attackerId = 1;
+  int32 damage     = 2;
+  // 상태이상, 크리티컬 여부 등
+}
+
+message S_PlayerAction {
+  // oneof 그룹을 통해 단 하나의 액션 결과만 설정됩니다.
+  oneof action {
+    NormalAttackResult normalAttackResult = 1;
+    SkillAttackResult skillAttackResult = 2;
+    DodgeResult dodgeResult = 3;
+    HitResult hitResult = 4;
+  }
+  // 액션 결과 전송의 성공 여부 및 메시지
+  bool success = 5;
+  string message = 6;
+}
+
+// 일반 공격 결과 메시지
+message NormalAttackResult {
+  int32 targetId = 1;       // 공격 대상 ID
+  int32 damageDealt = 2;    // 입힌 피해량
+  // 필요한 추가 필드가 있다면 여기에 작성
+}
+
+// 스킬 공격 결과 메시지
+message SkillAttackResult {
+  int32 skillId = 1;        // 사용한 스킬의 ID
+  int32 targetId = 2;       // 공격 대상 ID
+  int32 damageDealt = 3;    // 입힌 피해량
+  // 필요한 추가 필드가 있다면 여기에 작성
+}
+
+// 회피(도주) 결과 메시지
+message DodgeResult {
+  int32 evadedDamage = 1;   // 회피하여 피해를 줄인 양
+  int32 cooldown = 2;       // 회피 후 남은 쿨타임(초)
+  // 필요한 추가 필드가 있다면 여기에 작성
+}
+
+// 피격 결과 메시지
+message HitResult {
+  int32 damageReceived = 1; // 받은 피해량
+  int32 currentHp = 2;      // 피격 후 남은 HP
+  // 필요한 추가 필드가 있다면 여기에 작성
+}
+
 // 정보 구조체
 
 message PlayerInfo {
