@@ -36,6 +36,7 @@ class Party {
       const playerStatInfo = member.getPlayerStatInfo();
       const userInfo = member.getUserInfo();
       return {
+        playerId: userInfo.userId,
         playerClass: playerInfo.playerClass,
         playerLevel: playerInfo.level,
         playerName: userInfo.nickname,
@@ -64,6 +65,7 @@ class Party {
       const playerStatInfo = member.getPlayerStatInfo();
       const userInfo = member.getUserInfo();
       return {
+        playerId: userInfo.userId,
         playerClass: playerInfo.playerClass,
         playerLevel: playerInfo.level,
         playerName: userInfo.nickname,
