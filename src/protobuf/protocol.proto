@@ -76,8 +76,14 @@ enum MsgId {
   S_FINALIZEALLAUCTION =67;
   S_WAITAUCTION = 68;
   S_ENDAUCTION = 69;
+  C_PLAYERACTION= 70;
+  S_PLAYERACTION= 71;
+  C_DUNGEONENTER =72;
+  S_DUNGEONSPAWN =73;
+  S_DUNGEONDESPAWN =74;
+  C_DUNGEONEXIT =75;
 }
-
+  
 //회원가입 요청
 message C_RegisterRequest {
   string email = 1;
@@ -737,8 +743,8 @@ message C_DungeonEnter{
 }
 message S_DungeonSpawn{
   int32 userId = 1;// 자기자신
-  PartyInfo PartyInfo =2;
-  repeated PlayerInfo players = 3;
+  DungeonInfo dungeonInfo =2;
+  repeated TransformInfo playerTransforms = 3;
 }
 message S_DungeonDeSpawn{
   int32 playerId = 1; // 유저 id
