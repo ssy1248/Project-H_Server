@@ -595,6 +595,7 @@ message ItemInfo {
   bool equiped = 6;
   int32 rarity = 7;
   int32 position = 8;
+  int32 itemId = 9;
 }
 
 message ItemData {
