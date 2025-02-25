@@ -1,6 +1,6 @@
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 
-export const processPlayerActionHandler = (packet) => {
+export const processPlayerActionHandler = (socket, packet) => {
   if (packet.normalAttack) {
     // 일반 공격 처리
     console.log('일반 공격 요청 처리');
@@ -36,7 +36,7 @@ const processAttackHandler = (attackerName, targetId) => {
     return;
   }
   // 몬스터를 찾는 함수가 추가되면 수정
-  if (!targetId) {
+  if (targetId === 1) {
     // 타겟이 없더라도 공격은 가능하게
     console.log('헛손질');
   } else {
