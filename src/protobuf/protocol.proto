@@ -69,21 +69,21 @@ enum MsgId {
   C_MOVEITEMREQUEST = 60;
   S_MOVEITEMRESPONSE = 61;
   C_PARTYLEADERCHANGEREQUEST = 62;
-  S_SETAUCTIONDATA =63;
-  C_ENTERAUCTIONBID =64;
-  S_ENTERAUCTIONBID =65;
-  S_FINALIZEBUYAUCTION =66;
-  S_FINALIZEALLAUCTION =67;
+  S_SETAUCTIONDATA = 63;
+  C_ENTERAUCTIONBID = 64;
+  S_ENTERAUCTIONBID = 65;
+  S_FINALIZEBUYAUCTION = 66;
+  S_FINALIZEALLAUCTION = 67;
   S_WAITAUCTION = 68;
   S_ENDAUCTION = 69;
-  C_PLAYERACTION= 70;
-  S_PLAYERACTION= 71;
-  C_DUNGEONENTER =72;
-  S_DUNGEONSPAWN =73;
-  S_DUNGEONDESPAWN =74;
-  C_DUNGEONEXIT =75;
+  C_PLAYERACTION = 70;
+  S_PLAYERACTION = 71;
+  C_DUNGEONENTER = 72;
+  S_DUNGEONSPAWN = 73;
+  S_DUNGEONDESPAWN = 74;
+  C_DUNGEONEXIT = 75;
 }
-  
+
 //회원가입 요청
 message C_RegisterRequest {
   string email = 1;
@@ -131,39 +131,39 @@ message S_Spawn {
   repeated ItemData itemData = 4;
 }
 
-  // 캐릭터 없애주기!
-  message S_Despawn {
-    int32 playerId = 1; // 유저 id
-  }
-  
-  /* 캐릭터 패킷 */
-  
-  // [수정] 동기화 리메이크에 사용할 패킷
-  message C_Move {
-    int32 playerId = 1; // 유저 id
-    TransformInfo transform = 2; // 유저의 트랜스폼 정보
-    int64 timestamp = 3; // 서버에서 핑 체크용.
-    bool isMoving = 4; // 이동 중 여부 (true: 이동 중, false: 정지)
-    Velocity velocity = 5; // 속도 벡터 (방향 + 속도)
-    float speed = 6;
-  }
-  
-  // ALL
-  message S_Move {
-    repeated SyncTransformInfo transformInfos = 1;  // 동기화된 트랜스폼 정보들. 
-  }
-  
-  // 응답 패킷 - S_Animation
-  message C_Animation {
-    int32 animCode = 1;
-  }
-  
-  // ALL
-  message S_Animation {
-    int32 playerId = 1;
-    int32 animCode = 2;
-  }
-  
+// 캐릭터 없애주기!
+message S_Despawn {
+  int32 playerId = 1;// 유저 id
+}
+
+/* 캐릭터 패킷 */
+
+// [수정] 동기화 리메이크에 사용할 패킷
+message C_Move {
+  int32 playerId = 1;// 유저 id
+  TransformInfo transform = 2;// 유저의 트랜스폼 정보
+  int64 timestamp = 3;// 서버에서 핑 체크용.
+  bool isMoving = 4;// 이동 중 여부 (true: 이동 중, false: 정지)
+  Velocity velocity = 5;// 속도 벡터 (방향 + 속도)
+  float speed = 6;
+}
+
+// ALL
+message S_Move {
+  repeated SyncTransformInfo transformInfos = 1;// 동기화된 트랜스폼 정보들. 
+}
+
+// 응답 패킷 - S_Animation
+message C_Animation {
+  int32 animCode = 1;
+}
+
+// ALL
+message S_Animation {
+  int32 playerId = 1;
+  int32 animCode = 2;
+}
+
 /* 채팅 패킷 */
 
 // ALL
@@ -183,14 +183,14 @@ message S_Chat {
 }
 
 /* 상점 패킷 */
-message C_BuyItemRequest{
-    string itemname =1;
-    int32 price =2;
+message C_BuyItemRequest {
+  string itemname = 1;
+  int32 price = 2;
 }
-message S_BuyItemResponse  {
-    bool success =1;
-    string message = 2;
-    GlobalFailCode failCode =3;
+message S_BuyItemResponse {
+  bool success = 1;
+  string message = 2;
+  GlobalFailCode failCode = 3;
 }
 
 /* 아이템 패킷 */
@@ -246,8 +246,8 @@ message S_ActiveItemResponse {
 
 // 아이템 이동 요청
 message C_MoveItemRequest {
-  int32 itemId =1;
-  int32 position =2;
+  int32 itemId = 1;
+  int32 position = 2;
 }
 
 // 아이템 이동 응답
@@ -261,7 +261,7 @@ message S_MoveItemResponse {
 message C_PartyRequest {
   int32 userId = 1;
   string partyName = 2;// 파티 이름 추가
-  int32 dungeonIndex = 3; // 선택한 던전 인덱스
+  int32 dungeonIndex = 3;// 선택한 던전 인덱스
 }
 
 // 초대용 패킷 
@@ -304,56 +304,56 @@ message C_PartyExitRequest {
 // 파티 조회 관련 패킷
 message S_PartySearchResponse {
   repeated PartyInfo info = 1;
-    int32 case = 2; // case: (1 -> 모든 리스트 조회, 2 -> 검색)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
+  int32 case = 2;// case: (1 -> 모든 리스트 조회, 2 -> 검색)
+  bool success = 3;
+  string message = 4;
+  GlobalFailCode failCode = 5;
 }
 
 // 파티 해체 관련 패킷
 message S_PartyResultResponse {
   // 나간 유저를 알아야 하니까? 파티원들도?
-  int32 userId = 1; // 나간 파티원
-    int32 case = 2; // 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
+  int32 userId = 1;// 나간 파티원
+  int32 case = 2;// 분기 처리 -> (1 -> 강퇴, 2 -> 탈퇴)
+  bool success = 3;
+  string message = 4;
+  GlobalFailCode failCode = 5;
 }
 
 // 파티 관련 클라가 서버에 보내는 패킷은 세분화를 하고 
 // 처리하는 패킷을 하나로
 // 파티 가입 관련 패킷 처리
 message S_PartyResponse {
-    PartyInfo party = 1;
-    int32 case = 2; // 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
-    bool success = 3;
-    string message = 4;
-    GlobalFailCode failCode = 5;
+  PartyInfo party = 1;
+  int32 case = 2;// 분기 처리 -> (1 -> 파티 생성, 2 -> 초대, 3 -> 가입, 4 -> 업데이트)
+  bool success = 3;
+  string message = 4;
+  GlobalFailCode failCode = 5;
 }
 
 /*매칭 */
-message C_MatchRequest{
+message C_MatchRequest {
   PartyInfo party = 1;
 }
 
 message S_MatchingNotification {
-    bool isStart = 1; // 시작했는지 체크
+  bool isStart = 1;// 시작했는지 체크
 }
 
-message S_MatchResponse{
+message S_MatchResponse {
   DungeonInfo dungeonSession = 1;
-  PartyInfo party = 2; // 합쳐진 파티 인포
-  bool success = 3; // 매칭 완료 불값
-  string message = 4; // 매칭 완료 
+  PartyInfo party = 2;// 합쳐진 파티 인포
+  bool success = 3;// 매칭 완료 불값
+  string message = 4;// 매칭 완료 
 }
 
 message C_MatchStopRequest {
-  PartyInfo party = 1; //파티 정보
+  PartyInfo party = 1;//파티 정보
 }
 
-message S_MatchStopResponse { 
-   bool stop = 1; // 매칭 중단 결과
-   string message = 2; // 매칭 중단 결과 메세지
+message S_MatchStopResponse {
+  bool stop = 1;// 매칭 중단 결과
+  string message = 2;// 매칭 중단 결과 메세지
 }
 
 /* 던전 입장 */
@@ -369,7 +369,7 @@ message C_EnterDungeon {
 // 여기세 dungeonCode대신 dungeonInfo를 넣을 생각을 하고 있다. 아마 3번에 임시적으로 partyId를 넣을것이지만 계획을 partyInfo 4번에 screenText로 던전입장 완료던지기
 message S_EnterDungeon {
   repeated DungeonInfo dungeon = 1;
-  string message =2;
+  string message = 2;
 }
 
 // Me
@@ -386,7 +386,7 @@ message S_ScreenDone {}
 // 경매장 페이지 네이션 요청 
 message C_MarketList {
   int32 page = 1;
-  int32 count =2;
+  int32 count = 2;
 }
 // 경매장 페이지 네이션 응답
 message S_MarketList {
@@ -396,7 +396,7 @@ message S_MarketList {
 // 경매장 자신 인벤토리 페이지 네이션 요청
 message C_MarketMyList {
   int32 page = 1;
-  int32 count =2;
+  int32 count = 2;
 }
 // 경매장 자신 인벤토리 페이지 네이션 응답
 message S_MarketMyList {
@@ -408,70 +408,70 @@ message S_MarketMyList {
 message C_SellInMarket {
   int32 inventoryId = 1;
   int32 itemId = 2;
-  int32 gold =3;
+  int32 gold = 3;
 }
 //
 message S_SellInMarket {
   int32 inventoryId = 1;
   bool success = 2;
-  string message =3;
+  string message = 3;
 }
 message C_BuyInMarket {
   int32 marketId = 1;
 }
 message S_BuyInMarket {
   bool success = 1;
-  string message =2;
+  string message = 2;
 }
-message C_MarketSelectBuyName{
+message C_MarketSelectBuyName {
   int32 page = 1;
   int32 count = 2;
   string name = 3;
 }
-message S_MarketSelectBuyName{
+message S_MarketSelectBuyName {
   repeated marketItemInfo itemdata = 2;
 }
 
 message C_PartyLeaderChangeRequest {
-    int32 requesterId = 1; // 요청한 유저 id
-    int32 changeUserId = 2; // 변경할 유저 id
+  int32 requesterId = 1;// 요청한 유저 id
+  int32 changeUserId = 2;// 변경할 유저 id
 }
 
 // 경매 시스템 현재 데이터 보내주기
-message S_SetAuctionData{
+message S_SetAuctionData {
   int32 itemid = 1;
   int32 rarity = 2;
   int32 time = 3;
-  int32 maxRewardItems =4;
-  string id =5;
+  int32 maxRewardItems = 4;
+  string id = 5;
 }
 // 입력한 값만
-message C_EnterAuctionBid{
-  int32 gold =1;
-  string id =2;
+message C_EnterAuctionBid {
+  int32 gold = 1;
+  string id = 2;
 }
 // 모두에게 보내줌 
-message S_EnterAuctionBid{
+message S_EnterAuctionBid {
   string name = 1;
   int32 gold = 2;
   int32 time = 3;
 }
 // 획득한 아이템 보여줌 
-message S_FinalizeBuyAuction{
-  string name =1;
-  int32 itemId =2;
+message S_FinalizeBuyAuction {
+  string name = 1;
+  int32 itemId = 2;
 }
 // 받을 골드수량 보여줌
-message S_FinalizeAllAuction{
-  string name =1;
-  int32 gold =2;
+message S_FinalizeAllAuction {
+  string name = 1;
+  int32 gold = 2;
 }
 // 경매 대기 10초간 
-message S_WaitAuction{
+message S_WaitAuction {
   bool isWait = 1;
 }
 // 경매 끝
-message S_EndAuction{
+message S_EndAuction {
   bool isEnd = 1;
 }
 
@@ -479,9 +479,9 @@ message S_EndAuction{
 message C_PlayerAction {
   oneof action {
     NormalAttack normalAttack = 1;
-    SkillAttack skillAttack   = 2;
-    DodgeAction dodgeAction   = 3;
-    HitAction   hitAction     = 4; // 피격
+    SkillAttack skillAttack = 2;
+    DodgeAction dodgeAction = 3;
+    HitAction hitAction = 4;// 피격
   }
 }
 
@@ -511,7 +511,7 @@ message DodgeAction {
 // 피격
 message HitAction {
   int32 attackerId = 1;
-  int32 damage     = 2;
+  int32 damage = 2;
   // 상태이상, 크리티컬 여부 등
 }
 
@@ -527,46 +527,46 @@ message S_PlayerAction {
   bool success = 5;
   string message = 6;
 }
-message C_DungeonEnter{
-  
+message C_DungeonEnter {
+
 }
-message S_DungeonSpawn{
+message S_DungeonSpawn {
   int32 userId = 1;// 자기자신
-  DungeonInfo dungeonInfo =2;
+  DungeonInfo dungeonInfo = 2;
   repeated TransformInfo playerTransforms = 3;
 }
-message S_DungeonDeSpawn{
-  int32 playerId = 1; // 유저 id
+message S_DungeonDeSpawn {
+  int32 playerId = 1;// 유저 id
 }
-message C_DungeonExit{
-  
+message C_DungeonExit {
+
 }
 // 일반 공격 결과 메시지
 message NormalAttackResult {
-  int32 targetId = 1;       // 공격 대상 ID
-  int32 damageDealt = 2;    // 입힌 피해량
+  int32 targetId = 1;// 공격 대상 ID
+  int32 damageDealt = 2;// 입힌 피해량
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
 // 스킬 공격 결과 메시지
 message SkillAttackResult {
-  int32 skillId = 1;        // 사용한 스킬의 ID
-  int32 targetId = 2;       // 공격 대상 ID
-  int32 damageDealt = 3;    // 입힌 피해량
+  int32 skillId = 1;// 사용한 스킬의 ID
+  int32 targetId = 2;// 공격 대상 ID
+  int32 damageDealt = 3;// 입힌 피해량
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
 // 회피(도주) 결과 메시지
 message DodgeResult {
-  int32 evadedDamage = 1;   // 회피하여 피해를 줄인 양
-  int32 cooldown = 2;       // 회피 후 남은 쿨타임(초)
+  int32 evadedDamage = 1;// 회피하여 피해를 줄인 양
+  int32 cooldown = 2;// 회피 후 남은 쿨타임(초)
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
 // 피격 결과 메시지
 message HitResult {
-  int32 damageReceived = 1; // 받은 피해량
-  int32 currentHp = 2;      // 피격 후 남은 HP
+  int32 damageReceived = 1;// 받은 피해량
+  int32 currentHp = 2;// 피격 후 남은 HP
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -582,9 +582,9 @@ message PlayerInfo {
 
 // [추가] 동기화 리메이크에 사용할 패킷
 message SyncTransformInfo {
-  int32 playerId = 1; // 유저 id 
-  TransformInfo transform = 2; // 트랜스폼 정보
-  float speed = 3; // 스피드
+  int32 playerId = 1;// 유저 id 
+  TransformInfo transform = 2;// 트랜스폼 정보
+  float speed = 3;// 스피드
 }
 
 // C_Enter 를 통해 입장했을때는 서버에서 랜덤으로 위치값 생성 / 기본값은 하단 밸류 참조
@@ -638,7 +638,7 @@ message DungeonInfo {
   string dungeonId = 1;
   PartyInfo partyInfo = 2;
   string dungeonState = 3;
-  repeated int32 monsterId = 4; // monsterId를 배열로 변경
+  repeated int32 monsterId = 4;// monsterId를 배열로 변경
 }
 
 message MonsterStatus {
@@ -675,60 +675,61 @@ message BtnInfo {
   bool enable = 2;
 }
 
-  message GlobalFailCode{
-    int32 code =1;
-  }
-  message PartyInfo{
-    string partyId = 1 ;
-    string partyName = 2; // 파티 이름
-    int32 partyLeaderId = 3; // 리더 아이디
-    int32 maximum = 4;
-    int32 dungeonIndex = 5; // 들어갈 던전 인덱스
-    repeated PlayerStatus Players = 6;
-  }
-  message StoreItemInfo {
-    int32 id = 1;
-    int32 itemId = 2;
-    int32 stock = 3;
-    int32 price = 4;
-  }
+message GlobalFailCode {
+  int32 code = 1;
+}
+message PartyInfo {
+  string partyId = 1;
+  string partyName = 2;// 파티 이름
+  int32 partyLeaderId = 3;// 리더 아이디
+  int32 maximum = 4;
+  int32 dungeonIndex = 5;// 들어갈 던전 인덱스
+  repeated PlayerStatus Players = 6;
+}
+message StoreItemInfo {
+  int32 id = 1;
+  int32 itemId = 2;
+  int32 stock = 3;
+  int32 price = 4;
+}
 
-  message ItemInfo{
-    int32 id =1;
-    int32 price = 2;
-    int32 itemType =3;
-    string name =4;
-    float stat =5;
-    bool equiped =6;
-    int32 rarity =7; 
-    int32 position =8;
-  }
+message ItemInfo {
+  int32 id = 1;
+  int32 price = 2;
+  int32 itemType = 3;
+  string name = 4;
+  float stat = 5;
+  bool equiped = 6;
+  int32 rarity = 7;
+  int32 position = 8;
+  string imgsrc = 9;
+}
 
-  message ItemData{
-    int32 id =1;
-    string name = 2;
-    int32 itemType =3;
-    float stat = 4;
-    int32 price = 5;
-    int32 rarity = 6;
-  }
+message ItemData {
+  int32 id = 1;
+  string name = 2;
+  int32 itemType = 3;
+  float stat = 4;
+  int32 price = 5;
+  string imgsrc = 7;
+}
 
- message marketItemInfo{
-    int32 marketId = 1;
-    int32 itemId =2;
-    string name = 3;
-    int32 upgrade =4;
-    int64 endTime = 5;
-    int32 price = 6;
- }
+message marketItemInfo {
+  int32 marketId = 1;
+  int32 itemId = 2;
+  string name = 3;
+  int32 upgrade = 4;
+  int64 endTime = 5;
+  int32 price = 6;
+}
 
-message C_Emote{
+message C_Emote {
   int32 playerId = 1;
   int32 type = 2;
   string emote = 3;
 }
 
-message S_Emote{
+message S_Emote {
   int32 playerId = 1;
   int32 type = 2;
   string emote = 3;
