@@ -487,20 +487,24 @@ message C_PlayerAction {
 
 // 일반 공격
 message NormalAttack {
-  int32 targetId = 1;
+  string attackerName = 1; // 공격하는 유저의 이름
+  int32 targetId = 2; // 공격받는 몬스터의 아이디? 혹은 다른방식
   // 필요하다면 위치나 방향, etc.
 }
 
 // 스킬 공격
 message SkillAttack {
-  int32 skillId = 1;
-  int32 targetId = 2;
+  string attackerName = 1; // 공격하는 유저의 이름
+  int32 skillId = 2;
+  int32 targetId = 3; 
+  int32 currentMp = 4; // 가장 최근의 마나
   // 혹은 범위 정보, 마나 소모 등
 }
 
 // 회피
 message DodgeAction {
-  float dodgeDistance = 1;
+  string attackerName = 1; // 사용하는 유저의 이름
+  float dodgeDistance = 2;
   // 방향 등
 }
 
