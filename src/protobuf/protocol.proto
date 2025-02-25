@@ -650,13 +650,14 @@ message ActionSet {
 }
 
 message PlayerStatus {
-  int32 playerClass = 1;
-  int32 playerLevel = 2;
-  string playerName = 3;
-  float playerFullHp = 4;
-  float playerFullMp = 5;
-  float playerCurHp = 6;
-  float playerCurMp = 7;
+  int32 playerId = 1;
+  int32 playerClass = 2;
+  int32 playerLevel = 3;
+  string playerName = 4;
+  float playerFullHp = 5;
+  float playerFullMp = 6;
+  float playerCurHp = 7;
+  float playerCurMp = 8;
 }
 
 message BattleLog {
