@@ -1,9 +1,11 @@
-import { getDungeonInPlayerName } from '../../../session/dungeon.session';
+import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 
 export const processPlayerActionHandler = (packet) => {
   if (packet.normalAttack) {
     // 일반 공격 처리
     console.log('일반 공격 요청 처리');
+    console.log('packet.normalAttack.attackerName : ', packet.normalAttack.attackerName);
+    console.log('packet.normalAttack.targetId : ', packet.normalAttack.targetId);
     processAttackHandler(packet.normalAttack.attackerName, packet.normalAttack.targetId);
   } else if (packet.skillAttack) {
     // 스킬 공격 처리
