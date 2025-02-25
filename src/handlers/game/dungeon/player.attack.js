@@ -22,6 +22,8 @@ const playerAttack = (socket, packetData) => {
     //이 유저로 닉네임을 찾는다.
     const userNickName = user.userInfo.nickname;
 
+    //const monster
+
     //쿨타임 체크
     const cooltime = attackDelayCalculate(userNickName);
     if (!cooltime) {
@@ -40,9 +42,7 @@ const playerAttack = (socket, packetData) => {
     // 몬스터 포지션 찾기
     // const monsterPosition
 
-    //화살을 기억하는 방법을쓰자
-
-    //유저와 타켓 사이의 거리를 계산
+    //유저와 몬스터 사이의 거리를 계산
     const dx = userPosition.x - monsterPosition.x;
     const dy = userPosition.y - monsterPosition.y;
     const dz = userPosition.z - monsterPosition.z;
@@ -50,14 +50,15 @@ const playerAttack = (socket, packetData) => {
 
     //사거리 체크
     if (distance > players.normalAttack.attackRange) {
-      // 10 -> player의 normalAttack.attackRange
       console.log('타겟이 공격 범위 밖에 있습니다.');
       return;
     }
 
-    //몬스터 채력 감소
-    //유저 공격
-    const attack = userStatus.atk * players.normalAttack.damage;
+    //몬스터 공격 유저의 공격력 * 클래스 노말스킬 공격력 * 랜덤한 보정치
+    const randomFactors = [0.8, 0.9, 1, 1.1, 1.2]; // 선택 가능한 값들
+    const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)]; // 랜덤으로 선택
+
+    const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
 
     //monster.hp
     monater.hp -= attack;
@@ -70,7 +71,45 @@ const playerAttack = (socket, packetData) => {
 
 export const playerSkill = (socket, packetData) => {
   try {
-    //궁수의 경우에는 스텟버프였지
+    // 궁수의 경우에는 스텟버프였지
+    const user = getUserById(socket);
+
+    // 유저가 없을 경우
+    if (!user) {
+      console.error('공격자를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 닉네임으로 던전 세션을 찾고
+    const dungeon = getDungeonInPlayerName(userNickName); // attackerName을 userNickName으로 수정해야할 수도 있음
+
+    //플레이어 공격력,방어력,스피드 가져오기
+    const playerAtk = dungeon.getPlayerAtk(userNickName);
+    const playerDef = dungeon.getPlayerDef(userNickName);
+    const playerSpeed = dungeon.getPlayerSpeed(userNickName);
+
+    // 10% 증가시키기 위한 증가값 계산
+    const atkIncrease = playerAtk * 0.1;
+    const defIncrease = playerDef * 0.1;
+    const speedIncrease = playerSpeed * 0.1;
+
+    // 20초 동안 증가된 스탯을 적용하는 함수
+    function increasePlayerStats() {
+      // 10% 증가시킨 값으로 설정
+      dungeon.setPlayerAtk(userNickName, playerAtk + atkIncrease);
+      dungeon.setPlayerDef(userNickName, playerDef + defIncrease);
+      dungeon.setPlayerSpeed(userNickName, playerSpeed + speedIncrease);
+
+      // 20초 후, 원래 값으로 되돌리기
+      setTimeout(() => {
+        dungeon.setPlayerAtk(userNickName, playerAtk);
+        dungeon.setPlayerDef(userNickName, playerDef);
+        dungeon.setPlayerSpeed(userNickName, playerSpeed);
+      }, 20000); // 20초 후
+    }
+
+    // 스탯 증가 함수 호출
+    increasePlayerStats();
   } catch (e) {
     handlerError(socket, e);
   }
