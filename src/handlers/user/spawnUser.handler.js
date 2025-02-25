@@ -109,7 +109,7 @@ const syncSpawnedUser = async (socket, user) => {
         itemType: value.itemType,
         stat: value.stat,
         price: value.price,
-        rarity: value.rarity,
+        imgsrc: value.imgsrc,
       });
     }
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
