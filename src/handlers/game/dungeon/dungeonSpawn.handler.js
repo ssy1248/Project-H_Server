@@ -1,4 +1,4 @@
-import { PACKET_TYPE } from '../../../constants/header';
+import { PACKET_TYPE } from '../../../constants/header.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { searchPartyInPlayerSession } from '../../../session/party.session.js';
 import { getUserByNickname, getUserBySocket } from '../../../session/user.session.js';
@@ -27,7 +27,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
     };
     const transformInfo = [];
 
-    for (let data of dungeondata.playersTransform) {
+    dungeondata.partyInfo.Players.forEach((playerStatus) => {
+      let data = dungeondata.playersTransform[playerStatus.playerName];
       const transform = {
         posX: data.x,
         posY: data.y,
@@ -35,8 +36,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
         rot: data.rot,
       };
       transformInfo.push(transform);
-    }
-
+    });
+    console.log(transformInfo[0]);
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {
       userId: user.userInfo.userId,
       dungeonInfo,
