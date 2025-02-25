@@ -11,13 +11,13 @@ import {
   insertCharacterStats,
   getCharacterStatsCount,
 } from '../../db/user/user.db.js';
-import { getAllItems } from '../../db/inventory/item.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addUserSync } from '../../classes/managers/movementSync.manager.js';
 import User from '../../classes/models/user.class.js';
 import { findUserSync } from '../../classes/managers/movementSync.manager.js';
 import { getAllItemSession } from '../../session/item.session.js';
+import { findAllItems } from '../../db/shop/shop.db.js';
 
 const setCharacterStat = async () => {
   // 현재 테이블의 행 개수를 조회합니다.
@@ -115,18 +115,14 @@ const syncSpawnedUser = async (socket, user) => {
     // 본인에게 보낼 패킷 데이터 구성 (다른 유저 정보 + (임시)상점 아이템 리스트)
     // 수정해야함!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     const userInfo = user.getUserInfo();
+    const storeItem = await getItemList();
+
     const sSpawn = {
       userId: userInfo.userId,
       players: playerData,
-      storeList: getItemList(),
+      storeList: storeItem,
       itemData,
     };
-
-    console.log(
-      `유저 아이디 : ${
-        userInfo.userId
-      }, 플레이어 정보 : ${playerData}, 상점 아이템 리스트 : ${getItemList()}`,
-    );
 
     console.log(
       `유저 아이디 : ${
@@ -189,19 +185,21 @@ const initializeCharacter = (result) => {
   return { playerInfo, playerStatInfo };
 };
 
-// 아이템리스트 양식.
+// 상점 아이템 리스트트
 const getItemList = async () => {
   // 데이터 베이스에 있는 아이템리스트 가져오기
-  const itemListData = await getAllItems();
-
+  const itemListData = await findAllItems();
   if (!Array.isArray(itemListData)) {
     console.error('아이템 리스트 데이터가 배열이 아닙니다:', itemListData);
     return [];
   }
 
   // map을 사용해서 id, price
-  const itemList = itemListData.map(({ id, price }) => ({
-    itemId: id,
+  const itemList = itemListData.map(({ shopId, itemId, stock, price }) => ({
+    // shopid, itemid, stock, price
+    id: shopId,
+    itemId: itemId, 
+    stock: stock,
     price: price,
   }));
 

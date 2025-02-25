@@ -21,4 +21,8 @@ export const SQL_QUERIES = {
   // 아이템 판매 관련 쿼리
   SELL_ITEM: 'DELETE FROM Inventory WHERE id = ? AND charId = ?',
   UPDATE_USER_GOLD_AFTER_SELL: 'UPDATE Characters SET gold = gold + ? WHERE id = ?',
+
+  GET_SHOP_ITEMS:
+    'SELECT s.id, s.itemId, s.stock, s.price, i.name, i.itemType, i.stat FROM Shop s JOIN Items i ON s.itemId = i.id',
+  // 'SELECT * FROM Shop',
 };

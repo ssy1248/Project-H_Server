@@ -31,7 +31,7 @@ import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler, { matchStopHandler } from './game/match.handler.js';
-import shopHandler from './game/shop.handler.js';
+import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
 
@@ -93,11 +93,11 @@ const handlers = {
     protoType: 'chat.S_Chat',
   },
   [PACKET_TYPE.C_BUYITEMREQUEST]: {
-    handler: shopHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.C_BuyItemRequest',
   },
   [PACKET_TYPE.S_BUYITEMRESPONSE]: {
-    handler: shopHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
@@ -233,11 +233,11 @@ const handlers = {
     protoType: 'chat.S_Emote',
   },
   [PACKET_TYPE.C_SellItemRequest]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.C_SellItemRequest',
   },
   [PACKET_TYPE.S_SellItemResponse]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.S_SellItemResponse',
   },
   [PACKET_TYPE.C_MARKETSELECTBUYNAME]: {
@@ -258,11 +258,11 @@ const handlers = {
   },
   marketSelectBuyName,
   [PACKET_TYPE.C_SHOPINVENTORYREQUEST]: {
-    handler: shopHandler,
+    handler: handleInventoryList,
     protoType: 'inventory.C_ShopInventoryRequest',
   },
   [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
-    handler: shopHandler,
+    handler: handleInventoryList,
     protoType: 'inventory.S_ShopInventoryList',
   },
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
@@ -272,6 +272,14 @@ const handlers = {
   [PACKET_TYPE.C_ENTERAUCTIONBID]: {
     handler: enterAuctionBid,
     protoType: 'dungeon.C_EnterAuctionBid',
+  },
+  [PACKET_TYPE.C_PLAYERACTION]: {
+    handler: undefined,
+    protoType: 'dungeon.C_PlayerAction',
+  },
+  [PACKET_TYPE.S_PLAYERACTION]: {
+    handler: undefined,
+    protoType: 'dungeon.S_PlayerAction',
   },
 };
 

@@ -1,4 +1,4 @@
-import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemQuantity } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
 import { createResponse } from "../../utils/response/createResponse.js";
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -37,9 +37,15 @@ export default class Inventory {
     async equip(inventoryId) {
         try {
             var item = this.inventory.find((item) => item.id === inventoryId);
+            // 이미 장비된 아이템이 있다면 장비 해제
+            var equipped = this.inventory.find((e) => e.equiped === true && e.itemType === item.itemType);
             if (!item) throw new Error('item not found');
+            if (equipped) {
+                await disrobeItem(this.charId, equipped.id);
+                equipped.equiped = false;
+            }
             // DB 업데이트
-            await equipItem(this.charId, inventoryId);
+            await equipItem(this.charId, item.id);
             // 서버 업데이트
             item.equiped = true;
         } catch (error) {
@@ -126,6 +132,20 @@ export default class Inventory {
             } else {
                 throw new Error('item not found');
             }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // 아이템 슬롯 이동
+    async move(itemId, position) {
+        try {
+            var item = this.inventory.find((item) => item.id === itemId);
+            // DB의 위치 정보 업데이트
+            await updateItemPosition(this.charId, itemId, position);
+            // 서버의 위치 정보 업데이트
+            if (!item) throw new Error('item not found');
+            item.position = position;
         } catch (error) {
             console.error(error);
         }

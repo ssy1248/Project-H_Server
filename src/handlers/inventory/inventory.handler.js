@@ -1,4 +1,5 @@
 import { PACKET_TYPE } from "../../constants/header.js";
+import { updateItemPosition } from "../../db/inventory/inventory.db.js";
 import { getUserBySocket } from "../../session/user.session.js";
 import { handlerError } from "../../utils/error/errorHandler.js";
 import { createResponse } from "../../utils/response/createResponse.js";
@@ -151,8 +152,33 @@ export const disrobeItemHandler = async (socket, data) => {
 
 export const MoveItemHandler = async (socket, data) => {
     try {
-        console.log('moveItemHandler');
-        console.log(data);
+        const { itemId, position } = data;
+
+        const user = getUserBySocket(socket);
+
+        const inventory = user.inventory.getInventory();
+        // 옮기려는 아이템
+        const item = inventory.find((item) => item.id === itemId);
+        // 옮기려는 위치에 다른 아이템이 있는지 확인
+        const other = inventory.find((item) => item.position === position);
+        if(other){
+            // 옮기려는 위치에 다른 아이템이 있으면 스왑
+            await user.inventory.move(other.id, item.position);
+        }
+        // 아이템 옮기기
+        await user.inventory.move(itemId, position);
+
+        const moveItemResponse = createResponse(
+            'inventory',
+            'S_MoveItemResponse',
+            PACKET_TYPE.S_MOVEITEMRESPONSE,
+            {
+                itemId: itemId,
+                position: position,
+            }
+        );
+
+        socket.write(moveItemResponse);
     } catch (error) {
         handlerError(socket, error);
     }

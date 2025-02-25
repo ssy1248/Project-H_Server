@@ -99,6 +99,8 @@ const dungeonEnterHandler = (socket, packetData) => {
 
     console.log('던전 입장후', dungeon);
 
+    //moster 배열로
+
     const dungeonInfoResponse = {
       dungeonId: dungeon.dungeonId,
       dungeonIndex: dungeon.dungeonIndex,
@@ -107,15 +109,9 @@ const dungeonEnterHandler = (socket, packetData) => {
       monster: null,
     };
 
-    // 던전 세션을 보내주는것이 맞나?
-    // players는 받은 데이터 돌렺주는거고
-    // party는 파티아이디로 찾은 아이디 돌려주는거고
-    //mmessage
     //여기도 party가 만들어 지면 주석을 풀어야한다.
     const dungeonEnterPayload = {
       dungeonInfoResponse,
-      players,
-      partyInfo,
       message: '던전 입장이 완료되었습니다!', // 성공 메시지
     };
 
@@ -128,6 +124,9 @@ const dungeonEnterHandler = (socket, packetData) => {
     );
 
     socket.write(dungeonEnterResponse);
+
+
+    
   } catch (e) {
     handlerError(socket, e);
   }
