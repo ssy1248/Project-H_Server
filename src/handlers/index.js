@@ -268,6 +268,14 @@ const handlers = {
     handler: partyLeaderChangeHandler,
     protoType: 'party.C_PartyLeaderChangeRequest',
   },
+  [PACKET_TYPE.C_PLAYERACTION]: {
+    handler: undefined,
+    protoType: 'dungeon.C_PlayerAction',
+  },
+  [PACKET_TYPE.S_PLAYERACTION]: {
+    handler: undefined,
+    protoType: 'dungeon.S_PlayerAction',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
