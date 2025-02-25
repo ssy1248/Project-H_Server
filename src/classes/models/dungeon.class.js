@@ -54,9 +54,13 @@ class Dungeon {
 
     // 던전 클래스가 생성될떄 플레이어 클래스를 생성
     if (partyInfo.Players && Array.isArray(partyInfo.Players)) {
-      this.players = partyInfo.Players.map((member) => new Players(member));
+      this.players = {};
+      partyInfo.Players.forEach((member) => {
+        // member.playerName을 키로 사용해서 Players 인스턴스를 저장합니다.
+        this.players[member.playerName] = new Players(member);
+      });
     } else {
-      this.players = [];
+      this.players = {};
     }
   }
 
