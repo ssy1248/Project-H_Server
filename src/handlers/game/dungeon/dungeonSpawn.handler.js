@@ -20,9 +20,9 @@ const dungeonSpawnHandler = async (socket, payload) => {
     // }
 
     const dungeonInfo = {
-      dungeonId: '',
-      partyInfo: '',
-      dungeonState: '',
+      dungeonId: dungeondata.id,
+      partyInfo: dungeondata.partyInfo,
+      dungeonState: dungeondata.isState,
       monsterId: [],
     };
     const transformInfo = [];
@@ -37,11 +37,10 @@ const dungeonSpawnHandler = async (socket, payload) => {
       };
       transformInfo.push(transform);
     });
-    console.log(transformInfo[0]);
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {
       userId: user.userInfo.userId,
       dungeonInfo,
-      transformInfo,
+      playerTransforms: transformInfo,
     });
     socket.write(packet);
   } catch (err) {
