@@ -76,8 +76,14 @@ enum MsgId {
   S_FINALIZEALLAUCTION =67;
   S_WAITAUCTION = 68;
   S_ENDAUCTION = 69;
+  C_PLAYERACTION= 70;
+  S_PLAYERACTION= 71;
+  C_DUNGEONENTER =72;
+  S_DUNGEONSPAWN =73;
+  S_DUNGEONDESPAWN =74;
+  C_DUNGEONEXIT =75;
 }
-
+  
 //회원가입 요청
 message C_RegisterRequest {
   string email = 1;
@@ -434,11 +440,15 @@ message C_PartyLeaderChangeRequest {
 // 경매 시스템 현재 데이터 보내주기
 message S_SetAuctionData{
   int32 itemid = 1;
-  int32 time = 2;
+  int32 rarity = 2;
+  int32 time = 3;
+  int32 maxRewardItems =4;
+  string id =5;
 }
 // 입력한 값만
 message C_EnterAuctionBid{
   int32 gold =1;
+  string id =2;
 }
 // 모두에게 보내줌 
 message S_EnterAuctionBid{
@@ -513,7 +523,20 @@ message S_PlayerAction {
   bool success = 5;
   string message = 6;
 }
-
+message C_DungeonEnter{
+  
+}
+message S_DungeonSpawn{
+  int32 userId = 1;// 자기자신
+  DungeonInfo dungeonInfo =2;
+  repeated TransformInfo playerTransforms = 3;
+}
+message S_DungeonDeSpawn{
+  int32 playerId = 1; // 유저 id
+}
+message C_DungeonExit{
+  
+}
 // 일반 공격 결과 메시지
 message NormalAttackResult {
   int32 targetId = 1;       // 공격 대상 ID
