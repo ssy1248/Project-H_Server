@@ -14,8 +14,6 @@ class Players {
     this.partyData = partyData;
     this.playerClass = partyData.playerClass;
 
-    // 클래스 별로 구별하여 미리 세팅?
-
     // 스킬이 여러개여서 스킬을 골라서 들어가는 것이 아니라면 클래스 별로 구분하여 미리 세팅
     // 아이템이나 레벨업을 통해서 스킬 쿨이나 범위 데미지가 증가한다면 배열이나 딕셔너리를 이용해서 관리 
     switch (this.playerClass) {
@@ -134,8 +132,8 @@ class Players {
 }
 
 /**
- * ---------------- C -> S --------------------- 클라 -> 서버 
- * message C_PlayerAction {
+---------------- C -> S --------------------- 클라 -> 서버 
+message C_PlayerAction {
   oneof action {
     NormalAttack normalAttack = 1;
     SkillAttack skillAttack   = 2;
@@ -212,7 +210,6 @@ message HitResult {
   int32 currentHp = 2;      // 피격 후 남은 HP
   // 필요한 추가 필드가 있다면 여기에 작성
 }
-
- */
+*/
 
 export default Players;

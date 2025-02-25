@@ -42,6 +42,8 @@ export default class User {
       rot: 0,
     };
 
+    this.inDungeonId = '';
+
     this.inventory = new Inventory();
   }
 
