@@ -437,10 +437,13 @@ message S_SetAuctionData{
   int32 itemid = 1;
   int32 rarity = 2;
   int32 time = 3;
+  int32 maxRewardItems =4;
+  string id =5;
 }
 // 입력한 값만
 message C_EnterAuctionBid{
   int32 gold =1;
+  string id =2;
 }
 // 모두에게 보내줌 
 message S_EnterAuctionBid{
@@ -644,4 +647,16 @@ message C_ShopInventoryRequest {
 message S_ShopInventoryList {
   uint32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
+}
+message C_DungeonEnter{
+  
+}
+message S_DungeonSpawn{
+
+}
+message S_DungeonDeSpawn{
+
+}
+message C_DungeonExit{
+  
 }

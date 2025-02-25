@@ -9,8 +9,22 @@ import spawnUserHandler from './user/spawnUser.handler.js';
 import movementSyncHandler from './user/moventSync.handler.js';
 import registerHandler from './user/register.handler.js';
 import loginHandler from './user/login.handler.js';
-import { partyExitHandler, partyHandler, partyInviteHandler, partyJoinHandler, partyKickHandler, partyLeaderChangeHandler, partyListHandler, partySearchHandler, } from './game/party.handler.js';
-import { disrobeItemHandler, equipItemHandler, inventoryHandler, MoveItemHandler } from './inventory/inventory.handler.js';
+import {
+  partyExitHandler,
+  partyHandler,
+  partyInviteHandler,
+  partyJoinHandler,
+  partyKickHandler,
+  partyLeaderChangeHandler,
+  partyListHandler,
+  partySearchHandler,
+} from './game/party.handler.js';
+import {
+  disrobeItemHandler,
+  equipItemHandler,
+  inventoryHandler,
+  MoveItemHandler,
+} from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
@@ -19,6 +33,7 @@ import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
+import enterAuctionBid from './game/enterAuctionBid.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -253,6 +268,10 @@ const handlers = {
   [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
     handler: partyLeaderChangeHandler,
     protoType: 'party.C_PartyLeaderChangeRequest',
+  },
+  [PACKET_TYPE.C_ENTERAUCTIONBID]: {
+    handler: enterAuctionBid,
+    protoType: 'dungeon.C_EnterAuctionBid',
   },
 };
 

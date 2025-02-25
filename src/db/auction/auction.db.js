@@ -14,9 +14,7 @@ export const getAutionItem = async (data) => {
       null,
     ]);
     await connection.execute(USER.UPDATE_SUBTRACT_GOLD, [data.gold, data.CharId]);
-
     await connection.commit();
-    return marketData;
   } catch (err) {
     console.log(err);
     await connection.rollback();

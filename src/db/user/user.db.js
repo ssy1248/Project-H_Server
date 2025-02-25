@@ -194,7 +194,7 @@ export const findAllSkills = async () => {
 
 export const updateAddGold = async (id, gold) => {
   // 전체 데이터 조회
-  const [skills] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_ADD_GOLD);
+  const [data] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_ADD_GOLD, [gold, id]);
   // 데이터를 반환, 없으면 빈 배열 반환
-  return skills.length > 0 ? skills : [];
+  return data.length > 0 ? data : [];
 };
