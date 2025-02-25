@@ -13,7 +13,7 @@ import Players from './player.class.js';
     repeated PlayerStatus Players = 6;
   }
 
-  message PlayerStatus {
+  msage PlayerStatus {
     int32 playerClass = 1;
     int32 playerLevel = 2;
     string playerName = 3;
@@ -22,7 +22,7 @@ import Players from './player.class.js';
     float playerCurHp = 6;
     float playerCurMp = 7;
   }
-  
+  es
   생성자에 파티 멤버 아이디를 담는 배열을 생성을 해서 생성자가 시작될떄 foreach를 사용해서 배열에 아이디를 저장?
 
  */
@@ -41,7 +41,6 @@ class Dungeon {
     // 플레이스텟 인포를 넣는 배열로
     this.playerStatus = {};
 
-
     // 플레이어들의 위치 정보를 관리할 객체
     this.playersTransform = {};
 
@@ -54,8 +53,8 @@ class Dungeon {
     }
 
     // 던전 클래스가 생성될떄 플레이어 클래스를 생성
-    if(partyInfo.Players && Array.isArray(partyInfo.Players)){
-      this.players = partyInfo.Players.map(member => new Players(member));
+    if (partyInfo.Players && Array.isArray(partyInfo.Players)) {
+      this.players = partyInfo.Players.map((member) => new Players(member));
     } else {
       this.players = [];
     }
