@@ -652,10 +652,12 @@ message C_DungeonEnter{
   
 }
 message S_DungeonSpawn{
-
+  int32 userId = 1;// 자기자신
+  PartyInfo PartyInfo =2;
+  repeated PlayerInfo players = 3;
 }
 message S_DungeonDeSpawn{
-
+  int32 playerId = 1; // 유저 id
 }
 message C_DungeonExit{
   
