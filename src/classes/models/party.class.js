@@ -16,7 +16,7 @@ class Party {
     this.dungeonIndex = dungeonIndex;
     // 파티에 더 필요한게 있다면 여기에 추가해서 사용하자
 
-    // partyInfo에 리더 아이디를 넣으면 
+    // partyInfo에 리더 아이디를 넣으면
     this.partyInfo = {
       partyId: id,
       partyName: partyName,
@@ -36,6 +36,7 @@ class Party {
       const playerStatInfo = member.getPlayerStatInfo();
       const userInfo = member.getUserInfo();
       return {
+        playerId: userInfo.userId,
         playerClass: playerInfo.playerClass,
         playerLevel: playerInfo.level,
         playerName: userInfo.nickname,
@@ -64,6 +65,7 @@ class Party {
       const playerStatInfo = member.getPlayerStatInfo();
       const userInfo = member.getUserInfo();
       return {
+        playerId: userInfo.userId,
         playerClass: playerInfo.playerClass,
         playerLevel: playerInfo.level,
         playerName: userInfo.nickname,
@@ -81,7 +83,7 @@ class Party {
       maximum: MAX_PARTY_MEMBER,
       dungeonIndex: this.dungeonIndex,
       Players: players,
-    }
+    };
   }
 
   // 만약 던전 선택을 변경을 한다면 사용할 함수
@@ -142,8 +144,7 @@ class Party {
 
     this.setPartyInfo();
     // 리더가 없다면 리더를 0번 인덱스로 설정
-    if(this.setPartyLeader === null || this.setPartyLeader === undefined)
-    {
+    if (this.setPartyLeader === null || this.setPartyLeader === undefined) {
       this.setPartyLeader(this.partyMembers[0]);
     }
   }
@@ -232,16 +233,13 @@ class Party {
       return;
     }
 
-     // 여기서 글로벌 파티 세션에서 현재 파티 세션만 삭제하도록 호출
-     let removed = removePartySession(this.id);
-     if (removed)
-     {
-        console.log('해당 파티 세션이 해체되었습니다.');
-     }
-     else
-     {
-        console.log('파티 세션 해체에 실패했습니다.');
-     }
+    // 여기서 글로벌 파티 세션에서 현재 파티 세션만 삭제하도록 호출
+    let removed = removePartySession(this.id);
+    if (removed) {
+      console.log('해당 파티 세션이 해체되었습니다.');
+    } else {
+      console.log('파티 세션 해체에 실패했습니다.');
+    }
   }
 }
 
