@@ -44,7 +44,8 @@ class Dungeon {
     // 초기 위치 설정
     if (partyInfo.Players && partyInfo.Players.length > 0) {
       partyInfo.Players.forEach((playerStatus) => {
-        this.playersTransform[playerStatus.playerName] = { x: 1, y: 1, z: 1, rot: 1 };
+        // playerStatus.playerName 또는 playerStatus에 다른 고유 식별자가 있다면 사용
+        this.playersTransform[playerStatus.playerName] = { x: 1, y: 0.1, z: 1, rot: 1 };
       });
     }
 
