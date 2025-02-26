@@ -234,8 +234,7 @@ message S_DisrobeItemResponse {
 
 message C_ActiveItemRequest {
   int32 itemId = 1;// Items.id
-  int32 userId = 2;// Characters.id
-  int64 timestamp = 3;
+  int64 timestamp = 2;
   // 아이템 사용에 필요한 추가 데이터들
   oneof itemData {
 

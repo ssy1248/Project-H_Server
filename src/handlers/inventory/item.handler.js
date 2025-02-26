@@ -1,13 +1,13 @@
-import { getUserById } from "../../session/user.session";
+import { getUserById, getUserBySocket } from "../../session/user.session";
 import { PACKET_TYPE } from "../../constants/header.js";
 
 // 적절한 아이템 핸들러를 찾아서 처리
 export const ActiveItemRequestHandler = async (socket, data) => {
-    const { itemId, userId } = data;
+    const { itemId, timestamp } = data;
 
     // 각종 검증 절차
     const itemHandler = getHandler(itemId);
-    itemHandler(userId, data);
+    itemHandler(socket, data);
 
     // 응답
 
@@ -42,8 +42,23 @@ export const ActiveItemRequestHandler = async (socket, data) => {
 
 const handlers = {
     // itemId : itemHandler(args)
+    5: healthPotion(100),
 }
 
 const getHandler = (itemId) => {
     return this.handlers[itemId];
+}
+
+const healthPotion = (amount) => {
+    return (socket, data) => {
+        const user = getUserBySocket(socket);
+        user.playerStatInfo.hp = Math.max(user.playerStatInfo.maxHp, user.playerStatInfo.hp + amount);
+    }
+}
+
+const heatlhPercentagePotion = (amount) => {
+    return (socket, data) => {
+        const user = getUserBySocket(socket);
+        user.playerStatInfo.hp = Math.max(user.playerStatInfo.maxHp, user.playerStatInfo.hp + user.playerStatInfo.maxHp * amount);
+    }
 }
