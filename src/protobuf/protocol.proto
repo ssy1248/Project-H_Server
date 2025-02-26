@@ -233,15 +233,25 @@ message S_DisrobeItemResponse {
 }
 
 message C_ActiveItemRequest {
-  int32 itemId = 1;
+  int32 itemId = 1;// Items.id
+  int32 userId = 2;// Characters.id
+  int64 timestamp = 3;
+  // 아이템 사용에 필요한 추가 데이터들
+  oneof itemData {
+
+  }
 }
 
-// 
 message S_ActiveItemResponse {
+  int32 userId = 5;
   int32 itemId = 1;
   bool success = 2;
   string message = 3;
   GlobalFailCode failCode = 4;
+  // 아이템 사용에 필요한 추가 데이터들
+  oneof itemData {
+
+  }
 }
 
 // 아이템 이동 요청
@@ -487,23 +497,23 @@ message C_PlayerAction {
 
 // 일반 공격
 message NormalAttack {
-  string attackerName = 1; // 공격하는 유저의 이름
-  int32 targetId = 2; // 공격받는 몬스터의 아이디? 혹은 다른방식
+  string attackerName = 1;// 공격하는 유저의 이름
+  int32 targetId = 2;// 공격받는 몬스터의 아이디? 혹은 다른방식
   // 필요하다면 위치나 방향, etc.
 }
 
 // 스킬 공격
 message SkillAttack {
-  string attackerName = 1; // 공격하는 유저의 이름
+  string attackerName = 1;// 공격하는 유저의 이름
   int32 skillId = 2;
-  int32 targetId = 3; 
-  int32 currentMp = 4; // 가장 최근의 마나
+  int32 targetId = 3;
+  int32 currentMp = 4;// 가장 최근의 마나
   // 혹은 범위 정보, 마나 소모 등
 }
 
 // 회피
 message DodgeAction {
-  string attackerName = 1; // 사용하는 유저의 이름
+  string attackerName = 1;// 사용하는 유저의 이름
   float dodgeDistance = 2;
   // 방향 등
 }

@@ -1,12 +1,10 @@
 import { PACKET_TYPE } from "../../constants/header.js";
-import { updateItemPosition } from "../../db/inventory/inventory.db.js";
 import { getUserBySocket } from "../../session/user.session.js";
 import { handlerError } from "../../utils/error/errorHandler.js";
 import { createResponse } from "../../utils/response/createResponse.js";
 
 export const inventoryHandler = async (socket, data) => {
     try {
-        console.log('inventory.handler.js:8');
         const { charId } = data;
 
         // socket의 플레이어가 charId인지 검증(남의 인벤토리는 볼 수 없음)
