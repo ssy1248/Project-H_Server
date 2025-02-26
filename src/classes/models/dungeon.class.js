@@ -46,7 +46,7 @@ class Dungeon {
     if (partyInfo.Players && partyInfo.Players.length > 0) {
       partyInfo.Players.forEach((playerStatus) => {
         // playerStatus.playerName 또는 playerStatus에 다른 고유 식별자가 있다면 사용
-        this.playersTransform[playerStatus.playerName] = { x: 1, y: 1, z: 1, rot: 1 };
+        this.playersTransform[playerStatus.playerName] = { x: 1, y: 0.1, z: 1, rot: 1 };
       });
     }
 

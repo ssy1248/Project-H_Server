@@ -34,6 +34,7 @@ import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
+import { processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 
 const handlers = {
@@ -275,7 +276,7 @@ const handlers = {
     protoType: 'dungeon.C_EnterAuctionBid',
   },
   [PACKET_TYPE.C_PLAYERACTION]: {
-    handler: undefined,
+    handler: processPlayerActionHandler,
     protoType: 'dungeon.C_PlayerAction',
   },
   [PACKET_TYPE.S_PLAYERACTION]: {
