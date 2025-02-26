@@ -10,7 +10,7 @@ const playerAttackHandler = (socket, packetData) => {
   try {
     console.log('playerAttackHandler 시작');
 
-    const {} = packetData;
+    const { direction } = packetData;
 
     // 유저 정보 확인
     const user = getUserById(socket);
@@ -50,74 +50,65 @@ const playerAttackHandler = (socket, packetData) => {
     console.log('position:', position);
 
     // 방향 백터는 direction으로 받아온 데이터 저장
-    const direction = packetData.direction; // packetData에서 direction 정보 받아오기
     const speed = packetData.speed || 1; // 기본 속도 1로 설정
 
     const maxDisatnce = players.normalAttack.attackRange;
 
-    // 몬스터 정보 추출 (가정)
-    const monsterId = packetData.monsterId;
-    const monster = getMonsterById(monsterId);
-    console.log('monster:', monster);
-    if (!monster) {
-      console.error('몬스터를 찾을 수 없습니다.');
-      return;
-    }
-
-    // 화살을 던전에서 생성
+    // Archer 클래스 플레이어일 때만 화살을 생성
     if (players.playerClass === 'Archer') {
       console.log('Archer인 플레이어, 화살을 생성합니다.');
-      dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
+      arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce); // 화살 ID 반환 받기
     }
 
     // 화살 이동 처리 (Dungeon의 moveArrow 메서드 사용)
     dungeon.moveArrow(userNickName); // 던전 내 메서드 호출로 화살 이동 처리
 
-    // 몬스터와의 충돌 체크 및 피해 처리
-    const arrows = dungeon.getPlayerArrows(userNickName);
-    console.log('arrows:', arrows);
-    arrows.forEach((arrow) => {
-      // 화살의 현재 위치를 가져옵니다.
-      let arrowPosition = arrow.position;
-      let arrowDirection = arrow.direction;
+    //이런 다음에 화살 아이디만 보내주면 되겠다
+    console.log('생성된 화살 ID:', arrowId);
+  } catch (error) {
+    console.error('playerAttackHandler 오류:', error);
+  }
+};
 
-      // 몬스터의 위치를 가져옵니다.
-      let monsterPosition = { x: monster.position.x, y: monster.position.y, z: monster.position.z };
+export const playerArrowAttack = (socket, packetData) => {
+  try {
+    const { monsterId, arrowId } = packetData;
+    // 유저 정보 확인
+    const user = getUserById(socket);
+    console.log('user:', user);
 
-      console.log('arrowPosition:', arrowPosition);
-      console.log('arrowDirection:', arrowDirection);
-      console.log('monsterPosition:', monsterPosition);
+    if (!user) {
+      console.error('공격자를 찾을 수 없습니다.');
+      return;
+    }
 
-      // 두 벡터의 차이를 구하는 함수 (벡터 a와 b를 뺀 결과를 반환)
-      const vectorSubtract = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+    //유저 닉네임 찾기
+    const userNickName = user.userInfo.nickname;
 
-      // 벡터의 크기(길이)를 계산하는 함수 (피타고라스의 정리를 사용하여 벡터의 길이를 계산)
-      const vectorMagnitude = (v) => Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    // 현재 던전 정보를 가져옵니다.
+    const dungeon = getDungeonInPlayerName(userNickName);
+    console.log('dungeon:', dungeon);
 
-      // 두 벡터 간의 거리를 계산하는 함수 => 벡터 a와 b의 거리를 반환
-      const vectorDistance = (a, b) => vectorMagnitude(vectorSubtract(a, b));
+    // 던전 내 화살 목록에서 arrowId를 이용해 화살 찾기
+    const arrow = getArrowById(arrowId);
+    console.log('arrow', arrow);
 
-      // 화살 이동 처리 (화살이 arrowDirection 방향으로 이동)
-      arrowPosition = [
-        arrowPosition[0] + arrowDirection[0] * arrow.speed,
-        arrowPosition[1] + arrowDirection[1] * arrow.speed,
-        arrowPosition[2] + arrowDirection[2] * arrow.speed,
-      ];
+    // 몬스터와의 충돌 여부 확인
+    const collisionOccurred = dungeon.checkArrowCollision(arrow, monsterId);
+    console.log('collide', collisionOccurred);
 
-      console.log('new arrowPosition:', arrowPosition);
+    if (collisionOccurred) {
+      const userStatus = dungeon.playerStatus[userNickName];
+      const players = dungeon.players[userNickName];
 
-      // 화살과 몬스터가 충돌했는지 확인하는 조건문
-      if (vectorDistance(arrowPosition, monsterPosition) < 1) {
-        console.log('화살과 몬스터가 충돌했습니다!');
-        handleMonsterDamage(monster, userStatus, players); // 몬스터에게 피해를 주는 함수 호출
-      }
-    });
+      // 공격 처리 함수
 
-    // 공격 처리 함수
-    const handleMonsterDamage = (monster, userStatus, players) => {
+      //대미지 계산하기 위해서
       const randomFactors = [0.8, 0.9, 1, 1.1, 1.2];
       const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
       const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
+
+      //아직 몬스터에 대한건 없다
 
       console.log(`몬스터에게 ${attack}의 피해를 입혔습니다.`);
       monster.hp -= attack;
@@ -125,9 +116,19 @@ const playerAttackHandler = (socket, packetData) => {
 
       if (monster.hp <= 0) {
         console.log('몬스터가 처치되었습니다!');
-        handleMonsterDeath(monster);
+        //여기에 몬스터 죽어서 삭제 처리 넣고
+
+        //여기서 null이면 몬스터 죽었다고 알리면 된다.
+        return null;
+      } else {
+        //0이 아닐떄
+        return monster.hp;
       }
-    };
+    } else {
+      console.error('몬스터가 멀리 있습니다');
+    }
+
+    socket.write();
   } catch (error) {
     console.error('공격 처리 중 오류 발생:', error);
   }
