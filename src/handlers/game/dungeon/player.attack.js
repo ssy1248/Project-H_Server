@@ -8,10 +8,13 @@ import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 
 const playerAttackHandler = (socket, packetData) => {
   try {
+    console.log('playerAttackHandler 시작');
+
     const {} = packetData;
 
     // 유저 정보 확인
     const user = getUserById(socket);
+    console.log('user:', user);
 
     if (!user) {
       console.error('공격자를 찾을 수 없습니다.');
@@ -19,9 +22,11 @@ const playerAttackHandler = (socket, packetData) => {
     }
 
     const userNickName = user.userInfo.nickname;
+    console.log('userNickName:', userNickName);
 
     // 쿨타임 체크
     const cooltime = attackDelayCalculate(userNickName);
+    console.log('cooltime:', cooltime);
     if (!cooltime) {
       console.log('쿨타임 중입니다.');
       return;
@@ -29,22 +34,31 @@ const playerAttackHandler = (socket, packetData) => {
 
     // 던전 찾기
     const dungeon = getDungeonInPlayerName(userNickName);
+    console.log('dungeon:', dungeon);
 
     // 플레이어, 위치, 상태 정보 가져오기
     const players = dungeon.players[userNickName];
     const userPosition = dungeon.playersTransform[userNickName];
     const userStatus = dungeon.playerStatus[userNickName];
 
-    //x,y,z좌표
-    const position = [userPosition.x, userPosition.y, userPosition.z];
+    console.log('players:', players);
+    console.log('userPosition:', userPosition);
+    console.log('userStatus:', userStatus);
 
-    //방향 백터는 direction으로 받아온 데이터 저장
+    // x, y, z 좌표
+    const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
+    console.log('position:', position);
+
+    // 방향 백터는 direction으로 받아온 데이터 저장
+    const direction = packetData.direction; // packetData에서 direction 정보 받아오기
+    const speed = packetData.speed || 1; // 기본 속도 1로 설정
 
     const maxDisatnce = players.normalAttack.attackRange;
 
     // 몬스터 정보 추출 (가정)
-    const monsterId = packetData.monsterId || null;
+    const monsterId = packetData.monsterId;
     const monster = getMonsterById(monsterId);
+    console.log('monster:', monster);
     if (!monster) {
       console.error('몬스터를 찾을 수 없습니다.');
       return;
@@ -52,6 +66,7 @@ const playerAttackHandler = (socket, packetData) => {
 
     // 화살을 던전에서 생성
     if (players.playerClass === 'Archer') {
+      console.log('Archer인 플레이어, 화살을 생성합니다.');
       dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
     }
 
@@ -59,17 +74,19 @@ const playerAttackHandler = (socket, packetData) => {
     dungeon.moveArrow(userNickName); // 던전 내 메서드 호출로 화살 이동 처리
 
     // 몬스터와의 충돌 체크 및 피해 처리
-    // 던전에서 해당 플레이어의 화살 목록을 가져옵니다.
     const arrows = dungeon.getPlayerArrows(userNickName);
-    // 각 화살에 대해 반복문을 돌며 처리합니다.
+    console.log('arrows:', arrows);
     arrows.forEach((arrow) => {
       // 화살의 현재 위치를 가져옵니다.
       let arrowPosition = arrow.position;
-      // 화살의 이동 방향을 나타내는 벡터를 가져옵니다.
       let arrowDirection = arrow.direction;
 
       // 몬스터의 위치를 가져옵니다.
-      let monsterPosition = [monster.position.x, monster.position.y, monster.position.z];
+      let monsterPosition = { x: monster.position.x, y: monster.position.y, z: monster.position.z };
+
+      console.log('arrowPosition:', arrowPosition);
+      console.log('arrowDirection:', arrowDirection);
+      console.log('monsterPosition:', monsterPosition);
 
       // 두 벡터의 차이를 구하는 함수 (벡터 a와 b를 뺀 결과를 반환)
       const vectorSubtract = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -87,10 +104,11 @@ const playerAttackHandler = (socket, packetData) => {
         arrowPosition[2] + arrowDirection[2] * arrow.speed,
       ];
 
+      console.log('new arrowPosition:', arrowPosition);
+
       // 화살과 몬스터가 충돌했는지 확인하는 조건문
       if (vectorDistance(arrowPosition, monsterPosition) < 1) {
-        // 화살과 몬스터의 거리가 1보다 작으면 충돌로 간주
-        console.log('화살과 몬스터가 충돌했습니다!'); // 화살이 몬스터와 충돌했다는 로그 출력
+        console.log('화살과 몬스터가 충돌했습니다!');
         handleMonsterDamage(monster, userStatus, players); // 몬스터에게 피해를 주는 함수 호출
       }
     });
@@ -101,8 +119,9 @@ const playerAttackHandler = (socket, packetData) => {
       const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
       const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
 
+      console.log(`몬스터에게 ${attack}의 피해를 입혔습니다.`);
       monster.hp -= attack;
-      console.log(`몬스터에게 ${attack}의 피해를 입혔습니다. 남은 체력: ${monster.hp}`);
+      console.log(`남은 체력: ${monster.hp}`);
 
       if (monster.hp <= 0) {
         console.log('몬스터가 처치되었습니다!');
@@ -116,8 +135,10 @@ const playerAttackHandler = (socket, packetData) => {
 
 export const playerSkill = (socket, packetData) => {
   try {
-    // 궁수의 경우에는 스텟버프였지
+    console.log('playerSkill 시작');
+
     const user = getUserById(socket);
+    console.log('user:', user);
 
     // 유저가 없을 경우
     if (!user) {
@@ -126,17 +147,26 @@ export const playerSkill = (socket, packetData) => {
     }
 
     // 닉네임으로 던전 세션을 찾고
-    const dungeon = getDungeonInPlayerName(userNickName); // attackerName을 userNickName으로 수정해야할 수도 있음
+    const dungeon = getDungeonInPlayerName(userNickName);
+    console.log('dungeon:', dungeon);
 
     //플레이어 공격력,방어력,스피드 가져오기
     const playerAtk = dungeon.getPlayerAtk(userNickName);
     const playerDef = dungeon.getPlayerDef(userNickName);
     const playerSpeed = dungeon.getPlayerSpeed(userNickName);
 
+    console.log('playerAtk:', playerAtk);
+    console.log('playerDef:', playerDef);
+    console.log('playerSpeed:', playerSpeed);
+
     // 10% 증가시키기 위한 증가값 계산
     const atkIncrease = playerAtk * 0.1;
     const defIncrease = playerDef * 0.1;
     const speedIncrease = playerSpeed * 0.1;
+
+    console.log('atkIncrease:', atkIncrease);
+    console.log('defIncrease:', defIncrease);
+    console.log('speedIncrease:', speedIncrease);
 
     // 20초 동안 증가된 스탯을 적용하는 함수
     function increasePlayerStats() {
@@ -145,11 +175,14 @@ export const playerSkill = (socket, packetData) => {
       dungeon.setPlayerDef(userNickName, playerDef + defIncrease);
       dungeon.setPlayerSpeed(userNickName, playerSpeed + speedIncrease);
 
+      console.log('스탯 증가 적용 완료');
+
       // 20초 후, 원래 값으로 되돌리기
       setTimeout(() => {
         dungeon.setPlayerAtk(userNickName, playerAtk);
         dungeon.setPlayerDef(userNickName, playerDef);
         dungeon.setPlayerSpeed(userNickName, playerSpeed);
+        console.log('원래 스탯으로 되돌리기 완료');
       }, 20000); // 20초 후
     }
 
@@ -162,13 +195,18 @@ export const playerSkill = (socket, packetData) => {
 
 export const playerDodge = () => {
   try {
+    console.log('playerDodge 처리 시작');
   } catch (e) {
     handlerError(socket, e);
   }
 };
+
 const attackDelayCalculate = (attackerName) => {
+  console.log('attackDelayCalculate 시작');
+
   // attackerName을 포함하는 던전 세션들을 찾습니다.
   const dungeons = getDungeonInPlayerName(attackerName);
+  console.log('dungeons:', dungeons);
   if (!dungeons || dungeons.length === 0) {
     console.error('해당 플레이어를 포함하는 던전 세션을 찾을 수 없습니다.');
     return null;
@@ -179,6 +217,7 @@ const attackDelayCalculate = (attackerName) => {
 
   // 던전 세션에서 Players 배열(Players 클래스 인스턴스 배열)에서 attackerName과 일치하는 플레이어를 찾습니다.
   const player = dungeon.players.find((p) => p.partyData.playerName === attackerName);
+  console.log('player:', player);
   if (!player) {
     console.error('던전 세션 내에서 해당 플레이어를 찾을 수 없습니다.');
     return null;
@@ -186,12 +225,16 @@ const attackDelayCalculate = (attackerName) => {
 
   // 플레이어의 기본 공격 쿨타임을 밀리초로 변환하여 반환합니다.
   const delay = player.normalAttack.attackCoolTime * 1000;
+  console.log('delay:', delay);
   return delay;
 };
 
 const skillDelayCalculate = (attackerName) => {
+  console.log('skillDelayCalculate 시작');
+
   // attackerName을 포함하는 던전 세션들을 찾습니다.
   const dungeons = getDungeonInPlayerName(attackerName);
+  console.log('dungeons:', dungeons);
   if (!dungeons || dungeons.length === 0) {
     console.error('해당 플레이어를 포함하는 던전 세션을 찾을 수 없습니다.');
     return null;
@@ -202,6 +245,7 @@ const skillDelayCalculate = (attackerName) => {
 
   // 던전 세션에서 Players 배열(Players 클래스 인스턴스 배열)에서 attackerName과 일치하는 플레이어를 찾습니다.
   const player = dungeon.players.find((p) => p.partyData.playerName === attackerName);
+  console.log('player:', player);
   if (!player) {
     console.error('던전 세션 내에서 해당 플레이어를 찾을 수 없습니다.');
     return null;
@@ -209,6 +253,7 @@ const skillDelayCalculate = (attackerName) => {
 
   // 플레이어의 기본 공격 쿨타임을 밀리초로 변환하여 반환합니다.
   const delay = player.skillAttack.attackCoolTime * 1000;
+  console.log('delay:', delay);
   return delay;
 };
 
