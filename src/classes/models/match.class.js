@@ -222,17 +222,19 @@ class Match {
 
     party.partyInfo.Players.forEach((member) => {
       const userSock = getUserByNickname(member.playerName);
-      // 유저 세션에서 지우면 나중에 userSession의 값을 못찾음 그래서 유저 안에 inState를 추가해서 Town, Dungeon으로 나눠서 관리하면 어떨지
-      //removeUser(userSock.userInfo.socket);
       userSock.inDungeonId = dungeonId;
+    });
+
+    //던전 세션에 스탯 추가
+    party.partyInfo.Players.forEach((member) => {
+      console.log(member.playerName);
+      dungeonSession.setPlayerStatus(member.playerName);
     });
 
     //여기서 파티원들 전부 usersessions에서 삭제해야되지 않나
     console.log(party, 'party');
 
     dungeonSession.setDungeonState('progress');
-
-    console.log(dungeonSession);
 
     // 실제 게임 로직에서는 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행
     console.log('던전 입장 처리 중...', party.partyInfo.Players);
