@@ -1,71 +1,116 @@
 import CustomError from '../../../utils/error/customError.js';
 import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
-
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import { getUserById } from '../../../session/user.session.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 
-const playerAttack = (socket, packetData) => {
+const playerAttackHandler = (socket, packetData) => {
   try {
-    //몬스터아이디를 보내는것도 좋겠다 없으면 그냥 없거나 null을 보내고
     const {} = packetData;
-    //유저오 유저 클래스 확인
+
+    // 유저 정보 확인
     const user = getUserById(socket);
 
-    //유저가 없을 경우
     if (!user) {
-      console.error('공격자을 찾을 수 없습니다.');
+      console.error('공격자를 찾을 수 없습니다.');
       return;
     }
-    //이 유저로 닉네임을 찾는다.
+
     const userNickName = user.userInfo.nickname;
 
-    //const monster
-
-    //쿨타임 체크
+    // 쿨타임 체크
     const cooltime = attackDelayCalculate(userNickName);
     if (!cooltime) {
       console.log('쿨타임 중입니다.');
-    }
-
-    //닉네임으로 던전세션을 찾고
-    const dungeon = getDungeonInPlayerName(attackerName);
-
-    //players와 userPosition
-    const players = dungeon.players[userNickName];
-    const userPosition = dungeon.playersTransform[userNickName];
-    const userStatus = dungeon.playerplayerStatus[userNickName];
-
-    //이것도 만약 몬스터가 있으면 으로 조건을 넣어서 밑의 사거리 계산을 하는것도 좋다
-    // 몬스터 포지션 찾기
-    // const monsterPosition
-
-    //유저와 몬스터 사이의 거리를 계산
-    const dx = userPosition.x - monsterPosition.x;
-    const dy = userPosition.y - monsterPosition.y;
-    const dz = userPosition.z - monsterPosition.z;
-    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-    //사거리 체크
-    if (distance > players.normalAttack.attackRange) {
-      console.log('타겟이 공격 범위 밖에 있습니다.');
       return;
     }
 
-    //몬스터 공격 유저의 공격력 * 클래스 노말스킬 공격력 * 랜덤한 보정치
-    const randomFactors = [0.8, 0.9, 1, 1.1, 1.2]; // 선택 가능한 값들
-    const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)]; // 랜덤으로 선택
+    // 던전 찾기
+    const dungeon = getDungeonInPlayerName(userNickName);
 
-    const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
+    // 플레이어, 위치, 상태 정보 가져오기
+    const players = dungeon.players[userNickName];
+    const userPosition = dungeon.playersTransform[userNickName];
+    const userStatus = dungeon.playerStatus[userNickName];
 
-    //monster.hp
-    monater.hp -= attack;
+    //x,y,z좌표
+    const position = [userPosition.x, userPosition.y, userPosition.z];
 
-    socket.write();
-  } catch (e) {
-    handlerError(socket, e);
+    //방향 백터는 direction으로 받아온 데이터 저장
+
+    const maxDisatnce = players.normalAttack.attackRange;
+
+    // 몬스터 정보 추출 (가정)
+    const monsterId = packetData.monsterId || null;
+    const monster = getMonsterById(monsterId);
+    if (!monster) {
+      console.error('몬스터를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 화살을 던전에서 생성
+    if (players.playerClass === 'Archer') {
+      dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
+    }
+
+    // 화살 이동 처리 (Dungeon의 moveArrow 메서드 사용)
+    dungeon.moveArrow(userNickName); // 던전 내 메서드 호출로 화살 이동 처리
+
+    // 몬스터와의 충돌 체크 및 피해 처리
+    // 던전에서 해당 플레이어의 화살 목록을 가져옵니다.
+    const arrows = dungeon.getPlayerArrows(userNickName);
+    // 각 화살에 대해 반복문을 돌며 처리합니다.
+    arrows.forEach((arrow) => {
+      // 화살의 현재 위치를 가져옵니다.
+      let arrowPosition = arrow.position;
+      // 화살의 이동 방향을 나타내는 벡터를 가져옵니다.
+      let arrowDirection = arrow.direction;
+
+      // 몬스터의 위치를 가져옵니다.
+      let monsterPosition = [monster.position.x, monster.position.y, monster.position.z];
+
+      // 두 벡터의 차이를 구하는 함수 (벡터 a와 b를 뺀 결과를 반환)
+      const vectorSubtract = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+      // 벡터의 크기(길이)를 계산하는 함수 (피타고라스의 정리를 사용하여 벡터의 길이를 계산)
+      const vectorMagnitude = (v) => Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+      // 두 벡터 간의 거리를 계산하는 함수 => 벡터 a와 b의 거리를 반환
+      const vectorDistance = (a, b) => vectorMagnitude(vectorSubtract(a, b));
+
+      // 화살 이동 처리 (화살이 arrowDirection 방향으로 이동)
+      arrowPosition = [
+        arrowPosition[0] + arrowDirection[0] * arrow.speed,
+        arrowPosition[1] + arrowDirection[1] * arrow.speed,
+        arrowPosition[2] + arrowDirection[2] * arrow.speed,
+      ];
+
+      // 화살과 몬스터가 충돌했는지 확인하는 조건문
+      if (vectorDistance(arrowPosition, monsterPosition) < 1) {
+        // 화살과 몬스터의 거리가 1보다 작으면 충돌로 간주
+        console.log('화살과 몬스터가 충돌했습니다!'); // 화살이 몬스터와 충돌했다는 로그 출력
+        handleMonsterDamage(monster, userStatus, players); // 몬스터에게 피해를 주는 함수 호출
+      }
+    });
+
+    // 공격 처리 함수
+    const handleMonsterDamage = (monster, userStatus, players) => {
+      const randomFactors = [0.8, 0.9, 1, 1.1, 1.2];
+      const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
+      const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
+
+      monster.hp -= attack;
+      console.log(`몬스터에게 ${attack}의 피해를 입혔습니다. 남은 체력: ${monster.hp}`);
+
+      if (monster.hp <= 0) {
+        console.log('몬스터가 처치되었습니다!');
+        handleMonsterDeath(monster);
+      }
+    };
+  } catch (error) {
+    console.error('공격 처리 중 오류 발생:', error);
   }
 };
 
@@ -167,4 +212,4 @@ const skillDelayCalculate = (attackerName) => {
   return delay;
 };
 
-export default playerAttack;
+export default playerAttackHandler;
