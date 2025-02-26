@@ -6,7 +6,6 @@ import { PACKET_TYPE } from '../../constants/header.js';
 export default class Inventory {
     constructor() {
         this.inventory = []; // 소지중인 아이템 인벤토리
-        this.equipment = []; // 장비중인 아이템 인벤토리
     }
 
     async init(user) {
@@ -151,7 +150,22 @@ export default class Inventory {
         }
     }
 
+    // 소지한 아이템을 반환하는 함수
     getInventory() {
         return this.inventory;
     }
+
+    // 장비한 아이템만을 반환하는 함수
+    getEquipment() {
+        return this.inventory.filter((item) => item.equipped === true);
+    }
+
+    // 모든 장착한 아이템의 스탯 합을 구하는 함수
+    getAllStat(){
+        return this.getEquipment.reduce(
+            (acc, item) => acc + item.stat, 
+            0
+        );
+    }
+    // 
 }
