@@ -28,17 +28,17 @@ export const addItemToInventory = async (charId, itemId, rarity, equipped, quant
   }
 };
 
-export const updateItemQuantity = async (charId, itemId, quantity) => {
+export const updateItemQuantity = async (charId, inventoryId, quantity) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_QUANTITY, [quantity, itemId, charId]);
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_QUANTITY, [quantity, inventoryId, charId]);
   } catch (error) {
     console.error(error);
   }
 };
 
-export const updateItemPosition = async (charId, itemId, position) => {
+export const updateItemPosition = async (charId, inventoryId, position) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_POSITION, [position, itemId, charId]);
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_POSITION, [position, inventoryId, charId]);
   } catch (error) {
     console.error(error);
   }
