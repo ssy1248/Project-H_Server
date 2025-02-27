@@ -19,4 +19,4 @@ const respawnUserHandler = async (socket) => {
   }
 };
 
-export default respawnUserHandler();
+export default respawnUserHandler;
