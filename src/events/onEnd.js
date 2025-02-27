@@ -1,7 +1,6 @@
 import { removeUser, getUserBySocket } from '../session/user.session.js';
 import { getGameSession } from '../session/game.session.js';
 import { updateCharacter } from '../db/user/user.db.js';
-import { deleteEntitySync } from '../classes/managers/movementSync.manager.js';
 import { deleteUser } from '../movementSync/movementSync.manager.js';
 
 export const onEnd = (socket) => async () => {

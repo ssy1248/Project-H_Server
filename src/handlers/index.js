@@ -39,7 +39,6 @@ import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 
-import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 
 const handlers = {
