@@ -43,7 +43,6 @@ import playerRangedAttackHandler, {
   rangedAttackImpactHandler,
 } from './game/dungeon/player.attack.js';
 
-import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 
 const handlers = {
