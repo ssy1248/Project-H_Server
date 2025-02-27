@@ -73,7 +73,7 @@ class Match {
           // 해당 파티를 원본 큐에서 제거
           this.partyQueue = this.partyQueue.filter((p) => p.id !== party.id);
           console.log(
-            `매칭 완료: 파티 ${party.id} 던전 ${party.desiredDungeonIndex} 입장 (멤버 수: ${party.partyMembers.length}).`,
+            `매칭 완료: 파티 ${party.id} 던전 ${party.dungeonIndex} 입장 (멤버 수: ${party.partyMembers.length}).`,
           );
           // 던전 입장 처리 후 dungeon 세션 반환
           return this.enterDungeon(party);
