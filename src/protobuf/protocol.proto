@@ -82,6 +82,12 @@ enum MsgId {
   S_DUNGEONSPAWN = 73;
   S_DUNGEONDESPAWN = 74;
   C_DUNGEONEXIT = 75;
+  S_PLAYERRANGEATTACK=76;
+  C_PLAYERRANGEATTACK=77;
+  S_RANGEATTACKIMPACT=78;
+  C_RANGEATTACKIMPACT=79;
+  S_RANGEATTACKCOLLIDE=80;
+  C_RANGEATTACKCOLLIDE=81;
 }
 
 //회원가입 요청
@@ -772,3 +778,34 @@ message S_ShopInventoryList {
   uint32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
+
+message C_PlayerRangeAttack {
+  repeated uint32 direction =1; // x,y,z 방향백터
+}
+
+message S_PlayerRangeAttack {
+  uint32 arrowId =1;
+  string message =2;
+}
+
+message C_RangeAttackImpact {
+  uint32 arrowId =1;
+  string monsterId =2;
+}
+message S_RangeAttackImpact{
+  string monsterId =1;
+  uint32 monsterHp =2;
+  uint32 damage =3;
+  string message=4;
+}
+
+message C_RangeAttackCollide{
+  uint32 arrowId = 1;
+  repeated uint32 collide =2;
+}
+
+message S_RangeAttackCollide{
+  bool success =1;
+  string message =2;
+}
+

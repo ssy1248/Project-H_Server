@@ -5,8 +5,10 @@ import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import { getUserById } from '../../../session/user.session.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
+import { getMonster } from '../../../session/monster.session.js';
 
-const playerAttackHandler = (socket, packetData) => {
+//공격을 할떄 (플레이어가 공격을 할떄)
+const playerRangedAttackHandler = (socket, packetData) => {
   try {
     console.log('playerAttackHandler 시작');
 
@@ -25,12 +27,12 @@ const playerAttackHandler = (socket, packetData) => {
     console.log('userNickName:', userNickName);
 
     // 쿨타임 체크
-    const cooltime = attackDelayCalculate(userNickName);
-    console.log('cooltime:', cooltime);
-    if (!cooltime) {
-      console.log('쿨타임 중입니다.');
-      return;
-    }
+    // const cooltime = attackDelayCalculate(userNickName);
+    // console.log('cooltime:', cooltime);
+    // if (!cooltime) {
+    //   console.log('쿨타임 중입니다.');
+    //   return;
+    // }
 
     // 던전 찾기
     const dungeon = getDungeonInPlayerName(userNickName);
@@ -39,26 +41,21 @@ const playerAttackHandler = (socket, packetData) => {
     // 플레이어, 위치, 상태 정보 가져오기
     const players = dungeon.players[userNickName];
     const userPosition = dungeon.playersTransform[userNickName];
-    const userStatus = dungeon.playerStatus[userNickName];
 
     console.log('players:', players);
     console.log('userPosition:', userPosition);
-    console.log('userStatus:', userStatus);
 
     // x, y, z 좌표
     const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
     console.log('position:', position);
 
-    // 방향 백터는 direction으로 받아온 데이터 저장
+    //이 스피드는 클라이언트가 어느정도 속도 인지를 알아야해 그리고 그러 내가 인터벌이 100m/s니까 이거에 맞게
     const speed = packetData.speed || 1; // 기본 속도 1로 설정
 
     const maxDisatnce = players.normalAttack.attackRange;
 
-    // Archer 클래스 플레이어일 때만 화살을 생성
-    if (players.playerClass === 'Archer') {
-      console.log('Archer인 플레이어, 화살을 생성합니다.');
-      arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce); // 화살 ID 반환 받기
-    }
+    // 화살 ID 반환 받기
+    const arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
 
     // 화살 이동 처리 (Dungeon의 moveArrow 메서드 사용)
     dungeon.moveArrow(userNickName); // 던전 내 메서드 호출로 화살 이동 처리
@@ -66,18 +63,27 @@ const playerAttackHandler = (socket, packetData) => {
     //이런 다음에 화살 아이디만 보내주면 되겠다
     console.log('생성된 화살 ID:', arrowId);
 
-
-    //packetData로 보낼것 생각
     //일단 arrowId는 보내야 한다
 
+    const playerAttackPayload = {
+      arrowId: arrowId,
+      message: '화살생성완료',
+    };
 
-
+    const playerAttackResponse = createResponse(
+      'dungeon',
+      'S_PlayerRangeAttack',
+      PACKET_TYPE.S_PLAYERRANGEATTACK,
+      playerAttackPayload,
+    );
+    socket.write(playerAttackResponse);
   } catch (error) {
-    console.error('playerAttackHandler 오류:', error);
+    handlerError(socket, error);
   }
 };
 
-export const playerArrowAttack = (socket, packetData) => {
+//투사체가 몬스터에게 준 공격에 대한 핸들러 (몬스터가 투사체에 맞을떄)
+export const rangedAttackImpactHandler = (socket, packetData) => {
   try {
     const { monsterId, arrowId } = packetData;
     // 유저 정보 확인
@@ -87,6 +93,12 @@ export const playerArrowAttack = (socket, packetData) => {
     if (!user) {
       console.error('공격자를 찾을 수 없습니다.');
       return;
+    }
+
+    const monster = getMonster(monsterId);
+
+    if (!monster) {
+      console.error('몬스터가 업습니다');
     }
 
     //유저 닉네임 찾기
@@ -113,24 +125,31 @@ export const playerArrowAttack = (socket, packetData) => {
       //대미지 계산하기 위해서
       const randomFactors = [0.8, 0.9, 1, 1.1, 1.2];
       const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
+      //유저 공격 데미지
       const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
 
-      //아직 몬스터에 대한건 없다
+      const damage = attack - monster.def;
 
-      console.log(`몬스터에게 ${attack}의 피해를 입혔습니다.`);
-      monster.hp -= attack;
+      monster.takeDamage(damage);
+
+      console.log(`몬스터에게 ${damage}의 피해를 입혔습니다.`);
+
       console.log(`남은 체력: ${monster.hp}`);
 
-      if (monster.hp <= 0) {
-        console.log('몬스터가 처치되었습니다!');
-        //여기에 몬스터 죽어서 삭제 처리 넣고
+      const rangedAttackImpactPayload = {
+        monsterId,
+        monsterHp: monster.hp,
+        damage: damage,
+        message: '화살공격완료',
+      };
 
-        //여기서 null이면 몬스터 죽었다고 알리면 된다.
-        return null;
-      } else {
-        //0이 아닐떄
-        return monster.hp;
-      }
+      const rangedAttackImpactResponse = createResponse(
+        'dungeon',
+        'S_RangedAttackImpact',
+        PACKET_TYPE.S_RANGEATTACKIMPACT,
+        rangedAttackImpactPayload,
+      );
+      socket.write(rangedAttackImpactResponse);
     } else {
       console.error('몬스터가 멀리 있습니다');
     }
@@ -142,7 +161,7 @@ export const playerArrowAttack = (socket, packetData) => {
 };
 
 //장애물에 화살이 닿았을때
-export const playerAttackCollide = (socket, packetData) => {
+export const rangeAttackCollide = (socket, packetData) => {
   try {
     //화살과 자애물 좌표?
     const { arrowId, collide } = packetData;
@@ -174,16 +193,30 @@ export const playerAttackCollide = (socket, packetData) => {
     const collidePosY = collide.y;
     const collidePosZ = collide.z;
 
+    const distance = Math.sqrt(
+      Math.pow(arrowPos.x - collidePosX, 2) +
+        Math.pow(arrowPos.y - collidePosY, 2) +
+        Math.pow(arrowPos.z - collidePosZ, 2),
+    );
+
     // 간단한 충돌 감지 (화살의 위치와 몬스터의 위치가 가까운지 확인)
-    if (
-      Math.abs(arrowPos.x - collidePosX.x) < 1 &&
-      Math.abs(arrowPos.y - collidePosY.y) < 1 &&
-      Math.abs(arrowPos.z - collidePosZ.z) < 1
-    ) {
+    if (distance < 1) {
       dungeon.removeArrow(arrowId);
     } else {
       console.log('충돌하지 않음');
     }
+    const rangeAttackCollidePayload = {
+      success: true,
+      message: '화살제거완료',
+    };
+
+    const rangeAttackCollideResponse = createResponse(
+      'dungeon',
+      'S_rangeAttcckCollide',
+      PACKET_TYPE.S_RANGEATTACKCOLLIDE,
+      rangeAttackCollidePayload,
+    );
+    socket.write(rangeAttackCollideResponse);
   } catch (error) {
     handlerError(socket, error);
   }
@@ -313,4 +346,4 @@ const skillDelayCalculate = (attackerName) => {
   return delay;
 };
 
-export default playerAttackHandler;
+export default playerRangedAttackHandler;
