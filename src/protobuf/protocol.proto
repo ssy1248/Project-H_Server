@@ -233,24 +233,18 @@ message S_DisrobeItemResponse {
 }
 
 message C_ActiveItemRequest {
-  int32 itemId = 1;// Items.id
+  int32 id = 1;// Inventory.id
   int64 timestamp = 2;
   // 아이템 사용에 필요한 추가 데이터들
-  oneof itemData {
-
-  }
 }
 
 message S_ActiveItemResponse {
   int32 userId = 5;
-  int32 itemId = 1;
+  int32 id = 1;// Inventory.id
   bool success = 2;
   string message = 3;
   GlobalFailCode failCode = 4;
   // 아이템 사용에 필요한 추가 데이터들
-  oneof itemData {
-
-  }
 }
 
 // 아이템 이동 요청
@@ -713,6 +707,9 @@ message ItemInfo {
   int32 rarity = 7;
   int32 position = 8;
   string imgsrc = 9;
+  int32 quantity = 10;
+  bool stackable = 11;
+  int32 itemId = 12;
 }
 
 message ItemData {
@@ -722,6 +719,7 @@ message ItemData {
   float stat = 4;
   int32 price = 5;
   string imgsrc = 7;
+  bool stackable = 8;
 }
 
 message marketItemInfo {

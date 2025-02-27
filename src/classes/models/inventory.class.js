@@ -93,6 +93,7 @@ export default class Inventory {
                     rarity: rarity,
                     equiped: false,
                     quantity: quantity,
+                    stackable: result.stackable,
                 }
                 // 서버에 아이템 추가
                 this.inventory.push(newItem);
@@ -148,6 +149,10 @@ export default class Inventory {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    getItem(inventoryId) {
+        return this.inventory.find((item) => item.id === inventoryId);
     }
 
     // 소지한 아이템을 반환하는 함수
