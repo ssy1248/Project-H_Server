@@ -54,3 +54,4 @@ export default class Monster {
     console.log(`${this.name}이(가) 사망했습니다.`);
   }
 }
+

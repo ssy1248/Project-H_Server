@@ -1,14 +1,24 @@
-import { MAX_POSITION_DIFFERENCE, SERVER_TIME_OFFSET } from '../../constants/constants.js';
+import {
+  MAX_POSITION_DIFFERENCE,
+  SERVER_TIME_OFFSET,
+  MONSTER_SPAWN_INTERVAL,
+  MONSTER_UPDATE_INTERVAL,
+} from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
+import { addMonster, updateMonster, findMonster, getMonsterUpdateQueue } from '../managers/monster.manager.js';
+import { MONSTER_AI_BEHAVIOR } from './monster.class.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class MovementSync {
   // 생성자.
   constructor() {
     this.movementSyncId = 0; // 고유 ID
-    this.userSyncs = {}; // 유저 정보를 담을 객체.
+    this.entitySyncs = {}; // 유저 정보를 담을 객체.
     this.snapshotTime = Date.now();
-    this.interval = 0;
+    this.userUpdateinterval = 0;
+    this.monsterSpawnInterval = 0;
+    this.monsterUpdateInterval = 0;
 
     // 인터벌 시작.
     this.startMovementProcess();
@@ -17,10 +27,11 @@ export default class MovementSync {
     this.movementQueue = {}; // 이동 데이터 큐 (클라이언트에서 받은 데이터)
   }
 
-  // [유저 추가]
-  addUserSync(userId, socket, Transform) {
+  // [엔티티 추가]
+  addEntitySync(id, type, Transform, socket = null) {
     const userSyncInfo = {
-      userId: userId,
+      id: id,
+      type: type,
       socket: socket,
       previousTransform: {
         posX: Transform.posX,
@@ -51,110 +62,132 @@ export default class MovementSync {
       lastUpdateTime: Date.now(),
     };
 
-    this.userSyncs[userId] = userSyncInfo;
+    this.entitySyncs[id] = userSyncInfo;
   }
 
-  // [유저 찾기]
-  findUserSync(userId) {
-    if (this.userSyncs[userId]) {
-      return this.userSyncs[userId];
+  // [엔티티 찾기]
+  findEntitySync(id) {
+    if (this.entitySyncs[id]) {
+      return this.entitySyncs[id];
     }
     return null;
   }
 
-  // [유저 업데이트]
-  updateUserSync(userId, transform, timestamp, isMoving, velocity,speed) {
-    // 레이턴시(핑)
-    this.userSyncs[userId].latency = this.computeNetworkDelay(timestamp);
-    // 현재 트랜스폼, 과거 트랜스폼 갱신.
-    this.userSyncs[userId].lastSyncedTransform = transform;
-
-    // 회전값이 없다면 기본값 0을 할당
-    if (typeof this.userSyncs[userId].lastSyncedTransform.rot === 'undefined') {
-      this.userSyncs[userId].lastSyncedTransform.rot = 0; // 기본 회전값 설정
+  // [전체 엔티티 찾기]
+  getAllEntitySyncs() {
+    if (this.entitySyncs) {
+      return this.entitySyncs;
     }
-
-    // 움직이고 있는 중인가.
-    this.userSyncs[userId].isMoving = isMoving;
-    // 속도 벡터(방향 + 속도).
-    this.userSyncs[userId].velocity = velocity;
-    // 속도
-    this.userSyncs[userId].speed = speed;
-
-    // 마지막 업데이트 갱신.
-    this.userSyncs[userId].lastUpdateTime = Date.now();
+    return null;
   }
 
-  // [ 스냅샷 ] // 밥먹고 메인로직 수정
-  syncTransformFromSnapshot(userId) {
-    if (this.userSyncs[userId].isMoving) {
-      // 필요한 변수 선언.
-      const velocity = this.userSyncs[userId].velocity;
-      const latency = this.userSyncs[userId].latency;
-      const lastSyncedTransform = this.userSyncs[userId].lastSyncedTransform;
-
-      // previousTransform 갱신
-      this.userSyncs[userId].previousTransform = { ...this.userSyncs[userId].currentTransform };
-
-      // latency는 밀리초 단위로 계산되므로, 이를 초 단위로 변환 후 속도와 곱해야 함
-      const deltaTime = (latency + SERVER_TIME_OFFSET) / 1000; // latency를 초 단위로 변환
-
-      // currentTransform 갱신 
-      this.userSyncs[userId].currentTransform.posX += velocity.x * deltaTime;
-      this.userSyncs[userId].currentTransform.posY += velocity.y * deltaTime;
-      this.userSyncs[userId].currentTransform.posZ += velocity.z * deltaTime;
-      this.userSyncs[userId].currentTransform.rot = lastSyncedTransform.rot;
-      
-
-      // 목표지점에 도착했는가.
-      const posDiff = this.validateTransform(
-        this.userSyncs[userId].currentTransform,
-        lastSyncedTransform,
-      );
-
-      // 목적지에 넘어갔는가?
-      const isPastTarget = this.hasPassedTarget(
-        this.userSyncs[userId].currentTransform,
-        this.userSyncs[userId].lastSyncedTransform,
-        velocity,
-      );
-
-      if (isPastTarget) {
-        this.userSyncs[userId].isMoving = false;
-        this.userSyncs[userId].currentTransform = { ...this.userSyncs[userId].lastSyncedTransform };
-      }
-
-      // 목적지에 도착했다면 움직임 멈추기
-      if (Math.abs(posDiff) < MAX_POSITION_DIFFERENCE) {
-        this.userSyncs[userId].isMoving = false;
-        this.userSyncs[userId].currentTransform = { ...this.userSyncs[userId].lastSyncedTransform };
-      }
-
-      // 마지막 업데이트 갱신.
-      this.userSyncs[userId].lastUpdateTime = Date.now();
-    }
-  }
-
-  // [유저 삭제]
-  deleteUserSync(userId) {
-    if (this.userSyncs[userId]) {
-      delete this.userSyncs[userId];
+  // [엔티티 삭제]
+  deleteEntitySync(id, type) {
+    if (this.entitySyncs[id] && this.entitySyncs[id].type === type) {
+      delete this.entitySyncs[id];
       return true;
     }
     return false;
   }
 
+  // [엔티티 업데이트] // 여기 수정해야함.
+  updateEntitySync(id, transform, timestamp, isMoving, velocity, speed) {
+    // 레이턴시(핑)
+    if (timestamp !== 0) {
+      this.entitySyncs[id].latency = this.computeNetworkDelay(timestamp);
+    } else {
+      this.entitySyncs[id].latency = 0;
+    }
+    // 현재 트랜스폼, 과거 트랜스폼 갱신.
+    this.entitySyncs[id].lastSyncedTransform = transform;
+
+    // 회전값이 없다면 기본값 0을 할당
+    if (typeof this.entitySyncs[id].lastSyncedTransform.rot === 'undefined') {
+      this.entitySyncs[id].lastSyncedTransform.rot = 0; // 기본 회전값 설정
+    }
+
+    // 움직이고 있는 중인가.
+    this.entitySyncs[id].isMoving = isMoving;
+    // 속도 벡터(방향 + 속도).
+    this.entitySyncs[id].velocity = velocity;
+    // 속도
+    this.entitySyncs[id].speed = speed;
+
+    // 마지막 업데이트 갱신.
+    this.entitySyncs[id].lastUpdateTime = Date.now();
+  }
+
+  // [ 스냅샷 ] // 밥먹고 메인로직 수정
+  syncTransformFromSnapshot(id) {
+    if (this.entitySyncs[id].isMoving) {
+      // 필요한 변수 선언.
+      const velocity = this.entitySyncs[id].velocity;
+      const latency = this.entitySyncs[id].latency;
+      const lastSyncedTransform = this.entitySyncs[id].lastSyncedTransform;
+
+      // previousTransform 갱신
+      this.entitySyncs[id].previousTransform = { ...this.entitySyncs[id].currentTransform };
+
+      // latency는 밀리초 단위로 계산되므로, 이를 초 단위로 변환 후 속도와 곱해야 함
+      const deltaTime = (latency + SERVER_TIME_OFFSET) / 1000; // latency를 초 단위로 변환
+
+      // currentTransform 갱신
+      this.entitySyncs[id].currentTransform.posX += velocity.x * deltaTime;
+      this.entitySyncs[id].currentTransform.posY += velocity.y * deltaTime;
+      this.entitySyncs[id].currentTransform.posZ += velocity.z * deltaTime;
+      this.entitySyncs[id].currentTransform.rot = lastSyncedTransform.rot;
+
+      //console.log("현재좌표 : ", this.entitySyncs[id].currentTransform);
+      //console.log("방향 : ", velocity);
+      //console.log("델타 : ", deltaTime);
+      // 목표지점에 도착했는가.
+      const posDiff = this.validateTransform(
+        this.entitySyncs[id].currentTransform,
+        lastSyncedTransform,
+      );
+
+      // 목적지에 넘어갔는가?
+      const isPastTarget = this.hasPassedTarget(
+        this.entitySyncs[id].currentTransform,
+        this.entitySyncs[id].lastSyncedTransform,
+        velocity,
+      );
+
+      if (isPastTarget) {
+        this.entitySyncs[id].isMoving = false;
+        this.entitySyncs[id].currentTransform = {
+          ...this.entitySyncs[id].lastSyncedTransform,
+        };
+      }
+
+      // 목적지에 도착했다면 움직임 멈추기
+      if (Math.abs(posDiff) < MAX_POSITION_DIFFERENCE) {
+        this.entitySyncs[id].isMoving = false;
+        this.entitySyncs[id].currentTransform = {
+          ...this.entitySyncs[id].lastSyncedTransform,
+        };
+      }
+
+      // 마지막 업데이트 갱신.
+      this.entitySyncs[id].lastUpdateTime = Date.now();
+      //console.log("마지막 업데이트 : ",this.entitySyncs[id].lastUpdateTime);
+    }
+  }
+
   // [ 메인 로직 ]
-  async processMovement() {
+  async processUesrMovement() {
     // 100ms마다 이동 관련 로직을 실행
-    this.interval = setInterval(async () => {
-      const userSyncsSize = Object.keys(this.userSyncs).length;
+    this.userUpdateinterval = setInterval(async () => {
+      const userSyncsSize = Object.keys(this.entitySyncs).length;
       // 유저들이 있을때만 메인 로직 실행.
       if (userSyncsSize !== 0) {
         // 움직이고 있는 유저 솎아내기.
-        const changedUsers = Object.keys(this.userSyncs)
-          .filter((key) => this.userSyncs[key].isMoving === true)
-          .map((key) => this.userSyncs[key]);
+        const changedUsers = Object.keys(this.entitySyncs)
+          .filter(
+            (key) =>
+              this.entitySyncs[key].isMoving === true && this.entitySyncs[key].type === 'user',
+          )
+          .map((key) => this.entitySyncs[key]);
 
         // 움직이고 있는 유저들이 있을 경우 로직 실행.
         if (changedUsers.length !== 0) {
@@ -163,8 +196,8 @@ export default class MovementSync {
 
           // 데이터 업데이트 및 패킷 전송 준비.
           for (const user of changedUsers) {
-            this.syncTransformFromSnapshot(user.userId);
-            const syncData = this.createSyncTransformInfoData(user); // 동기 처리
+            this.syncTransformFromSnapshot(user.id);
+            const syncData = this.createSyncTransformInfoData(user);
             syncTransformInfoDatas.push(syncData);
           }
 
@@ -185,23 +218,170 @@ export default class MovementSync {
     }, SERVER_TIME_OFFSET);
   }
 
+  // [서브 로직 - 몬스터 업데이트]
+  async processMonsterMovement() {
+    // 100ms마다 이동 관련 로직을 실행
+    this.monsterUpdateInterval = setInterval(async () => {
+      const userSyncsSize = Object.keys(this.entitySyncs).length;
+      // 몬스터들이 있을때만  로직 실행.
+      if (userSyncsSize !== 0) {
+        
+
+        // 여기수정하자.
+
+        // 움직이고 있는 몬스터 솎아내기.
+        const changedMonsters = Object.keys(this.entitySyncs)
+          .filter(
+            (key) =>
+              this.entitySyncs[key].type === 'monster',
+          )
+          .map((key) => this.entitySyncs[key]);
+
+        // 움직이고 있는 몬스터들이 있을 경우 로직 실행.
+        if (changedMonsters.length !== 0) {
+          // 몬스터 업데이트
+          for (const monster of changedMonsters) {
+            updateMonster(monster.id);
+            //this.syncTransformFromSnapshot(monster.id);
+          }
+
+          // 여기에 추가하자 (몬스터 업데이트 큐)
+          // 타겟이 업데이트된 몬스터만 뽑아오기.
+          const monsterUpdate = getMonsterUpdateQueue();
+          const syncTransformInfoDatas = [];
+
+          // 몬스터 업데이트 큐에서 뽑아온 정보 검증.
+          // d에러 여기 고쳐야됨 밥먹고
+          if(monsterUpdate.length === 0) {
+            return;
+          }
+
+          for(const monster of monsterUpdate) {
+            const findMonster = this.entitySyncs[monster.monsterInfo.id];
+            const monsterInfo = monster.getMonsterInfo();
+            const targetInfo = monster.getTargetInfo();
+
+            const syncData = this.createSyncMonsterTransformInfoData(findMonster, monsterInfo, targetInfo.transform);
+            syncTransformInfoDatas.push(syncData);
+          }
+
+          // 패킷 생성.
+          const sMonsterMove = {
+            transformInfo: syncTransformInfoDatas,
+          };
+
+          // 만들어진 패킷을 직렬화.
+          const initialResponse = createResponse(
+            'town',
+            'S_MonsterMove',
+            PACKET_TYPE.S_MONSTERMOVE,
+            sMonsterMove,
+          );
+
+          // 브로드캐스트.
+          await this.broadcastChangedUsers(initialResponse);
+
+          // 스냅샷 시간 갱신
+          this.snapshotTime = Date.now();
+        }
+      }
+    }, MONSTER_UPDATE_INTERVAL);
+  }
+
+  // [서브 로직 - 몬스터 생성]
+  async processMonsterSpawn() {
+    // 100ms마다 이동 관련 로직을 실행
+    this.monsterSpawnInterval = setInterval(async () => {
+      const entitySyncsSize = Object.keys(this.entitySyncs).length;
+      if (entitySyncsSize > 0) {
+        const monsterId = uuidv4();
+        const randomNum = Math.floor(Math.random() * 30) + 1;
+        addMonster('town', monsterId, randomNum, randomNum, 'test', 10);
+
+        // 몬스터들만 빼오자.
+        const Monsters = Object.keys(this.entitySyncs)
+          .filter((key) => this.entitySyncs[key].type === 'monster')
+          .map((key) => this.entitySyncs[key]);
+
+
+          if(Monsters.length <= 2) {
+            clearInterval(this.monsterSpawnInterval);
+          }
+        //console.log('크기', Monsters.length);
+
+        // 데이터 업데이트 및 패킷 전송 준비.
+        if (Monsters.length !== 0) {
+          const monstersInfo = [];
+          for (const monster of Monsters) {
+            const findMonsterInfo = findMonster(monster.id);
+
+            const monsterInfo = findMonsterInfo.getMonsterInfo();
+            const transformInfo = findMonsterInfo.getTransformInfo();
+
+            
+
+            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo, transformInfo);
+            monstersInfo.push(syncData);
+          }
+
+          const sMonsterSpawn = {
+            monsterInfo: monstersInfo,
+          };
+          // 만들어진 패킷을 직렬화.
+          const initialResponse = createResponse(
+            'town',
+            'S_MonsterSpawn',
+            PACKET_TYPE.S_MONSTERSPAWN,
+            sMonsterSpawn,
+          );
+          // 브로드캐스트.
+          await this.broadcastChangedUsers(initialResponse);
+        }
+      }
+    }, MONSTER_SPAWN_INTERVAL);
+  }
+
   // [메인 로직 시작 ]
   startMovementProcess() {
-    this.processMovement(); // 메서드를 별도로 호출
+    this.processUesrMovement();
+    this.processMonsterSpawn();
+    this.processMonsterMovement();
   }
 
   // [메인 로직 종료 ]
   endProcessMovement() {
-    clearInterval(this.interval); // 반복 종료
+    clearInterval(this.userUpdateinterval);
+    clearInterval(this.monsterSpawnInterval);
+    clearInterval(this.monsterUpdateInterval);
   }
 
-  // [ 패킷 생성 ]
+  // [ 패킷 생성 ] - 유저 이동
   createSyncTransformInfoData(user) {
     const SyncTransformInfo = {
-      playerId: user.userId,
+      playerId: user.id,
       transform: user.currentTransform,
       speed: user.speed,
     };
+
+    return SyncTransformInfo;
+  }
+
+  // [ 패킷 생성 ] - 몬스터
+  createSyncMonsterTransformInfoData(monster, monsterInfo,transform) {
+    const SyncTransformInfo = {
+      monsterId: monster.id,
+      monsterStatus: {
+        monsterIdx: monsterInfo.index,
+        monsterModel: monsterInfo.model,
+        monsterName: monsterInfo.name,
+        monsterHp: monsterInfo.hp,
+      },
+      transform: transform,
+      speed: monster.speed,
+    };
+
+    // 여기 언디파인
+    //console.log(SyncTransformInfo.monsterId);
 
     return SyncTransformInfo;
   }
@@ -246,23 +426,25 @@ export default class MovementSync {
     const dotProduct = deltaX * velocityX + deltaY * velocityY;
 
     // 내적이 음수이면 지나쳤다고 판단
-    return dotProduct < 0; 
+    return dotProduct < 0;
   }
 
-  // 브로드캐스트
+  // 브로드캐스트 (type이 'user'인 경우만 전송)
   async broadcastChangedUsers(initialResponse) {
-    const promises = Object.keys(this.userSyncs).map((userId) => {
-      const user = this.userSyncs[userId]; // userId로 객체 참조
+    const promises = Object.keys(this.entitySyncs)
+      .filter((id) => this.entitySyncs[id].type === 'user') // 'user' 타입만 필터링
+      .map((id) => {
+        const user = this.entitySyncs[id]; // userId로 객체 참조
 
-      return new Promise((resolve, reject) => {
-        try {
-          user.socket.write(initialResponse);
-          setImmediate(resolve); // 즉시 resolve
-        } catch (error) {
-          reject(new Error(`[실패] ${userId}에게 패킷 전송 실패: ${error.message}`));
-        }
+        return new Promise((resolve, reject) => {
+          try {
+            user.socket.write(initialResponse);
+            setImmediate(resolve); // 즉시 resolve
+          } catch (error) {
+            reject(new Error(`[실패] ${id}에게 패킷 전송 실패: ${error.message}`));
+          }
+        });
       });
-    });
 
     try {
       await Promise.all(promises);

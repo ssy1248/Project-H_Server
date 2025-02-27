@@ -13,9 +13,7 @@ import {
 } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addUserSync } from '../../classes/managers/movementSync.manager.js';
-import User from '../../classes/models/user.class.js';
-import { findUserSync } from '../../classes/managers/movementSync.manager.js';
+import { addUser, findUser } from '../../movementSync/movementSync.manager.js';
 import { getAllItemSession } from '../../session/item.session.js';
 import { findAllItems } from '../../db/shop/shop.db.js';
 
@@ -99,7 +97,7 @@ const syncSpawnedUser = async (socket, user) => {
       .map((value) => {
         // 유저 최신 좌표 가져오기.
         const userInfo = value.getUserInfo();
-        const user = findUserSync('town', userInfo.userId);
+        const user = findUser('town', userInfo.userId);
         if (user !== null) {
           value.setTransformInfo(user.currentTransform);
         }
@@ -152,7 +150,10 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // [테스트] 이동동기화 유저 추가
-    addUserSync('town', userInfo.userId, socket, playerPacketData.transform);
+    //addEntitySync('town', userInfo.userId, "user",  socket, playerPacketData.transform);
+    addUser('town', socket,userInfo.userId, playerPacketData.transform  );
+
+    // 트랜스폼
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);

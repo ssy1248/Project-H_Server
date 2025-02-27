@@ -43,6 +43,9 @@ import playerRangedAttackHandler, {
   rangedAttackImpactHandler,
 } from './game/dungeon/player.attack.js';
 
+import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
+import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
+
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
     handler: registerHandler,
@@ -321,6 +324,11 @@ const handlers = {
     handler: rangeAttackCollide,
     protoType: 'dungeon.C_rangeAttcckCollide',
   },
+  [PACKET_TYPE.C_MONSTERMOVE]: {
+    handler: monsterSyncHandler,
+    protoType: 'town.C_MonsterMove',
+
+  }
 };
 
 export const getHandlerById = (handlerId) => {
