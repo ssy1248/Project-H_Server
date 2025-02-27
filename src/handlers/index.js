@@ -36,6 +36,7 @@ import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
 import { processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
+import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 import playerRangedAttackHandler, {
   rangeAttackCollide,
@@ -120,7 +121,7 @@ const handlers = {
     protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: animationHandler, // TODO : 핸들러 연결
+    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {

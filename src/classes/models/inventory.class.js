@@ -93,6 +93,7 @@ export default class Inventory {
                     rarity: rarity,
                     equiped: false,
                     quantity: quantity,
+                    stackable: result.stackable,
                 }
                 // 서버에 아이템 추가
                 this.inventory.push(newItem);
@@ -110,12 +111,11 @@ export default class Inventory {
             const found = idx !== -1 ? this.inventory[idx] : undefined;
             if (found) {
                 // 아이템이 스택 가능한지 확인
-                const item = await findItemById(found.itemId);
-                if (item.stackable) {
+                if (found.stackable) {
                     // 스택이 가능하면 수량이 충분한지 확인
-                    if (item.quantity >= quantity) {
+                    if (found.quantity > quantity) {
                         // 수량이 충분하면 수량 감소
-                        await updateItemQuantity(this.charId, itemId, rarity, found.quantity - quantity);
+                        await updateItemQuantity(this.charId, inventoryId, found.quantity - quantity);
                         // 서버에서도 수량 감소
                         found.quantity -= quantity;
                     } else {
@@ -124,7 +124,7 @@ export default class Inventory {
                     }
                 } else {
                     // 스택이 불가능하다면 아이템 삭제
-                    await removeItemFromInventory(this.charId, this.inventory);
+                    await removeItemFromInventory(this.charId, inventoryId);
                     // 서버에서도 삭제 
                     this.inventory.splice(idx, 1);
                 }
@@ -148,6 +148,10 @@ export default class Inventory {
         } catch (error) {
             console.error(error);
         }
+    }
+
+    getItem(inventoryId) {
+        return this.inventory.find((item) => item.id === inventoryId);
     }
 
     // 소지한 아이템을 반환하는 함수
