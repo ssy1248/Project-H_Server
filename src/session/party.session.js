@@ -3,17 +3,17 @@ import { partySessions } from './sessions.js';
 import { getUserById } from './user.session.js';
 
 // 파티 생성
-export const createPartySession = (id, partyName, userId) => {
+export const createPartySession = (id, partyName, userId, dungeonIndex) => {
   let partySession;
-  if (!id || !partyName) {
-    throw new Error('파티 생성 시 id와 partyName은 필수입니다.');
+  if (!id || !partyName || !dungeonIndex) {
+    throw new Error('파티 생성 시 id와 partyName와 dungeonIndex는 필수입니다.');
   }
 
   // 이미 파티에 들어가있다면 예외 처리
   if(searchPartyInPlayerSession(userId).length > 0){
     console.log('이미 파티에 들어가있는 플레이어는 파티 생성이 불가능합니다.');
   } else {
-    partySession = new Party(id, partyName, userId);
+    partySession = new Party(id, partyName, userId, dungeonIndex);
     partySessions.push(partySession);
   }
   return partySession;

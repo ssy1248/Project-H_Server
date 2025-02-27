@@ -1,6 +1,5 @@
 import pools from '../database.js';
 import { SQL_QUERIES } from './item.queries.js';
-import { toCamelCase } from '../../utils/transformCase.js';
 
 export const getAllItems = async () => {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ALL_ITEMS);

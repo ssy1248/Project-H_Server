@@ -8,8 +8,8 @@ export const findAllItems = async () => {
 };
 
 // 아이템 정보 가져오기
-export const findItemById = async (itemId) => {
-  const [item] = await pools.USER_DB.query(SQL_QUERIES.FIND_ITEM_BY_ID, [itemId]);
+export const findItemById = async (shopId) => {
+  const [item] = await pools.USER_DB.query(SQL_QUERIES.FIND_ITEM_BY_ID, [shopId]);
   return item.length > 0 ? item[0] : null;
 };
 
@@ -20,6 +20,12 @@ export const updateUserGoldAfterBuy = async (charId, price) => {
     charId,
     price,
   ]);
+  return result.affectedRows > 0;
+};
+
+// 아이템 구매 시 상점 재고 차감
+export const updateShopStockAfterBuy = async (shopId) => {
+  const [result] = await pools.USER_DB.query(SQL_QUERIES.UPDATE_SHOP_STOCK_AFTER_BUY, [shopId]);
   return result.affectedRows > 0;
 };
 
@@ -42,4 +48,10 @@ export const updateUserGoldAfterSell = async (charId, price) => {
     charId,
   ]);
   return result.affectedRows > 0;
+};
+
+// 상점 아이템 목록 조회
+export const getShopItems = async () => {
+  const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_SHOP_ITEMS);
+  return rows;
 };

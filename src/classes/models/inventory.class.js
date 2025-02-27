@@ -1,28 +1,50 @@
-import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemQuantity } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
+import { createResponse } from "../../utils/response/createResponse.js";
+import { PACKET_TYPE } from '../../constants/header.js';
 
 export default class Inventory {
     constructor() {
         this.inventory = []; // 소지중인 아이템 인벤토리
-        this.equipment = []; // 장비중인 아이템 인벤토리
     }
 
-    async init(charId) {
-        this.charId = charId;
-        this.inventory = await getInventoryFromCharId(charId);
+    async init(user) {
+        this.user = user;
+        this.charId = user.playerInfo.charId;
+        this.inventory = await getInventoryFromCharId(this.charId);
         if (!this.inventory) {
             console.log('inventory is empty');
             return;
         }
+        this.send();
+    }
+
+    send() {
+        // 메시지 생성
+        const inventoryResponse = createResponse(
+            'inventory',
+            'S_InventoryResponse',
+            PACKET_TYPE.S_INVENTORYRESPONSE,
+            { inventory: this.inventory },
+        );
+
+        // 전송
+        this.user.userInfo.socket.write(inventoryResponse);
     }
 
     // 아이템 장비하기
     async equip(inventoryId) {
         try {
             var item = this.inventory.find((item) => item.id === inventoryId);
+            // 이미 장비된 아이템이 있다면 장비 해제
+            var equipped = this.inventory.find((e) => e.equiped === true && e.itemType === item.itemType);
             if (!item) throw new Error('item not found');
+            if (equipped) {
+                await disrobeItem(this.charId, equipped.id);
+                equipped.equiped = false;
+            }
             // DB 업데이트
-            await equipItem(this.charId, inventoryId);
+            await equipItem(this.charId, item.id);
             // 서버 업데이트
             item.equiped = true;
         } catch (error) {
@@ -71,6 +93,7 @@ export default class Inventory {
                     rarity: rarity,
                     equiped: false,
                     quantity: quantity,
+                    stackable: result.stackable,
                 }
                 // 서버에 아이템 추가
                 this.inventory.push(newItem);
@@ -88,12 +111,11 @@ export default class Inventory {
             const found = idx !== -1 ? this.inventory[idx] : undefined;
             if (found) {
                 // 아이템이 스택 가능한지 확인
-                const item = await findItemById(found.itemId);
-                if (item.stackable) {
+                if (found.stackable) {
                     // 스택이 가능하면 수량이 충분한지 확인
-                    if (item.quantity >= quantity) {
+                    if (found.quantity > quantity) {
                         // 수량이 충분하면 수량 감소
-                        await updateItemQuantity(this.charId, itemId, rarity, found.quantity - quantity);
+                        await updateItemQuantity(this.charId, inventoryId, found.quantity - quantity);
                         // 서버에서도 수량 감소
                         found.quantity -= quantity;
                     } else {
@@ -102,7 +124,7 @@ export default class Inventory {
                     }
                 } else {
                     // 스택이 불가능하다면 아이템 삭제
-                    await removeItemFromInventory(this.charId, this.inventory);
+                    await removeItemFromInventory(this.charId, inventoryId);
                     // 서버에서도 삭제 
                     this.inventory.splice(idx, 1);
                 }
@@ -114,7 +136,49 @@ export default class Inventory {
         }
     }
 
+    // 아이템 슬롯 이동
+    async move(itemId, position) {
+        try {
+            var item = this.inventory.find((item) => item.id === itemId);
+            // DB의 위치 정보 업데이트
+            await updateItemPosition(this.charId, itemId, position);
+            // 서버의 위치 정보 업데이트
+            if (!item) throw new Error('item not found');
+            item.position = position;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    getItem(inventoryId) {
+        return this.inventory.find((item) => item.id === inventoryId);
+    }
+
+    // 소지한 아이템을 반환하는 함수
     getInventory() {
         return this.inventory;
+    }
+
+    // 장비한 아이템만을 반환하는 함수
+    getEquipment() {
+        return this.inventory.filter((item) => item.equipped === true);
+    }
+
+    // 모든 장착한 아이템의 스탯 합을 구하는 함수
+    getAllStat() {
+        return this.getEquipment.reduce(
+            (acc, item) => acc + item.stat,
+            0
+        );
+    }
+
+    // 클래스 기본 스탯에 장비한 모든 스탯을 더한 객체를 반환하는 함수
+    addAllStat(playerStatInfo) {
+        const copy = { ...playerStatInfo };
+        const stat = this.getAllStat();
+        for (const [key, value] of Object.entries(copy)) {
+            value += stat;
+        }
+        return copy;
     }
 }

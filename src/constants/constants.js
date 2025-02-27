@@ -1,5 +1,6 @@
 // 전역 변수 저장할 js
-export const MAX_PARTY_MEMBER = 4;
+// 임시 2명 기존 기획 4명
+export const MAX_PARTY_MEMBER = 2;
 
 export const ChatType = {
   // 0: 전체, 1: 공지사항, 2: 파티, 3: 귓속말, 4: 감정표현
@@ -17,7 +18,6 @@ export const ChatErrorCodes = {
   USER_NOT_FOUND: 3,
   INVALID_TYPE: 4,
 };
-
 
 // 동기화 관련 js
 export const MAX_POSITION_DIFFERENCE = 0.5;  

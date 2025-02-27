@@ -1,81 +1,176 @@
-import { searchPartySession } from '../../session/party.session.js';
-import { getUserBySocket } from '../../session/user.session.js';
-import CustomError from '../../utils/error/customError.js';
-import { ErrorCodes } from '../../utils/error/errorCodes.js';
+import { getUserBySocket, getUserByNickname, getAllUsers } from '../../session/user.session.js';
 import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMatchSession, getMatchSession } from '../../session/match.session.js';
+import { addMatchSession } from '../../session/match.session.js';
+import { matchSessions } from '../../session/sessions.js';
 
+//C_MatchRequest
 const matchingHandler = (socket, packetData) => {
   try {
     // 파티 ,플레어 정보
-    const { partyinfo, dungeonCode, players } = packetData;
+    const { party } = packetData;
 
-    //1.일단 매치 핸들러 실행되면 파티장만 이 요청을 받아야 할것이다.
-    //2.파티에 대한정보로 파티를 찾고 지금은 파티아이디를 받는것으로했지만 partyinfo를 받을 가능성이 높다.
-    //3.받은 던전 종류 index를 가지고 매칭 세션이 있는지 확인 없으면 만든다.
-    //4.파티가 업승면 soloMatch, 있으면 partyMatch 메소드 실행Ï
-    //5.저 메소드에서 매칭큐에 넣고 매칭 메소드를 실행해준다.
-    //6.매칭이 끝난후 지금 기준으로 enterDungeon메소드가 (이 메소드이름을 바꿀수 있다.) 실행된다.
-    //7.enterDungeon 메소드에서 던전을 생성하고 그에 따른 정보들을 받는다.
-    //8. 패킷을 통해 던전,파티, 을 보낸다.
-    //9. 매칭 완료 캐싱르 받으면 이제 클라이언트에서 던전입장 핸들러를 사용한다.
-
-    //일단 파티 partyinfo에서 partyId 추출
-    const partyId = partyinfo.partyId;
-
-    //partId로 파티 찾기
-    const party = searchPartySession(partyId);
-
-    //소켓으로 유저 찾기
+    //socket으로 유저 찾기
     const user = getUserBySocket(socket);
 
-    let matchSession = getMatchSession(dungeonCode);
-    if (!matchSession) {
-      console.log('이 던전의 매칭은 만들어지지 않았습니다');
-      matchSession = addMatchSession(dungeonCode);
+    //받아온 파티를 통해서 파티리더 아리디 찾기
+    const leaderId = party.partyLeaderId;
+
+    if (user.userInfo.userId !== leaderId) {
+      console.log('파티장만 신청 가능합니다.');
+      return;
     }
 
-    let dungeon;
-
-    //파티가 없는경우
-    if (!party) {
-      dungeon = matchSession.addSoloMatchQueue();
-    }
-    //파티가 있는경우
-    else if (party) {
-      dungeon = addPartyMatchQueue(partyId);
-    }
-    // 여기서 나온 던전 세션을 새로 만드는 던전 인포에 맞게 넣어야한다.
-    //dungeonInfo 에 들어가야 할것
-
-    const dungeonInfo = {
-      dungeonId: dungeon.dungeonId,
-      dungeonIndex: dungeon.dungeonIndex,
-      dungeonUser: dungeon.users,
-      dungeonState: dungeon.sState,
+    // 매칭이 완료가 되면 matchingNotification을 isStart = false로 보내서 매칭 완료를 알려줌
+    const matchingNotificationPayload = {
+      isStart: true,
     };
 
-    const partyInfo = party.partyInfo;
+    const matchingNotificationPacket = createResponse(
+      'match',
+      'S_MatchingNotification',
+      PACKET_TYPE.S_MATCHINGNOTIFICATION,
+      matchingNotificationPayload,
+    );
 
-    //dungeonId : 던전 아이디
-    //dungeonIndex : 어떤 던전인지 아는 던전 번호
-    //dungeonUser : 던전에 들어가있는 유저 <- 이부분에서 파티로 보내주는게 낳을까  그러면 던전 클래스도 그냥 파티로 만들면 되긴 하는데
-    //dungeonState : 던전의 상태 매칭, 진행중, 중단
+    // 파티원 전원에게 브로드캐스트
+    party.Players.forEach((member) => {
+      const partyMember = getUserByNickname(member.playerName);
+      partyMember.userInfo.socket.write(matchingNotificationPacket);
+    });
 
-    //여기서 던전 세션을 만들어야한고 클라이언트에 보내줘야한다.일단 받은 데이터는 다 보내자
+    let matchSession = matchSessions[0];
+    if (!matchSession) {
+      console.log('이 던전의 매칭은 만들어지지 않았습니다');
+      matchSession = addMatchSession();
+    }
 
-    const MatcchPayload = {
-      dungeonInfo,
-      players,
-      partyInfo,
+    const dungeon = matchSession.addPartyMatchQueue(party.partyId);
+
+    if (!dungeon) {
+      // 매칭이 아직 안 됐으므로, 던전 정보가 없다.
+      console.log('아직 매칭이 완료되지 않았습니다.');
+      return;
+    }
+
+    // 던전인포
+    const dungeonInfoResponse = {
+      dungeonId: dungeon.dungeonId,
+      partyInfo: dungeon.partyInfo,
+      dungeonState: dungeon.State,
+      monster: null,
+    };
+
+    // 매칭이 완료되서 하나가 된 파티 인포(파티 + 파티) / 풀파티가 들어간 경우는 같은 값이 리턴
+    const partyInfo = dungeon.partyInfo;
+
+    // 업데이트 파티 리스트를 브로드캐스팅
+    if (dungeon.partyInfo.Players.length > 0) {
+      const updatedPartyInfo = dungeon.partyInfo;
+      const updateResponse = createResponse(
+        'party',
+        'S_PartyResponse',
+        PACKET_TYPE.S_PARTYRESPONSE,
+        {
+          party: updatedPartyInfo,
+          case: 4, // 업데이트된 파티 정보
+          success: true,
+          message: '파티 정보가 업데이트되었습니다.',
+          failCode: 0,
+        },
+      );
+      //  파티의 다른 멤버들에게도 브로드캐스트
+      updatedPartyInfo.Players.forEach((member) => {
+        const userSock = getUserByNickname(member.playerName);
+        console.log('userSock', userSock);
+        userSock.userInfo.socket.write(updateResponse);
+      });
+      socket.write(updateResponse);
+    }
+
+    // 던전 아이디에 맞는 씬으로 이동
+    const matchPayload = {
+      dungeonSession: dungeonInfoResponse,
+      party : dungeon.partyInfo,
+      success: true,
       message: '매칭이 완료되었습니다!', // 성공 메시지
     };
 
     //createResponse
-    const matchResponse = createResponse('match', 'S_Match', PACKET_TYPE.S_Match, MatcchPayload);
+    const matchResponse = createResponse(
+      'match',
+      'S_MatchResponse',
+      PACKET_TYPE.S_MATCHRESPONSE,
+      matchPayload,
+    );
+    // 파티원들에게 브로드캐스팅
+    dungeon.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      userSock.userInfo.socket.write(matchResponse);
+    });
     socket.write(matchResponse);
+
+    dungeon.partyInfo.Players.forEach((member) => {
+      const userSock = getUserByNickname(member.playerName);
+      // removeUser(userSock.userInfo.socket);
+    });
+  } catch (e) {
+    handlerError(socket, e);
+  }
+};
+
+// C_MatchStopRequest
+export const matchStopHandler = (socket, packetData) => {
+  try {
+    const { party } = packetData;
+    console.log('stop', party);
+
+    const partyId = party.partyId;
+
+    const stopMatch = matchSessions[0].cancelMatch(partyId);
+
+    if (stopMatch) {
+      const matchStopPayload = {
+        bool: true,
+        message: '매칭 종료가 성공적으로 진행되었습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+
+      const matchingNotificationPayload = {
+        isStart: false,
+      };
+      const matchingNotificationPacket = createResponse(
+        'match',
+        'S_MatchingNotification',
+        PACKET_TYPE.S_MATCHINGNOTIFICATION,
+        matchingNotificationPayload,
+      );
+
+      // 파티원 전원에게 브로드캐스트
+      party.Players.forEach((member) => {
+        const partyMember = getUserByNickname(member.playerName);
+        partyMember.userInfo.socket.write(matchingNotificationPacket);
+      });
+    } else {
+      const matchStopPayload = {
+        bool: false,
+        message: '매칭 종료를 실패했습니다.',
+      };
+      const matchStopResponse = createResponse(
+        'match',
+        'S_MatchStopResponse',
+        PACKET_TYPE.S_MATCHSTOPRESPONSE,
+        matchStopPayload,
+      );
+      socket.write(matchStopResponse);
+    }
   } catch (e) {
     handlerError(socket, e);
   }

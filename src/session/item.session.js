@@ -1,17 +1,19 @@
 import { getAllItems } from '../db/inventory/item.db.js';
 import { itemSessions } from './sessions.js';
-import Item from '../classes/models/item.class.js';
 
-export function addItemSession(item) {
-  if (itemSessions.has(item.id)) {
-    itemSessions.set(item.id, item);
+export function addItemSession(id, item) {
+  if (!itemSessions.has(item.id)) {
+    itemSessions.set(id, item);
   } else {
-    return new Error('해당하는 데이터가 이미 존제 합니다.');
+    return new Error('해당하는 데이터가 이미 존wo 합니다.');
   }
 }
 // 해당 데이터 삭제
 export function deletItemSession(id) {
   itemSessions.delete(id);
+}
+export function getAllItemSession() {
+  return itemSessions;
 }
 // 해당 데이터 받아오기
 export function getItemSession(id) {
@@ -29,6 +31,6 @@ export function getMaxItemList(count) {
 export async function initItemSesion() {
   const itemAllData = await getAllItems();
   for (let data of itemAllData) {
-    new Item().initItem(data);
+    addItemSession(data.id, data);
   }
 }

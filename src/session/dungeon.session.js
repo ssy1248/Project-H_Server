@@ -21,7 +21,7 @@ export const getDungeonSession = (id) => {
   return dungeonSessions.find((session) => session.id === id);
 };
 
-//던전에 있는 유저 착기
+//던전에 있는 유저 찾기 //users 는 사라졌으니 못찾음
 export const getDungeonUser = (userId) => {
   const dungeons = dungeonSessions.filter((dungeon) => {
     return dungeon.users.some((user) => user.id === userId);
@@ -29,3 +29,11 @@ export const getDungeonUser = (userId) => {
 
   return dungeons;
 };
+
+export const getDungeonInPlayerName = (playerName) => {
+  const dungeons = dungeonSessions.filter((dungeon) => {
+    return dungeon.partyInfo.Players.some((player) => player.playerName === playerName);
+  });
+
+  return dungeons;
+}

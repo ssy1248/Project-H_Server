@@ -15,17 +15,30 @@ import {
   partyInviteHandler,
   partyJoinHandler,
   partyKickHandler,
+  partyLeaderChangeHandler,
   partyListHandler,
   partySearchHandler,
 } from './game/party.handler.js';
-import { inventoryHandler } from './inventory/inventory.handler.js';
+import {
+  disrobeItemHandler,
+  equipItemHandler,
+  inventoryHandler,
+  MoveItemHandler,
+} from './inventory/inventory.handler.js';
 import dungeonEnterHandler from './game/dungeon/dungeonEnter.handler.js';
 import buyInMarketHandler from './marketplace/buyInMarket.handler.js';
 import sellInMarketHandler from './marketplace/sellInMarket.handler.js';
 import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
-import matchingHandler from './game/match.handler.js';
-import shopHandler from './game/shop.handler.js';
+import matchingHandler, { matchStopHandler } from './game/match.handler.js';
+import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
+import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
+import enterAuctionBid from './game/enterAuctionBid.handler.js';
+import { processPlayerActionHandler } from './game/InGame/player.handler.js';
+import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
+import { ActiveItemRequestHandler } from './inventory/item.handler.js';
+import reSpawnUserHandler from './user/reSpawnUser.handler.js';
+
 import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 
@@ -83,39 +96,35 @@ const handlers = {
     protoType: 'chat.C_Chat',
   },
   [PACKET_TYPE.S_CHAT]: {
-    handler: animationHandler,
+    handler: chatHandler,
     protoType: 'chat.S_Chat',
   },
   [PACKET_TYPE.C_BUYITEMREQUEST]: {
-    handler: animationHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.C_BuyItemRequest',
   },
   [PACKET_TYPE.S_BUYITEMRESPONSE]: {
-    handler: animationHandler,
+    handler: handleBuyItem,
     protoType: 'inventory.S_BuyItemResponse',
   },
   [PACKET_TYPE.C_EQUIPITEMREQUEST]: {
-    handler: animationHandler,
+    handler: equipItemHandler,
     protoType: 'inventory.C_EquipItemRequest',
   },
-  [PACKET_TYPE.S_EQUIPITEMRESPONSE]: {
-    handler: animationHandler,
-    protoType: 'inventory.S_EquipItemResponse',
-  },
   [PACKET_TYPE.C_DISROBEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: disrobeItemHandler,
     protoType: 'inventory.C_DisrobeItemRequest',
   },
-  [PACKET_TYPE.S_DISROBEITEMRESPONSE]: {
-    handler: animationHandler,
-    protoType: 'inventory.S_DisrobeItemResponse',
+  [PACKET_TYPE.C_MOVEITEMREQUEST]: {
+    handler: MoveItemHandler,
+    protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler,
+    handler: animationHandler, // TODO : 핸들러 연결
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
@@ -157,10 +166,6 @@ const handlers = {
   [PACKET_TYPE.C_INVENTORYREQUEST]: {
     handler: inventoryHandler,
     protoType: 'inventory.C_InventoryRequest',
-  },
-  [PACKET_TYPE.S_INVENTORYRESPONSE]: {
-    handler: inventoryHandler,
-    protoType: 'inventory.S_InventoryResponse',
   },
   [PACKET_TYPE.C_PARTYINVITEREQUEST]: {
     handler: partyInviteHandler,
@@ -218,25 +223,78 @@ const handlers = {
     handler: animationHandler,
     protoType: 'town.S_SellInMarket',
   },
-  [PACKET_TYPE.C_BuyInMarket]: {
+  [PACKET_TYPE.C_BUYINMARKET]: {
     handler: buyInMarketHandler,
     protoType: 'town.C_BuyInMarket',
   },
-  [PACKET_TYPE.C_Emote]: {
+  [PACKET_TYPE.S_BUYINMARKET]: {
+    handler: buyInMarketHandler,
+    protoType: 'town.S_BuyInMarket',
+  },
+  [PACKET_TYPE.C_EMOTE]: {
     handler: chatHandler,
     protoType: 'chat.C_Emote',
   },
-  [PACKET_TYPE.S_Emote]: {
+  [PACKET_TYPE.S_EMOTE]: {
     handler: chatHandler,
     protoType: 'chat.S_Emote',
   },
   [PACKET_TYPE.C_SellItemRequest]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.C_SellItemRequest',
   },
   [PACKET_TYPE.S_SellItemResponse]: {
-    handler: shopHandler,
+    handler: handleSellItem,
     protoType: 'inventory.S_SellItemResponse',
+  },
+  [PACKET_TYPE.C_MARKETSELECTBUYNAME]: {
+    handler: marketSelectBuyName,
+    protoType: 'town.C_MarketSelectBuyName',
+  },
+  [PACKET_TYPE.C_MATCHSTOPREQUEST]: {
+    handler: matchStopHandler,
+    protoType: 'match.C_MatchStopRequest',
+  },
+  [PACKET_TYPE.S_MATCHSTOPRESPONSE]: {
+    handler: undefined,
+    protoType: 'match.S_MatchStopResponse',
+  },
+  [PACKET_TYPE.S_MATCHINGNOTIFICATION]: {
+    handler: undefined,
+    protoType: 'match.S_MatchingNotification',
+  },
+  marketSelectBuyName,
+  [PACKET_TYPE.C_SHOPINVENTORYREQUEST]: {
+    handler: handleInventoryList,
+    protoType: 'inventory.C_ShopInventoryRequest',
+  },
+  [PACKET_TYPE.S_SHOPINVENTORYLIST]: {
+    handler: handleInventoryList,
+    protoType: 'inventory.S_ShopInventoryList',
+  },
+  [PACKET_TYPE.C_PARTYLEADERCHANGEREQUEST]: {
+    handler: partyLeaderChangeHandler,
+    protoType: 'party.C_PartyLeaderChangeRequest',
+  },
+  [PACKET_TYPE.C_ENTERAUCTIONBID]: {
+    handler: enterAuctionBid,
+    protoType: 'dungeon.C_EnterAuctionBid',
+  },
+  [PACKET_TYPE.C_PLAYERACTION]: {
+    handler: processPlayerActionHandler,
+    protoType: 'dungeon.C_PlayerAction',
+  },
+  [PACKET_TYPE.S_PLAYERACTION]: {
+    handler: undefined,
+    protoType: 'dungeon.S_PlayerAction',
+  },
+  [PACKET_TYPE.C_DUNGEONENTER]: {
+    handler: dungeonSpawnHandler,
+    protoType: 'dungeon.C_DungeonEnter',
+  },
+  [PACKET_TYPE.C_DUNGEONEXIT]: {
+    handler: reSpawnUserHandler,
+    protoType: 'dungeon.C_DungeonExit',
   },
   [PACKET_TYPE.C_MONSTERMOVE]: {
     handler: monsterSyncHandler,
