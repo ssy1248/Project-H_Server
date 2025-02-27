@@ -8,7 +8,7 @@ export const addMonster = (typeId, name, hp, atk, def, speed, position) => {
   activeMonsters.set(monster.id, monster); // id는 class에서 uuid 처리상태 종류는 typeId
 
   console.log(`몬스터 생성됨: ${name} (UUID: ${monster.id}, TypeID: ${typeId})`);
-  return monster.id; // 생성된 몬스터의 UUID 반환
+  return monster; // 생성된 몬스터의 UUID 반환
 };
 
 // 특정 몬스터 가져오기
