@@ -247,14 +247,13 @@ class Dungeon {
   // 화살 이동을 일정 간격으로 처리
   startArrowMovement() {
     this.arrowMoveIntervalDuration = 100; // 100ms 간격
-
-    // 인터벌 매니저에 addInterval함수가 없음
-    // this.intervalManager.addInterval(() => {
-    //   // 모든 플레이어의 화살 이동
-    //   Object.keys(this.arrows).forEach((playerName) => {
-    //     this.moveArrow(playerName);
-    //   });
-    // }, this.arrowMoveIntervalDuration);
+    /*
+    this.intervalManager.addInterval(() => {
+      // 모든 플레이어의 화살 이동
+      Object.keys(this.arrows).forEach((playerName) => {
+        this.moveArrow(playerName);
+      });
+    }, this.arrowMoveIntervalDuration);*/
   }
 
   // 인터벌을 멈추는 함수
