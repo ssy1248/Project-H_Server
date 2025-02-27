@@ -124,9 +124,6 @@ const dungeonEnterHandler = (socket, packetData) => {
     );
 
     socket.write(dungeonEnterResponse);
-
-
-    
   } catch (e) {
     handlerError(socket, e);
   }

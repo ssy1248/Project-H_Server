@@ -527,19 +527,20 @@ message S_PlayerAction {
   bool success = 5;
   string message = 6;
 }
-message C_DungeonEnter {
 
-}
-message S_DungeonSpawn {
-  int32 userId = 1;// 자기자신
-  DungeonInfo dungeonInfo = 2;
-  repeated TransformInfo playerTransforms = 3;
-}
-message S_DungeonDeSpawn {
-  int32 playerId = 1;// 유저 id
-}
-message C_DungeonExit {
+message S_SetPlayerHpData{
+  int32 userId =1;
 
+  float hp = 2; 
+}
+message S_SetPlayerData{
+  int32 userId =1;
+  StatInfo playerData = 2;
+}
+message S_SetMonsterHpData{
+  int32 monsterId = 1;
+
+  float hp = 2; 
 }
 // 일반 공격 결과 메시지
 message NormalAttackResult {
@@ -570,6 +571,20 @@ message HitResult {
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
+message C_DungeonEnter {
+
+}
+message S_DungeonSpawn {
+  int32 userId = 1;// 자기자신
+  DungeonInfo dungeonInfo = 2;
+  repeated TransformInfo playerTransforms = 3;
+}
+message S_DungeonDeSpawn {
+  int32 playerId = 1;// 유저 id
+}
+message C_DungeonExit {
+
+}
 // 정보 구조체
 
 message PlayerInfo {

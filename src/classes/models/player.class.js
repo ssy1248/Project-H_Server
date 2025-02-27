@@ -1,6 +1,6 @@
 const PLAYER_CLASS = {
-  ROGUE: 1,
-  LANCE: 2,
+  LANCE: 1,
+  ROGUE: 2,
   ARCHER: 3,
   HOLYKNIGHT: 4,
   MAGE: 5,
@@ -21,17 +21,17 @@ class Players {
         this.normalAttack = {
           attackRange: 4, // 공격 범위 -> 유니티에 원범위를 이걸로 설정
           attackType: 1, // 단일 1 / 범위 2 / 도트딜? 3 / cc 4
-          attackCoolTime: 1.0, // 기본 공격 쿨타임 (초)
+          attackCoolTime: 3, // 기본 공격 쿨타임 (초)
           damage: 50,
         };
         this.skillAttack = {
           attackRange: 5, // 공격 범위
           attackType: 1, // 스킬 종류
-          attackCoolTime: 3.0, // 스킬 쿨타임 (초)
+          attackCoolTime: 6, // 스킬 쿨타임 (초)
           damage: 80,
         };
         this.dodge = {
-          dodgeCoolTime: 2.0, // 회피 쿨타임 (초)
+          dodgeCoolTime: 8, // 회피 쿨타임 (초)
           dodgeRange: 3, // 회피 이동 거리
         };
         break;
@@ -39,17 +39,17 @@ class Players {
         this.normalAttack = {
           attackRange: 6,
           attackType: 1,
-          attackCoolTime: 1.2,
+          attackCoolTime: 3,
           damage: 40,
         };
         this.skillAttack = {
           attackRange: 8,
           attackType: 3,
-          attackCoolTime: 4.0,
+          attackCoolTime: 8.0,
           damage: 90,
         };
         this.dodge = {
-          dodgeCoolTime: 2.5,
+          dodgeCoolTime: 5,
           dodgeRange: 2,
         };
         break;
@@ -57,17 +57,17 @@ class Players {
         this.normalAttack = {
           attackRange: 10, // 원거리 공격
           attackType: 1,
-          attackCoolTime: 0.8,
+          attackCoolTime: 2,
           damage: 35,
         };
         this.skillAttack = {
           attackRange: 12,
           attackType: 2,
-          attackCoolTime: 3.5,
+          attackCoolTime: 7,
           damage: 60,
         };
         this.dodge = {
-          dodgeCoolTime: 1.8,
+          dodgeCoolTime: 5,
           dodgeRange: 4,
         };
         break;
@@ -75,17 +75,17 @@ class Players {
         this.normalAttack = {
           attackRange: 5,
           attackType: 1,
-          attackCoolTime: 1.0,
+          attackCoolTime: 5,
           damage: 50,
         };
         this.skillAttack = {
           attackRange: 7,
           attackType: 4,
-          attackCoolTime: 3.0,
+          attackCoolTime: 10,
           damage: 70,
         };
         this.dodge = {
-          dodgeCoolTime: 2.0,
+          dodgeCoolTime: 10,
           dodgeRange: 3,
         };
         break;
@@ -93,17 +93,17 @@ class Players {
         this.normalAttack = {
           attackRange: 5,
           attackType: 1,
-          attackCoolTime: 1.0,
+          attackCoolTime: 4,
           damage: 50,
         };
         this.skillAttack = {
           attackRange: 7,
           attackType: 3,
-          attackCoolTime: 3.0,
+          attackCoolTime: 9,
           damage: 70,
         };
         this.dodge = {
-          dodgeCoolTime: 2.0,
+          dodgeCoolTime: 10,
           dodgeRange: 3,
         };
         break;
