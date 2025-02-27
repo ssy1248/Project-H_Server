@@ -65,6 +65,13 @@ const playerAttackHandler = (socket, packetData) => {
 
     //이런 다음에 화살 아이디만 보내주면 되겠다
     console.log('생성된 화살 ID:', arrowId);
+
+
+    //packetData로 보낼것 생각
+    //일단 arrowId는 보내야 한다
+
+
+
   } catch (error) {
     console.error('playerAttackHandler 오류:', error);
   }
@@ -130,7 +137,55 @@ export const playerArrowAttack = (socket, packetData) => {
 
     socket.write();
   } catch (error) {
-    console.error('공격 처리 중 오류 발생:', error);
+    handlerError(socket, error);
+  }
+};
+
+//장애물에 화살이 닿았을때
+export const playerAttackCollide = (socket, packetData) => {
+  try {
+    //화살과 자애물 좌표?
+    const { arrowId, collide } = packetData;
+
+    //유저 찾기
+    const user = getUserById(socket);
+    console.log('user:', user);
+
+    if (!user) {
+      console.error('공격자를 찾을 수 없습니다.');
+      return;
+    }
+
+    //유저 닉네임 찾기
+    const userNickName = user.userInfo.nickname;
+
+    // 현재 던전 정보를 가져옵니다.
+    const dungeon = getDungeonInPlayerName(userNickName);
+    console.log('dungeon:', dungeon);
+
+    // 던전 내 화살 목록에서 arrowId를 이용해 화살 찾기
+    const arrow = getArrowById(arrowId);
+    console.log('arrow', arrow);
+
+    //화살좌표
+    const arrowPos = arrow.position;
+    //장애물 좌표
+    const collidePosX = collide.x;
+    const collidePosY = collide.y;
+    const collidePosZ = collide.z;
+
+    // 간단한 충돌 감지 (화살의 위치와 몬스터의 위치가 가까운지 확인)
+    if (
+      Math.abs(arrowPos.x - collidePosX.x) < 1 &&
+      Math.abs(arrowPos.y - collidePosY.y) < 1 &&
+      Math.abs(arrowPos.z - collidePosZ.z) < 1
+    ) {
+      dungeon.removeArrow(arrowId);
+    } else {
+      console.log('충돌하지 않음');
+    }
+  } catch (error) {
+    handlerError(socket, error);
   }
 };
 
