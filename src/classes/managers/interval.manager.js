@@ -17,6 +17,14 @@ class IntervalManager extends BaseManager {
     this.addPlayer(playerId, callback, interval, 'updatePosition');
   }
 
+  // addInterval 메서드 추가
+  addInterval(callback, interval) {
+    const intervalId = setInterval(callback, interval);
+    // intervals에 intervalId를 저장하고, key는 고유한 문자열을 사용
+    this.intervals.set(intervalId, intervalId);
+    return intervalId;
+  }
+
   removePlayer(playerId) {
     if (this.intervals.has(playerId)) {
       const userIntervals = this.intervals.get(playerId);
