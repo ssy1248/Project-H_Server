@@ -15,7 +15,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       throw new Error('해당 던전이 없습니다!');
     }
 
-    user.setTransformInfo({ posX: 0, posY: 0, posZ: 0, rot: 0 });
+    user.setTransformInfo({ posX: 1, posY: 1, posZ: 1, rot: 0 });
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));

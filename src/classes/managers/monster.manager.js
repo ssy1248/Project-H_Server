@@ -1,4 +1,4 @@
-import { Monster, MONSTER_AI_BEHAVIOR } from '../models/monster.class.js';
+//import { Monster, MONSTER_AI_BEHAVIOR } from '../../movementSync/entity/classes/monster.class.js';
 import {
   addEntitySync,
   findMovementSync,
@@ -6,7 +6,6 @@ import {
   updateEntitySync,
 } from './movementSync.manager.js';
 import Queue from '../../utils/queue.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const monsters = {}; // 몬스터를 담을 배열.
 const monsterUpdateQueue = new Queue(50); // 업데이트할 몬스터를 담을 큐

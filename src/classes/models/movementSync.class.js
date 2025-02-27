@@ -7,7 +7,7 @@ import {
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { addMonster, updateMonster, findMonster, getMonsterUpdateQueue } from '../managers/monster.manager.js';
-import { MONSTER_AI_BEHAVIOR } from './monster.class.js';
+//import { MONSTER_AI_BEHAVIOR } from './monster.class.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export default class MovementSync {

@@ -101,8 +101,8 @@ export const packetNames = {
 
     S_PlayerRangeAttack: 'Google.Protobuf.Protocol.S_PlayerRangeAttack',
     C_PlayerRangeAttack: 'Google.Protobuf.Protocol.C_PlayerRangeAttack',
-    S_RangedAttackImpact: 'Google.Protobuf.Protocol.S_RangedAttackImpact',
-    C_RangedAttackImpact: 'Google.Protobuf.Protocol.C_RangedAttackImpact',
+    S_RangeAttackImpact: 'Google.Protobuf.Protocol.S_RangeAttackImpact',
+    C_RangeAttackImpact: 'Google.Protobuf.Protocol.C_RangeAttackImpact',
     S_RangeAttackCollide: 'Google.Protobuf.Protocol.S_RangeAttackCollide',
     C_RangeAttackCollide: 'Google.Protobuf.Protocol.C_RangeAttackCollide',
   },

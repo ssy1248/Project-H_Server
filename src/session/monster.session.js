@@ -1,4 +1,4 @@
-import Monster from '../classes/models/monster.class';
+import Monster from '../classes/models/monster.class.js';
 
 const activeMonsters = new Map();
 
