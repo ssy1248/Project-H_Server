@@ -531,6 +531,20 @@ message S_PlayerAction {
   string message = 6;
 }
 
+message S_SetPlayerHpData{
+  int32 userId =1;
+
+  float hp = 2; 
+}
+message S_SetPlayerData{
+  int32 userId =1;
+  StatInfo playerData = 2;
+}
+message S_SetMonsterHpData{
+  int32 monsterId = 1;
+
+  float hp = 2; 
+}
 // 일반 공격 결과 메시지
 message NormalAttackResult {
   int32 targetId = 1;// 공격 대상 ID

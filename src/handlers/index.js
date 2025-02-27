@@ -37,6 +37,7 @@ import enterAuctionBid from './game/enterAuctionBid.handler.js';
 import { processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
+import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -289,7 +290,7 @@ const handlers = {
     protoType: 'dungeon.C_DungeonEnter',
   },
   [PACKET_TYPE.C_DUNGEONEXIT]: {
-    handler: undefined,
+    handler: reSpawnUserHandler,
     protoType: 'dungeon.C_DungeonExit',
   },
 };
