@@ -38,6 +38,10 @@ import { processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
+import playerRangedAttackHandler, {
+  rangeAttackCollide,
+  rangedAttackImpactHandler,
+} from './game/dungeon/player.attack.js';
 
 import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
@@ -295,6 +299,30 @@ const handlers = {
   [PACKET_TYPE.C_DUNGEONEXIT]: {
     handler: reSpawnUserHandler,
     protoType: 'dungeon.C_DungeonExit',
+  },
+  [PACKET_TYPE.S_PLAYERRANGEATTACK]: {
+    handler: playerRangedAttackHandler,
+    protoType: 'dungeon.S_playerRangeAttck',
+  },
+  [PACKET_TYPE.C_PLAYERRANGEATTACK]: {
+    handler: playerRangedAttackHandler,
+    protoType: 'dungeon.C_playerRangeAttck',
+  },
+  [PACKET_TYPE.S_RANGEATTACKIMPACT]: {
+    handler: rangedAttackImpactHandler,
+    protoType: 'dungeon.S_rangeAttackImpact',
+  },
+  [PACKET_TYPE.C_RANGEATTACKIMPACT]: {
+    handler: rangedAttackImpactHandler,
+    protoType: 'dungeon.C_rangeAttackImpact',
+  },
+  [PACKET_TYPE.S_RANGEATTACKCOLLIDE]: {
+    handler: rangeAttackCollide,
+    protoType: 'dungeon.S_rangeAttcckCollide',
+  },
+  [PACKET_TYPE.C_RANGEATTACKCOLLIDE]: {
+    handler: rangeAttackCollide,
+    protoType: 'dungeon.C_rangeAttcckCollide',
   },
   [PACKET_TYPE.C_MONSTERMOVE]: {
     handler: monsterSyncHandler,
