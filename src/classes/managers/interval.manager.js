@@ -1,3 +1,5 @@
+import BaseManager from './base.manager.js';
+
 class IntervalManager extends BaseManager {
   constructor() {
     super();
