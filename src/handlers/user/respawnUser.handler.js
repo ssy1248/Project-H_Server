@@ -1,4 +1,4 @@
-import { removeDungeonSession } from '../../session/dungeon.session.js';
+import { getDungeonSession, removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import spawnUserHandler from './spawnUser.handler.js';
@@ -10,6 +10,8 @@ const respawnUserHandler = async (socket) => {
     if (!user) {
       throw new Error('해당 유저가 없습니다!');
     }
+    const dungeondata = getDungeonSession(user.inDungeonId);
+    console.log(dungeondata.getPartyInfo());
     searchPartySession(dungeondata.getPartyInfo().id).exitPartyMember(user);
     // 4명이 모두 나가면 삭제 하는 로직 필요.
     // 파티 유지 폭파 정하기.
