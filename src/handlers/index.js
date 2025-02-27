@@ -26,7 +26,8 @@ import marketMyListHandler from './marketplace/marketMyList.handler.js';
 import marketListHandler from './marketplace/marketList.handler.js';
 import matchingHandler from './game/match.handler.js';
 import shopHandler from './game/shop.handler.js';
-
+import { handleMonsterArrivalPacket } from '../classes/managers/monster.manager.js';
+import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -237,6 +238,11 @@ const handlers = {
     handler: shopHandler,
     protoType: 'inventory.S_SellItemResponse',
   },
+  [PACKET_TYPE.C_MONSTERMOVE]: {
+    handler: monsterSyncHandler,
+    protoType: 'town.C_MonsterMove',
+
+  }
 };
 
 export const getHandlerById = (handlerId) => {

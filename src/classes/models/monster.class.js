@@ -2,13 +2,13 @@ export const MONSTER_AI_BEHAVIOR = {
   IDLE: 0,            // 몬스터가 대기
   WANDER: 1,          // 몬스터가 주변을 돌아다님
   CHASE_SETTING: 2,   // 추격 (세팅)
-  CHASE_NORMAL: 2,    // 추격 (일반)
-  CHASE_FLANK: 3,     // 추격 (측면이동)
-  CHASE_PAUSE: 4,     // 추격 (대기)
-  CHASE_RETREAT  : 5, // 추격 (후퇴)
-  ATTACK: 6,          // 몬스터가 유저가 근처에 있다면 공격
-  RETURN: 7,          // 몬스터가 스폰 장소로 돌아감
-  TAKING_DAMAGE: 8,   // 몬스터가 공격받고 있음
+  CHASE_NORMAL: 3,    // 추격 (일반)
+  CHASE_FLANK: 4,     // 추격 (측면이동)
+  CHASE_PAUSE: 5,     // 추격 (대기)
+  CHASE_RETREAT  : 6, // 추격 (후퇴)
+  ATTACK: 7,          // 몬스터가 유저가 근처에 있다면 공격
+  RETURN: 8,          // 몬스터가 스폰 장소로 돌아감
+  TAKING_DAMAGE: 9,   // 몬스터가 공격받고 있음
 };
 
 export class Monster {
@@ -23,6 +23,7 @@ export class Monster {
       name: name,
       hp: hp,
       behavior: MONSTER_AI_BEHAVIOR.IDLE,
+      isTargetChanged: false,
     };
 
     const randomTransform = {
@@ -78,7 +79,7 @@ export class Monster {
   }
 
   // [Set] - 행동패턴
-  SetBehavior(behavior) {
+  setBehavior(behavior) {
     this.monsterInfo.behavior = behavior;
   }
 
@@ -88,8 +89,8 @@ export class Monster {
   }
 
   // [Set] - transformInfo
-  SetTransformInfo(transform) {
-    this.transformInfo = transform;
+  setTransformInfo(transform) {
+    this.transformInfo = {...transform};
   }
 
   // [Get] - spawnTransform
@@ -98,7 +99,7 @@ export class Monster {
   }
 
   // [Set] - spawnTransform
-  SetSpawnTransform(spawnTransform) {
+  setSpawnTransform(spawnTransform) {
     this.spawnTransform = spawnTransform;
   }
 
@@ -108,10 +109,20 @@ export class Monster {
   }
 
   // [Set] - targetInfo
-  SetTargetInfo(userId, transform , velocity) {
+  setTargetInfo(userId, transform , velocity) {
     this.targetInfo.userId = userId;
     this.targetInfo.transform = transform;
     this.targetInfo.velocity = velocity;
+  }
+
+  // [Get] - isTargetChanged
+  getIsTargetChanged() {
+    return this.monsterInfo.isTargetChanged;
+  }
+
+  // [Set] - isTargetChanged
+  setIsTargetChanged(isTargetChanged) {
+    this.monsterInfo.isTargetChanged = isTargetChanged;
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수

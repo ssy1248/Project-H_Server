@@ -58,4 +58,7 @@ export const PACKET_TYPE = {
   S_MONSTERSPAWN:55,
   C_MONSTERMOVE:56,
   S_MONSTERMOVE:57,
+  S_MonsterHit: 58,
+  S_MonsterAttck: 59,
+  S_MonsterDie: 60,
 };

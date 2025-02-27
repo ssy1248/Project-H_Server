@@ -59,6 +59,12 @@ enum MsgId {
   S_SELLITEMRESPONSE = 52;
   C_MARKETSELECTBUYNAME = 53;
   S_MARKETSELECTBUYNAME = 54;
+  S_MONSTERSPAWN =55;
+  C_MONSTERMOVE =56;
+  S_MONSTERMOVE =57;
+  S_MONSTERHIT =58;
+  S_MONSTERATTCK =59;
+  S_MONSTERDIE =60;
 }
 
 //회원가입 요청
@@ -404,7 +410,7 @@ message S_MonsterSpawn{
 // 클라 -> 서버 (서버에서 보낸 패킷 응답용.)
 // 갈수 없는곳을 타겟일 경우 패킷을 보낸다.
 message C_MonsterMove{
-  int32 monstId = 1;
+  string monstId = 1;
   TransformInfo transformInfo = 3;
 }
 
@@ -412,6 +418,21 @@ message C_MonsterMove{
 // 서버 -> 클라.
 message S_MonsterMove{
   repeated SyncMonsterTransformInfo transformInfo = 1;
+}
+
+message S_MonsterHit{
+  repeated string monsterId = 1;
+  string monsterAinID = 2;
+}
+
+message S_MonsterAttck{
+  repeated string monsterId = 1;
+  string monsterAinID = 2;
+}
+
+message S_MonsterDie{
+  repeated string monsterId = 1;
+  string monsterAinID = 2;
 }
 
 

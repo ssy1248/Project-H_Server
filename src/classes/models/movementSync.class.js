@@ -6,7 +6,8 @@ import {
 } from '../../constants/constants.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addMonster, updateMonster, findMonster } from '../managers/monster.manager.js';
+import { addMonster, updateMonster, findMonster, getMonsterUpdateQueue } from '../managers/monster.manager.js';
+import { MONSTER_AI_BEHAVIOR } from './monster.class.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export default class MovementSync {
@@ -226,6 +227,8 @@ export default class MovementSync {
       if (userSyncsSize !== 0) {
         
 
+        // 여기수정하자.
+
         // 움직이고 있는 몬스터 솎아내기.
         const changedMonsters = Object.keys(this.entitySyncs)
           .filter(
@@ -236,25 +239,33 @@ export default class MovementSync {
 
         // 움직이고 있는 몬스터들이 있을 경우 로직 실행.
         if (changedMonsters.length !== 0) {
+          // 몬스터 업데이트
+          for (const monster of changedMonsters) {
+            updateMonster(monster.id);
+            //this.syncTransformFromSnapshot(monster.id);
+          }
 
-          // 변경된 몬스터들로 패킷을 만들자. []
+          // 여기에 추가하자 (몬스터 업데이트 큐)
+          // 타겟이 업데이트된 몬스터만 뽑아오기.
+          const monsterUpdate = getMonsterUpdateQueue();
           const syncTransformInfoDatas = [];
 
-          // 데이터 업데이트 및 패킷 전송 준비.
-          for (const monster of changedMonsters) {
-            // 몬스터 업데이트
-            updateMonster(monster.id);
+          // 몬스터 업데이트 큐에서 뽑아온 정보 검증.
+          // d에러 여기 고쳐야됨 밥먹고
+          if(monsterUpdate.length === 0) {
+            return;
+          }
 
+          for(const monster of monsterUpdate) {
+            const findMonster = this.entitySyncs[monster.monsterInfo.id];
+            const monsterInfo = monster.getMonsterInfo();
+            const targetInfo = monster.getTargetInfo();
 
-            this.syncTransformFromSnapshot(monster.id);
-
-            const findMonsterInfo = findMonster(monster.id);
-            const monsterInfo = findMonsterInfo.monsterInfo;
-
-            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
+            const syncData = this.createSyncMonsterTransformInfoData(findMonster, monsterInfo, targetInfo.transform);
             syncTransformInfoDatas.push(syncData);
           }
-          //console.log("몬스터이동 : ", syncTransformInfoDatas);
+
+          // 패킷 생성.
           const sMonsterMove = {
             transformInfo: syncTransformInfoDatas,
           };
@@ -293,7 +304,7 @@ export default class MovementSync {
           .map((key) => this.entitySyncs[key]);
 
 
-          if(Monsters.length > 5) {
+          if(Monsters.length <= 2) {
             clearInterval(this.monsterSpawnInterval);
           }
         //console.log('크기', Monsters.length);
@@ -304,9 +315,12 @@ export default class MovementSync {
           for (const monster of Monsters) {
             const findMonsterInfo = findMonster(monster.id);
 
-            const monsterInfo = findMonsterInfo.monsterInfo;
+            const monsterInfo = findMonsterInfo.getMonsterInfo();
+            const transformInfo = findMonsterInfo.getTransformInfo();
 
-            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo);
+            
+
+            const syncData = this.createSyncMonsterTransformInfoData(monster, monsterInfo, transformInfo);
             monstersInfo.push(syncData);
           }
 
@@ -353,7 +367,7 @@ export default class MovementSync {
   }
 
   // [ 패킷 생성 ] - 몬스터
-  createSyncMonsterTransformInfoData(monster, monsterInfo) {
+  createSyncMonsterTransformInfoData(monster, monsterInfo,transform) {
     const SyncTransformInfo = {
       monsterId: monster.id,
       monsterStatus: {
@@ -362,10 +376,11 @@ export default class MovementSync {
         monsterName: monsterInfo.name,
         monsterHp: monsterInfo.hp,
       },
-      transform: monster.currentTransform,
+      transform: transform,
       speed: monster.speed,
     };
 
+    // 여기 언디파인
     //console.log(SyncTransformInfo.monsterId);
 
     return SyncTransformInfo;

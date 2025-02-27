@@ -27,6 +27,9 @@ export const packetNames = {
     S_MonsterSpawn: 'Google.Protobuf.Protocol.S_MonsterSpawn',
     C_MonsterMove: 'Google.Protobuf.Protocol.C_MonsterMove',
     S_MonsterMove: 'Google.Protobuf.Protocol.S_MonsterMove',
+    S_MonsterHit: 'Google.Protobuf.Protocol.S_MonsterHit',
+    S_MonsterAttck: 'Google.Protobuf.Protocol.S_MonsterAttck',
+    S_MonsterDie: 'Google.Protobuf.Protocol.S_MonsterDie',
   },
   party: {
     C_PartyRequest: 'Google.Protobuf.Protocol.C_PartyRequest',
