@@ -64,10 +64,8 @@ const calculateRotation = (previousTransform, currentTransform) => {
   return { yaw, pitch };
 };
 
-// 한개 더추가 하자.
+// 현재 위치가 목표 지점을 지나쳤는지 여부를 확인하는 함수입니다.
 const hasPassedTarget = (currentTransform, targetTransform, lastTransform) => {
-  
-  
   // 목표 지점과 현재 위치 간의 차이 계산 
   const deltaX = targetTransform.posX - currentTransform.posX;
   const deltaY = targetTransform.posY - currentTransform.posY;
@@ -89,7 +87,6 @@ const hasPassedTarget = (currentTransform, targetTransform, lastTransform) => {
   // 현재 위치와 마지막 위치 간의 내적 계산 (목표 방향과 이동 방향의 유사성 판단)
   const dotProduct = deltaX * lastDeltaX + deltaY * lastDeltaY + deltaZ * lastDeltaZ;
 
-  //console.log(distanceToTarget);
   // 내적이 음수이면 지나쳤다고 판단 (이동 방향이 목표를 지나쳤을 경우)
   return dotProduct < 0;
 };

@@ -10,7 +10,6 @@ export default async function loadNavMeshData(filePath) {
   try {
     const absolutePath = path.join(__dirname, "..", filePath); // 현재 파일 기준 절대 경로 변환
 
-
     // 파일 읽기를 비동기적으로 처리
     const data = await fs.readFile(absolutePath, "utf8");
 
@@ -19,7 +18,6 @@ export default async function loadNavMeshData(filePath) {
 
     if (navMeshData?.vertices && navMeshData?.indices) {
       // 네비메시 데이터를 잘 읽어왔다면, 처리
-      //const navMesh = processNavMeshData(navMeshData);
       return { vertices: navMeshData.vertices, indices: navMeshData.indices };
     } else {
       throw new Error('NavMesh 데이터 포멧이 아님.');
