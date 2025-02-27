@@ -188,6 +188,7 @@ export const rangeAttackCollide = (socket, packetData) => {
 
     //화살좌표
     const arrowPos = arrow.position;
+
     //장애물 좌표
     const collidePosX = collide.x;
     const collidePosY = collide.y;
@@ -229,6 +230,10 @@ export const playerSkill = (socket, packetData) => {
     const user = getUserById(socket);
     console.log('user:', user);
 
+    const userNickName = user.userInfo.nickname;
+
+ 
+
     // 유저가 없을 경우
     if (!user) {
       console.error('공격자를 찾을 수 없습니다.');
@@ -238,6 +243,10 @@ export const playerSkill = (socket, packetData) => {
     // 닉네임으로 던전 세션을 찾고
     const dungeon = getDungeonInPlayerName(userNickName);
     console.log('dungeon:', dungeon);
+
+    const players = dungeon.players[userNickName];
+    
+    const playersSkillCooltime=players.normalAttack.attackCoolTime
 
     //플레이어 공격력,방어력,스피드 가져오기
     const playerAtk = dungeon.getPlayerAtk(userNickName);
