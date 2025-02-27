@@ -198,7 +198,7 @@ const getItemList = async () => {
   const itemList = itemListData.map(({ shopId, itemId, stock, price }) => ({
     // shopid, itemid, stock, price
     id: shopId,
-    itemId: itemId, 
+    itemId: itemId,
     stock: stock,
     price: price,
   }));

@@ -18,7 +18,6 @@ const dungeonSpawnHandler = async (socket, payload) => {
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));
     // }
-
     const dungeonInfo = {
       dungeonId: dungeondata.id,
       partyInfo: dungeondata.partyInfo,
