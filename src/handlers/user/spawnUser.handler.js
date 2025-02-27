@@ -88,17 +88,25 @@ const syncSpawnedUser = async (socket, user) => {
     // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
     const users = getAllUsers(socket);
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
-    const playerData = users.map((value) => {
-      // 유저 최신 좌표 가져오기.
-      const userInfo = value.getUserInfo();
-      const user = findUserSync('town', userInfo.userId);
-      if (user !== null) {
-        value.setTransformInfo(user.currentTransform);
-      }
+    const playerData = users
+      .filter((value) => {
+        return !(
+          value.transformInfo.posX === 0 &&
+          value.transformInfo.posY === 0 &&
+          value.transformInfo.posZ === 0
+        );
+      })
+      .map((value) => {
+        // 유저 최신 좌표 가져오기.
+        const userInfo = value.getUserInfo();
+        const user = findUserSync('town', userInfo.userId);
+        if (user !== null) {
+          value.setTransformInfo(user.currentTransform);
+        }
 
-      const playerInfo = createPlayerInfoPacketData(value);
-      return playerInfo;
-    });
+        const playerInfo = createPlayerInfoPacketData(value);
+        return playerInfo;
+      });
 
     const items = getAllItemSession();
     let itemData = [];
