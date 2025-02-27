@@ -78,4 +78,10 @@ export const PACKET_TYPE = {
   S_DUNGEONSPAWN: 73,
   S_DUNGEONDESPAWN: 74,
   C_DUNGEONEXIT: 75,
+  S_MONSTERSPAWN:76,
+  C_MONSTERMOVE:77,
+  S_MONSTERMOVE:78,
+  S_MonsterHit: 79,
+  S_MonsterAttck: 80,
+  S_MonsterDie: 81,
 };

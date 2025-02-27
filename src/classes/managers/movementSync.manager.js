@@ -36,8 +36,8 @@ export const findMovementSync = (movementSyncId) => {
   return movementSyncs[movementSyncId] || null;
 };
 
-// [유저 동기화 추가].
-export const addUserSync = async (movementSyncId, userId, socket, transform) => {
+// [엔티티 동기화 추가].
+export const addEntitySync = async (movementSyncId, id, type, socket, transform) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
@@ -45,15 +45,8 @@ export const addUserSync = async (movementSyncId, userId, socket, transform) => 
 
   // 유저 생성.
   if (movementSyncs[movementSyncId]) {
-    if (findUserSync(movementSyncId, userId)) {
-      console.log(`movementSyncUser 이미 존재: ${userId}`);
-      return false;
-    }
-
-    
-
-    if (socket.destroyed || !socket.writable) {
-      console.log(`연결된 소켓이아님 : ${socket.id}`);
+    if (findEntitySync(movementSyncId, id)) {
+      console.log(`movementSyncUser 이미 존재: ${id}`);
       return false;
     }
 
@@ -64,7 +57,7 @@ export const addUserSync = async (movementSyncId, userId, socket, transform) => 
     }
 
     // 추가
-    movementSyncs[movementSyncId].addUserSync(userId, socket, transform);
+    movementSyncs[movementSyncId].addEntitySync(id, type , transform, socket);
   
   
   }
@@ -72,10 +65,10 @@ export const addUserSync = async (movementSyncId, userId, socket, transform) => 
   return true;
 };
 
-// [유저 동기화 업데이트].
-export const updateUserSync = (
+// [엔티티 동기화 업데이트].
+export const updateEntitySync = (
   movementSyncId,
-  userId,
+  id,
   transform,
   timestamp,
   isMoving,
@@ -87,7 +80,7 @@ export const updateUserSync = (
     return false;
   }
 
-  if (movementSyncs[movementSyncId] && findUserSync(movementSyncId, userId)) {
+  if (movementSyncs[movementSyncId] && findEntitySync(movementSyncId, id)) {
     if (!isValidTransform(transform)) {
       console.log(`transform 이 정상이 아님 : ${transform}`);
       return false;
@@ -99,8 +92,8 @@ export const updateUserSync = (
     }
 
     // 업데이트
-    movementSyncs[movementSyncId].updateUserSync(
-      userId,
+    movementSyncs[movementSyncId].updateEntitySync(
+      id,
       transform,
       timestamp,
       isMoving,
@@ -113,7 +106,7 @@ export const updateUserSync = (
 };
 
 // [유저 동기화 삭제].
-export const deleteUserSync = (movementSyncId, userId) => {
+export const deleteEntitySync = (movementSyncId, id, type) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
@@ -121,10 +114,10 @@ export const deleteUserSync = (movementSyncId, userId) => {
 
   // 전송하는거 하고, 프로토콜 파일 유니티 적용하고, 유니티 수정.
 
-  if (movementSyncs[movementSyncId] && findUserSync(movementSyncId, userId)) {
+  if (movementSyncs[movementSyncId] && findEntitySync(movementSyncId, id)) {
     // 이곳에서 삭제.
     const sDespawn = {
-      playerId: userId,
+      playerId: id,
     };
 
     // 만들어진 패킷을 직렬화.
@@ -134,13 +127,13 @@ export const deleteUserSync = (movementSyncId, userId) => {
     movementSyncs[movementSyncId].broadcastChangedUsers(initialResponse);
 
     // 삭제
-    movementSyncs[movementSyncId].deleteUserSync(userId);
+    movementSyncs[movementSyncId].deleteEntitySync(id, type);
   }
 };
 
 // [유저 찾기].
-export const findUserSync = (movementSyncId, userId) => {
-  return movementSyncs[movementSyncId].findUserSync(userId);
+export const findEntitySync = (movementSyncId, id) => {
+  return movementSyncs[movementSyncId].findEntitySync(id);
 };
 
 // [트랜스폼 검증].
