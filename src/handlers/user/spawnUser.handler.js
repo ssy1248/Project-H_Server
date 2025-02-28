@@ -4,6 +4,7 @@ import {
   broadcastToUsersAsync,
   getAllUsers,
   broadcastToUsers,
+  getAllTownUsers,
 } from '../../session/user.session.js';
 import {
   findCharacterByUserAndStatId,
@@ -86,7 +87,7 @@ const syncSpawnedUser = async (socket, user) => {
   try {
     // 1. 본인에게 다른 유저들의 정보를 동기화하는 패킷 전송
     // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
-    const users = getAllUsers(socket);
+    const users = getAllTownUsers(socket);
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
     const playerData = users
       .filter((value) => {

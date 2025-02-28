@@ -2,6 +2,7 @@ import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
 import IntervalManager from '../managers/interval.manager.js';
 import Players from './player.class.js';
+import RewardAuction from './rewardAuction.class.js';
 
 /**
   message PartyInfo{
@@ -66,8 +67,16 @@ class Dungeon {
     this.arrows = {};
 
     this.startArrowMovement();
+    this.testCount = 0;
   }
 
+  checkAuctionTest() {
+    if (this.testCount < 1) {
+      this.testCount++;
+      return;
+    }
+    new RewardAuction([5, 6], this.partyInfo);
+  }
   // 던전 내 플레이어 위치 업데이트 함수
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     if (this.playersTransform[playerName]) {
