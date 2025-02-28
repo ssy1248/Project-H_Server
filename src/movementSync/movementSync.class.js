@@ -125,8 +125,8 @@ export default class MovementSync {
       await this.broadcast2( initialResponse2);
 
       // 공격/ 죽음
-      this.updateMonsterAttck();
-      this.updateMonsterDie();
+      //this.updateMonsterAttck();
+      //this.updateMonsterDie();
 
     }, CONSTANTS.NETWORK.INTERVAL);
   }

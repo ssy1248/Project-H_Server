@@ -2,6 +2,7 @@ import Entity from './entity.class.js';
 import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
+import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp) {
@@ -336,6 +337,7 @@ export default class Monster extends Entity {
         ) {
           this.isAttack = true;
           console.log('공격 성공!');
+          MONSTER_SEND_MESSAGE.ATTCK("town");
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           
         } else {
