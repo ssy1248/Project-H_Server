@@ -15,12 +15,12 @@ export const processPlayerActionHandler = (socket, packet) => {
   } else if (packet.skillAttack) {
     // 스킬 공격 처리
     console.log('스킬 공격 요청 처리');
-    processSkillAttackHandler(socket, attackerName, packet.skillAttack.targetId);
+    processSkillAttackHandler(socket, packet.skillAttack.attackerName, packet.skillAttack.targetId);
     // packet.skillAttack.skillId, packet.skillAttack.targetId 등을 사용하여 처리
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
-    processDodgeHandler(socket, attackerName, packet.dodgeAction.dodgeDistance);
+    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.dodgeDistance);
   } else if (packet.hitAction) {
     // 피격 처리
     console.log('피격 요청 처리');
@@ -251,7 +251,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
 }
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
-const processDodgeHandler = (socket, attackerName) => {
+const processDodgeHandler = (socket, requesterName) => {
   // 핸들러에 들어온 현재 시간
   const now = Date.now();
 
@@ -286,9 +286,23 @@ const processDodgeHandler = (socket, attackerName) => {
     sendActionFailure(socket, `회피 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
     return;
   }
-  // 갱신: 공격 성공 시각 기록
+  // 갱신: 회피 성공 시각 기록
   lastdodgeTime[requesterName] = now;
   console.log(`[${requesterName}] 회피 시도!`);
+
+  const dodgeResult = {
+    evadedDamage: 20,         // 회피로 인해 피해를 줄인 양
+    cooldown: player.dodge.dodgeCoolTime, // 회피 쿨타임(초) -> 이부분을 바라보는 방향의 이동값을 줘야할듯?
+  }
+
+  const sPlayerActionPacket = createResponse(
+    'dungeon',
+    'S_PlayerAction',
+    PACKET_TYPE.S_PLAYERACTION,
+    dodgeResult
+  );
+
+  socket.write(sPlayerActionPacket);
 };
 
 // 클라측에서 힐?을 요청할떄 처리할 핸들러 -> 애매
