@@ -15,7 +15,7 @@ const initServer = async () => {
     const gameSession = addGameSession(gameId);
 
     // [테스트] 이동동기화생성 - town
-    createMovementSync('town');
+    createMovementSync('town', "town");
     
 
     // await testAllConnections(pools);

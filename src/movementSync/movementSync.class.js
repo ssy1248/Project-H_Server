@@ -18,11 +18,18 @@ export default class MovementSync {
     this.startMovementProcess();
   }
 
-  async loadNavMeshDataOnce() {
-    if (!this.navMeshGridData) {
-      this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
-      A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
+  async loadNavMeshDataOnce(type) {
+    switch (type) {
+      case 'town':
+        this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
+        break;
+      case 'dungeon1':
+        this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
+        break;
+      default:
+        break;
     }
+    A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
   }
 
   // [엔티티 인터벌] = 엔티티 좌표 업데이트를 60 프레임 단위로.
@@ -31,7 +38,6 @@ export default class MovementSync {
     this.entityIntervar = setInterval(async () => {
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
-
 
       // 유저
       if (users.length <= 0) {
@@ -85,7 +91,7 @@ export default class MovementSync {
 
       // 유저 - 패킷 직렬화
       const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
-      await this.broadcast2( initialResponse);
+      await this.broadcast2(initialResponse);
 
       if (monsters.length <= 0) {
         return;
@@ -122,58 +128,66 @@ export default class MovementSync {
         PACKET_TYPE.S_MONSTERMOVE,
         sMonsterMove,
       );
-      await this.broadcast2( initialResponse2);
+      await this.broadcast2(initialResponse2);
 
       // 공격/ 죽음
       //this.updateMonsterAttck();
       //this.updateMonsterDie();
-
     }, CONSTANTS.NETWORK.INTERVAL);
   }
 
   // [몬스터 애니메이션 삭제] - 죽음
-  updateMonsterDie(){
+  updateMonsterDie() {
     const monsters = this.entityManager.getMonstersArray();
     const monsterIds = monsters
-    .filter(monster => monster.getIsDie() ) // 죽었을경우
-    .map(monster => monster.getId()); // 몬스터 ID만 추출
+      .filter((monster) => monster.getIsDie()) // 죽었을경우
+      .map((monster) => monster.getId()); // 몬스터 ID만 추출
 
-    if(monsterIds.length !== 0) {
+    if (monsterIds.length !== 0) {
       const sMonsterDie = {
         monsterId: monsterIds,
-        monsterAinID: "Die",
+        monsterAinID: 'Die',
       };
 
-      for(const monsterId of monsterIds){
-        A_STER_MANAGER.DELETE_OBSTACLE("town", monsterId);
-        A_STER_MANAGER.DELETE_OBSTACLE_List("town",monsterId);
+      for (const monsterId of monsterIds) {
+        A_STER_MANAGER.DELETE_OBSTACLE('town', monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE_List('town', monsterId);
         this.entityManager.deleteMonster(monsterId);
       }
-      const initialResponse = createResponse('town', 'S_MonsterDie', PACKET_TYPE.S_MonsterDie, sMonsterDie);
-  
+      const initialResponse = createResponse(
+        'town',
+        'S_MonsterDie',
+        PACKET_TYPE.S_MonsterDie,
+        sMonsterDie,
+      );
+
       this.broadcast2(initialResponse);
     }
   }
 
   // [몬스터 애니메이션 동기화] - 공격
-  updateMonsterAttck(){
+  updateMonsterAttck() {
     const monsters = this.entityManager.getMonstersArray();
     const monsterIds = monsters
-    .filter(monster => monster.getIsAttack()) // 공격 중인 몬스터 필터링
-    .map(monster => monster.getId()); // 몬스터 ID만 추출
+      .filter((monster) => monster.getIsAttack()) // 공격 중인 몬스터 필터링
+      .map((monster) => monster.getId()); // 몬스터 ID만 추출
 
-    if(monsterIds.length !== 0) {
+    if (monsterIds.length !== 0) {
       const sMonsterAttck = {
         monsterId: monsterIds,
-        monsterAinID: "Attck",
+        monsterAinID: 'Attck',
       };
-  
-      const initialResponse = createResponse('town', 'S_MonsterAttck', PACKET_TYPE.S_MonsterAttck, sMonsterAttck);
-  
+
+      const initialResponse = createResponse(
+        'town',
+        'S_MonsterAttck',
+        PACKET_TYPE.S_MonsterAttck,
+        sMonsterAttck,
+      );
+
       this.broadcast2(initialResponse);
     }
   }
-
 
   // [ 패킷 생성 (유저) ]
   createSyncTransformInfoData(user) {
@@ -234,7 +248,7 @@ export default class MovementSync {
       const initialResponse = createResponse(
         'town',
         'S_MonsterSpawn',
-        PACKET_TYPE.S_MONSTERSPAWN,  
+        PACKET_TYPE.S_MONSTERSPAWN,
         sMonsterSpawn,
       );
 
@@ -265,9 +279,9 @@ export default class MovementSync {
   }
 
   deleteUser(id) {
-    A_STER_MANAGER.DELETE_OBSTACLE("town", id);
-    A_STER_MANAGER.DELETE_OBSTACLE_List("town",id);
-    
+    A_STER_MANAGER.DELETE_OBSTACLE('town', id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
+
     this.entityManager.deleteUser(id);
   }
 
@@ -292,7 +306,6 @@ export default class MovementSync {
   }
 
   async broadcast(initialResponse) {
-    
     const users = this.entityManager.getUsersArray();
 
     const promises = users.map((user) => {
@@ -318,16 +331,16 @@ export default class MovementSync {
     const users = this.entityManager.getUsersArray();
 
     for (const user of users) {
-        const socket = user.getSocket();
-        if (socket) {
-            socket.write(initialResponse, (err) => {
-                if (err) {
-                    console.error(`데이터를 보내는데 [ 유저 : ${users.length} 명]실패 user: ${err.message}`);
-                }
-            });
-        }
+      const socket = user.getSocket();
+      if (socket) {
+        socket.write(initialResponse, (err) => {
+          if (err) {
+            console.error(
+              `데이터를 보내는데 [ 유저 : ${users.length} 명]실패 user: ${err.message}`,
+            );
+          }
+        });
+      }
     }
-}
-
-  
+  }
 }
