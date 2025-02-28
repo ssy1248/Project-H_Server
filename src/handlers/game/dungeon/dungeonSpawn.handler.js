@@ -1,3 +1,4 @@
+import RewardAuction from '../../../classes/models/rewardAuction.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { searchPartyInPlayerSession } from '../../../session/party.session.js';
@@ -44,6 +45,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
+    //dungeondata.checkAuctionTest();
   } catch (err) {
     console.log(err);
   }

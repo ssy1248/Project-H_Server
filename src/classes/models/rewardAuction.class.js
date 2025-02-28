@@ -18,8 +18,8 @@ class RewardAuction {
     this.name = ''; // 현재 가장 높게 부른 charId 캐릭터 아이디
     this.nowPrice = 0; // 현재 가격 없으면 items.price 기본값으로
     this.partyInfo = partyInfo;
-    this.timeLimit = 60; // 기본 60초 입니다!
-    this.addTime = 10; // 추가 시간 10초
+    this.timeLimit = 10; // 기본 60초 입니다!
+    this.addTime = 5; // 추가 시간 10초
     this.auctionFee = 10; // 10퍼센트 때먹기!
     this.time = this.timeLimit;
     this.state = 'stop'; /// stop , stay , end 이 순서

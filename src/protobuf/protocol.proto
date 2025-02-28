@@ -596,6 +596,7 @@ message S_SetMonsterHpData{
 message NormalAttackResult {
   int32 targetId = 1;// 공격 대상 ID
   int32 damageDealt = 2;// 입힌 피해량
+  string useUserName = 3; // 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -604,6 +605,7 @@ message SkillAttackResult {
   int32 skillId = 1;// 사용한 스킬의 ID
   int32 targetId = 2;// 공격 대상 ID
   int32 damageDealt = 3;// 입힌 피해량
+  string useUserName = 4; // 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -611,6 +613,7 @@ message SkillAttackResult {
 message DodgeResult {
   int32 evadedDamage = 1;// 회피하여 피해를 줄인 양
   int32 cooldown = 2;// 회피 후 남은 쿨타임(초)
+  string useUserName = 3; // 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -618,6 +621,7 @@ message DodgeResult {
 message HitResult {
   int32 damageReceived = 1;// 받은 피해량
   int32 currentHp = 2;// 피격 후 남은 HP
+  string userName = 3; // 피격당한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
