@@ -39,6 +39,8 @@ import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 
+import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
+
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
     handler: registerHandler,
@@ -293,6 +295,11 @@ const handlers = {
     handler: reSpawnUserHandler,
     protoType: 'dungeon.C_DungeonExit',
   },
+  [PACKET_TYPE.C_MONSTERMOVE]: {
+    handler: monsterSyncHandler,
+    protoType: 'town.C_MonsterMove',
+
+  }
 };
 
 export const getHandlerById = (handlerId) => {
