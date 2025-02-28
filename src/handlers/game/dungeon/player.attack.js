@@ -397,6 +397,63 @@ export const playerDodge = (socket, packetData) => {
   try {
     const { direction } = packetData;
     console.log('playerDodge 처리 시작');
+
+    const user = getUserById(socket);
+    console.log('user:', user);
+
+    const userNickName = user.userInfo.nickname;
+
+    // 유저가 없을 경우
+    if (!user) {
+      console.error('공격자를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 닉네임으로 던전 세션을 찾고
+    const dungeon = getDungeonInPlayerName(userNickName);
+    console.log('dungeon:', dungeon);
+
+    // 핸들러에 들어온 현재 시간
+    const now = Date.now();
+
+    // 2) 아직 한 번도 회피한 적이 없는 플레이어라면, 기록을 0(또는 과거 시각)으로 초기화
+    if (!lastdodgeTime[userNickName]) {
+      lastdodgeTime[userNickName] = 0;
+    }
+
+    // 3) 플레이어를 던전에서 찾음
+    const requesterSessions = getDungeonInPlayerName(userNickName);
+    if (!requesterSessions || requesterSessions.length === 0) {
+      console.error('던전 세션에서 요청자를 찾을 수 없습니다.');
+      sendActionFailure(socket, '던전 세션에서 요청자를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
+    const player = dungeon.players[userNickName];
+    if (!player) {
+      console.error('던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+      sendActionFailure(socket, '던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 다음 공격 가능 시각 계산
+    const cooldownMs = player.dodge.dodgeCoolTime * 1000;
+    const nextPossibleTime = lastdodgeTime[userNickName] + cooldownMs;
+    if (now < nextPossibleTime) {
+      const remaining = nextPossibleTime - now;
+      console.log(`[${userNickName}] 회피 쿨타임 중! (남은 시간: ${remaining}ms)`);
+      sendActionFailure(socket, `회피 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
+      return;
+    }
+    // 갱신: 회피 성공 시각 기록
+    lastdodgeTime[userNickName] = now;
+    console.log(`[${userNickName}] 회피 시도!`);
+
+
+
+
+    
   } catch (e) {
     handlerError(socket, e);
   }
