@@ -245,8 +245,8 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    //this.processMonsterSpawn();
-    //this.entityMovement();
+    this.processMonsterSpawn();
+    this.entityMovement();
   }
 
   endProcessMovement() {
