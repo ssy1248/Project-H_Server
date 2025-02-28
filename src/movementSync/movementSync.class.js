@@ -24,7 +24,7 @@ export default class MovementSync {
         this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
         break;
       case 'dungeon1':
-        this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
+        this.navMeshGridData = await loadNavMeshData('./navMesh/dungeon1.json');
         break;
       default:
         break;
