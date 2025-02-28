@@ -66,7 +66,8 @@ export default class TestASter {
     // A* 알고리즘 옵션 설정
     const options = {
       rightAngle: false, // 직각 방향만 이동을 허용
-      heuristic: 'manhattan', // 맨해튼 거리를 휴리스틱으로 사용
+      //heuristic: 'manhattan', // 맨해튼 거리를 휴리스틱으로 사용
+      heuristic: 'euclidean', // 유클리드 거리를 휴리스틱으로 사용
     };
 
     // AStar 클래스 인스턴스 생성

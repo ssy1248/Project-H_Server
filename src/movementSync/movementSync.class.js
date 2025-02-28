@@ -245,8 +245,8 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    this.processMonsterSpawn();
-    this.entityMovement();
+    //this.processMonsterSpawn();
+    //this.entityMovement();
   }
 
   endProcessMovement() {
@@ -265,6 +265,9 @@ export default class MovementSync {
   }
 
   deleteUser(id) {
+    A_STER_MANAGER.DELETE_OBSTACLE("town", id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List("town",id);
+    
     this.entityManager.deleteUser(id);
   }
 

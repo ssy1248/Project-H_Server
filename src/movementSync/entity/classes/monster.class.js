@@ -331,7 +331,7 @@ export default class Monster extends Entity {
         // 6. 패스를 따라 가는도중에 근처에 유저가 있으면 공격하게 수정.
 
         // 몬스터의 공격 범위 설정 (2D 사각형)
-        const attackRange = 4;
+        const attackRange = 3;
         const halfRange = attackRange / 2;
 
         const minX = this.currentTransform.posX - halfRange;
@@ -356,13 +356,9 @@ export default class Monster extends Entity {
           
           
         } else {
-          const test = {
-            minX: minX,
-            maxX: maxX,
-            minZ: minZ,
-            maxZ: maxZ,
-          };
-
+          console.log(`몬스터 공격 범위 X : minX ${minX} / maxX ${maxX}`);
+          console.log(`몬스터 공격 범위 Y : minZ ${minZ} / maxZ ${maxZ}`);
+          console.log(`플레이어 위치    X : X    ${userTransform.posX} / Z    ${userTransform.posZ}`);
         }
       }
     }
