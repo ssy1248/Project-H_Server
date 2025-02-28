@@ -139,6 +139,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
     const normalAttackResult = {
       targetId,
       damageDealt: 50,
+      useUserName: attackerName,
     };
     const payload = {
       normalAttackResult,
@@ -199,6 +200,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
       skillId: 0, // 스킬 아이디
       targetId: 0, // 대상이 없으므로 0 또는 특수값
       damageDealt: 0, // 피해량 0 (혹은 기본 데미지 적용)
+      useUserName: attackerName,
     };
 
     const sPlayerActionPayload = {
@@ -292,14 +294,22 @@ const processDodgeHandler = (socket, requesterName) => {
 
   const dodgeResult = {
     evadedDamage: 20,         // 회피로 인해 피해를 줄인 양
+    // 바라보는 방향값을 어떤식으로 가져와야 할까
     cooldown: player.dodge.dodgeCoolTime, // 회피 쿨타임(초) -> 이부분을 바라보는 방향의 이동값을 줘야할듯?
+    useUserName:  requesterName,
+  }
+
+  const payload = {
+    dodgeResult,
+    success: true,
+    message: '회피에 성공하였습니다.',
   }
 
   const sPlayerActionPacket = createResponse(
     'dungeon',
     'S_PlayerAction',
     PACKET_TYPE.S_PLAYERACTION,
-    dodgeResult
+    payload
   );
 
   socket.write(sPlayerActionPacket);
