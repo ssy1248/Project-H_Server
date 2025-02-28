@@ -67,7 +67,7 @@ class Dungeon {
     // 화살 정보를 저장할 객체
     this.arrows = {};
 
-    this.startArrowMovement();
+    //this.startArrowMovement();
     this.testCount = 0;
   }
 
