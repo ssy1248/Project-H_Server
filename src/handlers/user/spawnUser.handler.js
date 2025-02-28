@@ -98,7 +98,8 @@ const syncSpawnedUser = async (socket, user) => {
         // 유저 최신 좌표 가져오기.
         const userInfo = value.getUserInfo();
         const user = findUser('town', userInfo.userId);
-        if (user !== null) {
+        if (user) {
+          
           value.setTransformInfo(user.currentTransform);
         }
 

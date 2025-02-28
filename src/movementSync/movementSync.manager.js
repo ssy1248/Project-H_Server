@@ -53,7 +53,6 @@ export const findUser = (movementSyncId, id) => {
     return false;
   }
 
-  console.log(movementSyncs[movementSyncId].findUser(id));
   return movementSyncs[movementSyncId].findUser(id);
 };
 
@@ -88,3 +87,35 @@ export const deleteUser = (movementSyncId, id) => {
   // 유저 삭제
   movementSyncs[movementSyncId].deleteUser(id);
 };
+
+// [ 몬스터 찾기 ]
+export const findMonster = (movementSyncId, id) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].findMonster(id);
+}
+
+// [몬스터들 찾기]
+export const findMonsters =  (movementSyncId) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].findMonsters();
+}
+
+// [ 몬스터 삭제 ]
+export const deleteMonster = (movementSyncId, id) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].deleteMonster(id);
+}
+
+

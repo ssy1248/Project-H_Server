@@ -32,6 +32,7 @@ export default class MovementSync {
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
 
+
       // 유저
       if (users.length <= 0) {
         return;
@@ -144,6 +145,7 @@ export default class MovementSync {
       };
 
       for(const monsterId of monsterIds){
+        A_STER_MANAGER.DELETE_OBSTACLE_List("town",monsterId);
         this.entityManager.deleteMonster(monsterId);
       }
       const initialResponse = createResponse('town', 'S_MonsterDie', PACKET_TYPE.S_MonsterDie, sMonsterDie);
@@ -231,7 +233,7 @@ export default class MovementSync {
       const initialResponse = createResponse(
         'town',
         'S_MonsterSpawn',
-        PACKET_TYPE.S_MONSTERSPAWN,
+        PACKET_TYPE.S_MONSTERSPAWN,  
         sMonsterSpawn,
       );
 
@@ -273,7 +275,11 @@ export default class MovementSync {
     this.entityManager.addMonster(this.movementId);
   }
 
-  findMonster() {
+  findMonster(id) {
+    return this.entityManager.getMonster(id);
+  }
+
+  findMonsters() {
     return this.entityManager.getMonstersArray();
   }
 

@@ -185,6 +185,10 @@ export default class TestASter {
     return closestY;
   }
 
+  deleteObstacleList(id) {
+    delete this.entityObstacles[id];
+  }
+
   // 장애물 추가
   addObstacle(obstacle, id) {
     this.grid.set(obstacle, 'value', 1); // 장애물 위치 그리드에 설정
@@ -206,6 +210,21 @@ export default class TestASter {
     } else {
       console.log('제거 할 장애물이 ❌ 없음');
     }
+  }
+
+  getObstacles(entity) {
+    const pos = [
+      entity.currentTransform.posX,
+      entity.currentTransform.posY,
+      entity.currentTransform.posZ,
+    ];
+    const obstaclePos = this.coordToIndex(pos);
+    const obstacle = {
+      id: entity.id,
+      obstacle: [obstaclePos.index % this.gridWidth, Math.floor(obstaclePos.index / this.gridWidth)],
+    }
+
+    return obstacle;
   }
 
   // 장애물 정보를 그리드에 업데이트
