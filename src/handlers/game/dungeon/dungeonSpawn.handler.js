@@ -1,5 +1,6 @@
 import RewardAuction from '../../../classes/models/rewardAuction.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
+import { addUser, deleteUser } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { searchPartyInPlayerSession } from '../../../session/party.session.js';
 import { getUserByNickname, getUserBySocket } from '../../../session/user.session.js';
@@ -15,8 +16,19 @@ const dungeonSpawnHandler = async (socket, payload) => {
     if (!dungeondata) {
       throw new Error('해당 던전이 없습니다!');
     }
+    const playertransform = dungeondata.getPlayerPosition(user.userInfo.nickname);
+    const userInfo = user.getUserInfo();
 
-    user.setTransformInfo({ posX: 0, posY: 0, posZ: 0, rot: 0 });
+    user.setTransformInfo({
+      posX: playertransform.posX,
+      posY: playertransform.posY,
+      posZ: playertransform.posZ,
+      rot: playertransform.rot,
+    });
+
+    deleteUser('town', userInfo.userId);
+    addUser('dungeon', socket, userInfo.userId, user.getTransformInfo());
+
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));
