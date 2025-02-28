@@ -194,13 +194,15 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
   if (targetId <= 0) {
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
 
-    const normalAttackResult = {
+    // 타겟팅인지 아닌지에 따라 처리리
+    const skillAttackResult = {
+      skillId: 0, // 스킬 아이디
       targetId: 0, // 대상이 없으므로 0 또는 특수값
       damageDealt: 0, // 피해량 0 (혹은 기본 데미지 적용)
     };
 
     const sPlayerActionPayload = {
-      normalAttackResult: normalAttackResult,
+      skillAttackResult,
       success: true,
       message: '공격하였습니다 (대상이 없으므로 특별한 효과 없음).',
     };
@@ -225,7 +227,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
       return;
     }
     const distance = calculateDistance(posA, posB);
-    if (distance > player.normalAttack.attackRange) {
+    if (distance > player.skillAttack.attackRange) {
       console.log('타겟이 공격 범위 밖에 있습니다.');
       sendActionFailure(socket, '타겟이 공격 범위 밖에 있습니다.');
       return;
@@ -233,12 +235,13 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
 
     // 피해량 계산 (여기서는 고정 50 데미지) -> 추후 플레이어 클래스의 데미지로 변경
     console.log(`[${attackerName}] 타겟이 사거리 내에 있습니다. 공격 진행합니다.`);
-    const normalAttackResult = {
+    const skillAttackResult = {
+      skillId: 1, // 스킬 아이디
       targetId,
       damageDealt: 50,
     };
     const payload = {
-      normalAttackResult,
+      skillAttackResult,
       success: true,
       message: '공격에 성공하였습니다.',
     };
@@ -248,7 +251,45 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
 }
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
-const processDodgeHandler = (socket, attackerName) => {};
+const processDodgeHandler = (socket, attackerName) => {
+  // 핸들러에 들어온 현재 시간
+  const now = Date.now();
+
+  // 2) 아직 한 번도 회피한 적이 없는 플레이어라면, 기록을 0(또는 과거 시각)으로 초기화
+  if (!lastdodgeTime[requesterName]) {
+    lastdodgeTime[requesterName] = 0;
+  }
+
+   // 3) 플레이어를 던전에서 찾음
+   const requesterSessions  = getDungeonInPlayerName(requesterName);
+   if (!requesterSessions || requesterSessions.length === 0) {
+     console.error('던전 세션에서 요청자를 찾을 수 없습니다.');
+     sendActionFailure(socket, '던전 세션에서 요청자를 찾을 수 없습니다.');
+     return;
+   }
+   const dungeon = requesterSessions[0];
+ 
+   // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
+   const player = dungeon.players[requesterName];
+   if (!player) {
+     console.error('던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+     sendActionFailure(socket, '던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+     return;
+   }
+
+    // 다음 공격 가능 시각 계산
+  const cooldownMs = player.dodge.dodgeCoolTime * 1000;
+  const nextPossibleTime = lastdodgeTime[requesterName] + cooldownMs;
+  if (now < nextPossibleTime) {
+    const remaining = nextPossibleTime - now;
+    console.log(`[${requesterName}] 회피 쿨타임 중! (남은 시간: ${remaining}ms)`);
+    sendActionFailure(socket, `회피 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
+    return;
+  }
+  // 갱신: 공격 성공 시각 기록
+  lastdodgeTime[requesterName] = now;
+  console.log(`[${requesterName}] 회피 시도!`);
+};
 
 // 클라측에서 힐?을 요청할떄 처리할 핸들러 -> 애매
 const processHealHandler = (socket, healerName, targetName) => {};

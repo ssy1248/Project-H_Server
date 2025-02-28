@@ -12,7 +12,7 @@ const respawnUserHandler = async (socket) => {
     }
     const dungeondata = getDungeonSession(user.inDungeonId);
     console.log(dungeondata.getPartyInfo());
-    searchPartySession(dungeondata.getPartyInfo().id).exitPartyMember(user);
+    searchPartySession(dungeondata.getPartyInfo().partyId).exitPartyMember(user);
     // 4명이 모두 나가면 삭제 하는 로직 필요.
     // 파티 유지 폭파 정하기.
     //removeDungeonSession(user.inDungeonId);
