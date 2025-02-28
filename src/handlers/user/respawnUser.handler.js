@@ -1,3 +1,4 @@
+import { deleteUserSync } from '../../classes/managers/movementSync.manager.js';
 import { getDungeonSession, removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
@@ -11,11 +12,13 @@ const respawnUserHandler = async (socket) => {
       throw new Error('해당 유저가 없습니다!');
     }
     const dungeondata = getDungeonSession(user.inDungeonId);
-    console.log(dungeondata.getPartyInfo());
     searchPartySession(dungeondata.getPartyInfo().partyId).exitPartyMember(user);
     // 4명이 모두 나가면 삭제 하는 로직 필요.
     // 파티 유지 폭파 정하기.
     //removeDungeonSession(user.inDungeonId);
+    deleteUserSync('town', user.userInfo.userId);
+    user.setTransform();
+    console.log('유저 테스트', user.transformInfo);
     user.inDungeonId = '';
     spawnUserHandler(socket, { class: user.playerInfo.playerClass });
   } catch (err) {

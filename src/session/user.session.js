@@ -36,6 +36,12 @@ export const getUserByNickname = (nickname) => {
 export const getAllUsers = () => {
   return userSessions;
 };
+// 타운에만 있는지 체크
+export const getAllTownUsers = () => {
+  return userSessions.filter((user) => {
+    return user.inDungeonId === '';
+  });
+};
 
 // [수정] 본인 제외 유저 소켓 가져오기 (스폰 되어있는 유저)
 export const getOtherUserSockets = (socket) => {

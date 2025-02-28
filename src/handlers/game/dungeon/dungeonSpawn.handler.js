@@ -45,7 +45,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
-    new RewardAuction([5, 6], dungeondata.partyInfo);
+    //dungeondata.checkAuctionTest();
   } catch (err) {
     console.log(err);
   }
