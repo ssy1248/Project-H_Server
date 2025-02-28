@@ -145,6 +145,7 @@ export default class MovementSync {
       };
 
       for(const monsterId of monsterIds){
+        A_STER_MANAGER.DELETE_OBSTACLE("town", monsterId);
         A_STER_MANAGER.DELETE_OBSTACLE_List("town",monsterId);
         this.entityManager.deleteMonster(monsterId);
       }

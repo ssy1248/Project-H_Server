@@ -13,7 +13,7 @@ const addASter = (id, navMeshData, gridWidth, gridHeight) => {
   testASters[id] = new TestASter(navMeshData, gridWidth, gridHeight);
 };
 
-// [A*] 추가
+// [A*] 삭제
 const deleteSter = (id) => {
   // 검증
   if (!testASters[id]) {
