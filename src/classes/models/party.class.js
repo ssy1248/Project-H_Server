@@ -183,16 +183,17 @@ class Party {
       return;
     }
 
+    // 2명 이상인 경우 멤버 제거
+    this.partyMembers.splice(index, 1);
+
     // 멤버가 파티에 단 한 명만 있을 경우
-    if (this.partyMembers.length === 1) {
+    if (this.partyMembers.length === 0) {
       // 세션 지우기
       this.partyMembers = [];
       this.partyLeader = null;
+      removePartySession(this.id);
       return;
     }
-
-    // 2명 이상인 경우 멤버 제거
-    this.partyMembers.splice(index, 1);
 
     // 만약 탈퇴한 멤버가 리더였다면, 새로운 리더를 지정(배열의 첫 번째 멤버)
     this.setPartyLeader(this.partyMembers[0]);
