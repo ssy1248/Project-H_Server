@@ -15,6 +15,7 @@ export default class Monster extends Entity {
     this.spawnTransform = { ...transform };
     this.attackCount = 0;
     this.isAttack = false;
+    this.isDie = false;
   }
 
   // 0.
@@ -24,6 +25,10 @@ export default class Monster extends Entity {
 
   getIsAttack() {
     return this.isAttack;
+  }
+
+  getIsDie() {
+    return this.isDie;
   }
 
   updateTransform(users) {
@@ -193,7 +198,13 @@ export default class Monster extends Entity {
         const distance = movementUtils.Distance(this.currentTransform, this.spawnTransform);
         if (distance <= 1) {
           this.hp = 0;
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          if(!this.isDie && this.hp === 0) {
+            this.isDie = true;
+            MONSTER_SEND_MESSAGE.DIE("town");
+            
+          }
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          
         } else {
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
           this.attackCount = 120;
@@ -336,9 +347,13 @@ export default class Monster extends Entity {
           userTransform.posZ <= maxZ
         ) {
           this.isAttack = true;
-          console.log('공격 성공!');
-          MONSTER_SEND_MESSAGE.ATTCK("town");
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          if(this.isAttack){
+            console.log('공격 성공!');
+            MONSTER_SEND_MESSAGE.ATTCK("town");
+            super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+            this.isAttack = false;
+          }
+          
           
         } else {
           const test = {

@@ -135,7 +135,7 @@ export default class MovementSync {
   updateMonsterDie(){
     const monsters = this.entityManager.getMonstersArray();
     const monsterIds = monsters
-    .filter(monster => monster.hp <= 0 ) // 체력이 0인 경우 
+    .filter(monster => monster.getIsDie() ) // 죽었을경우
     .map(monster => monster.getId()); // 몬스터 ID만 추출
 
     if(monsterIds.length !== 0) {

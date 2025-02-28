@@ -20,7 +20,7 @@ const updateMonsterDie = (movementSyncId) => {
 
 const MONSTER_SEND_MESSAGE= {
   ATTCK : updateMonsterAttck,
-  Die : updateMonsterDie,
+  DIE : updateMonsterDie,
   // 추가 작성..
 
 }
