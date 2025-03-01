@@ -31,8 +31,6 @@ export class AStar {
     );
     this.openList = new PriorityQueue();
     this.closeList = new Set();
-
-    
   }
 
   search(start, end) { 

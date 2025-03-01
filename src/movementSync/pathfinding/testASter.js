@@ -5,11 +5,27 @@ export default class TestASter {
   constructor(navMeshData, gridWidth, gridHeight) {
     // 네비게이션 메쉬 데이터 초기화
     this.vertices = navMeshData.vertices; // 정점 데이터
-    this.indices = navMeshData.indices;   // 인덱스 데이터
+    this.indices = navMeshData.indices; // 인덱스 데이터
+
+    // 네비메쉬의 최소/최대 좌표를 기준으로 오프셋 계산
+    const minX = Math.min(...this.vertices.map((p) => p.x));
+    const minZ = Math.min(...this.vertices.map((p) => p.z));
+    const maxX = Math.max(...this.vertices.map((p) => p.x));
+    const maxZ = Math.max(...this.vertices.map((p) => p.z));
+
+    console.log('minX :', minX);
+    console.log('minZ :', minZ);
+    console.log('maxX :', maxX);
+    console.log('maxZ :', maxZ);
 
     // 그리드 크기 설정
-    this.gridWidth = gridWidth; 
-    this.gridHeight = gridHeight;
+    this.gridWidth = Math.round(maxX + Math.abs(minX)); 
+    this.gridHeight = Math.round(maxZ + Math.abs(minZ)); 
+
+    // 음수 좌표를 방지하기 위한 오프셋
+    this.offsetX = minX < 0 ? Math.abs(minX) : minX;
+    this.offsetZ = minZ < 0 ? Math.abs(minZ) : minZ;
+
 
     // A* 알고리즘을 위한 그리드 설정
     this.grid = new Grid({
@@ -17,16 +33,23 @@ export default class TestASter {
       row: this.gridHeight, // 행의 개수
     });
 
+    //console.log(this.grid);
+
     // 장애물 저장 객체
     this.entityObstacles = {};
 
-    // 네비메쉬의 최소 좌표를 기준으로 오프셋 계산
-    const minX = Math.min(...this.vertices.map((p) => p.x));
-    const minZ = Math.min(...this.vertices.map((p) => p.z));
+    
 
-    // 음수 좌표를 방지하기 위한 오프셋
-    this.offsetX = minX < 0 ? Math.abs(minX) : minX; 
-    this.offsetZ = minZ < 0 ? Math.abs(minZ) : minZ; 
+    console.log('gridWidth :', this.gridWidth);
+    console.log('gridHeight :', this.gridHeight);
+    console.log('offsetX :', this.offsetX);
+    console.log('offsetZ :', this.offsetZ);
+
+    // 정적 장애물 추가
+    // 이거 수정하자.
+    this.markStaticObstacles();
+
+    //this.testPathfinding();
   }
 
   // A* 알고리즘을 사용한 경로 찾기 테스트
@@ -35,13 +58,72 @@ export default class TestASter {
     const endPos = [10, 0, 10]; // 끝 위치 (3D 좌표)
 
     // 장애물 생성
-    this.addObstacle([38, 110], "1");
+    //this.addObstacle([14, 11], "1");
 
     // A* 경로 탐색
     const path = this.aSterFindPath(startPos, endPos);
 
     // 경로 출력
     console.log('찾은 경로:', path);
+  }
+
+  // [정적 장애물 추가]
+  markStaticObstacles() {
+    let count = 0;
+    for (let y = 0; y < this.gridHeight; y++) {
+      for (let x = 0; x < this.gridWidth; x++) {
+        if (!this.isInsideNavMesh(x, y)) {
+          //console.log("삼각형 밖에있어요.");
+          // 함수 추가
+          this.addObstacle([x, y], 'staticObstacle', true);
+        } else {
+          count++;
+        }
+      }
+    }
+    console.log('count :', count);
+  }
+
+  // [그리드 인덱스가 네브메쉬 안에 있는지 확인]
+  isInsideNavMesh(x, y) {
+    
+    for (let i = 0; i < this.indices.length; i += 3) {
+      // 삼각형의 정점 가져오기
+      const v1 = this.vertices[this.indices[i]];
+      const v2 = this.vertices[this.indices[i + 1]];
+      const v3 = this.vertices[this.indices[i + 2]];
+
+      const adjustedV1 = { x:  (v1.x + this.offsetX), z: (v1.z + this.offsetZ) };
+      const adjustedV2 = { x:  (v2.x + this.offsetX), z:  (v2.z + this.offsetZ) };
+      const adjustedV3 = { x:  (v3.x + this.offsetX), z:  (v3.z + this.offsetZ) };  
+      
+      
+
+      // 좌표가 삼각형 내부에 있는지 확인
+      if (this.isPointInTriangle({ x: x, z: y }, adjustedV1, adjustedV2, adjustedV3)) {
+        return true; // 하나라도 포함되면 true
+      }
+
+    }
+    return false; // 삼각형 내부에 없으면 false
+  }
+
+  // [ 점이 삼각형 내부에 있는지 판별하는 함수 ]
+  // Barycentric Method 사용
+  // 바리센트릭 좌표(Barycentric Coordinates)는 삼각형 내부의 한 점이 삼각형의 세 꼭짓점을 기준으로 얼마나 가깝게 위치하는지를 나타내는 방법
+  isPointInTriangle(p, v1, v2, v3) {
+    const barycentric = (p1, p2, p3) => {
+      return (p1.x - p3.x) * (p2.z - p3.z) - (p2.x - p3.x) * (p1.z - p3.z); // Z 축 사용
+    };
+
+    const d1 = barycentric(p, v1, v2);
+    const d2 = barycentric(p, v2, v3);
+    const d3 = barycentric(p, v3, v1);
+
+    const hasNeg = d1 < 0 || d2 < 0 || d3 < 0;
+    const hasPos = d1 > 0 || d2 > 0 || d3 > 0;
+
+    return !(hasNeg && hasPos); // 모두 같은 부호면 삼각형 내부
   }
 
   // A* 알고리즘을 이용한 경로 찾기
@@ -79,16 +161,28 @@ export default class TestASter {
       [endGrid.index % this.gridWidth, Math.floor(endGrid.index / this.gridWidth)],
     );
 
+    const obstacle = [
+      startGrid.index % this.gridWidth,
+      Math.floor(startGrid.index / this.gridWidth),
+    ];
+    const storedValue = this.grid.get(obstacle); // 그리드 값 확인
+    console.log(`⭕ 시작 시점 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
+
     console.log('start :', [
       startGrid.index % this.gridWidth,
       Math.floor(startGrid.index / this.gridWidth),
     ]);
+
+    const obstacle1 = [endGrid.index % this.gridWidth, Math.floor(endGrid.index / this.gridWidth)];
+    const storedValue1 = this.grid.get(obstacle1); // 그리드 값 확인
+    console.log(`⭕ 도착 시점 (${obstacle1[0]}, ${obstacle1[1]}):`, storedValue1);
+
     console.log('end :', [
       endGrid.index % this.gridWidth,
       Math.floor(endGrid.index / this.gridWidth),
     ]);
 
-    console.log("장애물 : ", this.entityObstacles);
+    console.log('장애물 : ', this.entityObstacles);
 
     // 경로가 없으면 빈 배열 반환
     if (!path || path.length === 0) {
@@ -191,12 +285,18 @@ export default class TestASter {
   }
 
   // 장애물 추가
-  addObstacle(obstacle, id) {
+  addObstacle(obstacle, id, staticObstacle = false) {
     this.grid.set(obstacle, 'value', 1); // 장애물 위치 그리드에 설정
 
     // 장애물 추가
-    this.entityObstacles[id] = obstacle;
-    console.log('추가한 entityObstacles :', this.entityObstacles[id]);
+    if (!staticObstacle) {
+      this.entityObstacles[id] = obstacle;
+      console.log('추가한 entityObstacles :', this.entityObstacles[id]);
+    }
+
+    // 데스트 용도.
+    const storedValue = this.grid.get(obstacle); // 그리드 값 확인
+    console.log(`⭕ 장애물 생성 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
   }
 
   // 장애물 제거
@@ -222,8 +322,11 @@ export default class TestASter {
     const obstaclePos = this.coordToIndex(pos);
     const obstacle = {
       id: entity.id,
-      obstacle: [obstaclePos.index % this.gridWidth, Math.floor(obstaclePos.index / this.gridWidth)],
-    }
+      obstacle: [
+        obstaclePos.index % this.gridWidth,
+        Math.floor(obstaclePos.index / this.gridWidth),
+      ],
+    };
 
     return obstacle;
   }

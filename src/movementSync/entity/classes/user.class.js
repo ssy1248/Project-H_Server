@@ -111,11 +111,12 @@ export default class User extends Entity {
   // [GET - currentTransform]
   getCurrentTransform() {
     const transform = { ...super.getCurrentTransform() };
-    const deltaTime = (this.latency / 2 + CONSTANTS.NETWORK.SNAPSHOT_INTERVAL) / 1000; // latency를 초 단위로 변환
+    const deltaTime = (this.latency / 2 + CONSTANTS.NETWORK.INTERVAL) / 1000; // latency를 초 단위로 변환
     transform.posX += deltaTime;
     transform.posY += deltaTime;
     transform.posZ += deltaTime;
 
+    //console.log("서버에서 보정된 transform : ", transform)
     return transform;
   }
 
