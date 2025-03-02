@@ -602,7 +602,7 @@ message SkillAttackResult {
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
-// 회피(도주) 결과 메시지
+// 회피(도주) 결과 메시지 -> 이부분 지금 2,3번 필요없어 보임임
 message DodgeResult {
   int32 evadedDamage = 1;        // 회피로 인해 피해를 줄인 양
   float dodgeDistance = 2;       // 회피 이동 거리
