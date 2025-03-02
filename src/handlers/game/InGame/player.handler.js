@@ -296,20 +296,23 @@ const processDodgeHandler = (socket, requesterName, direction) => {
   lastdodgeTime[requesterName] = now;
   console.log(`[${requesterName}] 회피 시도!`);
 
-  // 플레이어의 현재 위치
+  // 회피 이동은 되고있음 그러나
+  // 플레이어의 현재 위치 -> 이부분에서 업데이트가 안되고 있어서 스폰 위치에서 구르고 보간이 되고있음
   const currentPosition = dungeon.playersTransform[requesterName];
 
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
-    x: currentPosition.x + dodgeAction.direction.x * dodgeAction.dodgeDistance,
-    y: currentPosition.y + dodgeAction.direction.y * dodgeAction.dodgeDistance,
-    z: currentPosition.z + dodgeAction.direction.z * dodgeAction.dodgeDistance,
+    x: currentPosition.x + direction.x * player.dodge.dodgeRange,
+    y: currentPosition.y + direction.y * player.dodge.dodgeRange,
+    z: currentPosition.z + direction.z * player.dodge.dodgeRange,
   };
+
+  console.log('최종 좌표 : ', finalPosition);
 
   const dodgeResult = {
     evadedDamage: 20,                   // 회피 효과에 따른 피해 경감량 (예제)
-    dodgeDistance: dodgeAction.dodgeDistance,
-    direction: dodgeAction.direction,
+    dodgeDistance: player.dodge.dodgeRange,
+    direction: direction,
     finalPosition: finalPosition,
     useUserName: requesterName,
   }
