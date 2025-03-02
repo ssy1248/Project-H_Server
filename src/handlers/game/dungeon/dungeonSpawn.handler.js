@@ -20,9 +20,9 @@ const dungeonSpawnHandler = async (socket, payload) => {
     const userInfo = user.getUserInfo();
 
     user.setTransformInfo({
-      posX: playertransform.posX,
-      posY: playertransform.posY,
-      posZ: playertransform.posZ,
+      posX: playertransform.x,
+      posY: playertransform.y,
+      posZ: playertransform.z,
       rot: playertransform.rot,
     });
 
