@@ -274,7 +274,10 @@ export default class MovementSync {
   }
 
   updateUser(id, transform, timestamp) {
+    // 던전쪽 무브 싱크에서 불러오지 못하고 town 무브 싱크에서 찾는 오류가 발생함 그래서 false 값으로 나옵니다.
+    // 여기 유저데이터 불값으로 들어와요
     const user = this.entityManager.getUser(id);
+    console.log('유저 데이터', user);
     user.updateUserTransformSync(transform, timestamp);
   }
 
