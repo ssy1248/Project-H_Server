@@ -12,7 +12,7 @@ export const createMovementSync = (movementSyncId, type) => {
   // 생성
   movementSyncs[movementSyncId] = new MovementSync(movementSyncId);
   // 네브메쉬데이터 그리드로 변환
-  movementSyncs[movementSyncId].loadNavMeshDataOnce(type);
+  movementSyncs[movementSyncId].loadNavMeshDataOnce(movementSyncId);
   // 셋인터벌 실행.
   movementSyncs[movementSyncId].startMovementProcess();
   return true;
@@ -97,17 +97,17 @@ export const findMonster = (movementSyncId, id) => {
   }
 
   return movementSyncs[movementSyncId].findMonster(id);
-}
+};
 
 // [몬스터들 찾기]
-export const findMonsters =  (movementSyncId) => {
+export const findMonsters = (movementSyncId) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
   return movementSyncs[movementSyncId].findMonsters();
-}
+};
 
 // [ 몬스터 삭제 ]
 export const deleteMonster = (movementSyncId, id) => {
@@ -117,6 +117,4 @@ export const deleteMonster = (movementSyncId, id) => {
   }
 
   return movementSyncs[movementSyncId].deleteMonster(id);
-}
-
-
+};
