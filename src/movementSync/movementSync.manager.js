@@ -4,7 +4,7 @@ import { PACKET_TYPE } from '../constants/header.js';
 const movementSyncs = {};
 
 // [movementSync 생성].
-export const createMovementSync = (movementSyncId) => {
+export const createMovementSync = (movementSyncId, type) => {
   if (findMovementSync(movementSyncId)) {
     console.log(`movementSync 이미 존재: ${movementSyncId}`);
     return false;
@@ -12,7 +12,7 @@ export const createMovementSync = (movementSyncId) => {
   // 생성
   movementSyncs[movementSyncId] = new MovementSync(movementSyncId);
   // 네브메쉬데이터 그리드로 변환
-  movementSyncs[movementSyncId].loadNavMeshDataOnce();
+  movementSyncs[movementSyncId].loadNavMeshDataOnce(type);
   // 셋인터벌 실행.
   movementSyncs[movementSyncId].startMovementProcess();
   return true;

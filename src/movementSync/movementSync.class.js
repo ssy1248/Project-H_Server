@@ -18,11 +18,18 @@ export default class MovementSync {
     this.startMovementProcess();
   }
 
-  async loadNavMeshDataOnce() {
-    if (!this.navMeshGridData) {
-      this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
-      A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
+  async loadNavMeshDataOnce(type) {
+    switch (type) {
+      case 'town':
+        this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
+        break;
+      case 'dungeon1':
+        this.navMeshGridData = await loadNavMeshData('./navMesh/dungeon1.json');
+        break;
+      default:
+        break;
     }
+    A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
   }
 
   // [엔티티 인터벌] = 엔티티 좌표 업데이트를 60 프레임 단위로.
