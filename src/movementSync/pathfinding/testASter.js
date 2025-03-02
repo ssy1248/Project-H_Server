@@ -49,8 +49,8 @@ export default class TestASter {
     let startGrid = this.coordToIndex(startPos); // 시작 좌표를 그리드 인덱스로 변환
     let endGrid = this.coordToIndex(endPos); // 끝 좌표를 그리드 인덱스로 변환
 
-    console.log('startGrid', startGrid);
-    console.log('endGrid', endGrid);
+    //console.log('startGrid', startGrid);
+    //console.log('endGrid', endGrid);
 
     // 시작 좌표와 끝 좌표가 유효한지 체크
     if (
@@ -79,16 +79,16 @@ export default class TestASter {
       [endGrid.index % this.gridWidth, Math.floor(endGrid.index / this.gridWidth)],
     );
 
-    console.log('start :', [
-      startGrid.index % this.gridWidth,
-      Math.floor(startGrid.index / this.gridWidth),
-    ]);
-    console.log('end :', [
-      endGrid.index % this.gridWidth,
-      Math.floor(endGrid.index / this.gridWidth),
-    ]);
+    // console.log('start :', [
+    //   startGrid.index % this.gridWidth,
+    //   Math.floor(startGrid.index / this.gridWidth),
+    // ]);
+    // console.log('end :', [
+    //   endGrid.index % this.gridWidth,
+    //   Math.floor(endGrid.index / this.gridWidth),
+    // ]);
 
-    console.log("장애물 : ", this.entityObstacles);
+    // console.log("장애물 : ", this.entityObstacles);
 
     // 경로가 없으면 빈 배열 반환
     if (!path || path.length === 0) {
@@ -196,7 +196,7 @@ export default class TestASter {
 
     // 장애물 추가
     this.entityObstacles[id] = obstacle;
-    console.log('추가한 entityObstacles :', this.entityObstacles[id]);
+    //console.log('추가한 entityObstacles :', this.entityObstacles[id]);
   }
 
   // 장애물 제거
@@ -207,9 +207,9 @@ export default class TestASter {
     if (obstacle) {
       this.grid.set(obstacle, 'value', 0); // 그리드에서 장애물 제거
       const storedValue = this.grid.get([obstacle[0], obstacle[1]]); // 그리드 값 확인
-      console.log(`⭕ 장애물 삭제 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
+      //console.log(`⭕ 장애물 삭제 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
     } else {
-      console.log('제거 할 장애물이 ❌ 없음');
+      //console.log('제거 할 장애물이 ❌ 없음');
     }
   }
 

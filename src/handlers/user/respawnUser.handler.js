@@ -1,3 +1,4 @@
+import { deleteUser } from '../../movementSync/movementSync.manager.js';
 import { getDungeonSession, removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
@@ -16,7 +17,9 @@ const respawnUserHandler = async (socket) => {
     // 파티 유지 폭파 정하기.
     //removeDungeonSession(user.inDungeonId);
     user.setTransform();
+    const userInfo = user.getUserInfo();
 
+    deleteUser('town', userInfo.userId);
     user.inDungeonId = '';
     spawnUserHandler(socket, { class: user.playerInfo.playerClass });
   } catch (err) {
