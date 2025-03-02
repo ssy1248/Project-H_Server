@@ -78,7 +78,7 @@ class Dungeon {
     }
     new RewardAuction([5, 6], this.partyInfo);
   }
-  // 던전 내 플레이어 위치 업데이트 함수
+  // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     if (this.playersTransform[playerName]) {
       this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
