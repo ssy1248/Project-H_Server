@@ -281,6 +281,8 @@ const processDodgeHandler = (socket, requesterName, direction) => {
      return;
    }
 
+   console.log('플레이어 : ', player);
+
   // 다음 회피 가능 시각 계산
   const cooldownMs = player.dodge.dodgeCoolTime * 1000;
   const nextPossibleTime = lastdodgeTime[requesterName] + cooldownMs;
@@ -295,7 +297,7 @@ const processDodgeHandler = (socket, requesterName, direction) => {
   console.log(`[${requesterName}] 회피 시도!`);
 
   // 플레이어의 현재 위치
-  const currentPosition = player.playersTransform[requesterName];
+  const currentPosition = dungeon.playersTransform[requesterName];
 
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
