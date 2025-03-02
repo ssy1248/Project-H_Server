@@ -100,7 +100,6 @@ const syncSpawnedUser = async (socket, user) => {
         const userInfo = value.getUserInfo();
         const user = findUser('town', userInfo.userId);
         if (user) {
-          
           value.setTransformInfo(user.currentTransform);
         }
 
@@ -153,7 +152,7 @@ const syncSpawnedUser = async (socket, user) => {
 
     // [테스트] 이동동기화 유저 추가
     //addEntitySync('town', userInfo.userId, "user",  socket, playerPacketData.transform);
-    addUser('town', socket,userInfo.userId, playerPacketData.transform  );
+    addUser('town', socket, userInfo.userId, playerPacketData.transform);
 
     // 트랜스폼
 
