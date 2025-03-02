@@ -20,7 +20,7 @@ export const processPlayerActionHandler = (socket, packet) => {
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
-    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.dodgeDistance);
+    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.direction);
   } else if (packet.hitAction) {
     // 피격 처리
     console.log('피격 요청 처리');
@@ -253,7 +253,9 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
 }
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
-const processDodgeHandler = (socket, requesterName) => {
+const processDodgeHandler = (socket, requesterName, direction) => {
+  console.log('바라보는 방향 : ', direction);
+
   // 핸들러에 들어온 현재 시간
   const now = Date.now();
 
@@ -279,7 +281,7 @@ const processDodgeHandler = (socket, requesterName) => {
      return;
    }
 
-    // 다음 공격 가능 시각 계산
+  // 다음 회피 가능 시각 계산
   const cooldownMs = player.dodge.dodgeCoolTime * 1000;
   const nextPossibleTime = lastdodgeTime[requesterName] + cooldownMs;
   if (now < nextPossibleTime) {
@@ -292,11 +294,22 @@ const processDodgeHandler = (socket, requesterName) => {
   lastdodgeTime[requesterName] = now;
   console.log(`[${requesterName}] 회피 시도!`);
 
+  // 플레이어의 현재 위치
+  const currentPosition = player.playersTransform[requesterName];
+
+  // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
+  const finalPosition = {
+    x: currentPosition.x + dodgeAction.direction.x * dodgeAction.dodgeDistance,
+    y: currentPosition.y + dodgeAction.direction.y * dodgeAction.dodgeDistance,
+    z: currentPosition.z + dodgeAction.direction.z * dodgeAction.dodgeDistance,
+  };
+
   const dodgeResult = {
-    evadedDamage: 20,         // 회피로 인해 피해를 줄인 양
-    // 바라보는 방향값을 어떤식으로 가져와야 할까
-    cooldown: player.dodge.dodgeCoolTime, // 회피 쿨타임(초) -> 이부분을 바라보는 방향의 이동값을 줘야할듯?
-    useUserName:  requesterName,
+    evadedDamage: 20,                   // 회피 효과에 따른 피해 경감량 (예제)
+    dodgeDistance: dodgeAction.dodgeDistance,
+    direction: dodgeAction.direction,
+    finalPosition: finalPosition,
+    useUserName: requesterName,
   }
 
   const payload = {
