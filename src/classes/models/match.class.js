@@ -11,7 +11,7 @@ const maxDungeonNum = MAX_PARTY_MEMBER; // 던전의 최대 파티원 수를 상
 class Match {
   constructor() {
     this.partyQueue = []; // 파티 매칭 대기열
-    this.matchTimeouts = {}; //재귀를 하는 대기열 저장
+    this.matchTimeouts = {}; // 매칭을 진행하지 않을 파티 ID 저장
   }
 
   // 솔로가 던전 입장 누르면 무조건 파티 생성 후 입장이 가능합니다. 팝업띄어서 유저가 직접 파티 생성하게 -> 파티 세션 집어넣고 진행

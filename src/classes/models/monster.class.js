@@ -13,17 +13,6 @@ export default class Monster {
     this.isAlive = true; // 몬스터 생존 여부
   }
 
-  //
-  takeDamage(damage) {
-    if (!this.isAlive) return;
-
-    this.hp = Math.max(0, this.hp - damage); // 데미지 반영
-
-    if (this.hp <= 0) {
-      this.die(); // 죽음 처리
-    }
-  }
-
   // 공격 메서드
   attackTarget(target) {
     if (!this.isAlive) return;
