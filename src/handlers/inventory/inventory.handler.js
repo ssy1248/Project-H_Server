@@ -148,9 +148,26 @@ export const disrobeItemHandler = async (socket, data) => {
     }
 }
 
+export const storeItemHandler = async (socket, data) => {
+    try {
+        const { itemId } = data;
+
+        const user = getUserBySocket(socket);
+
+        await user.inventory.store(itemId);
+
+        const storeResponse = createResponse(
+            'inventory',
+
+        )
+    } catch (error) {
+        handlerError(socket, error);
+    }
+};
+
 export const MoveItemHandler = async (socket, data) => {
     try {
-        const { itemId, position } = data;
+        const { itemId, position, storage } = data;
 
         const user = getUserBySocket(socket);
 
@@ -158,13 +175,13 @@ export const MoveItemHandler = async (socket, data) => {
         // 옮기려는 아이템
         const item = inventory.find((item) => item.id === itemId);
         // 옮기려는 위치에 다른 아이템이 있는지 확인
-        const other = inventory.find((item) => item.position === position);
-        if(other){
+        const other = inventory.find((item) => item.position === position && item.equiped === storage);
+        if (other) {
             // 옮기려는 위치에 다른 아이템이 있으면 스왑
-            await user.inventory.move(other.id, item.position);
+            await user.inventory.move(other.id, item.position, item.equiped);
         }
         // 아이템 옮기기
-        await user.inventory.move(itemId, position);
+        await user.inventory.move(itemId, position, storage);
 
         const moveItemResponse = createResponse(
             'inventory',
@@ -173,6 +190,7 @@ export const MoveItemHandler = async (socket, data) => {
             {
                 itemId: itemId,
                 position: position,
+                storage: storage,
             }
         );
 

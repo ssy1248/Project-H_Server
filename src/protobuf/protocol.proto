@@ -251,12 +251,14 @@ message S_ActiveItemResponse {
 message C_MoveItemRequest {
   int32 itemId = 1;
   int32 position = 2;
+  int32 storage = 3;
 }
 
 // 아이템 이동 응답
 message S_MoveItemResponse {
   int32 itemId = 1;
   int32 position = 2;
+  int32 storage = 3;
 }
 
 /* 파티 패킷 */
@@ -717,7 +719,7 @@ message ItemInfo {
   int32 itemType = 3;
   string name = 4;
   float stat = 5;
-  bool equiped = 6;
+  int32 equipped = 6;
   int32 rarity = 7;
   int32 position = 8;
   string imgsrc = 9;
