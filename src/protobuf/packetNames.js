@@ -24,6 +24,12 @@ export const packetNames = {
     S_BuyInMarket: 'Google.Protobuf.Protocol.S_BuyInMarket',
     C_MarketSelectBuyName: 'Google.Protobuf.Protocol.C_MarketSelectBuyName',
     S_MarketSelectBuyName: 'Google.Protobuf.Protocol.S_MarketSelectBuyName',
+    S_MonsterSpawn: 'Google.Protobuf.Protocol.S_MonsterSpawn',
+    C_MonsterMove: 'Google.Protobuf.Protocol.C_MonsterMove',
+    S_MonsterMove: 'Google.Protobuf.Protocol.S_MonsterMove',
+    S_MonsterHit: 'Google.Protobuf.Protocol.S_MonsterHit',
+    S_MonsterAttck: 'Google.Protobuf.Protocol.S_MonsterAttck',
+    S_MonsterDie: 'Google.Protobuf.Protocol.S_MonsterDie',
   },
   party: {
     C_PartyRequest: 'Google.Protobuf.Protocol.C_PartyRequest',
@@ -92,5 +98,12 @@ export const packetNames = {
     S_SetPlayerHpData: 'Google.Protobuf.Protocol.S_SetPlayerHpData',
     S_SetPlayerData: 'Google.Protobuf.Protocol.S_SetPlayerData',
     S_SetMonsterHpData: 'Google.Protobuf.Protocol.S_SetMonsterHpData',
+
+    S_PlayerRangeAttack: 'Google.Protobuf.Protocol.S_PlayerRangeAttack',
+    C_PlayerRangeAttack: 'Google.Protobuf.Protocol.C_PlayerRangeAttack',
+    S_RangedAttackImpact: 'Google.Protobuf.Protocol.S_RangedAttackImpact',
+    C_RangedAttackImpact: 'Google.Protobuf.Protocol.C_RangedAttackImpact',
+    S_RangeAttackCollide: 'Google.Protobuf.Protocol.S_RangeAttackCollide',
+    C_RangeAttackCollide: 'Google.Protobuf.Protocol.C_RangeAttackCollide',
   },
 };

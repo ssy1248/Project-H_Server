@@ -1,3 +1,4 @@
+import RewardAuction from '../../../classes/models/rewardAuction.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { searchPartyInPlayerSession } from '../../../session/party.session.js';
@@ -14,11 +15,12 @@ const dungeonSpawnHandler = async (socket, payload) => {
     if (!dungeondata) {
       throw new Error('해당 던전이 없습니다!');
     }
+
+    user.setTransformInfo({ posX: 0, posY: 0, posZ: 0, rot: 0 });
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));
     // }
-
     const dungeonInfo = {
       dungeonId: dungeondata.id,
       partyInfo: dungeondata.partyInfo,
@@ -43,6 +45,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
+    new RewardAuction([5, 6], dungeondata.partyInfo);
   } catch (err) {
     console.log(err);
   }

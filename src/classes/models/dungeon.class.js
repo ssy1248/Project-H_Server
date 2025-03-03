@@ -192,26 +192,29 @@ class Dungeon {
   }
 
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
-  checkArrowCollision(arrow, monsterId) {
+  checkArrowCollision(arrow, monster) {
     const arrowPos = arrow.position;
 
-    // 해당 monsterId에 대한 몬스터를 가져옴
-    const monster = this.monsters[monsterId];
-    if (!monster) return false; // 몬스터가 없다면 충돌하지 않음
+    if (!monster) {
+      return false; // 몬스터가 없다면 충돌하지 않음
+    }
 
     const monsterPos = monster.position;
 
-    // 간단한 충돌 감지 (화살의 위치와 몬스터의 위치가 가까운지 확인)
-    if (
-      Math.abs(arrowPos.x - monsterPos.x) < 1 &&
-      Math.abs(arrowPos.y - monsterPos.y) < 1 &&
-      Math.abs(arrowPos.z - monsterPos.z) < 1
-    ) {
-      // 충돌 발생 -> 몬스터에게 피해
-      return true; // 충돌이 발생했음을 반환
+    // 두 점 사이의 거리 계산 (유클리드 거리)
+    const distance = Math.sqrt(
+      Math.pow(arrowPos.x - monsterPos.x, 2) +
+        Math.pow(arrowPos.y - monsterPos.y, 2) +
+        Math.pow(arrowPos.z - monsterPos.z, 2),
+    );
+
+    // 일정 거리 이하일 경우 충돌로 간주
+    const collisionThreshold = 1; // 이 값을 적절히 설정 (예: 1)
+    if (distance < collisionThreshold) {
+      return true; // 충돌 발생
     }
 
-    return false; // 충돌이 발생하지 않으면 false 반환
+    return false; // 충돌하지 않음
   }
 
   // 화살 제거
@@ -247,13 +250,13 @@ class Dungeon {
   // 화살 이동을 일정 간격으로 처리
   startArrowMovement() {
     this.arrowMoveIntervalDuration = 100; // 100ms 간격
-
+    /*
     this.intervalManager.addInterval(() => {
       // 모든 플레이어의 화살 이동
       Object.keys(this.arrows).forEach((playerName) => {
         this.moveArrow(playerName);
       });
-    }, this.arrowMoveIntervalDuration);
+    }, this.arrowMoveIntervalDuration);*/
   }
 
   // 인터벌을 멈추는 함수

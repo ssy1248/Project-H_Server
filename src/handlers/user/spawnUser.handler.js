@@ -13,9 +13,7 @@ import {
 } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { addUserSync } from '../../classes/managers/movementSync.manager.js';
-import User from '../../classes/models/user.class.js';
-import { findUserSync } from '../../classes/managers/movementSync.manager.js';
+import { addUser, findUser } from '../../movementSync/movementSync.manager.js';
 import { getAllItemSession } from '../../session/item.session.js';
 import { findAllItems } from '../../db/shop/shop.db.js';
 
@@ -88,17 +86,25 @@ const syncSpawnedUser = async (socket, user) => {
     // 현재 스폰된 모든 유저 목록을 가져옴 (본인은 제외)
     const users = getAllUsers(socket);
     // 다른 유저들의 플레이어 정보를 패킷 데이터로 변환
-    const playerData = users.map((value) => {
-      // 유저 최신 좌표 가져오기.
-      const userInfo = value.getUserInfo();
-      const user = findUserSync('town', userInfo.userId);
-      if (user !== null) {
-        value.setTransformInfo(user.currentTransform);
-      }
+    const playerData = users
+      .filter((value) => {
+        return !(
+          value.transformInfo.posX === 0 &&
+          value.transformInfo.posY === 0 &&
+          value.transformInfo.posZ === 0
+        );
+      })
+      .map((value) => {
+        // 유저 최신 좌표 가져오기.
+        const userInfo = value.getUserInfo();
+        const user = findUser('town', userInfo.userId);
+        if (user !== null) {
+          value.setTransformInfo(user.currentTransform);
+        }
 
-      const playerInfo = createPlayerInfoPacketData(value);
-      return playerInfo;
-    });
+        const playerInfo = createPlayerInfoPacketData(value);
+        return playerInfo;
+      });
 
     const items = getAllItemSession();
     let itemData = [];
@@ -144,7 +150,10 @@ const syncSpawnedUser = async (socket, user) => {
     };
 
     // [테스트] 이동동기화 유저 추가
-    addUserSync('town', userInfo.userId, socket, playerPacketData.transform);
+    //addEntitySync('town', userInfo.userId, "user",  socket, playerPacketData.transform);
+    addUser('town', socket,userInfo.userId, playerPacketData.transform  );
+
+    // 트랜스폼
 
     // S_Spawn 패킷 생성 후 다른 유저들에게 브로드캐스트 (비동기 전송)
     const initialResponse2 = createResponse('user', 'S_Enter', PACKET_TYPE.S_ENTER, sEnter);
@@ -198,7 +207,7 @@ const getItemList = async () => {
   const itemList = itemListData.map(({ shopId, itemId, stock, price }) => ({
     // shopid, itemid, stock, price
     id: shopId,
-    itemId: itemId, 
+    itemId: itemId,
     stock: stock,
     price: price,
   }));

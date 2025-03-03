@@ -20,15 +20,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "express": "^4.21.2",
+    "fast-astar": "^1.0.6",
     "lodash": "^4.17.21",
     "long": "^5.2.3",
     "mysql2": "^3.9.7",
+    "navmesh": "^2.3.1",
     "nodaemon": "^0.0.5",
     "protobufjs": "^6.11.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.15",
+    "nodemon": "^3.1.9",
     "prettier": "^2.8.8"
   },
   "directories": {
