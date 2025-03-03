@@ -98,5 +98,11 @@ export const packetNames = {
     S_SetPlayerHpData: 'Google.Protobuf.Protocol.S_SetPlayerHpData',
     S_SetPlayerData: 'Google.Protobuf.Protocol.S_SetPlayerData',
     S_SetMonsterHpData: 'Google.Protobuf.Protocol.S_SetMonsterHpData',
+    S_PlayerRangeAttack: 'Google.Protobuf.Protocol.S_PlayerRangeAttack',
+    C_PlayerRangeAttack: 'Google.Protobuf.Protocol.C_PlayerRangeAttack',
+    S_RangeAttackImpact: 'Google.Protobuf.Protocol.S_RangeAttackImpact',
+    C_RangeAttackImpact: 'Google.Protobuf.Protocol.C_RangeAttackImpact',
+    S_RangeAttackCollide: 'Google.Protobuf.Protocol.S_RangeAttackCollide',
+    C_RangeAttackCollide: 'Google.Protobuf.Protocol.C_RangeAttackCollide',
   },
 };

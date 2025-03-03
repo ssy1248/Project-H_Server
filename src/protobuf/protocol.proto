@@ -88,6 +88,12 @@ enum MsgId {
   S_MONSTERHIT =79;
   S_MONSTERATTCK =80;
   S_MONSTERDIE =81;
+  S_PLAYERRANGEATTACK=82;
+  C_PLAYERRANGEATTACK=83;
+  S_RANGEATTACKIMPACT=84;
+  C_RANGEATTACKIMPACT=85;
+  S_RANGEATTACKCOLLIDE=86;
+  C_RANGEATTACKCOLLIDE=87;
 }
 
 //회원가입 요청
@@ -839,4 +845,34 @@ message C_ShopInventoryRequest {
 message S_ShopInventoryList {
   uint32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
+}
+
+message C_PlayerRangeAttack {
+  repeated uint32 direction =1; // x,y,z 방향백터
+}
+
+message S_PlayerRangeAttack {
+  uint32 arrowId =1;
+  string message =2;
+}
+
+message C_RangeAttackImpact {
+  uint32 arrowId =1;
+  string monsterId =2;
+}
+message S_RangeAttackImpact{
+  string monsterId =1;
+  uint32 monsterHp =2;
+  uint32 damage =3;
+  string message=4;
+}
+
+message C_RangeAttackCollide{
+  uint32 arrowId = 1;
+  repeated uint32 collide =2;
+}
+
+message S_RangeAttackCollide{
+  bool success =1;
+  string message =2;
 }

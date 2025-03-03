@@ -10,10 +10,11 @@ import { getMonster } from '../../../session/monster.session.js';
 const lastAttackTime = {};
 const lastSkillTime = {};
 const lastdodgeTime = {};
+//줄어든 쿨타임 넣는것
 const playerCooldowns = {};
 
 //공격을 할떄 (플레이어가 공격을 할떄)
-const playerRangedAttackHandler = (socket, packetData) => {
+const playerRangeAttackHandler = (socket, packetData) => {
   try {
     const { direction } = packetData;
 
@@ -22,6 +23,17 @@ const playerRangedAttackHandler = (socket, packetData) => {
 
     if (!direction) {
       console.error('direction을 받지 않음');
+    }
+    if (
+      typeof direction === 'object' &&
+      direction !== null &&
+      typeof direction.x === 'number' &&
+      typeof direction.y === 'number' &&
+      typeof direction.z === 'number'
+    ) {
+      console.log('direction은 올바른 타입입니다.');
+    } else {
+      console.log('direction은 잘못된 타입입니다.');
     }
 
     // 유저 정보 확인
@@ -112,7 +124,7 @@ const playerRangedAttackHandler = (socket, packetData) => {
 };
 
 //투사체가 몬스터에게 준 공격에 대한 핸들러 (몬스터가 투사체에 맞을떄)
-export const rangedAttackImpactHandler = (socket, packetData) => {
+export const rangeAttackImpactHandler = (socket, packetData) => {
   try {
     const { monsterId, arrowId } = packetData;
 
@@ -123,8 +135,8 @@ export const rangedAttackImpactHandler = (socket, packetData) => {
     }
 
     console.log('arrowId', arrowId);
-    if (typeof arrowId !== 'number') {
-      console.log('arrowId가 숫자형 아님');
+    if (typeof arrowId !== 'number' || arrowId < 0 || arrowId > 100) {
+      console.log('arrowId가 숫자형이 아니거나, 0부터 100 사이의 값이 아닙니다');
       return;
     }
 
@@ -178,20 +190,20 @@ export const rangedAttackImpactHandler = (socket, packetData) => {
 
       console.log(`남은 체력: ${monster.hp}`);
 
-      const rangedAttackImpactPayload = {
+      const rangeAttackImpactPayload = {
         monsterId,
         monsterHp: monster.hp,
         damage: damage,
         message: '화살공격완료',
       };
 
-      const rangedAttackImpactResponse = createResponse(
+      const rangeAttackImpactResponse = createResponse(
         'dungeon',
-        'S_RangedAttackImpact',
+        'S_RangeAttackImpact',
         PACKET_TYPE.S_RANGEATTACKIMPACT,
-        rangedAttackImpactPayload,
+        rangeAttackImpactPayload,
       );
-      socket.write(rangedAttackImpactResponse);
+      socket.write(rangeAttackImpactResponse);
     } else {
       console.error('몬스터가 멀리 있습니다');
     }
@@ -209,9 +221,20 @@ export const rangeAttackCollide = (socket, packetData) => {
     const { arrowId, collide } = packetData;
 
     console.log('arrowId', arrowId);
-    if (typeof arrowId !== 'number') {
-      console.log('arrowId가 숫자형 아님');
+    if (typeof arrowId !== 'number' || arrowId < 0 || arrowId > 100) {
+      console.log('arrowId가 숫자형이 아니거나, 0부터 100 사이의 값이 아닙니다');
       return;
+    }
+
+    console.log('collide', collide);
+    if (
+      typeof collide !== 'object' ||
+      collide !== null ||
+      typeof collide.x !== 'number' ||
+      typeof collide.y !== 'number' ||
+      typeof collide.z !== 'number'
+    ) {
+      console.log('collide가 객체형이 아니거나 x,y,z가 숫자형이 아닙니다');
     }
 
     //유저 찾기
@@ -372,6 +395,16 @@ export const playerSkill = (socket, packetData) => {
       // 쿨타임 복원
       playerCooldowns[userNickName] -= cooldownReductionTime;
       console.log('쿨타임 복원 완료');
+
+      const skillPayload = {
+        playerAtk: playerAtk,
+        playerDef: playerDef,
+        playerSpeed: playerSpeed,
+        remainingCooldown: playerCooldowns[userNickName],
+        message: '스탯 버프 완료',
+      };
+      const skillResponse = createResponse('dungeon', 'S_Skill', PACKET_TYPE.skill, skillPayload);
+      socket.write(skillResponse);
     }, 20000); // 20초 후
 
     // 스킬 사용 후 플레이어 상태 (쿨타임 포함) 전송
@@ -379,16 +412,11 @@ export const playerSkill = (socket, packetData) => {
       playerAtk: playerAtk + atkIncrease,
       playerDef: playerDef + defIncrease,
       playerSpeed: playerSpeed + speedIncrease,
-      remainingCooldown: playerCooldowns[userNickName], 
+      remainingCooldown: playerCooldowns[userNickName],
       message: '스탯 버프 완료',
     };
 
-    const skillResponse = createResponse(
-      'dungeon',
-      'S_rangeAttcckCollide',
-      PACKET_TYPE.skill,
-      skillPayload,
-    );
+    const skillResponse = createResponse('dungeon', 'S_Skill', PACKET_TYPE.skill, skillPayload);
     socket.write(skillResponse);
   } catch (e) {
     handlerError(socket, e);
@@ -456,4 +484,4 @@ export const playerDodge = (socket, packetData) => {
   }
 };
 
-export default playerRangedAttackHandler;
+export default playerRangeAttackHandler;
