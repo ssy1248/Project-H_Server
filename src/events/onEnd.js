@@ -19,12 +19,12 @@ const clearUser = async (socket) => {
     // 해당 케릭터 정보 db 업데이트
     const user = getUserBySocket(socket);
 
-    const userInfo = user.getUserInfo();
+    //const userInfo = user.getUserInfo();
     const playerInfo = user.getPlayerInfo();
 
     // 삭제.
     //deleteEntitySync('town', userInfo.userId, "user");
-    deleteUser("town", userInfo.userId);
+    deleteUser('town', userInfo.userId);
 
     // 스폰 되어있는 클라이언트가 종료했을경우.
     if (playerInfo.isSpawn) {
@@ -40,8 +40,6 @@ const clearUser = async (socket) => {
 
     // 세션에서 유저 삭제
     removeUser(socket);
-
-    
   } catch (error) {
     console.error('에러 :', error);
   }
