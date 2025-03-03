@@ -51,6 +51,9 @@ const dungeonSpawnHandler = async (socket, payload) => {
       };
       transformInfo.push(transform);
     });
+
+    dungeondata.startPeriodicPositionUpdates(1000);
+
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {
       userId: user.userInfo.userId,
       dungeonInfo,
