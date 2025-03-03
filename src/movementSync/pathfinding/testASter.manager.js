@@ -13,7 +13,7 @@ const addASter = (id, navMeshData, gridWidth, gridHeight) => {
   testASters[id] = new TestASter(navMeshData, gridWidth, gridHeight);
 };
 
-// [A*] 삭제
+// [A*] 추가
 const deleteSter = (id) => {
   // 검증
   if (!testASters[id]) {
@@ -39,11 +39,6 @@ const deleteObstacleAter = (id,obstacleId ) => {
   testASters[id].removeObstacle(obstacleId);
 }
 
-// [A*] 장애물 리스트 제거.
-const deleteObstacleAterList = (id,obstacleId ) => {
-  testASters[id].deleteObstacleList(obstacleId);
-}
-
 // [A*] 길찾기
 const findPath = (id, startPos, endPos) => {
   // 검증
@@ -60,7 +55,6 @@ const A_STER_MANAGER = {
   ADD: addASter,
   DELETE: deleteSter,
   DELETE_OBSTACLE: deleteObstacleAter,
-  DELETE_OBSTACLE_List:deleteObstacleAterList,
   UPDATE_OBSTACLE: updateObstacleAter,
   FIND_PATH: findPath,
 };

@@ -11,10 +11,11 @@ import { handlerError } from '../../utils/error/errorHandler.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { v4 as uuidv4 } from 'uuid';
 
+
 export const partyLeaderChangeHandler = async (socket, payload) => {
   try {
     const { requesterId, changeUserId } = payload;
-
+    
     // 1. 요청한 사람이 속한 파티를 조회 (한 유저는 하나의 파티에 속한다고 가정)
     const parties = searchPartyInPlayerSession(requesterId);
     if (parties.length === 0) {
@@ -22,26 +23,26 @@ export const partyLeaderChangeHandler = async (socket, payload) => {
       return;
     }
     const party = parties[0];
-
+    
     // 2. 요청자가 파티 리더인지 확인
     if (party.partyLeader.userInfo.userId !== requesterId) {
       console.log('리더 교체는 파티 리더만 할 수 있습니다.');
       return;
     }
-
+    
     // 3. 교체할 대상이 같은 파티에 속해 있는지 확인
-    const newLeader = party.partyMembers.find((member) => member.userInfo.userId === changeUserId);
+    const newLeader = party.partyMembers.find(member => member.userInfo.userId === changeUserId);
     if (!newLeader) {
       console.log(`교체 대상 ${changeUserId}은(는) 해당 파티에 속해 있지 않습니다.`);
       return;
     }
-
+    
     // 파티 인포나 파티 클래스 내에서 방장이 안바뀌는거 같음
     // 4. 파티 리더 변경: 파티 클래스의 changePartyLeader 메서드 사용
     party.changePartyLeader(party.partyLeader, newLeader);
     // partyInfo에도 반영 (필요에 따라)
     party.partyInfo.partyLeaderId = changeUserId;
-
+    
     // 5. 모든 파티원에게 업데이트 브로드캐스트 (case = 4: 업데이트된 파티 정보)
     const updatedPartyInfo = party.getPartyInfo();
     const updatePayload = {
@@ -57,15 +58,16 @@ export const partyLeaderChangeHandler = async (socket, payload) => {
       PACKET_TYPE.S_PARTYRESPONSE,
       updatePayload,
     );
-
+    
     // 파티에 속한 모든 멤버의 소켓으로 전송
-    party.partyMembers.forEach((member) => {
+    party.partyMembers.forEach(member => {
       member.userInfo.socket.write(updateResponse);
     });
+    
   } catch (e) {
     handlerError(socket, e);
   }
-};
+}
 
 // C_SearchPartyRequest
 // S_PartySearchResponse -> 보내주는
@@ -431,22 +433,17 @@ export const partyJoinHandler = (socket, payload) => {
       failCode: 0,
     };
 
-    const responsePacket = createResponse(
-      'party',
-      'S_PartyResponse',
-      PACKET_TYPE.S_PARTYRESPONSE,
-      responsePayload,
-    );
+    const responsePacket = createResponse('party', 'S_PartyResponse', PACKET_TYPE.S_PARTYRESPONSE, responsePayload);
 
     // 5. 응답 전송 및 브로드캐스트
     // 가입 요청을 보낸 소켓에 전송
     socket.write(responsePacket);
     // 업데이트 리스판스를 보내줘야 할듯
     // 파티에 속한 다른 멤버들에게도 업데이트된 파티 정보를 브로드캐스트
-    party.partyMembers.forEach((member) => {
+    party.partyMembers.forEach(member => {
       member.userInfo.socket.write(responsePacket);
     });
-
+    
     console.log(`파티 ${partyId}에 user ${userId}가 가입했습니다.`);
   } catch (e) {
     handlerError(socket, e);

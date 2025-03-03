@@ -59,7 +59,6 @@ export default class User {
     // Z 좌표 → 기본값 : -8 ~ 8
     // 회전 각도 → 기본값 : 0 ~ 360
 
-    this.setTransform();
     this.transformInfo = {
       posX: this.generateRandomPlayerTransformInfo(-9, 9),
       posY: 1,
@@ -70,15 +69,7 @@ export default class User {
 
     this.inventory.init(this);
   }
-  setTransform() {
-    this.transformInfo = {
-      posX: this.generateRandomPlayerTransformInfo(-9, 9),
-      posY: 1,
-      // 130 고정은 나중에 생성관련에서 맵이 여러가지가 되면 보내주는 곳에서 맵인덱스를 보내서 그 맵인덱스에 맞게 더해주거나 아님 클라를 손보든 수정
-      posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
-      rot: this.generateRandomPlayerTransformInfo(0, 360),
-    };
-  }
+
   // 랜덤 좌표 및 회전 각도 생성 함수
   generateRandomPlayerTransformInfo(min, max) {
     // min ~ max 사이의 랜덤 값

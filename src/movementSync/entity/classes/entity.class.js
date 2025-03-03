@@ -74,9 +74,6 @@ export default class Entity {
 
   // [트랜스폼 업데이트]
   updateTransform() {
-
-    //console.log(this.behavior);
-
     if (
       this.behavior !== CONSTANTS.AI_BEHAVIOR.IDLE &&
       this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK
@@ -86,8 +83,6 @@ export default class Entity {
 
       // 타겟 업데이트.
       this.updateTargetTransform();
-
-      
 
       // 델타타임
       const deltaTime = 1 / CONSTANTS.NETWORK.TICK_RATE; // 프레임당 시간 (60FPS 기준)

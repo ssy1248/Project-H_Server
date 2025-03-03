@@ -26,7 +26,7 @@ export default class User extends Entity {
       this.currentTransform.posZ,
     ];
 
-    //console.log("startPos", startPos);
+    console.log("startPos", startPos);
 
     // 도착
     const endPos = [
@@ -35,14 +35,14 @@ export default class User extends Entity {
       this.pathfindingDestination.posZ,
     ];
 
-    //console.log("endPos", endPos);
+    console.log("endPos", endPos);
 
 
     // 패스 갱신.
     A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
     const paths = await A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
 
-    //console.log('유저클래스 패스 :', paths);
+    console.log('유저클래스 패스 :', paths);
 
     if (this.aSterPath.size() !== 0) {
       this.aSterPath.delete();
