@@ -319,7 +319,7 @@ export const playerSkill = (socket, packetData) => {
     const nextPossibleTime = lastSkillTime[userNickName] + cooldownMs;
     if (now < nextPossibleTime) {
       const remaining = nextPossibleTime - now;
-      console.log(`[${attackerName}] 스킬 쿨타임 중! (남은 시간: ${remaining}ms)`);
+      console.log(`[${userNickName}] 스킬 쿨타임 중! (남은 시간: ${remaining}ms)`);
       sendActionFailure(socket, `스킬 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
       return;
     }
@@ -344,50 +344,52 @@ export const playerSkill = (socket, packetData) => {
     console.log('defIncrease:', defIncrease);
     console.log('speedIncrease:', speedIncrease);
 
-    // 20초 동안 증가된 스탯을 적용하는 함수
-    const increasePlayerStats = () => {
-      // 10% 증가시킨 값으로 설정
-      dungeon.setPlayerAtk(userNickName, playerAtk + atkIncrease);
-      dungeon.setPlayerDef(userNickName, playerDef + defIncrease);
-      dungeon.setPlayerSpeed(userNickName, playerSpeed + speedIncrease);
-
-      console.log('스탯 증가 적용 완료');
-
-      // 20초 후, 원래 값으로 되돌리기
-      setTimeout(() => {
-        dungeon.setPlayerAtk(userNickName, playerAtk);
-        dungeon.setPlayerDef(userNickName, playerDef);
-        dungeon.setPlayerSpeed(userNickName, playerSpeed);
-        console.log('원래 스탯으로 되돌리기 완료');
-      }, 20000); // 20초 후
-    };
-
-    // 스탯 증가 함수 호출
-    increasePlayerStats();
+    // 스탯 증가 적용 (10% 증가시킨 값으로 설정)
+    dungeon.setPlayerAtk(userNickName, playerAtk + atkIncrease);
+    dungeon.setPlayerDef(userNickName, playerDef + defIncrease);
+    dungeon.setPlayerSpeed(userNickName, playerSpeed + speedIncrease);
+    console.log('스탯 증가 적용 완료');
 
     // 쿨타임 감소 적용 (10초 감소)
-    const decreaseCooldown = () => {
-      const cooldownReductionTime = 10 * 1000; // 10초 감소
+    const cooldownReductionTime = 10 * 1000; // 10초 감소
 
-      // 쿨타임 감소 값을 저장하는 변수
-      if (!playerCooldowns[userNickName]) {
-        playerCooldowns[userNickName] = 0; // 처음에 값이 없다면 0으로 초기화
-      }
+    if (!playerCooldowns[userNickName]) {
+      playerCooldowns[userNickName] = 0; // 처음에 값이 없다면 0으로 초기화
+    }
 
-      // 쿨타임 감소 적용 (스킬 사용 시에만)
-      playerCooldowns[userNickName] += cooldownReductionTime;
+    // 쿨타임 감소 적용
+    playerCooldowns[userNickName] += cooldownReductionTime;
+    console.log(`쿨타임 감소 적용: ${cooldownReductionTime / 1000}초`);
 
-      console.log(`쿨타임 감소 적용: ${cooldownReductionTime / 1000}초`);
+    // 동일한 setTimeout을 사용하여 20초 후에 스탯과 쿨타임 복원
+    setTimeout(() => {
+      // 원래 값으로 되돌리기
+      dungeon.setPlayerAtk(userNickName, playerAtk);
+      dungeon.setPlayerDef(userNickName, playerDef);
+      dungeon.setPlayerSpeed(userNickName, playerSpeed);
+      console.log('원래 스탯으로 되돌리기 완료');
 
-      // 20초 후 원래 쿨타임으로 복원
-      setTimeout(() => {
-        playerCooldowns[userNickName] -= cooldownReductionTime;
-        console.log('쿨타임 감소 복원 완료');
-      }, 20000); // 20초 후
+      // 쿨타임 복원
+      playerCooldowns[userNickName] -= cooldownReductionTime;
+      console.log('쿨타임 복원 완료');
+    }, 20000); // 20초 후
+
+    // 스킬 사용 후 플레이어 상태 (쿨타임 포함) 전송
+    const skillPayload = {
+      playerAtk: playerAtk + atkIncrease,
+      playerDef: playerDef + defIncrease,
+      playerSpeed: playerSpeed + speedIncrease,
+      remainingCooldown: playerCooldowns[userNickName], 
+      message: '스탯 버프 완료',
     };
 
-    // 쿨타임 감소 함수 호출
-    decreaseCooldown();
+    const skillResponse = createResponse(
+      'dungeon',
+      'S_rangeAttcckCollide',
+      PACKET_TYPE.skill,
+      skillPayload,
+    );
+    socket.write(skillResponse);
   } catch (e) {
     handlerError(socket, e);
   }
@@ -449,11 +451,6 @@ export const playerDodge = (socket, packetData) => {
     // 갱신: 회피 성공 시각 기록
     lastdodgeTime[userNickName] = now;
     console.log(`[${userNickName}] 회피 시도!`);
-
-
-
-
-    
   } catch (e) {
     handlerError(socket, e);
   }

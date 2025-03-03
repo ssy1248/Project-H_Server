@@ -67,7 +67,7 @@ class Dungeon {
     // 화살 정보를 저장할 객체
     this.arrows = {};
 
-    //this.startArrowMovement();
+    this.startArrowMovement();
     this.testCount = 0;
   }
 
@@ -78,6 +78,7 @@ class Dungeon {
     }
     new RewardAuction([5, 6], this.partyInfo);
   }
+
   // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     if (this.playersTransform[playerName]) {
@@ -175,6 +176,7 @@ class Dungeon {
 
     return arrow.arrowId; // 화살의 ID를 반환
   }
+
   // 화살 이동
   moveArrow(playerName) {
     const arrows = this.arrows[playerName];
@@ -191,6 +193,10 @@ class Dungeon {
       arrow.position.z += arrow.direction.z * adjustedSpeed;
 
       arrow.traveledDistance += adjustedSpeed;
+
+      console.log(`${playerName}의 화살 상태: `, arrows);
+      console.log(`${playerName}의 화살 좌표: `, arrows[0].position);
+      console.log(`${playerName}의 화살 좌표: `, arrows[1].position);
 
       // 화살이 최대 이동 거리보다 멀리 갔으면 소멸
       if (arrow.traveledDistance >= arrow.maxDistance) {
@@ -290,6 +296,7 @@ class Dungeon {
         }
       }
     }, this.arrowMoveIntervalDuration);
+    // this.testArrowMovement();
   }
 
   // 인터벌을 멈추는 함수
@@ -302,15 +309,18 @@ class Dungeon {
     return this.arrows;
   }
 
-  // 던전 내 플레이어 상태 업데이트와 함께 화살 생성 관리
-  updatePlayerStatus(playerName, newStatus) {
-    // 상태 업데이트와 함께 화살 생성 처리
-    if (newStatus.playerClass === 'Archer' && !this.arrows[playerName]) {
-      this.createArrow(playerName); // 아처인 경우 화살을 생성
-    }
+  // 임시로 화살을 생성하고 이동을 테스트하는 메서드
+  testArrowMovement(
+    playerName = 'test',
+    position = { x: 0, y: 0, z: 0 },
+    direction = { x: 1, y: 0, z: 0 },
+    speed = 10,
+    maxDistance = 100,
+  ) {
+    // 화살을 생성
+    const arrowId = this.createArrow(playerName, position, direction, speed, maxDistance);
 
-    // 플레이어 상태 업데이트 로직
-    this.playersTransform[playerName] = newStatus;
+    console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
   }
 }
 
