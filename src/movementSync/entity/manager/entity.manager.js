@@ -22,7 +22,10 @@ export default class EntityManager {
 
   deleteUser(id) {
     if (!this.users) return;
+    console.log("삭제 ID : ", id);
+    console.log("삭제 전 유저들 : ", this.users);
     delete this.users[id];
+    console.log("삭제 후 유저들 : ", this.users);
   }
 
   getUsers() {

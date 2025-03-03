@@ -1,9 +1,10 @@
 import MovementSync from './movementSync.class.js';
-
+import { createResponse } from '../utils/response/createResponse.js';
+import { PACKET_TYPE } from '../constants/header.js';
 const movementSyncs = {};
 
 // [movementSync 생성].
-export const createMovementSync = (movementSyncId) => {
+export const createMovementSync = (movementSyncId, type) => {
   if (findMovementSync(movementSyncId)) {
     console.log(`movementSync 이미 존재: ${movementSyncId}`);
     return false;
@@ -11,7 +12,7 @@ export const createMovementSync = (movementSyncId) => {
   // 생성
   movementSyncs[movementSyncId] = new MovementSync(movementSyncId);
   // 네브메쉬데이터 그리드로 변환
-  movementSyncs[movementSyncId].loadNavMeshDataOnce();
+  movementSyncs[movementSyncId].loadNavMeshDataOnce(movementSyncId);
   // 셋인터벌 실행.
   movementSyncs[movementSyncId].startMovementProcess();
   return true;
@@ -53,7 +54,6 @@ export const findUser = (movementSyncId, id) => {
     return false;
   }
 
-  console.log(movementSyncs[movementSyncId].findUser(id));
   return movementSyncs[movementSyncId].findUser(id);
 };
 
@@ -87,4 +87,34 @@ export const deleteUser = (movementSyncId, id) => {
 
   // 유저 삭제
   movementSyncs[movementSyncId].deleteUser(id);
+};
+
+// [ 몬스터 찾기 ]
+export const findMonster = (movementSyncId, id) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].findMonster(id);
+};
+
+// [몬스터들 찾기]
+export const findMonsters = (movementSyncId) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].findMonsters();
+};
+
+// [ 몬스터 삭제 ]
+export const deleteMonster = (movementSyncId, id) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].deleteMonster(id);
 };

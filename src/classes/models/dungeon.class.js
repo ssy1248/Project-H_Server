@@ -1,7 +1,10 @@
+import { findUser } from '../../movementSync/movementSync.manager.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
+import ArrowPool from '../managers/arrowPool,manager.js';
 import IntervalManager from '../managers/interval.manager.js';
 import Players from './player.class.js';
+import RewardAuction from './rewardAuction.class.js';
 
 /**
   message PartyInfo{
@@ -59,27 +62,71 @@ class Dungeon {
       });
     }
 
-    // 던전 내에서 전체 화살 ID를 관리하는 카운터
-    this.arrowCounter = 0; // 화살 ID 카운터 초기화
+    // ArrowPool 인스턴스 생성
+    this.arrowPool = new ArrowPool();
 
     // 화살 정보를 저장할 객체
     this.arrows = {};
 
-    this.startArrowMovement();
+    //this.startArrowMovement();
+    this.testCount = 0;
+
+    // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
+    this._positionUpdateIntervalId = null;
   }
 
-  // 던전 내 플레이어 위치 업데이트 함수
-  updatePlayerPosition(playerName, posX, posY, posZ, rot) {
-    if (this.playersTransform[playerName]) {
-      this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
-    } else {
-      this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
+  checkAuctionTest() {
+    if (this.testCount < 1) {
+      this.testCount++;
+      return;
     }
+    new RewardAuction([5, 6], this.partyInfo);
+  }
+  // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
+  updatePlayerPosition(playerName, posX, posY, posZ, rot) {
+    this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
   }
 
   // 던전 내 플레이어 위치 가져오기
   getPlayerPosition(playerName) {
     return this.playersTransform[playerName] || null;
+  }
+
+  // 주기적으로 던전 내 모든 플레이어의 위치를 업데이트하는 메서드
+  startPeriodicPositionUpdates(updateInterval = 10000) {
+    // 이미 인터벌이 설정되어 있다면 재설정하지 않음
+    if (this._positionUpdateIntervalId) {
+      return;
+    }
+    
+    this._positionUpdateIntervalId = setInterval(() => {
+      // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
+      Object.keys(this.playersTransform).forEach((playerName) => {
+        const user = getUserByNickname(playerName);
+        // 끊겼을때 이부분 에러
+        const userTransform = findUser('dungeon1', user.userInfo.userId);
+        if (user && userTransform && userTransform.currentTransform) {
+          this.playersTransform[playerName] = {
+            x: userTransform.currentTransform.posX,
+            y: userTransform.currentTransform.posY,
+            z: userTransform.currentTransform.posZ,
+            // rot은 왜 undefined가 나올까?
+            rot: userTransform.currentTransform.rot,
+          };
+          console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);
+        } else {
+          console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
+        }
+      });
+    }, updateInterval);
+  }
+
+  // 주기적 업데이트를 중지하는 메서드
+  stopPeriodicPositionUpdates() {
+    if (this._positionUpdateIntervalId) {
+      clearInterval(this._positionUpdateIntervalId);
+      this._positionUpdateIntervalId = null;
+    }
   }
 
   // 현재 던전에 있는 모든 플레이어의 위치를 반환하는 함수
@@ -144,27 +191,27 @@ class Dungeon {
 
   // 화살 생성
   createArrow(playerName, position, direction, speed, maxDistance) {
-    const arrowId = this.arrowCounter++; // 화살 ID는 0부터 증가
+    const arrow = this.arrowPool.getArrow(); // 풀에서 화살을 가져옴
+    if (!arrow) {
+      console.log('풀에 사용할 수 있는 화살이 없습니다.');
+      return null; // 풀에 화살이 없다면 null 반환
+    }
 
-    const arrow = {
-      arrowId,
-      position,
-      direction,
-      speed,
-      maxDistance,
-      traveledDistance: 0,
-    };
+    arrow.position = position;
+    arrow.direction = direction;
+    arrow.speed = speed;
+    arrow.maxDistance = maxDistance;
+    arrow.traveledDistance = 0;
 
     // 플레이어별 화살 목록에 화살 추가
     if (!this.arrows[playerName]) {
-      this.arrows[playerName] = []; // 플레이어별 화살 목록이 없으면 생성
+      this.arrows[playerName] = [];
     }
 
     this.arrows[playerName].push(arrow); // 해당 플레이어의 화살 목록에 화살 추가
 
-    return arrowId; // 화살 ID를 반환
+    return arrow.arrowId; // 화살의 ID를 반환
   }
-
   // 화살 이동
   moveArrow(playerName) {
     const arrows = this.arrows[playerName];
@@ -217,12 +264,32 @@ class Dungeon {
     return false; // 충돌하지 않음
   }
 
-  // 화살 제거
+  // 화살 제거 메서드
   removeArrow(arrowId) {
-    Object.keys(this.arrows).forEach((playerName) => {
+    let arrowRemoved = false; // 화살이 삭제됐는지 여부를 추적
+
+    // 모든 플레이어를 순회하면서 화살을 찾음
+    for (const playerName in this.arrows) {
       const arrows = this.arrows[playerName];
-      this.arrows[playerName] = arrows.filter((arrow) => arrow.arrowId !== arrowId);
-    });
+
+      // 화살 배열에서 해당 ID를 가진 화살을 찾음
+      const arrowIndex = arrows.findIndex((arrow) => arrow.arrowId === arrowId);
+
+      if (arrowIndex !== -1) {
+        // 화살이 발견되면 배열에서 제거
+        const removedArrow = arrows.splice(arrowIndex, 1)[0];
+
+        // 풀로 반환
+        this.arrowPool.returnArrow(removedArrow); // 풀에 화살을 반환
+        console.log(`${playerName}의 화살 (ID: ${arrowId})가 소멸되었습니다.`);
+        arrowRemoved = true; // 화살 삭제 처리됨
+        break; // 한 번만 찾으면 되므로 루프 종료
+      }
+    }
+
+    if (!arrowRemoved) {
+      console.log(`ID ${arrowId}를 가진 화살을 찾을 수 없습니다.`);
+    }
   }
 
   // 던전 내 플레이어의 화살 목록 가져오기
@@ -250,13 +317,16 @@ class Dungeon {
   // 화살 이동을 일정 간격으로 처리
   startArrowMovement() {
     this.arrowMoveIntervalDuration = 100; // 100ms 간격
-    /*
+
     this.intervalManager.addInterval(() => {
       // 모든 플레이어의 화살 이동
-      Object.keys(this.arrows).forEach((playerName) => {
-        this.moveArrow(playerName);
-      });
-    }, this.arrowMoveIntervalDuration);*/
+      for (let playerName in this.arrows) {
+        if (this.arrows.hasOwnProperty(playerName)) {
+          // 객체 자체의 속성만 처리
+          this.moveArrow(playerName);
+        }
+      }
+    }, this.arrowMoveIntervalDuration);
   }
 
   // 인터벌을 멈추는 함수
