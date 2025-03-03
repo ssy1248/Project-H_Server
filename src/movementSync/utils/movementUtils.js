@@ -87,6 +87,7 @@ const hasPassedTarget = (currentTransform, targetTransform, lastTransform) => {
   // 현재 위치와 마지막 위치 간의 내적 계산 (목표 방향과 이동 방향의 유사성 판단)
   const dotProduct = deltaX * lastDeltaX + deltaY * lastDeltaY + deltaZ * lastDeltaZ;
 
+  //console.log(dotProduct);
   // 내적이 음수이면 지나쳤다고 판단 (이동 방향이 목표를 지나쳤을 경우)
   return dotProduct < 0;
 };
