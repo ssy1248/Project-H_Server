@@ -1,3 +1,4 @@
+import { deleteUser } from '../../movementSync/movementSync.manager.js';
 import { getDungeonSession, removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
