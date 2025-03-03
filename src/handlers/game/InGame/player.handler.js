@@ -191,7 +191,8 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
   lastSkillTime[attackerName] = now;
   console.log(`[${attackerName}] 공격 시도! targetId=${targetId}`);
 
-  // 만약 targetId가 유효하지 않다면(예: -1 또는 0), 그냥 공격 진행 (사거리 체크 생략)
+  // 타겟팅, 논타겟팅인지에 따라 targetId가 필요할수도 없을수도도
+  // 만약 targetId가 유효하지 않다면, 그냥 공격 진행 (사거리 체크 생략)
   if (targetId <= 0) {
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
 
