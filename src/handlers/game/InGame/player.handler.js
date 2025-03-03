@@ -1,5 +1,7 @@
 import { PACKET_TYPE } from '../../../constants/header.js';
+import { findUser } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
+import { getUserByNickname } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 
 // 상태 객체들: 각 액션별로 독립적인 상태 관리
@@ -191,7 +193,8 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
   lastSkillTime[attackerName] = now;
   console.log(`[${attackerName}] 공격 시도! targetId=${targetId}`);
 
-  // 만약 targetId가 유효하지 않다면(예: -1 또는 0), 그냥 공격 진행 (사거리 체크 생략)
+  // 타겟팅, 논타겟팅인지에 따라 targetId가 필요할수도 없을수도도
+  // 만약 targetId가 유효하지 않다면, 그냥 공격 진행 (사거리 체크 생략)
   if (targetId <= 0) {
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
 
@@ -303,14 +306,38 @@ const processDodgeHandler = (socket, requesterName, direction) => {
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
     x: currentPosition.x + direction.x * player.dodge.dodgeRange,
-    y: currentPosition.y + direction.y * player.dodge.dodgeRange,
+    y: currentPosition.y, // y축은 사용하지 않음
     z: currentPosition.z + direction.z * player.dodge.dodgeRange,
   };
 
   console.log('최종 좌표 : ', finalPosition);
+  // 최종좌표를 그 캐릭터의 최신좌표로 변경을 해야할듯?
+
+  // 던전 내 플레이어 위치 업데이트
+  dungeon.playersTransform[requesterName] = finalPosition;
+  console.log(`던전 내 ${requesterName}의 위치가 업데이트되었습니다: `, dungeon.playersTransform[requesterName]);
+
+  // movementSync.manager에서 해당 유저의 currentTransform 업데이트
+  const user = getUserByNickname(requesterName);
+  if (user) {
+    const userTransform = findUser('dungeon1', user.userInfo.userId);
+    if (userTransform) {
+      userTransform.currentTransform = {
+        posX: finalPosition.x,
+        posY: finalPosition.y,
+        posZ: finalPosition.z,
+        rot: userTransform.currentTransform.rot,
+      };
+      console.log(`movementSync: 업데이트된 ${requesterName}의 currentTransform: `, userTransform.currentTransform);
+    } else {
+      console.warn(`movementSync: ${requesterName}의 userTransform을 찾을 수 없습니다.`);
+    }
+  } else {
+    console.warn(`${requesterName} 닉네임의 유저를 찾을 수 없습니다.`);
+  }
 
   const dodgeResult = {
-    evadedDamage: 20,                   // 회피 효과에 따른 피해 경감량 (예제)
+    evadedDamage: 20,                   // 회피 효과에 따른 피해 경감
     dodgeDistance: player.dodge.dodgeRange,
     direction: direction,
     finalPosition: finalPosition,
