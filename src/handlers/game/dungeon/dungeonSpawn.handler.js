@@ -1,9 +1,7 @@
-import RewardAuction from '../../../classes/models/rewardAuction.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { addUser, deleteUser } from '../../../movementSync/movementSync.manager.js';
+import { addUser, deleteUser, deleteMonsters, addMonster, deleteMovementSync, createMovementSync } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
-import { searchPartyInPlayerSession } from '../../../session/party.session.js';
-import { getUserByNickname, getUserBySocket } from '../../../session/user.session.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 
 const dungeonSpawnHandler = async (socket, payload) => {
@@ -29,7 +27,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
     deleteUser('town', userInfo.userId);
     addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
 
-    // movesyncmanager에서 createMovementSync('dungeon1', 'dungeon1')
+    //deleteMonsters('town');
+    addMonster('dungeon1');
 
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {

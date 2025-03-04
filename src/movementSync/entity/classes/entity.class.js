@@ -27,7 +27,7 @@ export default class Entity {
     console.log('생성 좌표 : ', this.currentTransform);
     console.log(` ID : ${this.id} / movementId : ${this.movementId}`);
   
-    this.findAccessiblePosition();
+    //this.findAccessiblePosition();
   }
 
   // [엔티티 스폰시 장애물 없는 곳에서 생성]

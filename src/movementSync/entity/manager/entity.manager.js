@@ -44,12 +44,26 @@ export default class EntityManager {
   }
 
   addMonster(movementId) {
-    const transform = {
-      posX: this.generateRandomPlayerTransformInfo(-9, 9),
-      posY: 1,
-      posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
-      rot: this.generateRandomPlayerTransformInfo(0, 360),
-    };
+    // movementId -> town일때만 
+    // movementId -> dungeon1이면 다른 생성 지점을 가져야 할듯
+    let transform = {};
+    console.log('Add Monster : ', movementId);
+    if(movementId === 'town') {
+      transform = {
+        posX: this.generateRandomPlayerTransformInfo(-9, 9),
+        posY: 1,
+        posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      };
+    } else {
+      transform = {
+        posX: 2,
+        posY: 1,
+        posZ: 25,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      }
+    }
+    
     const monsterId = uuidv4();
     const randomNum = Math.floor(Math.random() * 30) + 1;
 
@@ -59,7 +73,6 @@ export default class EntityManager {
   deleteMonster(id) {
     if (!this.monsters) return;
     delete this.monsters[id];
-    
   }
 
   getMonsters() {
