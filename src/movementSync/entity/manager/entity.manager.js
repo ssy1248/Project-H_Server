@@ -53,7 +53,7 @@ export default class EntityManager {
     const monsterId = uuidv4();
     const randomNum = Math.floor(Math.random() * 30) + 1;
 
-    this.monsters[monsterId] = new Monster(movementId,monsterId, transform, randomNum, 'test', 10);
+    this.monsters[monsterId] = new Monster(movementId,monsterId, transform, 3, 'test', 10);
   }
 
   deleteMonster(id) {

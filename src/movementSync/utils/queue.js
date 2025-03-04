@@ -59,6 +59,11 @@ export default class Queue {
     return result;
   }
 
+  // 배열 가져오기 
+  getItems(){
+    return this.items;
+  }
+
   // 테스트
   test() {
     console.log(this.items);
