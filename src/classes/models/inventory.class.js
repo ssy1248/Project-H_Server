@@ -1,4 +1,4 @@
-import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, storeItem, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
 import { createResponse } from "../../utils/response/createResponse.js";
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -41,12 +41,12 @@ export default class Inventory {
             if (!item) throw new Error('item not found');
             if (equipped) {
                 await disrobeItem(this.charId, equipped.id);
-                equipped.equiped = false;
+                equipped.equiped = 0;
             }
             // DB 업데이트
             await equipItem(this.charId, item.id);
             // 서버 업데이트
-            item.equiped = true;
+            item.equiped = 1;
         } catch (error) {
             console.error(error);
         }
@@ -60,7 +60,19 @@ export default class Inventory {
             // DB 업데이트
             await disrobeItem(this.charId, inventoryId);
             // 서버 업데이트
-            item.equiped = false;
+            item.equiped = 0;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async store(inventoryId) {
+        try {
+            var item = this.inventory.find((item) => item.id === inventoryId);
+            if(!item) throw new Error('item not found');
+
+            await storeItem(this.charId, inventoryId);
+            item.equiped = 2;
         } catch (error) {
             console.error(error);
         }
@@ -137,14 +149,15 @@ export default class Inventory {
     }
 
     // 아이템 슬롯 이동
-    async move(itemId, position) {
+    async move(itemId, position, storage) {
         try {
             var item = this.inventory.find((item) => item.id === itemId);
             // DB의 위치 정보 업데이트
-            await updateItemPosition(this.charId, itemId, position);
+            await updateItemPosition(this.charId, itemId, position, storage);
             // 서버의 위치 정보 업데이트
             if (!item) throw new Error('item not found');
             item.position = position;
+            item.equipped = storage;
         } catch (error) {
             console.error(error);
         }
@@ -161,7 +174,7 @@ export default class Inventory {
 
     // 장비한 아이템만을 반환하는 함수
     getEquipment() {
-        return this.inventory.filter((item) => item.equipped === true);
+        return this.inventory.filter((item) => item.equipped === 1);
     }
 
     // 모든 장착한 아이템의 스탯 합을 구하는 함수

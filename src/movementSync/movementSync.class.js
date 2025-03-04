@@ -358,7 +358,8 @@ export default class MovementSync {
         return new Promise((resolve, reject) => {
           socket.write(initialResponse, (err) => {
             if (err) {
-              reject(new Error(`데이터를 보내는데 실패 user: ${err.message}`)); // 에러가 발생하면 reject
+              reject();
+              //reject(new Error(`데이터를 보내는데 실패 user: ${err.message}`)); // 에러가 발생하면 reject
             } else {
               resolve(); // 성공적으로 보냈으면 resolve
             }
@@ -379,9 +380,9 @@ export default class MovementSync {
       if (socket) {
         socket.write(initialResponse, (err) => {
           if (err) {
-            console.error(
-              `데이터를 보내는데 [ 유저 : ${users.length} 명]실패 user: ${err.message}`,
-            );
+            //console.error(
+            //  `데이터를 보내는데 [ 유저 : ${users.length} 명]실패 user: ${err.message}`,
+            //);
           }
         });
       }

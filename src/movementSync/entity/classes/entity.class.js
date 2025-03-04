@@ -98,7 +98,7 @@ export default class Entity {
 
       this.isSearchFail = true;
       console.log("길못찾는다.!!!!")
-      process.exit(0);
+      // process.exit(0);
 
 
       //여기 확인하자. 밥먹고
