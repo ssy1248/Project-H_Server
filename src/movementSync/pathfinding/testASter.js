@@ -364,7 +364,7 @@ export default class TestASter {
       const storedValue = this.grid.get([obstacle[0], obstacle[1]]); // 그리드 값 확인
       // console.log(`⭕ 장애물 삭제 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
     } else {
-      console.log('제거 할 장애물이 ❌ 없음');
+      //console.log('제거 할 장애물이 ❌ 없음');
     }
   }
 

@@ -1,3 +1,4 @@
+import { findUser } from '../../movementSync/movementSync.manager.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
 import ArrowPool from '../managers/arrowPool,manager.js';
@@ -69,6 +70,9 @@ class Dungeon {
 
     //this.startArrowMovement();
     this.testCount = 0;
+
+    // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
+    this._positionUpdateIntervalId = null;
   }
 
   checkAuctionTest() {
@@ -78,18 +82,51 @@ class Dungeon {
     }
     new RewardAuction([5, 6], this.partyInfo);
   }
-  // 던전 내 플레이어 위치 업데이트 함수
+  // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
-    if (this.playersTransform[playerName]) {
-      this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
-    } else {
-      this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
-    }
+    this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
   }
 
   // 던전 내 플레이어 위치 가져오기
   getPlayerPosition(playerName) {
     return this.playersTransform[playerName] || null;
+  }
+
+  // 주기적으로 던전 내 모든 플레이어의 위치를 업데이트하는 메서드
+  startPeriodicPositionUpdates(updateInterval = 10000) {
+    // 이미 인터벌이 설정되어 있다면 재설정하지 않음
+    if (this._positionUpdateIntervalId) {
+      return;
+    }
+    
+    this._positionUpdateIntervalId = setInterval(() => {
+      // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
+      Object.keys(this.playersTransform).forEach((playerName) => {
+        const user = getUserByNickname(playerName);
+        // 끊겼을때 이부분 에러
+        const userTransform = findUser('dungeon1', user.userInfo.userId);
+        if (user && userTransform && userTransform.currentTransform) {
+          this.playersTransform[playerName] = {
+            x: userTransform.currentTransform.posX,
+            y: userTransform.currentTransform.posY,
+            z: userTransform.currentTransform.posZ,
+            // rot은 왜 undefined가 나올까?
+            rot: userTransform.currentTransform.rot,
+          };
+          console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);
+        } else {
+          console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
+        }
+      });
+    }, updateInterval);
+  }
+
+  // 주기적 업데이트를 중지하는 메서드
+  stopPeriodicPositionUpdates() {
+    if (this._positionUpdateIntervalId) {
+      clearInterval(this._positionUpdateIntervalId);
+      this._positionUpdateIntervalId = null;
+    }
   }
 
   // 현재 던전에 있는 모든 플레이어의 위치를 반환하는 함수

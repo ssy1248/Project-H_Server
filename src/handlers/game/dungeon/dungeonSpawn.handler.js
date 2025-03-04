@@ -20,14 +20,14 @@ const dungeonSpawnHandler = async (socket, payload) => {
     const userInfo = user.getUserInfo();
 
     user.setTransformInfo({
-      posX: playertransform.posX,
-      posY: playertransform.posY,
-      posZ: playertransform.posZ,
+      posX: playertransform.x,
+      posY: playertransform.y,
+      posZ: playertransform.z,
       rot: playertransform.rot,
     });
 
     deleteUser('town', userInfo.userId);
-    addUser('dungeon', socket, userInfo.userId, user.getTransformInfo());
+    addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
 
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
@@ -51,6 +51,9 @@ const dungeonSpawnHandler = async (socket, payload) => {
       };
       transformInfo.push(transform);
     });
+
+    dungeondata.startPeriodicPositionUpdates(1000);
+
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {
       userId: user.userInfo.userId,
       dungeonInfo,

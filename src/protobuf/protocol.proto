@@ -547,9 +547,8 @@ message SkillAttack {
 
 // 회피
 message DodgeAction {
-  string attackerName = 1;// 사용하는 유저의 이름
-  float dodgeDistance = 2;
-  // 방향 등
+  string attackerName = 1;       // 사용하는 유저의 이름
+  Vector direction = 2;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
 }
 
 // 피격
@@ -603,12 +602,13 @@ message SkillAttackResult {
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
-// 회피(도주) 결과 메시지
+// 회피(도주) 결과 메시지 -> 이부분 지금 2,3번 필요없어 보임임
 message DodgeResult {
-  int32 evadedDamage = 1;// 회피하여 피해를 줄인 양
-  int32 cooldown = 2;// 회피 후 남은 쿨타임(초)
-  string useUserName = 3; // 사용한 유저의 닉네임
-  // 필요한 추가 필드가 있다면 여기에 작성
+  int32 evadedDamage = 1;        // 회피로 인해 피해를 줄인 양
+  float dodgeDistance = 2;       // 회피 이동 거리
+  Vector direction = 3;         // 사용자가 요청한 회피 방향
+  Vector finalPosition = 4;     // 서버에서 계산한 최종 위치
+  string useUserName = 5;        // 사용한 유저의 닉네임
 }
 
 // 피격 결과 메시지
@@ -634,6 +634,13 @@ message C_DungeonExit {
 
 }
 // 정보 구조체
+
+// 벡터 정보를 나타내는 메시지
+message Vector {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
 
 message PlayerInfo {
   int32 playerId = 1;// 입장할때 서버 내부에서 생성한 관리코드
