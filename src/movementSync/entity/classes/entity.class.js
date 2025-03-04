@@ -33,7 +33,7 @@ export default class Entity {
   // [엔티티 스폰시 장애물 없는 곳에서 생성]
   findAccessiblePosition() {
     // 스폰지역이 장애물 구역이면 새로 지정.
-    while (A_STER_MANAGER.FIND_OBSTACLE_POSITION('town', this.currentTransform)) {
+    while (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, this.currentTransform)) {
       const transform = {
         posX: this.generateRandomPlayerTransformInfo(-9, 9),
         posY: 1,
@@ -45,7 +45,7 @@ export default class Entity {
     }
 
     // 스폰지역이 지정되면 장애물 지정.
-    A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
+    A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
   }
 
   // 랜덤 좌표 및 회전 각도 생성 함수
@@ -64,7 +64,7 @@ export default class Entity {
 
 
       const index = this.gridIndexPath.dequeue();
-      return A_STER_MANAGER.FIND_OBSTACLE("town", index );
+      return A_STER_MANAGER.FIND_OBSTACLE(this.movementId, index );
     }
    
   }
@@ -233,7 +233,7 @@ export default class Entity {
           // 방향 업데이트
           this.updateVelocity();
 
-          A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
+          A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
         }
       }
     }

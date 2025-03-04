@@ -292,7 +292,7 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    //this.processMonsterSpawn();
+    this.processMonsterSpawn();
     this.entityMovement();
   }
 

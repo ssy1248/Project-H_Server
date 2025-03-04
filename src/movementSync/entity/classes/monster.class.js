@@ -16,6 +16,8 @@ export default class Monster extends Entity {
     this.attackCount = 0;
     this.isAttack = false;
     this.isDie = false;
+
+    
   }
 
   // 0.
@@ -80,7 +82,7 @@ export default class Monster extends Entity {
     // console.log('유저 <-> 몬스터 거리: ', distance01);
     if (distance01 <= 2) {
       super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
-      A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
+      A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
       this.attackCount = 60;
     }
     
@@ -91,7 +93,7 @@ export default class Monster extends Entity {
       // 길찾기 도착지점 갱신.
       super.setPathfindingDestination(userTransform);
       super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
-      A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
+      A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
     }
   }
 
@@ -121,16 +123,11 @@ export default class Monster extends Entity {
 
         // 3. 복귀 중이 아니고 목표에 도달했으면 
         if(spawnDistance > 0.5){
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         }
 
-        // console.log('검증용 유저 좌표 :', userTransform);
-        // let userDistance = movementUtils.Distance(this.pathfindingDestination, userTransform);
-        // console.log("추격중 유저와의 거리:", distance)
-        // if (distance <= 1) {
-        //   super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-        // }
-
+        
         return false;
       } else {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
@@ -163,8 +160,10 @@ export default class Monster extends Entity {
         this.isAttack = false;
         this.attackCount = 60;
       } else {
-        super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         this.isAttack = false;
+        this.attackCount = 60;
       }
       
     }
@@ -190,7 +189,7 @@ export default class Monster extends Entity {
         if (this.isAttack) {
           console.log('공격 성공!');
           MONSTER_SEND_MESSAGE.ATTCK('town');
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
         }
       } else {
