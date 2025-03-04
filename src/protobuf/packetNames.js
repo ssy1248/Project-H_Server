@@ -104,5 +104,7 @@ export const packetNames = {
     C_RangeAttackImpact: 'Google.Protobuf.Protocol.C_RangeAttackImpact',
     S_RangeAttackCollide: 'Google.Protobuf.Protocol.S_RangeAttackCollide',
     C_RangeAttackCollide: 'Google.Protobuf.Protocol.C_RangeAttackCollide',
+    S_SkillBuff: 'Google.Protobuf.Protocol.S_SkillBuff',
+    C_SKillBuff: 'Google.Protobuf.Protocol.C_SkillBuff',
   },
 };

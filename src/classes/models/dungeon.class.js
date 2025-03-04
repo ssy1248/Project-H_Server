@@ -37,7 +37,7 @@ class Dungeon {
     this.intervalManager = new IntervalManager();
     // 던전 상태 (matching, progress, end)
     this.isState = 'matching';
-    // 몬스터 종류
+    // 몬스터 class를 집어 넣자
     this.monsterId = [];
     // 플레이어 상태 정보
     this.playerStatus = {};
@@ -99,7 +99,7 @@ class Dungeon {
     if (this._positionUpdateIntervalId) {
       return;
     }
-    
+
     this._positionUpdateIntervalId = setInterval(() => {
       // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
       Object.keys(this.playersTransform).forEach((playerName) => {
@@ -114,7 +114,10 @@ class Dungeon {
             // rot은 왜 undefined가 나올까?
             rot: userTransform.currentTransform.rot,
           };
-          console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);
+          console.log(
+            `플레이어 [${playerName}] 위치 갱신 완료:`,
+            this.playersTransform[playerName],
+          );
         } else {
           console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
         }
@@ -267,6 +270,7 @@ class Dungeon {
       return true; // 충돌 발생
     }
 
+    console.log('distance 거라가 너무 멈', distance);
     return false; // 충돌하지 않음
   }
 
@@ -333,7 +337,7 @@ class Dungeon {
         }
       }
     }, this.arrowMoveIntervalDuration);
-    // this.testArrowMovement();
+    this.testArrowMovement();
   }
 
   // 인터벌을 멈추는 함수

@@ -94,6 +94,8 @@ enum MsgId {
   C_RANGEATTACKIMPACT=85;
   S_RANGEATTACKCOLLIDE=86;
   C_RANGEATTACKCOLLIDE=87;
+  S_SKILLBUFF=88;
+  C_SKILLBUFF=89;
 }
 
 //회원가입 요청
@@ -875,4 +877,12 @@ message C_RangeAttackCollide{
 message S_RangeAttackCollide{
   bool success =1;
   string message =2;
+}
+
+message S_SkillBuff{
+
+}
+
+message C_SkillBuff{
+  
 }

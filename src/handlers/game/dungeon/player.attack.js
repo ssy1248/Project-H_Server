@@ -98,7 +98,7 @@ const playerRangeAttackHandler = (socket, packetData) => {
     // 화살 ID 생성 및 전송 처리
     const userPosition = dungeon.playersTransform[userNickName];
     const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
-    const speed = packetData.speed || 1; // 기본 속도 1로 설정
+    const speed = 1; // 기본 속도 1로 설정
     const maxDisatnce = player.normalAttack.attackRange;
     const arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
 
@@ -130,19 +130,21 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
 
     console.log('monsterId', monsterId);
     if (typeof monsterId !== 'string') {
+      console.log('monsterId', monsterId);
       console.log('monsterId가 문자형 아님');
       return;
     }
 
     console.log('arrowId', arrowId);
     if (typeof arrowId !== 'number' || arrowId < 0 || arrowId > 100) {
+      console.log('arrowId', arrowId);
       console.log('arrowId가 숫자형이 아니거나, 0부터 100 사이의 값이 아닙니다');
       return;
     }
 
     // 유저 정보 확인
     const user = getUserById(socket);
-    console.log('user:', user);
+    console.log('user', user);
 
     if (!user) {
       console.error('공격자를 찾을 수 없습니다.');
@@ -150,6 +152,7 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
     }
 
     const monster = getMonster(monsterId);
+    console.log('monster', monster);
 
     if (!monster) {
       console.error('몬스터가 업습니다');
@@ -157,6 +160,7 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
 
     //유저 닉네임 찾기
     const userNickName = user.userInfo.nickname;
+    console.log('userNickName', userNickName);
 
     // 현재 던전 정보를 가져옵니다.
     const dungeon = getDungeonInPlayerName(userNickName);
@@ -182,7 +186,7 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
       //유저 공격 데미지
       const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
 
-      const damage = attack - monster.def;
+      const damage = attack * (1 - monster.def / (attack + monster.def));
 
       monster.takeDamage(damage);
 
@@ -275,7 +279,8 @@ export const rangeAttackCollide = (socket, packetData) => {
     if (distance < 1) {
       dungeon.removeArrow(arrowId);
     } else {
-      console.log('충돌하지 않음');
+      console.log('distance', distance);
+      console.log('장애물이 멀리 떨어져 있슴');
     }
     const rangeAttackCollidePayload = {
       success: true,
@@ -294,7 +299,7 @@ export const rangeAttackCollide = (socket, packetData) => {
   }
 };
 
-export const playerSkill = (socket, packetData) => {
+export const playerSkillBuff = (socket, packetData) => {
   try {
     console.log('playerSkill 시작');
 
@@ -396,19 +401,24 @@ export const playerSkill = (socket, packetData) => {
       playerCooldowns[userNickName] -= cooldownReductionTime;
       console.log('쿨타임 복원 완료');
 
-      const skillPayload = {
+      const skillBuffPayload = {
         playerAtk: playerAtk,
         playerDef: playerDef,
         playerSpeed: playerSpeed,
         remainingCooldown: playerCooldowns[userNickName],
         message: '스탯 버프 완료',
       };
-      const skillResponse = createResponse('dungeon', 'S_Skill', PACKET_TYPE.skill, skillPayload);
-      socket.write(skillResponse);
+      const skillBuffResponse = createResponse(
+        'dungeon',
+        'S_SkillBuff',
+        PACKET_TYPE.S_SKILLBUFF,
+        skillBuffPayload,
+      );
+      socket.write(skillBuffResponse);
     }, 20000); // 20초 후
 
     // 스킬 사용 후 플레이어 상태 (쿨타임 포함) 전송
-    const skillPayload = {
+    const skillBuffPayload = {
       playerAtk: playerAtk + atkIncrease,
       playerDef: playerDef + defIncrease,
       playerSpeed: playerSpeed + speedIncrease,
@@ -416,8 +426,13 @@ export const playerSkill = (socket, packetData) => {
       message: '스탯 버프 완료',
     };
 
-    const skillResponse = createResponse('dungeon', 'S_Skill', PACKET_TYPE.skill, skillPayload);
-    socket.write(skillResponse);
+    const skillBuffResponse = createResponse(
+      'dungeon',
+      'S_SkillBUff',
+      PACKET_TYPE.S_SKILLBUFF,
+      skillBuffPayload,
+    );
+    socket.write(skillBuffResponse);
   } catch (e) {
     handlerError(socket, e);
   }
@@ -483,5 +498,6 @@ export const playerDodge = (socket, packetData) => {
     handlerError(socket, e);
   }
 };
+
 
 export default playerRangeAttackHandler;

@@ -324,6 +324,14 @@ const handlers = {
     handler: rangeAttackCollide,
     protoType: 'dungeon.C_rangeAttcckCollide',
   },
+  [PACKET_TYPE.C_SKILLBUFF]:{
+    handler : playerSkillBuff,
+    protoType : 'dungeon.C_SkillBuff',
+  },
+  [PACKET_TYPE.S_SKILLBUFF]:{
+    handler : playerSkillBuff,
+    protoType : 'dungeon.S_SkillBuff',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
