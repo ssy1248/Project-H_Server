@@ -50,7 +50,7 @@ class Players {
         };
         this.dodge = {
           dodgeCoolTime: 5,
-          dodgeRange: 2,
+          dodgeRange: 3,
         };
         break;
       case PLAYER_CLASS.ARCHER:
@@ -68,7 +68,7 @@ class Players {
         };
         this.dodge = {
           dodgeCoolTime: 5,
-          dodgeRange: 4,
+          dodgeRange: 3,
         };
         break;
       case PLAYER_CLASS.HOLYKNIGHT:

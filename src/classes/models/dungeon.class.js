@@ -110,7 +110,6 @@ class Dungeon {
             x: userTransform.currentTransform.posX,
             y: userTransform.currentTransform.posY,
             z: userTransform.currentTransform.posZ,
-            // rot은 왜 undefined가 나올까?
             rot: userTransform.currentTransform.rot,
           };
           console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);

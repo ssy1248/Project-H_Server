@@ -29,6 +29,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
     deleteUser('town', userInfo.userId);
     addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
 
+    // movesyncmanager에서 createMovementSync('dungeon1', 'dungeon1')
+
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));

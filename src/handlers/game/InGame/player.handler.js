@@ -22,7 +22,7 @@ export const processPlayerActionHandler = (socket, packet) => {
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
-    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.direction);
+    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.currentPosition, packet.dodgeAction.direction);
   } else if (packet.hitAction) {
     // 피격 처리
     console.log('피격 요청 처리');
@@ -256,7 +256,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
 }
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
-const processDodgeHandler = (socket, requesterName, direction) => {
+const processDodgeHandler = (socket, requesterName, currentPosition, direction) => {
   console.log('바라보는 방향 : ', direction);
 
   // 핸들러에 들어온 현재 시간
@@ -299,25 +299,32 @@ const processDodgeHandler = (socket, requesterName, direction) => {
   lastdodgeTime[requesterName] = now;
   console.log(`[${requesterName}] 회피 시도!`);
 
-  // 회피 이동은 되고있음 그러나
-  // 플레이어의 현재 위치 -> 이부분에서 업데이트가 안되고 있어서 스폰 위치에서 구르고 보간이 되고있음
-  const currentPosition = dungeon.playersTransform[requesterName];
+  // 플레이어의 서버 현재 위치 -> 이부분에서 업데이트가 안되고 있어서 스폰 위치에서 구르고 보간이 되고있음
+  const currentServerPosition = dungeon.playersTransform[requesterName];
+
+  // 클라에서 보낸 현재 좌표 -> 이상함 -> 스폰 위치에서 계속 보내는 위치 같음
+  const basePosition = {
+    x: currentPosition.x,
+    y: currentPosition.y,
+    z: currentPosition.z
+  };
+
+  // 서버에서 가진 가장 최근 좌표와 클라에서 보낸 현재좌표를 검사해야할듯?
 
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
-    x: currentPosition.x + direction.x * player.dodge.dodgeRange,
-    y: currentPosition.y, // y축은 사용하지 않음
-    z: currentPosition.z + direction.z * player.dodge.dodgeRange,
+    x: currentServerPosition.x + direction.x * player.dodge.dodgeRange,
+    y: currentServerPosition.y, // y축은 사용하지 않음
+    z: currentServerPosition.z + direction.z * player.dodge.dodgeRange,
   };
 
   console.log('최종 좌표 : ', finalPosition);
-  // 최종좌표를 그 캐릭터의 최신좌표로 변경을 해야할듯?
 
   // 던전 내 플레이어 위치 업데이트
   dungeon.playersTransform[requesterName] = finalPosition;
   console.log(`던전 내 ${requesterName}의 위치가 업데이트되었습니다: `, dungeon.playersTransform[requesterName]);
 
-  // movementSync.manager에서 해당 유저의 currentTransform 업데이트
+  // 해당 유저의 currentTransform 업데이트
   const user = getUserByNickname(requesterName);
   if (user) {
     const userTransform = findUser('dungeon1', user.userInfo.userId);

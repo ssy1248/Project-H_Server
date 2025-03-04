@@ -548,7 +548,8 @@ message SkillAttack {
 // 회피
 message DodgeAction {
   string attackerName = 1;       // 사용하는 유저의 이름
-  Vector direction = 2;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
+  Vector currentPosition = 2;   // 플레이어의 마지막 위치
+  Vector direction = 3;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
 }
 
 // 피격
