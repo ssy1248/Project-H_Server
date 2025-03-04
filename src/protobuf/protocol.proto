@@ -82,20 +82,21 @@ enum MsgId {
   S_DUNGEONSPAWN = 73;
   S_DUNGEONDESPAWN = 74;
   C_DUNGEONEXIT = 75;
-  S_MONSTERSPAWN =76;
-  C_MONSTERMOVE =77;
-  S_MONSTERMOVE =78;
-  S_MONSTERHIT =79;
-  S_MONSTERATTCK =80;
-  S_MONSTERDIE =81;
-  S_PLAYERRANGEATTACK=82;
-  C_PLAYERRANGEATTACK=83;
-  S_RANGEATTACKIMPACT=84;
-  C_RANGEATTACKIMPACT=85;
-  S_RANGEATTACKCOLLIDE=86;
-  C_RANGEATTACKCOLLIDE=87;
-  S_SKILLBUFF=88;
-  C_SKILLBUFF=89;
+  S_MONSTERSPAWN = 76;
+  C_MONSTERMOVE = 77;
+  S_MONSTERMOVE = 78;
+  S_MONSTERHIT = 79;
+  S_MONSTERATTCK = 80;
+  S_MONSTERDIE = 81;
+  S_PLAYERRANGEATTACK=88;
+  C_PLAYERRANGEATTACK=89;
+  S_RANGEATTACKIMPACT=90;
+  C_RANGEATTACKIMPACT=91;
+  S_RANGEATTACKCOLLIDE=92;
+  C_RANGEATTACKCOLLIDE=93;
+  S_SKILLBUFF=94;
+  C_SKILLBUFF=95;
+
 }
 
 //회원가입 요청
@@ -265,12 +266,14 @@ message S_ActiveItemResponse {
 message C_MoveItemRequest {
   int32 itemId = 1;
   int32 position = 2;
+  int32 storage = 3;
 }
 
 // 아이템 이동 응답
 message S_MoveItemResponse {
   int32 itemId = 1;
   int32 position = 2;
+  int32 storage = 3;
 }
 
 /* 파티 패킷 */
@@ -451,34 +454,34 @@ message S_MarketSelectBuyName {
 
 // [추가] - 몬스터 관련 패킷 (수정할수 있음.)
 // 스폰은 서버에서.
-message S_MonsterSpawn{
+message S_MonsterSpawn {
   repeated SyncMonsterTransformInfo monsterInfo = 1;
 }
 
 // 클라 -> 서버 (서버에서 보낸 패킷 응답용.)
 // 갈수 없는곳을 타겟일 경우 패킷을 보낸다.
-message C_MonsterMove{
+message C_MonsterMove {
   string monstId = 1;
   TransformInfo transformInfo = 3;
 }
 
 // 몬스터 움직음은 서버에서 관리
 // 서버 -> 클라.
-message S_MonsterMove{
+message S_MonsterMove {
   repeated SyncMonsterTransformInfo transformInfo = 1;
 }
 
-message S_MonsterHit{
+message S_MonsterHit {
   repeated string monsterId = 1;
   string monsterAinID = 2;
 }
 
-message S_MonsterAttck{
+message S_MonsterAttck {
   repeated string monsterId = 1;
   string monsterAinID = 2;
 }
 
-message S_MonsterDie{
+message S_MonsterDie {
   repeated string monsterId = 1;
   string monsterAinID = 2;
 }
@@ -555,8 +558,8 @@ message SkillAttack {
 
 // 회피
 message DodgeAction {
-  string attackerName = 1;       // 사용하는 유저의 이름
-  Vector direction = 2;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
+  string attackerName = 1;// 사용하는 유저의 이름
+  Vector direction = 2;// 플레이어가 바라보는(또는 이동하고자 하는) 방향
 }
 
 // 피격
@@ -579,25 +582,25 @@ message S_PlayerAction {
   string message = 6;
 }
 
-message S_SetPlayerHpData{
-  int32 userId =1;
+message S_SetPlayerHpData {
+  int32 userId = 1;
 
-  float hp = 2; 
+  float hp = 2;
 }
-message S_SetPlayerData{
-  int32 userId =1;
+message S_SetPlayerData {
+  int32 userId = 1;
   StatInfo playerData = 2;
 }
-message S_SetMonsterHpData{
+message S_SetMonsterHpData {
   int32 monsterId = 1;
 
-  float hp = 2; 
+  float hp = 2;
 }
 // 일반 공격 결과 메시지
 message NormalAttackResult {
   int32 targetId = 1;// 공격 대상 ID
   int32 damageDealt = 2;// 입힌 피해량
-  string useUserName = 3; // 사용한 유저의 닉네임
+  string useUserName = 3;// 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -606,24 +609,24 @@ message SkillAttackResult {
   int32 skillId = 1;// 사용한 스킬의 ID
   int32 targetId = 2;// 공격 대상 ID
   int32 damageDealt = 3;// 입힌 피해량
-  string useUserName = 4; // 사용한 유저의 닉네임
+  string useUserName = 4;// 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
 // 회피(도주) 결과 메시지 -> 이부분 지금 2,3번 필요없어 보임임
 message DodgeResult {
-  int32 evadedDamage = 1;        // 회피로 인해 피해를 줄인 양
-  float dodgeDistance = 2;       // 회피 이동 거리
-  Vector direction = 3;         // 사용자가 요청한 회피 방향
-  Vector finalPosition = 4;     // 서버에서 계산한 최종 위치
-  string useUserName = 5;        // 사용한 유저의 닉네임
+  int32 evadedDamage = 1;// 회피로 인해 피해를 줄인 양
+  float dodgeDistance = 2;// 회피 이동 거리
+  Vector direction = 3;// 사용자가 요청한 회피 방향
+  Vector finalPosition = 4;// 서버에서 계산한 최종 위치
+  string useUserName = 5;// 사용한 유저의 닉네임
 }
 
 // 피격 결과 메시지
 message HitResult {
   int32 damageReceived = 1;// 받은 피해량
   int32 currentHp = 2;// 피격 후 남은 HP
-  string userName = 3; // 피격당한 유저의 닉네임
+  string userName = 3;// 피격당한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -667,10 +670,10 @@ message SyncTransformInfo {
 
 // [추가] 몬스터 동기화에 사용할 패킷
 message SyncMonsterTransformInfo {
-  string monsterId = 1; // 몬스터 id 
-  MonsterStatus monsterStatus = 2; // 몬스터 정보.
-  TransformInfo transform = 3; // 트랜스폼 정보
-  float speed = 4; // 스피드
+  string monsterId = 1;// 몬스터 id 
+  MonsterStatus monsterStatus = 2;// 몬스터 정보.
+  TransformInfo transform = 3;// 트랜스폼 정보
+  float speed = 4;// 스피드
 }
 
 
@@ -786,7 +789,7 @@ message ItemInfo {
   int32 itemType = 3;
   string name = 4;
   float stat = 5;
-  bool equiped = 6;
+  int32 equipped = 6;
   int32 rarity = 7;
   int32 position = 8;
   string imgsrc = 9;
@@ -884,5 +887,5 @@ message S_SkillBuff{
 }
 
 message C_SkillBuff{
-  
+
 }
