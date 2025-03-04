@@ -179,7 +179,7 @@ export const MoveItemHandler = async (socket, data) => {
         let targetPosition = position;
         if (position === -1) {
             const occupiedPositions = inventory
-                .filter((item) => item.equiped === storage)
+                .filter((item) => item.equipped === storage)
                 .map((item) => item.position);
             targetPosition = 0;
             while (occupiedPositions.includes(targetPosition)) {
@@ -188,7 +188,7 @@ export const MoveItemHandler = async (socket, data) => {
         }
 
         // 옮기려는 위치에 다른 아이템이 있는지 확인
-        const other = inventory.find((item) => item.position === targetPosition && item.equiped === storage);
+        const other = inventory.find((item) => item.position === targetPosition && item.equipped === storage);
         if (other) {
             // 옮기려는 위치에 다른 아이템이 있으면 스왑
             await user.inventory.move(other.id, item.position, storage);

@@ -187,7 +187,7 @@ export default class Monster extends Entity {
       ) {
         this.isAttack = true;
         if (this.isAttack) {
-          console.log('공격 성공!');
+          //console.log('공격 성공!');
           MONSTER_SEND_MESSAGE.ATTCK('town');
           //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;

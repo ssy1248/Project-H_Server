@@ -16,7 +16,6 @@ export default class Inventory {
             console.log('inventory is empty');
             return;
         }
-        console.log(this.inventory);
         this.send();
     }
 
@@ -158,7 +157,7 @@ export default class Inventory {
             // 서버의 위치 정보 업데이트
             if (!item) throw new Error('item not found');
             item.position = position;
-            item.equiped = storage;
+            item.equipped = storage;
         } catch (error) {
             console.error(error);
         }
