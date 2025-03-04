@@ -12,6 +12,7 @@ export const createMovementSync = (movementSyncId, type) => {
   // 생성
   movementSyncs[movementSyncId] = new MovementSync(movementSyncId);
   // 네브메쉬데이터 그리드로 변환
+  
   movementSyncs[movementSyncId].loadNavMeshDataOnce(type);
   // 셋인터벌 실행.
   movementSyncs[movementSyncId].startMovementProcess();

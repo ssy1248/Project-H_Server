@@ -12,7 +12,7 @@ export default class Monster extends Entity {
     this.name = name;
     this.hp = hp;
 
-    this.spawnTransform = { ...transform };
+    this.spawnTransform = { ...this.currentTransform };
     this.attackCount = 0;
     this.isAttack = false;
     this.isDie = false;
@@ -31,26 +31,22 @@ export default class Monster extends Entity {
     return this.isDie;
   }
 
-  updateTransform(users) {
-    this.updateMonsterSync(users);
+  updateTransform(userTransform) {
+    this.updateMonsterSync(userTransform);
     super.updateTransform();
   }
 
   // 1. updateMonsterSync
-  updateMonsterSync(users) {
+  updateMonsterSync(userTransform) {
     const behavior = super.getBehavior();
-
-    if (users.length === 0) {
-      return;
-    }
 
     if (behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
       this.isAttack = false;
-      this.monsterAiBehaviorIDLE(users);
+      this.monsterAiBehaviorIDLE(userTransform);
     } else {
       switch (behavior) {
         case CONSTANTS.AI_BEHAVIOR.CHASE:
-          this.monsterAiBehaviorCHASE(users);
+          this.monsterAiBehaviorCHASE(userTransform);
           break;
         case CONSTANTS.AI_BEHAVIOR.RETURN:
           this.monsterAiBehaviorRETURN();
@@ -59,16 +55,16 @@ export default class Monster extends Entity {
           //this.monsterAiBehaviorCHASE(users);
           break;
         case CONSTANTS.AI_BEHAVIOR.ATTACK:
-          this.monsterAiBehaviorATTACK(users);
+          this.monsterAiBehaviorATTACK(userTransform);
           break;
         case CONSTANTS.AI_BEHAVIOR.DAMAGED:
-          this.monsterAiBehaviorDAMAGED(users);
+          this.monsterAiBehaviorDAMAGED(userTransform);
           break;
         default:
           break;
       }
       if (behavior === CONSTANTS.AI_BEHAVIOR.CHASE) {
-        this.monsterAiBehaviorCHASE();
+        //this.monsterAiBehaviorCHASE();
       }
     }
   }
@@ -76,116 +72,35 @@ export default class Monster extends Entity {
   // 문제 발생
   // 1.
 
-  monsterAiBehaviorIDLE(users) {
+  monsterAiBehaviorIDLE(userTransform) {
+    // 거리 측정.
     const currentTransform = super.getCurrentTransform();
+    const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
-    let closestUser = null; // 가장 가까운 유저.
-    let minDistance = Infinity; // 가장 작은 거리로 초기화
-
-    for (const user of users) {
-      const userTransform = user.getTransform(); // 유저의 트랜스폼 정보
-
-      const distance = movementUtils.Distance(currentTransform, userTransform); // 거리 계산
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestUser = user;
-      }
+    // console.log('유저 <-> 몬스터 거리: ', distance01);
+    if (distance01 <= 2) {
+      super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+      A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
+      this.attackCount = 60;
     }
+    
 
-    // users.forEach((user) => {
-    //   const userTransform = user.getTransform(); // 유저의 트랜스폼 정보
-
-    //   const distance = movementUtils.Distance(currentTransform, userTransform); // 거리 계산
-    //   if (distance < minDistance) {
-    //     minDistance = distance;
-    //     closestUser = user;
-    //   }
-    // });
-
-    if (closestUser) {
-      const userTransform = closestUser.getTransform();
-      const velocity = movementUtils.DirectionAndVelocity(
-        this.currentTransform,
-        userTransform,
-        CONSTANTS.ENTITY.DEFAULT_SPEED,
-      );
-
-
-      // 엔티티의 이동 방향과 반대쪽으로 목표를 설정 (조금 덜가게)
-      const offset = 0.3; // 이동할 거리의 비율 (조정 가능)
-      const targetPos = {
-        posX: userTransform.posX - velocity.x * offset,
-        posY: userTransform.posY - velocity.y * offset,
-        posZ: userTransform.posZ - velocity.z * offset,
-        rot: movementUtils.Rotation(currentTransform, userTransform),
-      };
-
-      const distance = movementUtils.Distance(this.currentTransform, targetPos);
-
-
-      if (distance < 1) {
-        return;
-      }
-
+    // 거리가 1보다 클경우
+    if (distance01 >= 2) {
+      
       // 길찾기 도착지점 갱신.
-      super.setPathfindingDestination(targetPos);
-
-      // 시작
-      const startPos = [
-        this.currentTransform.posX,
-        this.currentTransform.posY,
-        this.currentTransform.posZ,
-      ];
-
-      // 도착
-      const endPos = [
-        this.pathfindingDestination.posX,
-        this.pathfindingDestination.posY,
-        this.pathfindingDestination.posZ,
-      ];
-
-      // 패스 갱신.
-      A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
-      const paths = A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
-
-      if (paths.length === 0) {
-        return;
-      }
-
-      for (const path of paths) {
-        this.aSterPath.enqueue(path);
-      }
-
-      if (this.aSterPath.size() !== 0) {
-        this.aSterPath.delete();
-      }
-
-      for (const path of paths) {
-        this.aSterPath.enqueue(path);
-      }
-
-      let path = this.aSterPath.dequeue();
-
-      this.targetTransform.posX = path[0];
-      this.targetTransform.posY = path[1];
-      this.targetTransform.posZ = path[2];
-
-      // 초기 방향 설정.
-      super.updateVelocity();
-
-      // 행동 변경.
-      super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
-
+      super.setPathfindingDestination(userTransform);
+      super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
+      A_STER_MANAGER.UPDATE_OBSTACLE('town', this);
     }
   }
 
-  monsterAiBehaviorCHASE() {
+  monsterAiBehaviorCHASE(userTransform) {
     const lastTransform = super.getLastTransform();
     const currentTransform = super.getCurrentTransform();
     const targetTransform = super.getTargetTransform();
 
     const aSterPath = super.getASterPath();
-
 
     if (aSterPath.size() === 0) {
       const result = movementUtils.hasPassedTarget(
@@ -195,26 +110,26 @@ export default class Monster extends Entity {
       );
 
       if (result) {
-        const distance = movementUtils.Distance(this.currentTransform, this.spawnTransform);
-        if (distance <= 1) {
-          this.hp = 0;
-          if(!this.isDie && this.hp === 0) {
-            this.isDie = true;
-            MONSTER_SEND_MESSAGE.DIE("town");
-            
-          }
-          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-          
-        } else {
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
-          this.attackCount = 120;
-
-          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.DAMAGED);
+        // 1. 이곳은 패스 (경로)에 도착할때마다 실행 하는 로직.
+        
+        // 2. 스폰 위치와 이동 목표가 가깝다면 복귀하는중이다.
+        const spawnDistance = movementUtils.Distance(this.pathfindingDestination, this.spawnTransform);
+        
+        if(spawnDistance <= 0.5){
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
         }
 
-        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.DAMAGED);
+        // 3. 복귀 중이 아니고 목표에 도달했으면 
+        if(spawnDistance > 0.5){
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+        }
 
-      
+        // console.log('검증용 유저 좌표 :', userTransform);
+        // let userDistance = movementUtils.Distance(this.pathfindingDestination, userTransform);
+        // console.log("추격중 유저와의 거리:", distance)
+        // if (distance <= 1) {
+        //   super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+        // }
 
         return false;
       } else {
@@ -229,57 +144,7 @@ export default class Monster extends Entity {
   monsterAiBehaviorRETURN() {
     // 길찾기 도착지점 갱신.
     super.setPathfindingDestination(this.spawnTransform);
-
-    // 시작
-    const startPos = [
-      this.currentTransform.posX,
-      this.currentTransform.posY,
-      this.currentTransform.posZ,
-    ];
-
-    // 도착
-    const endPos = [
-      this.pathfindingDestination.posX,
-      this.pathfindingDestination.posY,
-      this.pathfindingDestination.posZ,
-    ];
-
-    // 패스 갱신.
-    A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
-    const paths = A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
-
-    if (paths.length === 0) {
-      return;
-    }
-
-    if (this.aSterPath.size() !== 0) {
-      this.aSterPath.delete();
-    }
-
-    for (const path of paths) {
-      this.aSterPath.enqueue(path);
-    }
-
-    let path = this.aSterPath.dequeue();
-    if (path !== null) {
-
-      this.currentTransform.posX = path[0];
-      this.currentTransform.posY = path[1];
-      this.currentTransform.posZ = path[2];
-    }
-
-    path = this.aSterPath.dequeue();
-    if (path !== null) {
-      this.targetTransform.posX = path[0];
-      this.targetTransform.posY = path[1];
-      this.targetTransform.posZ = path[2];
-    }
-
-    // 초기 방향 설정.
-    super.updateVelocity();
-
-    // 행동 변경.
-    super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
+    super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
   }
 
   // [GET - transform]
@@ -287,86 +152,62 @@ export default class Monster extends Entity {
     return super.getCurrentTransform();
   }
 
-  monsterAiBehaviorATTACK(users) {
+  monsterAiBehaviorATTACK(userTransform) {
     const currentTransform = super.getCurrentTransform();
-    this.attackCount--; // 어택카운터 --
 
-    // 카운터가 0이면
-    if (this.attackCount <= 0) {
-      super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
-      this.isAttack = false;
-      return;
-    }
-
-    let closestUser = null; // 가장 가까운 유저.
-    let minDistance = Infinity; // 가장 작은 거리로 초기화
-
-    users.forEach((user) => {
-      const userTransform = user.getTransform(); // 유저의 트랜스폼 정보
-
-      const distance = movementUtils.Distance(currentTransform, userTransform); // 거리 계산
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestUser = user;
-      }
-    });
-
-    if (closestUser) {
-      const userTransform = closestUser.getTransform();
-
+    // 공격 수정
+    if(this.attackCount === 0) {
       const distance = movementUtils.Distance(this.currentTransform, userTransform);
+      if(distance <= 1){
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+        this.isAttack = false;
+        this.attackCount = 60;
+      } else {
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+        this.isAttack = false;
+      }
+      
+    }
 
-      if (distance >= 0 && distance <= 3) {
-        const velocity = movementUtils.DirectionAndVelocity(
-          this.currentTransform,
-          userTransform,
-          CONSTANTS.ENTITY.DEFAULT_SPEED,
-        );
+    if (this.attackCount === 60) {
+      // 몬스터의 공격 범위 설정 (2D 사각형)
+      const attackRange = 4;
+      const halfRange = attackRange / 2;
 
-        // 1. 몬스터 공격 할때 한번만 공격하게 
-        // 2. 대기 행동 만들어야할듯. 
-        // 3. 공격하면 공격 애니메이션 패킷 한번 보내고  대기상태.
-        // 4. 대기상태는 일정 시간후 다시행동 
-        // 5. 모든 행동을 거치는 대기가 필요할듯. 
-        // 6. 패스를 따라 가는도중에 근처에 유저가 있으면 공격하게 수정.
+      const minX = this.currentTransform.posX - halfRange;
+      const maxX = this.currentTransform.posX + halfRange;
+      const minZ = this.currentTransform.posZ - halfRange;
+      const maxZ = this.currentTransform.posZ + halfRange;
 
-        // 몬스터의 공격 범위 설정 (2D 사각형)
-        const attackRange = 3;
-        const halfRange = attackRange / 2;
-
-        const minX = this.currentTransform.posX - halfRange;
-        const maxX = this.currentTransform.posX + halfRange;
-        const minZ = this.currentTransform.posZ - halfRange;
-        const maxZ = this.currentTransform.posZ + halfRange;
-
-        // 유저가 공격 범위 내에 있는지 확인
-        if (
-          userTransform.posX >= minX &&
-          userTransform.posX <= maxX &&
-          userTransform.posZ >= minZ &&
-          userTransform.posZ <= maxZ
-        ) {
-          this.isAttack = true;
-          if(this.isAttack){
-            console.log('공격 성공!');
-            MONSTER_SEND_MESSAGE.ATTCK("town");
-            super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
-            this.isAttack = false;
-          }
-          
-          
-        } else {
-          console.log(`몬스터 공격 범위 X : minX ${minX} / maxX ${maxX}`);
-          console.log(`몬스터 공격 범위 Y : minZ ${minZ} / maxZ ${maxZ}`);
-          console.log(`플레이어 위치    X : X    ${userTransform.posX} / Z    ${userTransform.posZ}`);
+      // 유저가 공격 범위 내에 있는지 확인
+      if (
+        userTransform.posX >= minX &&
+        userTransform.posX <= maxX &&
+        userTransform.posZ >= minZ &&
+        userTransform.posZ <= maxZ
+      ) {
+        this.isAttack = true;
+        if (this.isAttack) {
+          console.log('공격 성공!');
+          MONSTER_SEND_MESSAGE.ATTCK('town');
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          this.isAttack = false;
         }
+      } else {
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+        this.isAttack = false;
+
+        console.log(`몬스터 공격 범위 X : minX ${minX} / maxX ${maxX}`);
+        console.log(`몬스터 공격 범위 Y : minZ ${minZ} / maxZ ${maxZ}`);
+        console.log(`플레이어 위치    X : X    ${userTransform.posX} / Z    ${userTransform.posZ}`);
       }
     }
+
+    this.attackCount--;
   }
 
   monsterAiBehaviorDAMAGED(users) {
     const currentTransform = super.getCurrentTransform();
-    
 
     let closestUser = null; // 가장 가까운 유저.
     let minDistance = Infinity; // 가장 작은 거리로 초기화

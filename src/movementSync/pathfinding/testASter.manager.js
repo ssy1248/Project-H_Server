@@ -44,6 +44,21 @@ const deleteObstacleAterList = (id,obstacleId ) => {
   testASters[id].deleteObstacleList(obstacleId);
 }
 
+// [A*] 장애물 리스트 찾기.
+const firndObstacleAterList = (id ) => {
+  return testASters[id].findEntityObstacles();
+}
+
+// [A*] 장애물 찾기 - 인덱스.
+const findObstacle = (id, gridIndex) =>{
+  return testASters[id].findEntityObstacle(gridIndex);
+}
+
+// [A*] 장애물 찾기 - 좌표.
+const findObstacleAtPosition  = (id, pos) =>{
+  return testASters[id].findObstacleAtPosition(pos);
+}
+
 // [A*] 길찾기
 const findPath = (id, startPos, endPos) => {
   // 검증
@@ -60,6 +75,9 @@ const A_STER_MANAGER = {
   ADD: addASter,
   DELETE: deleteSter,
   DELETE_OBSTACLE: deleteObstacleAter,
+  FIND_OBSTACLE: findObstacle,
+  FIND_OBSTACLE_POSITION: findObstacleAtPosition,
+  FIND_OBSTACLE_List: firndObstacleAterList,
   DELETE_OBSTACLE_List:deleteObstacleAterList,
   UPDATE_OBSTACLE: updateObstacleAter,
   FIND_PATH: findPath,

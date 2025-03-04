@@ -1,5 +1,6 @@
 import EntityManager from './entity/manager/entity.manager.js';
 import loadNavMeshData from './utils/loadNavMeshData.js';
+import movementUtils from './utils/movementUtils.js';
 import CONSTANTS from './constants/constants.js';
 import { createResponse } from '../utils/response/createResponse.js';
 import A_STER_MANAGER from './pathfinding/testASter.manager.js';
@@ -29,6 +30,7 @@ export default class MovementSync {
       default:
         break;
     }
+
     A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
   }
 
@@ -44,8 +46,10 @@ export default class MovementSync {
         return;
       }
 
+      const userTransforms = [];
       for (const user of users) {
         user.updateTransform();
+        userTransforms.push(user.getTransform());
       }
 
       // 몬스터
@@ -54,7 +58,24 @@ export default class MovementSync {
       }
 
       for (const monster of monsters) {
-        monster.updateTransform(users);
+        // 가장 근처에있는 유저를 여기서 찾자.
+
+        let closestUserTransform = null; // 가장 가까운 유저.
+        let minDistance = Infinity; // 가장 작은 거리로 초기화
+
+        for (const userTransform of userTransforms) {
+          const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestUserTransform = userTransform;
+          }
+        }
+
+        // console.log("closestUserTransform : ",closestUserTransform);
+
+        if(closestUserTransform) {
+          monster.updateTransform(closestUserTransform);
+        }
       }
     }, tickRate);
   }
@@ -78,20 +99,23 @@ export default class MovementSync {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
           if (user.userAiBehaviorCHASE()) {
             // user.updateTransform();
+            if (user.getIsSearchFail()) continue;
             const syncData = this.createSyncTransformInfoData(user);
             userTransformInfo.push(syncData);
           }
         }
       }
 
-      // 유저 - 패킷 생성.
-      const sMove = {
-        transformInfos: userTransformInfo,
-      };
+      if (userTransformInfo.length !== 0) {
+        // 유저 - 패킷 생성.
+        const sMove = {
+          transformInfos: userTransformInfo,
+        };
 
-      // 유저 - 패킷 직렬화
-      const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
-      await this.broadcast2(initialResponse);
+        // 유저 - 패킷 직렬화
+        const initialResponse = createResponse('town', 'S_Move', PACKET_TYPE.S_MOVE, sMove);
+        await this.broadcast2(initialResponse);
+      }
 
       if (monsters.length <= 0) {
         return;
@@ -101,6 +125,7 @@ export default class MovementSync {
       const monsterTransformInfo = [];
       for (const monster of monsters) {
         if (monster.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
+          if (monster.getIsSearchFail()) continue;
           const syncData = this.createSyncMonsterTransformInfoData(
             monster,
             monster.getMonsterInfo(),
@@ -116,19 +141,21 @@ export default class MovementSync {
 
       //console.log(monsterTransformInfo);
 
-      // 몬스터 - 패킷 생성.
-      const sMonsterMove = {
-        transformInfo: monsterTransformInfo,
-      };
+      if (monsterTransformInfo.length !== 0) {
+        // 몬스터 - 패킷 생성.
+        const sMonsterMove = {
+          transformInfo: monsterTransformInfo,
+        };
 
-      // 몬스터 -  패킷 직렬화
-      const initialResponse2 = createResponse(
-        'town',
-        'S_MonsterMove',
-        PACKET_TYPE.S_MONSTERMOVE,
-        sMonsterMove,
-      );
-      await this.broadcast2(initialResponse2);
+        // 몬스터 -  패킷 직렬화
+        const initialResponse2 = createResponse(
+          'town',
+          'S_MonsterMove',
+          PACKET_TYPE.S_MONSTERMOVE,
+          sMonsterMove,
+        );
+        await this.broadcast2(initialResponse2);
+      }
 
       // 공격/ 죽음
       //this.updateMonsterAttck();
@@ -236,6 +263,12 @@ export default class MovementSync {
 
       const monsterTransformInfo = [];
       for (const monster of monsters) {
+        const test = monster.currentTransform;
+        if(!test.posX){
+          //console.log("종료전 몬스터 트랜스폼 : ", test)
+          //process.exit(0); // 정상 종료
+          continue;
+        }
         const syncData = this.createSyncMonsterTransformInfoData(monster, monster.getMonsterInfo());
         monsterTransformInfo.push(syncData);
       }
