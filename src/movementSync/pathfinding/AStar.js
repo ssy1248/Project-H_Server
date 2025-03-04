@@ -112,7 +112,7 @@ export class AStar {
 
   // 도착지점이 비정상일 경우 도착지점 재지정
   findNearestValidPoint([x, y]) {
-    if (this.isValid([x, y])) return [x, y]; // 도착지가 유효하면 그대로 사용
+    //if (this.isValid([x, y])) return [x, y]; // 도착지가 유효하면 그대로 사용
 
 
     const directions = [
