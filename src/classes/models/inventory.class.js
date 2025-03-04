@@ -16,6 +16,7 @@ export default class Inventory {
             console.log('inventory is empty');
             return;
         }
+        console.log(this.inventory);
         this.send();
     }
 
@@ -174,7 +175,7 @@ export default class Inventory {
 
     // 장비한 아이템만을 반환하는 함수
     getEquipment() {
-        return this.inventory.filter((item) => item.equipped === true);
+        return this.inventory.filter((item) => item.equipped === 1);
     }
 
     // 모든 장착한 아이템의 스탯 합을 구하는 함수
