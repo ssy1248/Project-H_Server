@@ -329,6 +329,9 @@ export const rangeAttackCollide = (socket, packetData) => {
   }
 };
 
+
+//버프 스킬 proto는 어떻게 해야할지 정하지 않았다 지금 던전에서 스텟과 쿨타임을 보내지 않아서 이걸 안보내거 true,false할지 고민중이다.
+
 export const playerSkillBuff = (socket, packetData) => {
   try {
     console.log('playerSkill 시작');
