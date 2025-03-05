@@ -38,8 +38,9 @@ import { processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
-
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
+import { playerSkillBuff, rangeAttackCollide, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import playerRangeAttackHandler from './game/dungeon/player.attack.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -298,8 +299,39 @@ const handlers = {
   [PACKET_TYPE.C_MONSTERMOVE]: {
     handler: monsterSyncHandler,
     protoType: 'town.C_MonsterMove',
-
-  }
+  },
+  [PACKET_TYPE.S_PLAYERRANGEATTACK]: {
+    handler: playerRangeAttackHandler,
+    protoType: 'dungeon.S_playerRangeAttck',
+  },
+  [PACKET_TYPE.C_PLAYERRANGEATTACK]: {
+    handler: playerRangeAttackHandler,
+    protoType: 'dungeon.C_playerRangeAttck',
+  },
+  [PACKET_TYPE.S_RANGEATTACKIMPACT]: {
+    handler: rangeAttackImpactHandler,
+    protoType: 'dungeon.S_rangeAttackImpact',
+  },
+  [PACKET_TYPE.C_RANGEATTACKIMPACT]: {
+    handler: rangeAttackImpactHandler,
+    protoType: 'dungeon.C_rangeAttackImpact',
+  },
+  [PACKET_TYPE.S_RANGEATTACKCOLLIDE]: {
+    handler: rangeAttackCollide,
+    protoType: 'dungeon.S_rangeAttcckCollide',
+  },
+  [PACKET_TYPE.C_RANGEATTACKCOLLIDE]: {
+    handler: rangeAttackCollide,
+    protoType: 'dungeon.C_rangeAttcckCollide',
+  },
+  [PACKET_TYPE.C_SKILLBUFF]:{
+    handler : playerSkillBuff,
+    protoType : 'dungeon.C_SkillBuff',
+  },
+  [PACKET_TYPE.S_SKILLBUFF]:{
+    handler : playerSkillBuff,
+    protoType : 'dungeon.S_SkillBuff',
+  },
 };
 
 export const getHandlerById = (handlerId) => {

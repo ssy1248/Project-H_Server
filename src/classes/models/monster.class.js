@@ -13,6 +13,10 @@ export default class Monster {
     this.isAlive = true; // 몬스터 생존 여부
   }
 
+  // 공격
+  monaterAttack(damage) {
+    this.hp = Math.max(0, this.hp - damage);
+  }
   // 공격 메서드
   attackTarget(target) {
     if (!this.isAlive) return;
@@ -43,4 +47,3 @@ export default class Monster {
     console.log(`${this.name}이(가) 사망했습니다.`);
   }
 }
-

@@ -1,7 +1,5 @@
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { findUser } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
-import { getUserByNickname } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 
 // 상태 객체들: 각 액션별로 독립적인 상태 관리
@@ -66,7 +64,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   }
 
   // 3) 공격자(플레이어)를 던전에서 찾음
-  const attackerSessions  = getDungeonInPlayerName(attackerName);
+  const attackerSessions = getDungeonInPlayerName(attackerName);
   if (!attackerSessions || attackerSessions.length === 0) {
     console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
     sendActionFailure(socket, '던전 세션에서 공격자를 찾을 수 없습니다.');
@@ -164,7 +162,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
   }
 
   // 3) 공격자(플레이어)를 던전에서 찾음
-  const attackerSessions  = getDungeonInPlayerName(attackerName);
+  const attackerSessions = getDungeonInPlayerName(attackerName);
   if (!attackerSessions || attackerSessions.length === 0) {
     console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
     sendActionFailure(socket, '던전 세션에서 공격자를 찾을 수 없습니다.');
@@ -193,8 +191,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
   lastSkillTime[attackerName] = now;
   console.log(`[${attackerName}] 공격 시도! targetId=${targetId}`);
 
-  // 타겟팅, 논타겟팅인지에 따라 targetId가 필요할수도 없을수도도
-  // 만약 targetId가 유효하지 않다면, 그냥 공격 진행 (사거리 체크 생략)
+  // 만약 targetId가 유효하지 않다면(예: -1 또는 0), 그냥 공격 진행 (사거리 체크 생략)
   if (targetId <= 0) {
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
 
@@ -253,7 +250,7 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
     const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
     socket.write(packet);
   }
-}
+};
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
 const processDodgeHandler = (socket, requesterName, direction) => {
@@ -267,24 +264,24 @@ const processDodgeHandler = (socket, requesterName, direction) => {
     lastdodgeTime[requesterName] = 0;
   }
 
-   // 3) 플레이어를 던전에서 찾음
-   const requesterSessions  = getDungeonInPlayerName(requesterName);
-   if (!requesterSessions || requesterSessions.length === 0) {
-     console.error('던전 세션에서 요청자를 찾을 수 없습니다.');
-     sendActionFailure(socket, '던전 세션에서 요청자를 찾을 수 없습니다.');
-     return;
-   }
-   const dungeon = requesterSessions[0];
- 
-   // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
-   const player = dungeon.players[requesterName];
-   if (!player) {
-     console.error('던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
-     sendActionFailure(socket, '던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
-     return;
-   }
+  // 3) 플레이어를 던전에서 찾음
+  const requesterSessions = getDungeonInPlayerName(requesterName);
+  if (!requesterSessions || requesterSessions.length === 0) {
+    console.error('던전 세션에서 요청자를 찾을 수 없습니다.');
+    sendActionFailure(socket, '던전 세션에서 요청자를 찾을 수 없습니다.');
+    return;
+  }
+  const dungeon = requesterSessions[0];
 
-   console.log('플레이어 : ', player);
+  // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
+  const player = dungeon.players[requesterName];
+  if (!player) {
+    console.error('던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+    sendActionFailure(socket, '던전 세션 내에서 요청자 인스턴스를 찾을 수 없습니다.');
+    return;
+  }
+
+  console.log('플레이어 : ', player);
 
   // 다음 회피 가능 시각 계산
   const cooldownMs = player.dodge.dodgeCoolTime * 1000;
@@ -306,55 +303,31 @@ const processDodgeHandler = (socket, requesterName, direction) => {
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
     x: currentPosition.x + direction.x * player.dodge.dodgeRange,
-    y: currentPosition.y, // y축은 사용하지 않음
+    y: currentPosition.y + direction.y * player.dodge.dodgeRange,
     z: currentPosition.z + direction.z * player.dodge.dodgeRange,
   };
 
   console.log('최종 좌표 : ', finalPosition);
-  // 최종좌표를 그 캐릭터의 최신좌표로 변경을 해야할듯?
-
-  // 던전 내 플레이어 위치 업데이트
-  dungeon.playersTransform[requesterName] = finalPosition;
-  console.log(`던전 내 ${requesterName}의 위치가 업데이트되었습니다: `, dungeon.playersTransform[requesterName]);
-
-  // movementSync.manager에서 해당 유저의 currentTransform 업데이트
-  const user = getUserByNickname(requesterName);
-  if (user) {
-    const userTransform = findUser('dungeon1', user.userInfo.userId);
-    if (userTransform) {
-      userTransform.currentTransform = {
-        posX: finalPosition.x,
-        posY: finalPosition.y,
-        posZ: finalPosition.z,
-        rot: userTransform.currentTransform.rot,
-      };
-      console.log(`movementSync: 업데이트된 ${requesterName}의 currentTransform: `, userTransform.currentTransform);
-    } else {
-      console.warn(`movementSync: ${requesterName}의 userTransform을 찾을 수 없습니다.`);
-    }
-  } else {
-    console.warn(`${requesterName} 닉네임의 유저를 찾을 수 없습니다.`);
-  }
 
   const dodgeResult = {
-    evadedDamage: 20,                   // 회피 효과에 따른 피해 경감
+    evadedDamage: 20, // 회피 효과에 따른 피해 경감량 (예제)
     dodgeDistance: player.dodge.dodgeRange,
     direction: direction,
     finalPosition: finalPosition,
     useUserName: requesterName,
-  }
+  };
 
   const payload = {
     dodgeResult,
     success: true,
     message: '회피에 성공하였습니다.',
-  }
+  };
 
   const sPlayerActionPacket = createResponse(
     'dungeon',
     'S_PlayerAction',
     PACKET_TYPE.S_PLAYERACTION,
-    payload
+    payload,
   );
 
   socket.write(sPlayerActionPacket);
