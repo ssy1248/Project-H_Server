@@ -1,4 +1,5 @@
 import { PACKET_TYPE } from "../../constants/header.js";
+import { getDungeonSession } from "../../session/dungeon.session.js";
 import { getUserBySocket } from "../../session/user.session.js";
 import { createResponse } from "../../utils/response/createResponse.js";
 import { healthPotion } from "../item/item.js";
@@ -56,6 +57,10 @@ export const ActiveItemRequestHandler = async (socket, data) => {
         },
     );
 
-    // TODO: braodcast
+    // TODO: braodcast to every players in dungeon
+    const dungeonId = user.inDungeonId;
+    const dungeon = getDungeonSession(dungeonId);
+    // 던전까지는 구했는데 던전에 있는 플레이어는 어떻게 구하지?
+
     socket.write(activeItemResponse);
 }

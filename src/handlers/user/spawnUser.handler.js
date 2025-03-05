@@ -2,6 +2,7 @@ import {
   getUserBySocket,
   getOtherUsers,
   broadcastToUsersAsync,
+  getUserById,
   getAllUsers,
   broadcastToUsers,
   getAllTownUsers,
@@ -100,7 +101,7 @@ const syncSpawnedUser = async (socket, user) => {
         const userInfo = value.getUserInfo();
         const user = findUser('town', userInfo.userId);
         if (user) {
-          value.setTransformInfo(user.currentTransform);
+          //value.getUserById(user.currentTransform);
         }
 
         const playerInfo = createPlayerInfoPacketData(value);

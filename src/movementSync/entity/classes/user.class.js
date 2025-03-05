@@ -20,13 +20,10 @@ export default class User extends Entity {
     // 길찾기 도착지점 갱신.
     super.setPathfindingDestination(transform);
 
-    // 시작
-    const startPos = [
-      this.currentTransform.posX,
-      this.currentTransform.posY,
-      this.currentTransform.posZ,
-    ];
+    // 길찾기.
+    super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
 
+<<<<<<< HEAD
     //console.log("startPos", startPos);
 
     // 도착
@@ -76,6 +73,8 @@ export default class User extends Entity {
 
     // 행동 변경.
     super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
+=======
+>>>>>>> dev2
   }
 
   // [트랜스폼 업데이트]
@@ -86,22 +85,7 @@ export default class User extends Entity {
     //console.log(this.aSterPath.size());
 
     if (this.behavior === CONSTANTS.AI_BEHAVIOR.CHASE) {
-      // if (this.aSterPath.size() === 0) {
-      //   this.userAiBehaviorCHASE();
-
-      //   const isTargetReached = movementUtils.hasPassedTarget(
-      //     this.currentTransform,
-      //     this.targetTransform,
-      //     this.lastTransform,
-      //   );
-
-      //   if (isTargetReached) {
-      //     this.behavior = CONSTANTS.AI_BEHAVIOR.IDLE;
-      //     this.currentTransform = { ...this.pathfindingDestination };
-      //     console.log("도착했음");
-      //     //
-      //   }
-      // }
+      
       this.userAiBehaviorCHASE();
     }
   }
@@ -109,11 +93,12 @@ export default class User extends Entity {
   // [GET - currentTransform]
   getCurrentTransform() {
     const transform = { ...super.getCurrentTransform() };
-    const deltaTime = (this.latency / 2 + CONSTANTS.NETWORK.SNAPSHOT_INTERVAL) / 1000; // latency를 초 단위로 변환
-    transform.posX += deltaTime;
-    transform.posY += deltaTime;
-    transform.posZ += deltaTime;
+    // const deltaTime = (this.latency / 2 + CONSTANTS.NETWORK.INTERVAL) / 1000; // latency를 초 단위로 변환
+    // transform.posX += deltaTime;
+    // transform.posY += deltaTime;
+    // transform.posZ += deltaTime;
 
+    //console.log("서버에서 보정된 transform : ", transform)
     return transform;
   }
 
@@ -144,7 +129,11 @@ export default class User extends Entity {
 
       if (result) {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+<<<<<<< HEAD
         console.log('[도착]', getUserBySocket(this.socket).getTransformInfo());
+=======
+        console.log('[도착]');
+>>>>>>> dev2
         return false;
       } else {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
@@ -162,9 +151,9 @@ export default class User extends Entity {
     let ping = timeDifference >= 0 ? timeDifference : 24 * 60 * 60 * 1000 + timeDifference; // 음수일 때 하루를 더해주기
 
     // ping이 0이면 1로 설정
-    if (ping === 0) {
-      ping = 1;
-    }
+    // if (ping === 0) {
+    //   ping = 1;
+    // }
 
     return ping * 2;
   }
