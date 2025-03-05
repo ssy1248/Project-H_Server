@@ -28,6 +28,6 @@ export const SQL_QUERIES = {
     'UPDATE Skill SET name = ?, job = ?, cooldown = ?, cost = ?, castingTime = ?, effect = ? WHERE id = ?',
   FIND_ALL_SKILLS: 'SELECT * FROM Skill',
   // 골드 변경 쿼리문
-  UPDATE_ADD_GOLD: 'UPDATE Characters SET gold = gold + ? WHERE charStatId = ?',
-  UPDATE_SUBTRACT_GOLD: 'UPDATE Characters SET gold = gold - ? WHERE charStatId = ?',
+  UPDATE_ADD_GOLD: 'UPDATE Characters SET gold = gold + ? WHERE id = ?',
+  UPDATE_SUBTRACT_GOLD: 'UPDATE Characters SET gold = gold - ? WHERE id = ?',
 };

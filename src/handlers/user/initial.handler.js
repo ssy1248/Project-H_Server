@@ -22,6 +22,7 @@ const initialHandler = async (socket, data) => {
     const gameSession = getGameSession();
     gameSession.addUser(user);
 
+
     const initialResponse = createResponse(
       PACKET_TYPE.S_ENTER,
       'game',

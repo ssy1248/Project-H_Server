@@ -6,9 +6,9 @@ export const addUser = (user) => {
   return user;
 };
 
-export const removeUser =  (socket) => {
+export const removeUser = (socket) => {
   const index = userSessions.findIndex((user) => user.userInfo.socket === socket);
-  
+
   if (index !== -1) {
     const length = userSessions.length;
     const removedUser = userSessions.splice(index, 1)[0];
@@ -35,6 +35,32 @@ export const getUserByNickname = (nickname) => {
 // 모든 유저 가져오기.
 export const getAllUsers = () => {
   return userSessions;
+};
+// 타운에만 있는지 체크
+export const getAllTownUsers = () => {
+  return userSessions.filter((user) => {
+    return user.inDungeonId === '';
+  });
+};
+
+// 타운에 있는 모든 유저에게
+export const broadcastTownAllUsers = (packet) => {
+  const userData = userSessions.filter((user) => {
+    return user.inDungeonId === '';
+  });
+  for (let user of userData) {
+    user.userInfo.socket(packet);
+  }
+};
+
+// 타운에 있는 나 제외 모든 유저에게
+export const broadcastTownOtherUsers = (socket, packet) => {
+  const userData = userSessions.filter((user) => {
+    return user.inDungeonId === '' && user.userInfo.socket !== socket;
+  });
+  for (let user of userData) {
+    user.userInfo.socket(packet);
+  }
 };
 
 // [수정] 본인 제외 유저 소켓 가져오기 (스폰 되어있는 유저)

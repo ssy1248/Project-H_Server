@@ -5,8 +5,8 @@ import { getUserById } from './user.session.js';
 // 파티 생성
 export const createPartySession = (id, partyName, userId, dungeonIndex) => {
   let partySession;
-  if (!id || !partyName) {
-    throw new Error('파티 생성 시 id와 partyName은 필수입니다.');
+  if (!id || !partyName || !dungeonIndex) {
+    throw new Error('파티 생성 시 id와 partyName와 dungeonIndex는 필수입니다.');
   }
 
   // 이미 파티에 들어가있다면 예외 처리

@@ -13,19 +13,7 @@ export const inventoryHandler = async (socket, data) => {
             throw new Error("Character ID is invalid!");
         }
 
-        // 유저의 인벤토리를 조회
-        let inventory = user.inventory.getInventory();
-
-        // 메시지 생성
-        const inventoryResponse = createResponse(
-            'inventory',
-            'S_InventoryResponse',
-            PACKET_TYPE.S_INVENTORYRESPONSE,
-            { inventory: inventory },
-        );
-
-        // 반환
-        socket.write(inventoryResponse);
+        user.inventory.send();
     } catch (error) {
         handlerError(socket, error);
     }
@@ -98,25 +86,27 @@ export const removeInventoryHandler = async (socket, data) => {
 export const equipItemHandler = async (socket, data) => {
     // TODO : 아이템을 장비하고, DB를 업데이트하고, 결과(전체 인벤토리)를 반환
     try {
-        const { charId, inventoryId } = data;
-        // socket의 플레이어가 charId인지 검증(남의 인벤토리는 볼 수 없음)
+        const { itemId } = data;
+
+        // 소켓으로 유저 조회
         const user = getUserBySocket(socket);
-        if (user.PlayerInfo.charId !== charId) {
-            throw new Error("Character ID is invalid!");
-        }
 
         // 아이템 장착
-        await user.inventory.equip(inventoryId);
-
-        // 유저의 인벤토리를 조회
-        let inventory = user.inventory.getInventory();
+        await user.inventory.equip(itemId);
 
         // 메시지 생성
         const inventoryResponse = createResponse(
             'inventory',
-            'S_InventoryResponse',
-            PACKET_TYPE.S_INVENTORYRESPONSE,
-            { inventory: inventory },
+            'S_EquipItemResponse',
+            PACKET_TYPE.S_EQUIPITEMRESPONSE,
+            {
+                itemId: itemId,
+                success: true,
+                message: '',
+                failCode: {
+                    code: 200,
+                }
+            },
         );
 
         // 반환
@@ -129,26 +119,26 @@ export const equipItemHandler = async (socket, data) => {
 export const disrobeItemHandler = async (socket, data) => {
     // TODO : 아이템 장비를 해체하고, DB를 업데이트하고, 결과(전체 인벤토리)를 반환
     try {
-        const { charId, inventoryId } = data;
+        const { itemId } = data;
 
-        // socket의 플레이어가 charId인지 검증(남의 인벤토리는 볼 수 없음)
         const user = getUserBySocket(socket);
-        if (user.PlayerInfo.charId !== charId) {
-            throw new Error("Character ID is invalid!");
-        }
 
         // 아이템 해제
-        await user.inventory.disrobe(inventoryId);
-
-        // 유저의 인벤토리를 조회
-        let inventory = user.inventory.getInventory();
+        await user.inventory.disrobe(itemId);
 
         // 메시지 생성
         const inventoryResponse = createResponse(
             'inventory',
-            'S_InventoryResponse',
-            PACKET_TYPE.S_INVENTORYRESPONSE,
-            { inventory: inventory },
+            'S_DisrobeItemResponse',
+            PACKET_TYPE.S_DISROBEITEMRESPONSE,
+            {
+                itemId: itemId,
+                success: true,
+                message: '',
+                failCode: {
+                    code: 200,
+                }
+            },
         );
 
         // 반환
@@ -157,3 +147,69 @@ export const disrobeItemHandler = async (socket, data) => {
         handlerError(socket, error);
     }
 }
+
+export const storeItemHandler = async (socket, data) => {
+    try {
+        const { itemId } = data;
+
+        const user = getUserBySocket(socket);
+
+        await user.inventory.store(itemId);
+
+        const storeResponse = createResponse(
+            'inventory',
+
+        )
+    } catch (error) {
+        handlerError(socket, error);
+    }
+};
+
+export const MoveItemHandler = async (socket, data) => {
+    try {
+        const { itemId, position, storage } = data;
+
+        const user = getUserBySocket(socket);
+
+        const inventory = user.inventory.getInventory();
+        // 옮기려는 아이템
+        const item = inventory.find((item) => item.id === itemId);
+
+        // 옮기려는 위치가 -1인 경우, 비어있는 가장 앞자리로 옮기기
+        let targetPosition = position;
+        if (position === -1) {
+            const occupiedPositions = inventory
+                .filter((item) => item.equipped === storage)
+                .map((item) => item.position);
+            targetPosition = 0;
+            while (occupiedPositions.includes(targetPosition)) {
+                targetPosition++;
+            }
+        }
+
+        // 옮기려는 위치에 다른 아이템이 있는지 확인
+        const other = inventory.find((item) => item.position === targetPosition && item.equipped === storage);
+        if (other) {
+            // 옮기려는 위치에 다른 아이템이 있으면 스왑
+            await user.inventory.move(other.id, item.position, storage);
+        }
+
+        // 아이템 옮기기
+        await user.inventory.move(itemId, targetPosition, storage);
+
+        const moveItemResponse = createResponse(
+            'inventory',
+            'S_MoveItemResponse',
+            PACKET_TYPE.S_MOVEITEMRESPONSE,
+            {
+                itemId: itemId,
+                position: targetPosition,
+                storage: storage,
+            }
+        );
+
+        socket.write(moveItemResponse);
+    } catch (error) {
+        handlerError(socket, error);
+    }
+};
