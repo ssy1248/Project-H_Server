@@ -1,4 +1,5 @@
 import { getDungeonSession } from '../../session/dungeon.session.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 
 const despawnUser = async (user) => {
   const packet = createResponse('user', 'S_Despawn', PACKET_TYPE.S_DESPAWN, {

@@ -73,7 +73,7 @@ export default class MovementSync {
 
         // console.log("closestUserTransform : ",closestUserTransform);
 
-        if(closestUserTransform) {
+        if (closestUserTransform) {
           monster.updateTransform(closestUserTransform);
         }
       }
@@ -264,7 +264,7 @@ export default class MovementSync {
       const monsterTransformInfo = [];
       for (const monster of monsters) {
         const test = monster.currentTransform;
-        if(!test.posX){
+        if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
           //process.exit(0); // 정상 종료
           continue;
@@ -292,7 +292,9 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    this.processMonsterSpawn();
+    if (this.movementId !== 'town') {
+      this.processMonsterSpawn();
+    }
     this.entityMovement();
   }
 
