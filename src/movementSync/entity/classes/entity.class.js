@@ -27,7 +27,7 @@ export default class Entity {
     console.log('생성 좌표 : ', this.currentTransform);
     console.log(` ID : ${this.id} / movementId : ${this.movementId}`);
 
-    this.findAccessiblePosition();
+    // this.findAccessiblePosition();
   }
 
   // [엔티티 스폰시 장애물 없는 곳에서 생성]
@@ -59,11 +59,21 @@ export default class Entity {
   checkPathObstacles() {
     if (this.gridIndexPath.size() !== 0) {
       const items = this.gridIndexPath.getItems();
+      let result = false;
+      
+      // for(const item of items){
+      //   result = A_STER_MANAGER.FIND_OBSTACLE(this.movementId, item );
+        
+      //   if(result) break;
+        
+      // }
 
-      //for(const item of )
+      // this.gridIndexPath.dequeue();
 
-      const index = this.gridIndexPath.dequeue();
-      return A_STER_MANAGER.FIND_OBSTACLE(this.movementId, index);
+      const test = this.gridIndexPath.dequeue();
+      result = A_STER_MANAGER.FIND_OBSTACLE(this.movementId, test );
+
+      return result;
     }
   }
 
@@ -79,17 +89,18 @@ export default class Entity {
     A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
     const paths = A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
 
-    // 길 못찾은경우.
-    if (paths.length === 0) {
+    // 길 못찾은경우. 
+    if (!paths || paths.gridIndexPath.length === 0 || paths.gridIndexPath.length === 0) {
       // 1. 도착지가 막혀있으면 몇번 탐색후.
       // 2. 길을 계속 못찾을 경우 다른 행동을 하자.
 
       this.isSearchFail = true;
       console.log('길못찾는다.!!!!');
       // process.exit(0);
+      this.behavior = CONSTANTS.AI_BEHAVIOR.IDLE;
 
       //여기 확인하자. 밥먹고
-      //return true;
+      return true;
     } else {
       this.isSearchFail = false;
     }
@@ -110,6 +121,18 @@ export default class Entity {
     // 그리드 인덱스 패스 갱신
     for (const gridIndex of paths.gridIndexPath) {
       this.gridIndexPath.enqueue(gridIndex);
+    }
+
+
+    if(!this.aSterPath.size()){
+      console.log("aSterPath가 비어있다.")
+      //return;
+    }
+
+    
+    if(!this.gridIndexPath.size()){
+      console.log("gridIndexPath가 비어있다.")
+      //return;
     }
 
     //console.log("this.gridIndexPath : ", this.gridIndexPath);

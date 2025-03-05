@@ -79,7 +79,7 @@ export default class Monster extends Entity {
     const currentTransform = super.getCurrentTransform();
     const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
-    // console.log('유저 <-> 몬스터 거리: ', distance01);
+    //console.log('유저 <-> 몬스터 거리: ', distance01);
     if (distance01 <= 2) {
       super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
       A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
@@ -104,6 +104,7 @@ export default class Monster extends Entity {
 
     const aSterPath = super.getASterPath();
 
+  
     if (aSterPath.size() === 0) {
       const result = movementUtils.hasPassedTarget(
         currentTransform,
@@ -123,8 +124,8 @@ export default class Monster extends Entity {
 
         // 3. 복귀 중이 아니고 목표에 도달했으면 
         if(spawnDistance > 0.5){
-          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         }
 
         
@@ -160,10 +161,10 @@ export default class Monster extends Entity {
         this.isAttack = false;
         this.attackCount = 60;
       } else {
-        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
-        super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         this.isAttack = false;
-        this.attackCount = 60;
+        //this.attackCount = 60;
       }
       
     }
@@ -189,7 +190,7 @@ export default class Monster extends Entity {
         if (this.isAttack) {
           //console.log('공격 성공!');
           MONSTER_SEND_MESSAGE.ATTCK('town');
-          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
         }
       } else {

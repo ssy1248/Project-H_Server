@@ -33,6 +33,7 @@ export default class TestASter {
     });
 
     //console.log(this.grid);
+    
 
     // 장애물 저장 객체
     this.entityObstacles = {};
@@ -44,14 +45,14 @@ export default class TestASter {
 
     // 정적 장애물 추가
 
-    this.markStaticObstacles();
+    //this.markStaticObstacles();
 
     //this.testPathfinding();
   }
 
   // A* 알고리즘을 사용한 경로 찾기 테스트
   testPathfinding() {
-    const startPos = [1, 0, 3]; // 시작 위치 (3D 좌표)
+    const startPos = [2, 0, 1]; // 시작 위치 (3D 좌표)
     const endPos = [30, 0, 100]; // 끝 위치 (3D 좌표)
 
     const startIndex = this.coordToIndex([1, 0, 3]); 
@@ -65,20 +66,28 @@ export default class TestASter {
     const ex = endIndex.index % this.gridWidth; // x 좌표
     const ey = Math.floor(endIndex.index / this.gridWidth); // z 좌표
 
+    // const sx = 31; // x 좌표
+    // const sy = 28; // z 좌표
+
+
+    // const ex = 31; // x 좌표
+    // const ey = 1; // z 좌표
+
+
     // 엔드포인트 주변 8방향을 막기
-    const directions = [
-      [0, 1],
-      [1, 0],
-      [0, -1],
-      [-1, 0], // 상하좌우
-      [-1, -1],
-      [-1, 1],
-      [1, -1],
-      [1, 1], // 대각선
-    ];
+    // const directions = [
+    //   [0, 1],
+    //   [1, 0],
+    //   [0, -1],
+    //   [-1, 0], // 상하좌우
+    //   [-1, -1],
+    //   [-1, 1],
+    //   [1, -1],
+    //   [1, 1], // 대각선
+    // ];
 
     // 랜덤한 방향 선택 (한 곳만 뚫기)
-    const openIndex = Math.floor(Math.random() * directions.length);
+    //const openIndex = Math.floor(Math.random() * directions.length);
 
     // 한방항만 뚫기
     // directions.forEach(([dx, dy], index) => {
@@ -90,9 +99,9 @@ export default class TestASter {
     //
 
     // 모든 방향 막기
-    directions.forEach(([dx, dz]) => {
-      this.addObstacle([ex + dx, ey + dz], 1); // 모든 방향에 장애물 추가
-    });
+    // directions.forEach(([dx, dz]) => {
+    //   this.addObstacle([ex + dx, ey + dz], 1); // 모든 방향에 장애물 추가
+    // });
 
     // this.addObstacle([14, 11], 1);
 
@@ -184,7 +193,7 @@ export default class TestASter {
       endGrid.index >= this.gridWidth * this.gridHeight
     ) {
       console.log('잘못된 좌표');
-      return []; // 유효하지 않은 좌표인 경우 빈 배열 반환
+      return { gridIndexPath: [], pathCoords: [] }; // 유효하지 않은 좌표인 경우 빈 배열 반환
     }
 
     // A* 알고리즘 옵션 설정
@@ -230,18 +239,18 @@ export default class TestASter {
     if (!path || path.length === 0) {
       console.log('경로를 찾을 수 없습니다. startGrid : ', startGrid);
       console.log('경로를 찾을 수 없습니다. endGrid : ', endGrid);
-      return []; // 경로를 찾을 수 없으면 빈 배열 반환
+      return { gridIndexPath: [], pathCoords: [] }; // 경로를 찾을 수 없으면 빈 배열 반환
     }
 
     //
     // [이부분 고치자 ]
-    for (let i = path.length - 1; i >= 0; i--) {
-      if (this.findEntityObstacle(path[i])) {
-        path.splice(i, 1); // 장애물이 있으면 삭제
-      } else {
-        break; // 장애물이 없으면 즉시 종료
-      }
-    }
+    // for (let i = path.length - 1; i >= 0; i--) {
+    //   if (this.findEntityObstacle(path[i])) {
+    //     path.splice(i, 1); // 장애물이 있으면 삭제
+    //   } else {
+    //     break; // 장애물이 없으면 즉시 종료
+    //   }
+    // }
 
     // 2D 경로를 3D 좌표로 변환
     let pathCoords = path.map((coord) => {
@@ -350,8 +359,8 @@ export default class TestASter {
     }
 
     // 데스트 용도.
-    // const storedValue = this.grid.get(obstacle); // 그리드 값 확인
-    // console.log(`⭕ 장애물 생성 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
+     //const storedValue = this.grid.get(obstacle); // 그리드 값 확인
+     //console.log(`⭕ 장애물 생성 확인 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
   }
 
   // 장애물 제거
