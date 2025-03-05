@@ -89,6 +89,16 @@ export const deleteUser = (movementSyncId, id) => {
   movementSyncs[movementSyncId].deleteUser(id);
 };
 
+export const addMonster = (movementSyncId) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  movementSyncs[movementSyncId].processMonsterSpawn();
+  //movementSyncs[movementSyncId].addMonster(movementSyncId);
+}
+
 // [ 몬스터 찾기 ]
 export const findMonster = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
