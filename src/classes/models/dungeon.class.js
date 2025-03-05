@@ -235,8 +235,6 @@ class Dungeon {
       arrow.traveledDistance += adjustedSpeed;
 
       console.log(`${playerName}의 화살 상태: `, arrows);
-      console.log(`${playerName}의 화살 좌표: `, arrows[0].position);
-      console.log(`${playerName}의 화살 좌표: `, arrows[1].position);
 
       // 화살이 최대 이동 거리보다 멀리 갔으면 소멸
       if (arrow.traveledDistance >= arrow.maxDistance) {

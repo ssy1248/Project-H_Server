@@ -13,6 +13,37 @@ const lastdodgeTime = {};
 //줄어든 쿨타임 넣는것
 const playerCooldowns = {};
 
+
+//분기를 어떻게 해야될까
+//공격할떄 (플레이어가 공격을 할떄), 이떄 packetData로 스킬인지 일반공격인지 그리고 스킬은 몇번쨰 스킬인지 보내줘야될것 같다.
+//그리고 스킬이 논타켓팅인지 타켓팅인지 범위형인지는 playerclass에 넣으면 될려나
+//그런 다음에 공격이 몬스터를 타격할떄 
+//논타켓팅의 경우에는 화살의 궤적을 쫒으면 되지만 타켓팅은 플레이어의 위치, 몬스터 위치를 파악헤서 거리르 재면 될것 같다
+// 범위 형이 문제인데 이건 잠시 넘어 가자
+
+// export const processPlayerActionHandler = (socket, packet) => {
+//   if (packet.normalAttack) {
+//     // 일반 공격 처리
+//     console.log('일반 공격 요청 처리');
+//     processAttackHandler(socket, packet.normalAttack.attackerName, packet.normalAttack.targetId);
+//   } else if (packet.skillAttack) {
+//     // 스킬 공격 처리
+//     console.log('스킬 공격 요청 처리');
+//     processSkillAttackHandler(socket, packet.skillAttack.attackerName, packet.skillAttack.targetId);
+//     // packet.skillAttack.skillId, packet.skillAttack.targetId 등을 사용하여 처리
+//   } else if (packet.dodgeAction) {
+//     // 회피 처리
+//     console.log('회피 요청 처리');
+//     processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.direction);
+//   } else if (packet.hitAction) {
+//     // 피격 처리
+//     console.log('피격 요청 처리');
+//     processHitHandler(socket, packet.hitAction.attackerId, packet.hitAction.damage);
+//   } else {
+//     console.error('알 수 없는 플레이어 액션');
+//   }
+// };
+
 //공격을 할떄 (플레이어가 공격을 할떄)
 const playerRangeAttackHandler = (socket, packetData) => {
   try {
@@ -26,7 +57,6 @@ const playerRangeAttackHandler = (socket, packetData) => {
     }
     if (
       typeof direction === 'object' &&
-      direction !== null &&
       typeof direction.x === 'number' &&
       typeof direction.y === 'number' &&
       typeof direction.z === 'number'
@@ -499,5 +529,9 @@ export const playerDodge = (socket, packetData) => {
   }
 };
 
-
 export default playerRangeAttackHandler;
+
+//자 기본 공격,(논타켓팅) 스킬공격(논타겟티잉거나 타겟팅), 스킬 버프,
+//자 그러면 분기를 나누어서 이것들을 처리 시키고 싶어 왜냐하면 쿨타임 계산식을 모든 스킬 핸들러에 추가 하는것보다 낳을것 같거든
+//기본 공격은 그대로 일단 만둘고 가다음 스킬 버프가 있고
+//스킬 공격에서 타켓팅의 경우에는 arrow를 안만들어도 되고 그냥 공격할떄 공격이 몬스터한테 충돌했을떄만 해야되니
