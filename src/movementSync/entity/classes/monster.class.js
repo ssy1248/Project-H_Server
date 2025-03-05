@@ -3,6 +3,7 @@ import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
+import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp) {
@@ -16,6 +17,7 @@ export default class Monster extends Entity {
     this.attackCount = 0;
     this.isAttack = false;
     this.isDie = false;
+    this.isDamage = false;
 
     
   }
@@ -32,8 +34,28 @@ export default class Monster extends Entity {
   getIsDie() {
     return this.isDie;
   }
+  setIsDie(isDie){
+    this.isDie = isDie;
+  }
+
+  getIsDamage() {
+    return this.isDamage;
+  }
+  setIsDamage(isDamage){
+    this.isDie = isDamage;
+  }
+
+  getHp() {
+    return this.hp;
+  }
+
+  setHp(hp){
+    this.hp = hp
+  }
 
   updateTransform(userTransform) {
+    if(this.isDie) return;
+
     this.updateMonsterSync(userTransform);
     super.updateTransform();
   }
