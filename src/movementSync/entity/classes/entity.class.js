@@ -27,23 +27,28 @@ export default class Entity {
     console.log('생성 좌표 : ', this.currentTransform);
     console.log(` ID : ${this.id} / movementId : ${this.movementId}`);
   
-    //this.findAccessiblePosition();
+    this.findAccessiblePosition();
   }
 
   // [엔티티 스폰시 장애물 없는 곳에서 생성]
   findAccessiblePosition() {
     // 스폰지역이 장애물 구역이면 새로 지정.
     while (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, this.currentTransform)) {
-      let transfrom = {};
+      let transform = {};
       if(this.movementId === 'town') {
-        transfrom = {
+        transform = {
           posX: this.generateRandomPlayerTransformInfo(-9, 9),
           posY: 1,
           posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
           rot: this.generateRandomPlayerTransformInfo(0, 360),
         };
       } else {
-        
+        transform = {
+          posX: 2,
+          posY: 1,
+          posZ: 25,
+          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        }
       }
 
       this.currentTransform = {...transform};
