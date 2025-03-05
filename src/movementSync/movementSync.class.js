@@ -164,7 +164,7 @@ export default class MovementSync {
   }
 
   // [몬스터 애니메이션 삭제] - 죽음
-  updateMonsterDie() {
+  updateMonsterDie(movementSyncId) {
     const monsters = this.entityManager.getMonstersArray();
     const monsterIds = monsters
       .filter((monster) => monster.getIsDie()) // 죽었을경우
@@ -177,14 +177,38 @@ export default class MovementSync {
       };
 
       for (const monsterId of monsterIds) {
-        A_STER_MANAGER.DELETE_OBSTACLE('town', monsterId);
-        A_STER_MANAGER.DELETE_OBSTACLE_List('town', monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE(movementSyncId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE_List(movementSyncId, monsterId);
         this.entityManager.deleteMonster(monsterId);
       }
       const initialResponse = createResponse(
         'town',
         'S_MonsterDie',
         PACKET_TYPE.S_MonsterDie,
+        sMonsterDie,
+      );
+
+      this.broadcast2(initialResponse);
+    }
+  }
+
+  // // [몬스터 애니메이션 동기화] - 데미지
+  updateMonsterDamage() {
+    const monsters = this.entityManager.getMonstersArray();
+    const monsterIds = monsters
+      .filter((monster) => monster.getIsDamage()) // 죽었을경우
+      .map((monster) => monster.getId()); // 몬스터 ID만 추출
+
+    if (monsterIds.length !== 0) {
+      const sMonsterDie = {
+        monsterId: monsterIds,
+        monsterAinID: 'Hit',
+      };
+
+      const initialResponse = createResponse(
+        'town',
+        'S_MonsterHit',
+        PACKET_TYPE.S_MonsterHit,
         sMonsterDie,
       );
 
