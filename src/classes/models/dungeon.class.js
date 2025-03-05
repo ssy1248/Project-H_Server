@@ -312,6 +312,13 @@ class Dungeon {
     // 플레이어 상태 업데이트 로직
     this.playersTransform[playerName] = newStatus;
   }
+  broadcastOther(name, packet) {
+    for (let player of partyInfo.Players) {
+      if (player.playerName !== name) {
+        getUserByNickname(player.playerName).userInfo.socket.write(packet);
+      }
+    }
+  }
 }
 
 export default Dungeon;

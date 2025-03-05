@@ -2,6 +2,7 @@ import Entity from './entity.class.js';
 import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 
 export default class User extends Entity {
   constructor(movementId, socket, id, transform) {
@@ -37,7 +38,6 @@ export default class User extends Entity {
 
     //console.log("endPos", endPos);
 
-
     // 패스 갱신.
     A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
     const paths = await A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
@@ -68,8 +68,6 @@ export default class User extends Entity {
       this.targetTransform.posZ = path[2];
     }
 
-
-  
     // 초기 방향 설정.
     super.updateVelocity();
 
@@ -146,7 +144,7 @@ export default class User extends Entity {
 
       if (result) {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-        console.log("[도착]")
+        console.log('[도착]', getUserBySocket(this.socket).getTransformInfo());
         return false;
       } else {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
