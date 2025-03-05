@@ -148,23 +148,54 @@ export const disrobeItemHandler = async (socket, data) => {
     }
 }
 
+export const storeItemHandler = async (socket, data) => {
+    try {
+        const { itemId } = data;
+
+        const user = getUserBySocket(socket);
+
+        await user.inventory.store(itemId);
+
+        const storeResponse = createResponse(
+            'inventory',
+
+        )
+    } catch (error) {
+        handlerError(socket, error);
+    }
+};
+
 export const MoveItemHandler = async (socket, data) => {
     try {
-        const { itemId, position } = data;
+        const { itemId, position, storage } = data;
 
         const user = getUserBySocket(socket);
 
         const inventory = user.inventory.getInventory();
         // 옮기려는 아이템
         const item = inventory.find((item) => item.id === itemId);
-        // 옮기려는 위치에 다른 아이템이 있는지 확인
-        const other = inventory.find((item) => item.position === position);
-        if(other){
-            // 옮기려는 위치에 다른 아이템이 있으면 스왑
-            await user.inventory.move(other.id, item.position);
+
+        // 옮기려는 위치가 -1인 경우, 비어있는 가장 앞자리로 옮기기
+        let targetPosition = position;
+        if (position === -1) {
+            const occupiedPositions = inventory
+                .filter((item) => item.equipped === storage)
+                .map((item) => item.position);
+            targetPosition = 0;
+            while (occupiedPositions.includes(targetPosition)) {
+                targetPosition++;
+            }
         }
+
+        // 옮기려는 위치에 다른 아이템이 있는지 확인
+        const other = inventory.find((item) => item.position === targetPosition && item.equipped === storage);
+        if (other) {
+            // 옮기려는 위치에 다른 아이템이 있으면 스왑
+            await user.inventory.move(other.id, item.position, storage);
+        }
+
         // 아이템 옮기기
-        await user.inventory.move(itemId, position);
+        await user.inventory.move(itemId, targetPosition, storage);
 
         const moveItemResponse = createResponse(
             'inventory',
@@ -172,7 +203,8 @@ export const MoveItemHandler = async (socket, data) => {
             PACKET_TYPE.S_MOVEITEMRESPONSE,
             {
                 itemId: itemId,
-                position: position,
+                position: targetPosition,
+                storage: storage,
             }
         );
 
@@ -180,4 +212,4 @@ export const MoveItemHandler = async (socket, data) => {
     } catch (error) {
         handlerError(socket, error);
     }
-}
+};

@@ -36,9 +36,9 @@ export const updateItemQuantity = async (charId, inventoryId, quantity) => {
   }
 };
 
-export const updateItemPosition = async (charId, inventoryId, position) => {
+export const updateItemPosition = async (charId, inventoryId, position, storage = 0) => {
   try {
-    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_POSITION, [position, inventoryId, charId]);
+    await pools.USER_DB.query(SQL_QUERIES.UPDATE_ITEM_POSITION, [position, storage, inventoryId, charId]);
   } catch (error) {
     console.error(error);
   }
@@ -67,6 +67,14 @@ export const disrobeItem = async (charId, inventoryId) => {
     console.error(error);
   }
 };
+
+export const storeItem = async (charId, inventoryId) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.STORE_ITEM, [inventoryId, charId]);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 export const getCharacterTable = async () => {
   try {
