@@ -27,9 +27,6 @@ const dungeonSpawnHandler = async (socket, payload) => {
     deleteUser('town', userInfo.userId);
     addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
 
-    //deleteMonsters('town');
-    addMonster('dungeon1');
-
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
     //   userData.push(getUserByNickname(player.playerName));
@@ -53,7 +50,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       transformInfo.push(transform);
     });
 
-    dungeondata.startPeriodicPositionUpdates(1000);
+    dungeondata.startPeriodicPositionUpdates(100);
 
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {
       userId: user.userInfo.userId,
@@ -61,6 +58,14 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
+
+    addMonster('dungeon1');
+    // 클라이언트에선 던전 스폰까진 들어옴 그 이후 패킷이 안옴
+    /**
+     * Add Monster :  dungeon1
+       생성 좌표 :  { posX: 2, posY: 1, posZ: 25, rot: 107 }
+       길 못찾고 서버 종료
+     */
     //dungeondata.checkAuctionTest();
   } catch (err) {
     console.log(err);
