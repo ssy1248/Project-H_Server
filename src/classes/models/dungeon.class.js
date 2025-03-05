@@ -361,6 +361,13 @@ class Dungeon {
 
     console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
   }
+  broadcastOther(name, packet) {
+    for (let player of partyInfo.Players) {
+      if (player.playerName !== name) {
+        getUserByNickname(player.playerName).userInfo.socket.write(packet);
+      }
+    }
+  }
 }
 
 export default Dungeon;
