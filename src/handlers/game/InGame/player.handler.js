@@ -148,7 +148,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   console.log(`[${attackerName}] 타겟이 사거리 내에 있습니다. 공격 진행합니다.`);
   const normalAttackResult = {
     targetId,
-    damageDealt: 50,
+    damageDealt: 10,
     useUserName: attackerName,
   };
   const payload = {
@@ -159,8 +159,8 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
   socket.write(packet);
 
-  // 몬스터 히트 패킷 전송
-  // 모든 결과 브로드캐스팅
+  // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
+  // 모든 결과 브로드캐스팅 - 공격 애니메이션, 데미지, 사운드, 몬스터 히트, 죽음
 };
 
 // 클라측에서 스킬 공격을 요청할떄 처리할 핸들러
