@@ -2,7 +2,6 @@ import Entity from './entity.class.js';
 import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
-import { getUserBySocket } from '../../../session/user.session.js';
 
 export default class User extends Entity {
   constructor(movementId, socket, id, transform) {
@@ -22,59 +21,6 @@ export default class User extends Entity {
 
     // 길찾기.
     super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
-
-<<<<<<< HEAD
-    //console.log("startPos", startPos);
-
-    // 도착
-    const endPos = [
-      this.pathfindingDestination.posX,
-      this.pathfindingDestination.posY,
-      this.pathfindingDestination.posZ,
-    ];
-
-    //console.log("endPos", endPos);
-
-    // 패스 갱신.
-    A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
-    const paths = await A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
-
-    //console.log('유저클래스 패스 :', paths);
-
-    if (this.aSterPath.size() !== 0) {
-      this.aSterPath.delete();
-      console.log('기존에 데이터가 있어서 지웠습니다.');
-    }
-
-    for (const path of paths) {
-      this.aSterPath.enqueue(path);
-    }
-
-    let path = this.aSterPath.dequeue();
-    if (path !== null) {
-      console.log(path);
-      this.currentTransform.posX = path[0];
-      this.currentTransform.posY = path[1];
-      this.currentTransform.posZ = path[2];
-    }
-
-    path = this.aSterPath.dequeue();
-    if (path !== null) {
-      this.targetTransform.posX = path[0];
-      this.targetTransform.posY = path[1];
-      this.targetTransform.posZ = path[2];
-    }
-
-    // 초기 방향 설정.
-    super.updateVelocity();
-
-    //console.log('taget', this.targetTransform);
-    console.log(this.velocity);
-
-    // 행동 변경.
-    super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
-=======
->>>>>>> dev2
   }
 
   // [트랜스폼 업데이트]
@@ -85,7 +31,6 @@ export default class User extends Entity {
     //console.log(this.aSterPath.size());
 
     if (this.behavior === CONSTANTS.AI_BEHAVIOR.CHASE) {
-      
       this.userAiBehaviorCHASE();
     }
   }
@@ -129,11 +74,7 @@ export default class User extends Entity {
 
       if (result) {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-<<<<<<< HEAD
-        console.log('[도착]', getUserBySocket(this.socket).getTransformInfo());
-=======
         console.log('[도착]');
->>>>>>> dev2
         return false;
       } else {
         super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
