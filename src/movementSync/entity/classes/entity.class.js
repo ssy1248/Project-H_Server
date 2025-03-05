@@ -34,12 +34,22 @@ export default class Entity {
   findAccessiblePosition() {
     // 스폰지역이 장애물 구역이면 새로 지정.
     while (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, this.currentTransform)) {
-      const transform = {
-        posX: this.generateRandomPlayerTransformInfo(-9, 9),
-        posY: 1,
-        posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
-        rot: this.generateRandomPlayerTransformInfo(0, 360),
-      };
+      let transform = {};
+      if(this.movementId === 'town') {
+        transform = {
+          posX: this.generateRandomPlayerTransformInfo(-9, 9),
+          posY: 1,
+          posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        };
+      } else {
+        transform = {
+          posX: 2,
+          posY: 1,
+          posZ: 25,
+          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        }
+      }
 
       this.currentTransform = { ...transform };
     }
@@ -116,7 +126,7 @@ export default class Entity {
       this.aSterPath.enqueue(path);
     }
 
-    // console.log("paths.pathCoords :", paths.pathCoords);
+    //console.log("paths.pathCoords :", paths.pathCoords);
 
     // 그리드 인덱스 패스 갱신
     for (const gridIndex of paths.gridIndexPath) {

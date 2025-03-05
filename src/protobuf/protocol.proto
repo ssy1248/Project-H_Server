@@ -543,7 +543,7 @@ message C_PlayerAction {
 // 일반 공격
 message NormalAttack {
   string attackerName = 1;// 공격하는 유저의 이름
-  int32 targetId = 2;// 공격받는 몬스터의 아이디? 혹은 다른방식
+  string targetId = 2;// 공격받는 몬스터의 아이디? 혹은 다른방식
   // 필요하다면 위치나 방향, etc.
 }
 
@@ -551,20 +551,21 @@ message NormalAttack {
 message SkillAttack {
   string attackerName = 1;// 공격하는 유저의 이름
   int32 skillId = 2;
-  int32 targetId = 3;
+  string targetId = 3;
   int32 currentMp = 4;// 가장 최근의 마나
   // 혹은 범위 정보, 마나 소모 등
 }
 
 // 회피
 message DodgeAction {
-  string attackerName = 1;// 사용하는 유저의 이름
-  Vector direction = 2;// 플레이어가 바라보는(또는 이동하고자 하는) 방향
+  string attackerName = 1;       // 사용하는 유저의 이름
+  Vector currentPosition = 2;   // 플레이어의 마지막 위치
+  Vector direction = 3;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
 }
 
 // 피격
 message HitAction {
-  int32 attackerId = 1;
+  string attackerId = 1;
   int32 damage = 2;
   // 상태이상, 크리티컬 여부 등
 }
@@ -598,7 +599,7 @@ message S_SetMonsterHpData {
 }
 // 일반 공격 결과 메시지
 message NormalAttackResult {
-  int32 targetId = 1;// 공격 대상 ID
+  string targetId = 1;// 공격 대상 ID
   int32 damageDealt = 2;// 입힌 피해량
   string useUserName = 3;// 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
@@ -607,7 +608,7 @@ message NormalAttackResult {
 // 스킬 공격 결과 메시지
 message SkillAttackResult {
   int32 skillId = 1;// 사용한 스킬의 ID
-  int32 targetId = 2;// 공격 대상 ID
+  string targetId = 2;// 공격 대상 ID
   int32 damageDealt = 3;// 입힌 피해량
   string useUserName = 4;// 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성

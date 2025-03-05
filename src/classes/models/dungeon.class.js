@@ -104,14 +104,12 @@ class Dungeon {
       // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
       Object.keys(this.playersTransform).forEach((playerName) => {
         const user = getUserByNickname(playerName);
-        // 끊겼을때 이부분 에러
         const userTransform = findUser('dungeon1', user.userInfo.userId);
         if (user && userTransform && userTransform.currentTransform) {
           this.playersTransform[playerName] = {
             x: userTransform.currentTransform.posX,
             y: userTransform.currentTransform.posY,
             z: userTransform.currentTransform.posZ,
-            // rot은 왜 undefined가 나올까?
             rot: userTransform.currentTransform.rot,
           };
           console.log(

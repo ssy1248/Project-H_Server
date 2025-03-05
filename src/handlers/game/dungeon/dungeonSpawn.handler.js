@@ -1,9 +1,7 @@
-import RewardAuction from '../../../classes/models/rewardAuction.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { addUser, deleteUser } from '../../../movementSync/movementSync.manager.js';
+import { addUser, deleteUser, deleteMonsters, addMonster, deleteMovementSync, createMovementSync } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
-import { searchPartyInPlayerSession } from '../../../session/party.session.js';
-import { getUserByNickname, getUserBySocket } from '../../../session/user.session.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 
 const dungeonSpawnHandler = async (socket, payload) => {
@@ -60,7 +58,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
-    //dungeondata.checkAuctionTest();
+
+    addMonster('dungeon1');
   } catch (err) {
     console.log(err);
   }

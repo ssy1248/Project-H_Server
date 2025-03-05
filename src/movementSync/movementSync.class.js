@@ -247,6 +247,7 @@ export default class MovementSync {
   // [몬스터 리스폰]
   async processMonsterSpawn() {
     this.monsterSpawnInterval = setInterval(async () => {
+      console.log('몬스터 스폰');
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
 
@@ -259,7 +260,7 @@ export default class MovementSync {
         return;
       }
 
-      this.addMonster();
+      this.addMonster(this.movementId);
 
       const monsterTransformInfo = [];
       for (const monster of monsters) {
@@ -295,7 +296,6 @@ export default class MovementSync {
     if (this.movementId !== 'town') {
       this.processMonsterSpawn();
     } 
-    //this.processMonsterSpawn();
     this.entityMovement();
   }
 
@@ -337,7 +337,18 @@ export default class MovementSync {
     return this.entityManager.getMonstersArray();
   }
 
+  deleteMonsters() {
+    const monsters = this.entityManager.getMonsters();
+    const monstersArray = Object.values(monsters);
+    monstersArray.forEach((mon) => {
+      this.entityManager.deleteMonster(mon.id);
+    });
+  }
+
   deleteMonster(id) {
+    A_STER_MANAGER.DELETE_OBSTACLE('town', id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
+
     this.entityManager.deleteMonster(id);
   }
 
