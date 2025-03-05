@@ -293,7 +293,9 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    //this.processMonsterSpawn();
+    if (this.movementId !== 'town') {
+      this.processMonsterSpawn();
+    } 
     this.entityMovement();
   }
 
