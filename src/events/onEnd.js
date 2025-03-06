@@ -47,7 +47,7 @@ const clearUser = async (socket) => {
       );
     }
     // 파티 탈퇴
-    const partyData = searchPartyInPlayerSession(userInfo.userId);
+    const [partyData] = searchPartyInPlayerSession(userInfo.userId);
     if (partyData) {
       partyData.exitPartyMember(user);
     }
