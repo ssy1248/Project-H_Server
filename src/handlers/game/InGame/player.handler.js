@@ -196,7 +196,14 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
     return;
   }
 
-  const playerCurrentMp = dungeon.partyInfo.players[attackerName].playerCurMp;
+  let user;
+  dungeon.partyInfo.Players.forEach((player) => {
+    if (player.playerName === attackerName) {
+      user = player;
+    }
+  });
+
+  const playerCurrentMp = user.playerCurMp;
   if (playerCurrentMp < player.skillAttack.cost) {
     player.skillAttack.resetCooldown();
     console.error('마나가 부족합니다.');
@@ -204,7 +211,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
   }
 
   for (let targetId of targetIds) {
-    const monster = findMonster(targetId);
+    const monster = findMonster('dungeon1', targetId);
     if (!monster) {
       console.log(`몬스터(${targetId})를 찾을 수 없습니다.`);
       continue;
@@ -236,6 +243,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
     message: '스킬 공격에 성공하였습니다.',
   };
   const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
+  console.log('스킬 사용 성공!!!');
   socket.write(packet);
 };
 
