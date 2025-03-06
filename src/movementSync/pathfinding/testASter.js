@@ -182,8 +182,8 @@ export default class TestASter {
       // 도착지점이 장애물 인 경우.
     }
 
-    console.log('startGrid', startGrid);
-    console.log('endGrid', endGrid);
+    //console.log('startGrid', startGrid);
+    //console.log('endGrid', endGrid);
 
     // 시작 좌표와 끝 좌표가 유효한지 체크
     if (
@@ -217,23 +217,23 @@ export default class TestASter {
       Math.floor(startGrid.index / this.gridWidth),
     ];
     const storedValue = this.grid.get(obstacle); // 그리드 값 확인
-    console.log(`⭕ 시작 시점 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
+    //console.log(`⭕ 시작 시점 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
 
-    console.log('start :', [
-      startGrid.index % this.gridWidth,
-      Math.floor(startGrid.index / this.gridWidth),
-    ]);
+    // console.log('start :', [
+    //   startGrid.index % this.gridWidth,
+    //   Math.floor(startGrid.index / this.gridWidth),
+    // ]);
 
     const obstacle1 = [endGrid.index % this.gridWidth, Math.floor(endGrid.index / this.gridWidth)];
     const storedValue1 = this.grid.get(obstacle1); // 그리드 값 확인
-    console.log(`⭕ 도착 시점 (${obstacle1[0]}, ${obstacle1[1]}):`, storedValue1);
+    //console.log(`⭕ 도착 시점 (${obstacle1[0]}, ${obstacle1[1]}):`, storedValue1);
 
-    console.log('end :', [
-      endGrid.index % this.gridWidth,
-      Math.floor(endGrid.index / this.gridWidth),
-    ]);
+    // console.log('end :', [
+    //   endGrid.index % this.gridWidth,
+    //   Math.floor(endGrid.index / this.gridWidth),
+    // ]);
 
-    console.log('장애물 : ', this.entityObstacles);
+    // console.log('장애물 : ', this.entityObstacles);
 
     // 경로가 없으면 빈 배열 반환
     if (!path || path.length === 0) {
