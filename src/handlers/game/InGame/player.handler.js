@@ -1,13 +1,18 @@
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { findMonster, findUser } from '../../../movementSync/movementSync.manager.js';
+import {
+  findMonster,
+  findUser,
+  monsterApplyDamage,
+} from '../../../movementSync/movementSync.manager.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
+import { getUserByNickname } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 
 // 상태 객체들: 각 액션별로 독립적인 상태 관리
 const lastAttackTime = {};
-const lastSkillTime = {};
 const lastdodgeTime = {};
 
+// 추후 -> socket으로 유저를 찾아 그 유저의 닉네임을 매개변수에 등록
 export const processPlayerActionHandler = (socket, packet) => {
   if (packet.normalAttack) {
     // 일반 공격 처리
@@ -17,7 +22,6 @@ export const processPlayerActionHandler = (socket, packet) => {
     // 스킬 공격 처리
     console.log('스킬 공격 요청 처리');
     processSkillAttackHandler(socket, packet.skillAttack.attackerName, packet.skillAttack.targetId);
-    // packet.skillAttack.skillId, packet.skillAttack.targetId 등을 사용하여 처리
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
@@ -92,7 +96,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
 
     const normalAttackResult = {
-      targetId: "0", // 대상이 없으므로 0 또는 특수값
+      targetId: '0', // 대상이 없으므로 0 또는 특수값
       damageDealt: 0, // 피해량 0 (혹은 기본 데미지 적용)
     };
 
@@ -126,9 +130,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   console.log(`[${attackerName}] 공격 시도! targetId=${targetId}`);
 
   // targetId가 유효하면 사거리 체크를 진행합니다.
-  // (예시로 몬스터의 위치 정보를 가져오는 부분은 아직 구현되지 않은 것으로 가정)
   const posA = dungeon.playersTransform[attackerName];
-  //const posB = getTargetPosition(targetId); // 이 함수는 targetId에 해당하는 타겟의 위치 정보를 반환한다고 가정
   const posB = monster.getTransform();
   console.log('posB : ', posB);
 
@@ -148,7 +150,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   console.log(`[${attackerName}] 타겟이 사거리 내에 있습니다. 공격 진행합니다.`);
   const normalAttackResult = {
     targetId,
-    damageDealt: 10,
+    damageDealt: dungeon.players[attackerName].normalAttack.damage,
     useUserName: attackerName,
   };
   const payload = {
@@ -159,21 +161,18 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
   socket.write(packet);
 
+  // 모든 결과 브로드캐스팅 - 공격 애니메이션, 사운드
+  // attackerSessions.partyInfo.players.forEach((dungeon) => {
+
+  // }); 
+
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  // 모든 결과 브로드캐스팅 - 공격 애니메이션, 데미지, 사운드, 몬스터 히트, 죽음
+  monsterApplyDamage('dungeon1', targetId, dungeon.players[attackerName].normalAttack.damage);
 };
 
 // 클라측에서 스킬 공격을 요청할떄 처리할 핸들러
-const processSkillAttackHandler = (socket, attackerName, targetId) => {
-  // 핸들러에 들어온 현재 시간
-  const now = Date.now();
-
-  // 2) 아직 한 번도 공격한 적이 없는 플레이어라면, 기록을 0(또는 과거 시각)으로 초기화
-  if (!lastSkillTime[attackerName]) {
-    lastSkillTime[attackerName] = 0;
-  }
-
-  // 3) 공격자(플레이어)를 던전에서 찾음
+const processSkillAttackHandler = (socket, attackerName, targetIds) => {
+  // 1) 공격자(플레이어)를 던전에서 찾음
   const attackerSessions = getDungeonInPlayerName(attackerName);
   if (!attackerSessions || attackerSessions.length === 0) {
     console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
@@ -190,84 +189,58 @@ const processSkillAttackHandler = (socket, attackerName, targetId) => {
     return;
   }
 
-  // 다음 공격 가능 시각 계산
-  const cooldownMs = player.skillAttack.attackCoolTime * 1000;
-  const nextPossibleTime = lastSkillTime[attackerName] + cooldownMs;
-  if (now < nextPossibleTime) {
-    const remaining = nextPossibleTime - now;
-    console.log(`[${attackerName}] 공격 쿨타임 중! (남은 시간: ${remaining}ms)`);
-    sendActionFailure(socket, `공격 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
+  try{
+    player.skillAttack.use();
+  } catch (error) {
+    sendActionFailure(socket, error.message);
     return;
   }
-  // 갱신: 공격 성공 시각 기록
-  lastSkillTime[attackerName] = now;
-  console.log(`[${attackerName}] 공격 시도! targetId=${targetId}`);
 
-  // 만약 targetId가 유효하지 않다면(예: -1 또는 0), 그냥 공격 진행 (사거리 체크 생략)
-  if (targetId <= 0) {
-    console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
+  const playerCurrentMp = dungeon.partyInfo.players[attackerName].playerCurMp;
+  if (playerCurrentMp < player.skillAttack.cost) {
+    player.skillAttack.resetCooldown();
+    console.error('마나가 부족합니다.');
+    return;
+  }
 
-    // 타겟팅인지 아닌지에 따라 처리리
-    const skillAttackResult = {
-      skillId: 0, // 스킬 아이디
-      targetId: 0, // 대상이 없으므로 0 또는 특수값
-      damageDealt: 0, // 피해량 0 (혹은 기본 데미지 적용)
-      useUserName: attackerName,
-    };
-
-    const sPlayerActionPayload = {
-      skillAttackResult,
-      success: true,
-      message: '공격하였습니다 (대상이 없으므로 특별한 효과 없음).',
-    };
-
-    const sPlayerActionPacket = createResponse(
-      'dungeon',
-      'S_PlayerAction',
-      PACKET_TYPE.S_PLAYERACTION,
-      sPlayerActionPayload,
-    );
-    socket.write(sPlayerActionPacket);
-  } else {
-    // targetId가 유효하면 사거리 체크를 진행합니다.
-    // (예시로 몬스터의 위치 정보를 가져오는 부분은 아직 구현되지 않은 것으로 가정)
+  for (let targetId of targetIds) {
+    const monster = findMonster(targetId);
+    if (!monster) {
+      console.log(`몬스터(${targetId})를 찾을 수 없습니다.`);
+      continue;
+    }
+    // 범위 체크
     const posA = dungeon.playersTransform[attackerName];
-    //const posB = getTargetPosition(targetId); // 이 함수는 targetId에 해당하는 타겟의 위치 정보를 반환한다고 가정
-    const posB = { x: 3, y: 0.1, z: 3 };
-
+    const posB = monster.getTransform();
     if (!posA || !posB) {
-      console.error('유효한 위치 정보가 없습니다.');
-      sendActionFailure(socket, '유효한 위치 정보가 없습니다.');
-      return;
+      continue;
     }
     const distance = calculateDistance(posA, posB);
     if (distance > player.skillAttack.attackRange) {
-      console.log('타겟이 공격 범위 밖에 있습니다.');
-      sendActionFailure(socket, '타겟이 공격 범위 밖에 있습니다.');
-      return;
+      console.log(`몬스터(${targetId})가 공격 범위 밖입니다.`);
+      continue;
     }
-
-    // 피해량 계산 (여기서는 고정 50 데미지) -> 추후 플레이어 클래스의 데미지로 변경
-    console.log(`[${attackerName}] 타겟이 사거리 내에 있습니다. 공격 진행합니다.`);
-    const skillAttackResult = {
-      skillId: 1, // 스킬 아이디
-      targetId,
-      damageDealt: 50,
-    };
-    const payload = {
-      skillAttackResult,
-      success: true,
-      message: '공격에 성공하였습니다.',
-    };
-    const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
-    socket.write(packet);
+    // 데미지 적용
+    monsterApplyDamage('dungeon1', targetId, player.skillAttack.damage);
   }
+
+  // 결과 패킷 생성
+  const skillAttackResult = {
+    skillId: player.skillAttack.id, // 스킬 인스턴스의 id
+    useUserName: attackerName,
+    currentMp: playerCurrentMp,
+  };
+  const payload = {
+    skillAttackResult,
+    success: true,
+    message: '스킬 공격에 성공하였습니다.',
+  };
+  const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
+  socket.write(packet);
 };
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
 const processDodgeHandler = (socket, requesterName, currentPosition, direction) => {
-  console.log('바라보는 방향 : ', direction);
-
   // 핸들러에 들어온 현재 시간
   const now = Date.now();
 
@@ -360,8 +333,8 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
 
   const dodgeResult = {
     evadedDamage: 20, // 회피 효과에 따른 피해 경감
-    dodgeDistance: player.dodge.dodgeRange,
-    direction: direction,
+    dodgeDistance: player.dodge.dodgeRange, // 보낼필요없고
+    direction: direction, // 보낼필요없고
     finalPosition: finalPosition,
     useUserName: requesterName,
   };
@@ -386,4 +359,7 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
 const processHealHandler = (socket, healerName, targetName) => {};
 
 // 클라측에서 피격 요청할떄 처리할 핸들러
-const processHitHandler = (socket, attackerName, targetName) => {};
+// attackId -> 공격한 몬스터 id / playerName -> 피격당한 플레이어 이름 / damage -> 피격 데미지
+const processHitHandler = (socket, attackId, playerName, damage) => {
+  
+};

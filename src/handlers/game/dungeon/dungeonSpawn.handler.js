@@ -1,5 +1,5 @@
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { addUser, deleteUser, deleteMonsters, addMonster, deleteMovementSync, createMovementSync } from '../../../movementSync/movementSync.manager.js';
+import { addUser, deleteUser, addMonster } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { getUserBySocket } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';

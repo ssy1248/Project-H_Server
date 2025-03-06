@@ -75,15 +75,15 @@ export const deleteUser = (movementSyncId, id) => {
   }
 
   // 이곳에서 삭제.
-  const sDespawn = {
-    playerId: id,
-  };
+  // const sDespawn = {
+  //   playerId: id,
+  // };
 
-  // 만들어진 패킷을 직렬화.
-  const initialResponse = createResponse('user', 'S_Despawn', PACKET_TYPE.S_DESPAWN, sDespawn);
+  // // 만들어진 패킷을 직렬화.
+  // const initialResponse = createResponse('user', 'S_Despawn', PACKET_TYPE.S_DESPAWN, sDespawn);
 
-  // 브로드 캐스트.
-  movementSyncs[movementSyncId].broadcast2(initialResponse);
+  // // 브로드 캐스트.
+  // movementSyncs[movementSyncId].broadcast2(initialResponse);
 
   // 유저 삭제
   movementSyncs[movementSyncId].deleteUser(id);
