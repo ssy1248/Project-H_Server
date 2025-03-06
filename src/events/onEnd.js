@@ -5,6 +5,7 @@ import { deleteUser } from '../movementSync/movementSync.manager.js';
 import { createResponse } from '../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../constants/header.js';
 import despawnUser from '../handlers/user/despawnUser.handler.js';
+import { searchPartyInPlayerSession } from '../session/party.session.js';
 
 export const onEnd = (socket) => async () => {
   console.log('클라이언트 연결이 종료되었습니다.');
@@ -44,7 +45,11 @@ const clearUser = async (socket) => {
         playerInfo.exp,
       );
     }
-
+    // 파티 탈퇴
+    const partyData = searchPartyInPlayerSession(userInfo.userId);
+    if (partyData) {
+      partyData.exitPartyMember(user);
+    }
     // 세션에서 유저 삭제
     removeUser(socket);
     despawnUser(user);
