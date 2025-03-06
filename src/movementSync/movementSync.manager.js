@@ -40,7 +40,7 @@ export const deleteMovementSync = (movementSyncId) => {
 // [유저 추가]
 export const addUser = (movementSyncId, socket, id, transform) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[유저 추가] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -50,7 +50,7 @@ export const addUser = (movementSyncId, socket, id, transform) => {
 // [유저 찾기]
 export const findUser = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[유저 찾기] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -60,7 +60,7 @@ export const findUser = (movementSyncId, id) => {
 // [유저 업데이트]
 export const updateUser = (movementSyncId, id, transform, timestamp) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[유저 업데이트] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -70,7 +70,7 @@ export const updateUser = (movementSyncId, id, transform, timestamp) => {
 // [유저 삭제 ]
 export const deleteUser = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[유저 삭제 ] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -102,7 +102,7 @@ export const addMonster = (movementSyncId) => {
 // [ 몬스터 찾기 ]
 export const findMonster = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[ 몬스터 찾기 ] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -112,7 +112,7 @@ export const findMonster = (movementSyncId, id) => {
 // [몬스터들 찾기]
 export const findMonsters = (movementSyncId) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[몬스터들 찾기] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
@@ -122,7 +122,7 @@ export const findMonsters = (movementSyncId) => {
 // [ 몬스터 삭제 ]
 export const deleteMonster = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    console.log(`[ 몬스터 삭제 ] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 

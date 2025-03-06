@@ -271,7 +271,6 @@ export default class MovementSync {
   // [몬스터 리스폰]
   async processMonsterSpawn() {
     this.monsterSpawnInterval = setInterval(async () => {
-      console.log('몬스터 스폰');
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
 
@@ -317,9 +316,9 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    // if (this.movementId !== 'town') {
-    //   this.processMonsterSpawn();
-    // }
+    if (this.movementId !== 'town') {
+      this.processMonsterSpawn();
+    }
     this.entityMovement();
   }
 

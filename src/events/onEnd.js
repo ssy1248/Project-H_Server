@@ -6,6 +6,7 @@ import { createResponse } from '../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../constants/header.js';
 import despawnUser from '../handlers/user/despawnUser.handler.js';
 import { searchPartyInPlayerSession } from '../session/party.session.js';
+import { partySessions } from '../session/sessions.js';
 
 export const onEnd = (socket) => async () => {
   console.log('클라이언트 연결이 종료되었습니다.');

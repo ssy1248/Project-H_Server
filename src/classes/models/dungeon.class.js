@@ -232,12 +232,12 @@ class Dungeon {
 
       arrow.traveledDistance += adjustedSpeed;
 
-      console.log(`${playerName}의 화살 상태: `, arrows);
+      //console.log(`${playerName}의 화살 상태: `, arrows);
 
       // 화살이 최대 이동 거리보다 멀리 갔으면 소멸
       if (arrow.traveledDistance >= arrow.maxDistance) {
         arrows.splice(i, 1); // 화살 삭제
-        console.log(`${playerName}의 화살이 소멸했습니다.`);
+        //console.log(`${playerName}의 화살이 소멸했습니다.`);
         i--; // 인덱스를 하나 감소시켜서 스킵되는 문제 방지
       }
     }
