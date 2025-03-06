@@ -75,15 +75,15 @@ export const deleteUser = (movementSyncId, id) => {
   }
 
   // 이곳에서 삭제.
-  const sDespawn = {
-    playerId: id,
-  };
+  // const sDespawn = {
+  //   playerId: id,
+  // };
 
-  // 만들어진 패킷을 직렬화.
-  const initialResponse = createResponse('user', 'S_Despawn', PACKET_TYPE.S_DESPAWN, sDespawn);
+  // // 만들어진 패킷을 직렬화.
+  // const initialResponse = createResponse('user', 'S_Despawn', PACKET_TYPE.S_DESPAWN, sDespawn);
 
-  // 브로드 캐스트.
-  movementSyncs[movementSyncId].broadcast2(initialResponse);
+  // // 브로드 캐스트.
+  // movementSyncs[movementSyncId].broadcast2(initialResponse);
 
   // 유저 삭제
   movementSyncs[movementSyncId].deleteUser(id);
@@ -97,7 +97,7 @@ export const addMonster = (movementSyncId) => {
 
   movementSyncs[movementSyncId].processMonsterSpawn();
   //movementSyncs[movementSyncId].addMonster(movementSyncId);
-}
+};
 
 // [ 몬스터 찾기 ]
 export const findMonster = (movementSyncId, id) => {
@@ -140,27 +140,25 @@ export const monsterApplyDamage = (movementSyncId, id, damage) => {
   const monster = findMonster(movementSyncId, id);
 
   // 1-1. 몬스터 검증.
-  if(monster) {
+  if (monster) {
     // 2. 몬스터 피격 체력 업데이트
     let monsterHp = monster.getHp();
     monsterHp -= damage;
-    console.log("몬스터 체력 :",monsterHp);
+    console.log('몬스터 체력 :', monsterHp);
     monster.setHp(monsterHp);
 
-    // 2-2. 몬스터 체력 조건문. 
-    if(monsterHp <= 0) {  
+    // 2-2. 몬스터 체력 조건문.
+    if (monsterHp <= 0) {
       // 3. 몬스터 사망처리
       monster.setIsDie(true);
 
       // 4. 몬스터 사망 클라이언트에 브로드 캐스트.
       movementSyncs[movementSyncId].updateMonsterDie(movementSyncId);
-
     } else {
       // 5. 몬스터 피격 클라이언트에 브로드 캐스트.
       movementSyncs[movementSyncId].updateMonsterDamage();
     }
-
   } else {
-    return console.log("해당 몬스터는 존재 하지않습니다.");
+    return console.log('해당 몬스터는 존재 하지않습니다.');
   }
-}
+};
