@@ -97,11 +97,12 @@ export default class MovementSync {
       const userTransformInfo = [];
       for (const user of users) {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
-          //console.error("[유저가 메세지를 보내고있습니다.]")
-          //console.warn("pos : ", user.getTransform());
-          if (user.getIsSearchFail()) continue;
-          const syncData = this.createSyncTransformInfoData(user);
-          userTransformInfo.push(syncData);
+          if (user.userAiBehaviorCHASE()) {
+            // user.updateTransform();
+            if (user.getIsSearchFail()) continue;
+            const syncData = this.createSyncTransformInfoData(user);
+            userTransformInfo.push(syncData);
+          }
         }
       }
 
@@ -156,6 +157,9 @@ export default class MovementSync {
         await this.broadcast2(initialResponse2);
       }
 
+      // 공격/ 죽음
+      //this.updateMonsterAttck();
+      //this.updateMonsterDie();
     }, CONSTANTS.NETWORK.INTERVAL);
   }
 
@@ -196,7 +200,7 @@ export default class MovementSync {
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
 
     if (monsterIds.length !== 0) {
-      const sMonsterDamage = {
+      const sMonsterDie = {
         monsterId: monsterIds,
         monsterAinID: 'Hit',
       };
@@ -205,12 +209,10 @@ export default class MovementSync {
         'town',
         'S_MonsterHit',
         PACKET_TYPE.S_MonsterHit,
-        sMonsterDamage,
+        sMonsterDie,
       );
 
       this.broadcast2(initialResponse);
-
-      console.log('왔어요.');
     }
   }
 
@@ -277,7 +279,7 @@ export default class MovementSync {
       }
 
       // 몬스터수 제한
-      if (monsters.length >= 5) {
+      if (monsters.length >= 10) {
         return;
       }
 
@@ -317,8 +319,6 @@ export default class MovementSync {
     if (this.movementId !== 'town') {
       this.processMonsterSpawn();
     }
-
-    //this.processMonsterSpawn();
     this.entityMovement();
   }
 

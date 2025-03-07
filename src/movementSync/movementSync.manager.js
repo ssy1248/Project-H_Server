@@ -1,7 +1,6 @@
 import MovementSync from './movementSync.class.js';
 import { createResponse } from '../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../constants/header.js';
-import CONSTANTS from './constants/constants.js';
 const movementSyncs = {};
 
 // [movementSync 생성].
@@ -130,7 +129,7 @@ export const deleteMonster = (movementSyncId, id) => {
   return movementSyncs[movementSyncId].deleteMonster(id);
 };
 
-// [몬스터 피격]
+// [몬스터 피격 ]
 export const monsterApplyDamage = (movementSyncId, id, damage) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
@@ -157,29 +156,9 @@ export const monsterApplyDamage = (movementSyncId, id, damage) => {
       movementSyncs[movementSyncId].updateMonsterDie(movementSyncId);
     } else {
       // 5. 몬스터 피격 클라이언트에 브로드 캐스트.
-      // 무게, 파워, 밀리는강도, 지속시간)
-      monster.updateDamageCount(1, 10, 20, 0.1);
       movementSyncs[movementSyncId].updateMonsterDamage();
     }
   } else {
     return console.log('해당 몬스터는 존재 하지않습니다.');
   }
-}
-
-// [유저 피격]
-export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
-  if (!findMovementSync(movementSyncId)) {
-    console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
-    return false;
-  }
-
-  // console.log("[유저가 넉백하는 시점]")
-
-  // 유저, 몬스터 정보를 불러온다.
-  const monster = findMonster(movementSyncId, monsterId);
-  const user = findUser(movementSyncId, userId);
-
-  // 유저 넉백은 이동만.
-  user.updateDamageCount(1, 20, 40, 0.2, monster.getCurrentTransform());
-
-} 
+};

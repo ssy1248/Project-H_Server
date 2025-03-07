@@ -24,23 +24,10 @@ export default class Entity {
 
     this.isSearchFail = false;
 
-    this.attackCount = 0;
-    this.isAttack = false;
-    this.isDie = false;
-    this.isDamage = false;
-
-    // 데미지 
-    this.damageCount = 0;
-    this.power = 0; 
-    this.mass = 0; 
-    this.factor = 0; 
-    this.damageRot = 0; 
-    this.durationFactor = 0;
-
     console.log('생성 좌표 : ', this.currentTransform);
     console.log(` ID : ${this.id} / movementId : ${this.movementId}`);
 
-    this.findAccessiblePosition();
+    // this.findAccessiblePosition();
   }
 
   // [엔티티 스폰시 장애물 없는 곳에서 생성]
@@ -184,28 +171,25 @@ export default class Entity {
 
   // [트랜스폼 업데이트]
   updateTransform() {
+    //console.log(this.behavior);
+
     if (
-      this.behavior !== CONSTANTS.AI_BEHAVIOR.IDLE 
+      this.behavior !== CONSTANTS.AI_BEHAVIOR.IDLE &&
+      this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK
     ) {
       // 방향 구하기.
       const { yaw } = movementUtils.Rotation(this.currentTransform, this.targetTransform);
 
       // 타겟 업데이트.
-      if(this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK){
-        this.updateTargetTransform();
-      }
-      
+      this.updateTargetTransform();
 
       // 델타타임
       const deltaTime = 1 / CONSTANTS.NETWORK.TICK_RATE; // 프레임당 시간 (60FPS 기준)
 
       // 현재 좌표 업데이트.
-      if(this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK){
-        this.currentTransform.posX += this.velocity.x * deltaTime;
-        this.currentTransform.posY += this.velocity.y * deltaTime;
-        this.currentTransform.posZ += this.velocity.z * deltaTime;
-      }
-
+      this.currentTransform.posX += this.velocity.x * deltaTime;
+      this.currentTransform.posY += this.velocity.y * deltaTime;
+      this.currentTransform.posZ += this.velocity.z * deltaTime;
       if (this.behavior !== CONSTANTS.AI_BEHAVIOR.DAMAGED) {
         this.currentTransform.rot = yaw;
       }
@@ -215,10 +199,6 @@ export default class Entity {
       //console.log(this.currentTransform);
       // 트랜스폼 스왑.
       this.updateLastTransform(this.currentTransform);
-
-      if(this.behavior === CONSTANTS.AI_BEHAVIOR.DAMAGED ) {
-        //console.error("피격중");
-      }
     }
   }
 
