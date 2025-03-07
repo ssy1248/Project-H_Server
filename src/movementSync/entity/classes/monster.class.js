@@ -189,9 +189,9 @@ export default class Monster extends Entity {
     if (this.attackCount === 60) {
       // 몬스터 -> 유저 바라보는 rot 계싼
       const { yaw } = movementUtils.Rotation(this.currentTransform, userTransform);
-      console.log('1. rot : ', this.currentTransform.rot);
+      //console.log('1. rot : ', this.currentTransform.rot);
       this.currentTransform.rot = yaw;
-      console.log('2. rot : ', this.currentTransform.rot);
+      //console.log('2. rot : ', this.currentTransform.rot);
 
       // 유저가 공격 범위 내에 있는지 확인
       if (movementUtils.obbCollision(4, 4, this.currentTransform, userTransform)) {
@@ -199,7 +199,7 @@ export default class Monster extends Entity {
         if (this.isAttack) {
           MONSTER_SEND_MESSAGE.ATTCK(this.movementId);
           this.isAttack = false;
-          console.log('[공격이 들어오는 시점]');
+          console.log('[몬스터 공격 성공하는 시점]');
 
           userApplyDamage(this.movementId, '1', this.id);
         }
@@ -234,7 +234,7 @@ export default class Monster extends Entity {
       };
 
       if (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, pos)) {
-        console.log('못가는곳에 왔어요');
+        //console.log('못가는곳에 왔어요');
         this.resetDamageState();
         return;
       }

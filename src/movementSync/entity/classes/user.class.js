@@ -162,9 +162,9 @@ export default class User extends Entity {
 
       for(const pos of testArr){
         if (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, pos)) {
-          console.error("유저 넉백 장애물 불가");
+          // console.error("유저 넉백 장애물 불가");
           this.resetDamageState();
-          console.error("[넉백 불가]");
+          console.error("[유저 - 넉백 불가]");
           return;
         }
       }
@@ -175,7 +175,7 @@ export default class User extends Entity {
       
 
     } else {
-      console.error("유저피격 끝");
+      // console.error("유저피격 끝");
       this.resetDamageState();
     }
   }

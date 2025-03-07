@@ -217,7 +217,7 @@ export default class Entity {
       this.updateLastTransform(this.currentTransform);
 
       if(this.behavior === CONSTANTS.AI_BEHAVIOR.DAMAGED ) {
-        console.error("피격중");
+        //console.error("피격중");
       }
     }
   }

@@ -173,7 +173,7 @@ export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
     return false;
   }
 
-  console.log("[유저가 넉백하는 시점]")
+  // console.log("[유저가 넉백하는 시점]")
 
   // 유저, 몬스터 정보를 불러온다.
   const monster = findMonster(movementSyncId, monsterId);

@@ -274,7 +274,7 @@ export default class TestASter {
       return [x - this.offsetX + offsetX, y, z - this.offsetZ + offsetZ];
     });
 
-    console.log("pathCoords :", pathCoords);
+    // console.log("pathCoords :", pathCoords);
 
     return { gridIndexPath: path, pathCoords: pathCoords }; // 계산된 3D 경로 반환
   }
@@ -440,7 +440,6 @@ export default class TestASter {
 
     if(!storedValue) return false;
 
-    console.log("장애물인가? :", storedValue)
 
     return storedValue.value === 1;
   }

@@ -97,8 +97,8 @@ export default class MovementSync {
       const userTransformInfo = [];
       for (const user of users) {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
-          console.error("[유저가 메세지를 보내고있습니다.]")
-          console.warn("pos : ", user.getTransform());
+          //console.error("[유저가 메세지를 보내고있습니다.]")
+          //console.warn("pos : ", user.getTransform());
           if (user.getIsSearchFail()) continue;
           const syncData = this.createSyncTransformInfoData(user);
           userTransformInfo.push(syncData);
@@ -156,9 +156,6 @@ export default class MovementSync {
         await this.broadcast2(initialResponse2);
       }
 
-      // 공격/ 죽음
-      //this.updateMonsterAttck();
-      //this.updateMonsterDie();
     }, CONSTANTS.NETWORK.INTERVAL);
   }
 
@@ -320,6 +317,8 @@ export default class MovementSync {
     if (this.movementId !== 'town') {
       this.processMonsterSpawn();
     }
+
+    //this.processMonsterSpawn();
     this.entityMovement();
   }
 
