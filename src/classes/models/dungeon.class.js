@@ -359,6 +359,7 @@ class Dungeon {
 
     console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
   }
+
   broadcastOther(name, packet) {
     for (let player of partyInfo.Players) {
       if (player.playerName !== name) {
