@@ -13,7 +13,7 @@ const marketMyListHandler = (socket, payload) => {
   const data = [];
   for (let i = (page - 1) * count; i < page * count; i++) {
     if (!inventory.length <= i) {
-      if (inventory[i] && inventory[i].equiped === 0) {
+      if (inventory[i] && inventory[i].equipped === 0) {
         data.push({
           id: inventory[i].id,
           price: inventory[i].price,

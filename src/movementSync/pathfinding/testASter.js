@@ -13,10 +13,13 @@ export default class TestASter {
     const maxX = Math.max(...this.vertices.map((p) => p.x));
     const maxZ = Math.max(...this.vertices.map((p) => p.z));
 
-    // console.log('minX :', minX);
-    // console.log('minZ :', minZ);
-    // console.log('maxX :', maxX);
-    // console.log('maxZ :', maxZ);
+    console.log('minX :', minX);
+    console.log('minZ :', minZ);
+    console.log('maxX :', maxX);
+    console.log('maxZ :', maxZ);
+
+    // 안전구역 설정 
+    this.safeZone = 10;
 
     // 그리드 크기 설정
     this.gridWidth = Math.round(maxX + Math.abs(minX));
@@ -25,6 +28,12 @@ export default class TestASter {
     // 음수 좌표를 방지하기 위한 오프셋
     this.offsetX = minX < 0 ? Math.abs(minX) : minX;
     this.offsetZ = minZ < 0 ? Math.abs(minZ) : minZ;
+
+    // 세이프존 설정.
+    this.gridWidth += this.safeZone * 2;
+    this.gridHeight += this.safeZone * 2;
+    this.offsetX += this.safeZone;
+    this.offsetZ += this.safeZone;
 
     // A* 알고리즘을 위한 그리드 설정
     this.grid = new Grid({
@@ -38,14 +47,14 @@ export default class TestASter {
     // 장애물 저장 객체
     this.entityObstacles = {};
 
-    // console.log('gridWidth :', this.gridWidth);
-    // console.log('gridHeight :', this.gridHeight);
-    // console.log('offsetX :', this.offsetX);
-    // console.log('offsetZ :', this.offsetZ);
+    console.log('gridWidth :', this.gridWidth);
+    console.log('gridHeight :', this.gridHeight);
+    console.log('offsetX :', this.offsetX);
+    console.log('offsetZ :', this.offsetZ);
 
     // 정적 장애물 추가
 
-    //this.markStaticObstacles();
+    this.markStaticObstacles();
 
     //this.testPathfinding();
   }
@@ -265,6 +274,8 @@ export default class TestASter {
       return [x - this.offsetX + offsetX, y, z - this.offsetZ + offsetZ];
     });
 
+    // console.log("pathCoords :", pathCoords);
+
     return { gridIndexPath: path, pathCoords: pathCoords }; // 계산된 3D 경로 반환
   }
 
@@ -426,6 +437,10 @@ export default class TestASter {
 
     const storedValue = this.grid.get([obstaclePos.index % this.gridWidth, Math.floor(obstaclePos.index / this.gridWidth)]);
     //console.log('경로에 장애물 : ', storedValue);
+
+    if(!storedValue) return false;
+
+
     return storedValue.value === 1;
   }
 
