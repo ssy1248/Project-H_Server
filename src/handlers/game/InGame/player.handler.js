@@ -46,6 +46,11 @@ export const processPlayerActionHandler = (socket, packet) => {
   }
 };
 
+// 클라에서 원거리 투사체가 어딘가에 부딪혀서 패킷을 보내면 처리할 핸들러
+export const rangeAttackHitHandler = (socket, packet) => {
+
+}
+
 /**
  * 실패 패킷을 보내는 함수
  */
