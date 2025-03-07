@@ -269,8 +269,11 @@ export default class MovementSync {
   // [몬스터 리스폰]
   async processMonsterSpawn() {
     this.monsterSpawnInterval = setInterval(async () => {
+      this.addMonster(this.movementId);
+
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
+      console.log('몬스터 정체 : ', monsters);
 
       if (users.length === 0) {
         return;
@@ -281,17 +284,17 @@ export default class MovementSync {
         return;
       }
 
-      this.addMonster(this.movementId);
-
       const monsterTransformInfo = [];
       for (const monster of monsters) {
         const test = monster.currentTransform;
+        console.log('테스트 넌 뭐냐 : ', test);
         if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
           //process.exit(0); // 정상 종료
           continue;
         }
         const syncData = this.createSyncMonsterTransformInfoData(monster, monster.getMonsterInfo());
+        console.log(syncData);
         monsterTransformInfo.push(syncData);
       }
 
@@ -299,6 +302,7 @@ export default class MovementSync {
       const sMonsterSpawn = {
         monsterInfo: monsterTransformInfo,
       };
+
       // 패킷 직렬화
       const initialResponse = createResponse(
         'town',
@@ -307,6 +311,7 @@ export default class MovementSync {
         sMonsterSpawn,
       );
 
+      console.log(initialResponse);
       // 브로드 캐스트
       await this.broadcast2(initialResponse);
     }, CONSTANTS.ENTITY.MONSTER_SPAWN_INTERVAL);
@@ -314,11 +319,9 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    if (this.movementId !== 'town') {
-      this.processMonsterSpawn();
-    }
-
-    //this.processMonsterSpawn();
+    // if (this.movementId !== 'town') {
+    //   this.processMonsterSpawn();
+    // }
     this.entityMovement();
   }
 
