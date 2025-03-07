@@ -244,16 +244,22 @@ const processRangeAttackHandler = (socket, direction) => {
     dungeon.moveArrow(userNickName);
 
     // 화살 ID를 클라이언트로 전송
-    const playerAttackPayload = {
+    const rangeNormalAttackResult = {
       arrowId: arrowId,
       message: '화살생성완료',
     };
 
+    const payload = {
+      rangeNormalAttackResult,
+      success: true,
+      message: '화살생성완료',
+    }
+
     const playerAttackResponse = createResponse(
       'dungeon',
-      'S_PlayerRangeAttack',
-      PACKET_TYPE.S_PLAYERRANGEATTACK,
-      playerAttackPayload,
+      'S_PlayerAction',
+      PACKET_TYPE.S_PLAYERACTION,
+      payload,
     );
     socket.write(playerAttackResponse);
   } catch (e) {
