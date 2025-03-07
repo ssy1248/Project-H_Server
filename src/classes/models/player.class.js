@@ -1,3 +1,5 @@
+import Skill from "./skill.class.js";
+
 const PLAYER_CLASS = {
   LANCE: 1,
   ROGUE: 2,
@@ -24,12 +26,7 @@ class Players {
           attackCoolTime: 3, // 기본 공격 쿨타임 (초)
           damage: 50,
         };
-        this.skillAttack = {
-          attackRange: 5, // 공격 범위
-          attackType: 1, // 스킬 종류
-          attackCoolTime: 6, // 스킬 쿨타임 (초)
-          damage: 80,
-        };
+        this.skillAttack = new Skill(1, 1, '찌르기', '적을 찌른다.', 1, 10, 5, 10, 3); // type - 1: 단일, 2: 범위, 3: 버프, 4: 디버프
         this.dodge = {
           dodgeCoolTime: 8, // 회피 쿨타임 (초)
           dodgeRange: 3, // 회피 이동 거리
@@ -39,15 +36,10 @@ class Players {
         this.normalAttack = {
           attackRange: 6,
           attackType: 1,
-          attackCoolTime: 3,
-          damage: 40,
+          attackCoolTime: 1,
+          damage: 10,
         };
-        this.skillAttack = {
-          attackRange: 8,
-          attackType: 3,
-          attackCoolTime: 8.0,
-          damage: 90,
-        };
+        this.skillAttack = new Skill(2, 2, '내려찍기', '범위 내의 적을 내려찍습니다.', 1, 10, 8, 20, 5);
         this.dodge = {
           dodgeCoolTime: 5,
           dodgeRange: 3,
@@ -60,12 +52,7 @@ class Players {
           attackCoolTime: 2,
           damage: 35,
         };
-        this.skillAttack = {
-          attackRange: 12,
-          attackType: 2,
-          attackCoolTime: 7,
-          damage: 60,
-        };
+        this.skillAttack = new Skill(3, 3, '공속증가', '공격 속도를 증가시킵니다.', 1, 0, 10, 15, 0);
         this.dodge = {
           dodgeCoolTime: 5,
           dodgeRange: 3,
@@ -78,12 +65,7 @@ class Players {
           attackCoolTime: 5,
           damage: 50,
         };
-        this.skillAttack = {
-          attackRange: 7,
-          attackType: 4,
-          attackCoolTime: 10,
-          damage: 70,
-        };
+        this.skillAttack = new Skill(4, 3, '신의 축복', '주변 아군 체력을 회복합니다', 1, 0, 20, 20, 10);
         this.dodge = {
           dodgeCoolTime: 10,
           dodgeRange: 3,
@@ -96,12 +78,7 @@ class Players {
           attackCoolTime: 4,
           damage: 50,
         };
-        this.skillAttack = {
-          attackRange: 7,
-          attackType: 3,
-          attackCoolTime: 9,
-          damage: 70,
-        };
+        this.skillAttack = new Skill(5, 4, '저주', '적을 저주합니다', 1, 10, 10, 10, 5);
         this.dodge = {
           dodgeCoolTime: 10,
           dodgeRange: 3,

@@ -2,7 +2,7 @@ import User from '../../classes/models/user.class.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import bcrypt from 'bcrypt';
 import { findUserEmail } from '../../db/user/user.db.js';
-import { addUser } from '../../session/user.session.js';
+import { addUser, getUserById } from '../../session/user.session.js';
 import { GlobalFailCode } from '../../utils/game.data.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { regex } from './register.handler.js';
@@ -23,6 +23,10 @@ const validateUserInput = async (email, password, socket) => {
     let passwordMatch = false;
     passwordMatch = await bcrypt.compare(password, userData.password);
     if (!passwordMatch) throw new Error('비밀번호가 일치하지 않습니다!');
+
+    if (getUserById(userData.id)) {
+      throw new Error('이미 로그인 중인 아이디 입니다.');
+    }
 
     // 유저 생성 및 추가
     const user = new User(socket, userData.id, userData.nickname);

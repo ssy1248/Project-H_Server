@@ -1,5 +1,11 @@
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { addUser, deleteUser,  addMonster, deleteMovementSync, createMovementSync } from '../../../movementSync/movementSync.manager.js';
+import {
+  addUser,
+  deleteUser,
+  addMonster,
+  deleteMovementSync,
+  createMovementSync,
+} from '../../../movementSync/movementSync.manager.js';
 import { getDungeonSession } from '../../../session/dungeon.session.js';
 import { getUserBySocket } from '../../../session/user.session.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
@@ -26,6 +32,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
 
     deleteUser('town', userInfo.userId);
     addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
+    addMonster('dungeon1');
 
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {
@@ -58,8 +65,6 @@ const dungeonSpawnHandler = async (socket, payload) => {
       playerTransforms: transformInfo,
     });
     socket.write(packet);
-
-    addMonster('dungeon1');
   } catch (err) {
     console.log(err);
   }

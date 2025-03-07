@@ -93,7 +93,7 @@ export class AStar {
       let current = this.openList.dequeue();
 
       if (current.toString() === this.end.toString()) {
-        console.log('End node reached! Reconstructing path...');
+        //console.log('End node reached! Reconstructing path...');
         return this.reconstructPath(cameFrom, current);
       }
 
@@ -248,13 +248,13 @@ export class AStar {
 
   reconstructPath(cameFrom, current) {
     const path = [current];
-    console.log(`Reconstructing Path:`);
+    //console.log(`Reconstructing Path:`);
     while (cameFrom.has(current.toString())) {
       current = cameFrom.get(current.toString());
       //console.log(`Step: ${current}`);
       path.unshift(current);
     }
-    console.log(`Final Path:`, path);
+    //console.log(`Final Path:`, path);
     return path;
   }
 
