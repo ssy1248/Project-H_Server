@@ -537,13 +537,14 @@ message C_PlayerAction {
     SkillAttack skillAttack = 2;
     DodgeAction dodgeAction = 3;
     HitAction hitAction = 4;// 피격
+    RangeNormalAttackAction rangeNormalAttackAction = 5; //원거리 일반 공격
   }
 }
 
 // 일반 공격
 message NormalAttack {
   string attackerName = 1;// 공격하는 유저의 이름
-  string targetId = 2;// 공격받는 몬스터의 아이디? 혹은 다른방식
+  string targetId = 2;// 공격받는 몬스터의 아이디
   // 필요하다면 위치나 방향, etc.
 }
 
@@ -568,6 +569,10 @@ message HitAction {
   // 상태이상, 크리티컬 여부 등
 }
 
+message RangeNormalAttackAction {
+  Vector direction = 1;
+}
+
 message S_PlayerAction {
   // oneof 그룹을 통해 단 하나의 액션 결과만 설정됩니다.
   oneof action {
@@ -575,10 +580,11 @@ message S_PlayerAction {
     SkillAttackResult skillAttackResult = 2;
     DodgeResult dodgeResult = 3;
     HitResult hitResult = 4;
+    RangeNormalAttackResult rangeNormalAttackResult = 5;
   }
   // 액션 결과 전송의 성공 여부 및 메시지
-  bool success = 5;
-  string message = 6;
+  bool success = 6;
+  string message = 7;
 }
 
 message S_SetPlayerHpData {
@@ -626,6 +632,11 @@ message HitResult {
   int32 currentHp = 2;// 피격 후 남은 HP
   string userName = 3;// 피격당한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
+}
+
+message RangeNormalAttackResult {
+  int32 arrowId = 1;
+  string message = 2;
 }
 
 message C_DungeonEnter {
@@ -851,17 +862,18 @@ message S_ShopInventoryList {
 }
 
 message C_PlayerRangeAttack {
-  repeated uint32 direction =1; // x,y,z 방향백터
+  repeated uint32 direction = 1; // x,y,z 방향백터
 }
 
 message S_PlayerRangeAttack {
-  uint32 arrowId =1;
-  string message =2;
+  uint32 arrowId = 1;
+  string message = 2;
 }
 
 message C_RangeAttackImpact {
-  uint32 arrowId =1;
-  string monsterId =2;
+  uint32 arrowId = 1;
+  int32 hitObject = 2; // 1 -> 몬스터 2 -> 몬스터 아닌 다른거
+  string monsterId = 3;
 }
 message S_RangeAttackImpact{
   string monsterId =1;
