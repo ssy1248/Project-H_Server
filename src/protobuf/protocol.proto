@@ -96,7 +96,8 @@ enum MsgId {
   C_RANGEATTACKCOLLIDE=87;
   S_SKILLBUFF=88;
   C_SKILLBUFF=89;
-
+  C_GETUSERSTATE =90;
+  S_SETUSERSTATE =91;
 }
 
 //회원가입 요청
@@ -639,6 +640,7 @@ message C_GetUserState{
 // 정보 보내주기 
 message S_SetUserState{
   StatInfo data =1;
+  float exp = 2;
 }
 
 message RangeNormalAttackResult {
