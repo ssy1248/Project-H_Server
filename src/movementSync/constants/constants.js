@@ -6,7 +6,7 @@ const CONSTANTS = {
   },
 
   ENTITY: {
-    DEFAULT_SPEED: 4, // 기본 이동 속도
+    DEFAULT_SPEED: 10, // 기본 이동 속도
     MONSTER_DETECTION_RANGE: 10, // 몬스터 탐지 범위
     PLAYER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
     MONSTER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
