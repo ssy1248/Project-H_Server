@@ -364,7 +364,8 @@ export default class MovementSync {
     const monsterId = uuidv4();
     const randomNum = Math.floor(Math.random() * 30) + 1;
 
-    this.monsters[monsterId] = new Monster(this.movementId, monsterId, transform, 3, 'test', 10);
+    // TODO: DB에서 몬스터 데이터 받아서 생성하기
+    this.monsters[monsterId] = new Monster(this.movementId, monsterId, transform, 3, 'test', 10, 1, 0, CONSTANTS.ENTITY.DEFAULT_SPEED);
 
   }
 

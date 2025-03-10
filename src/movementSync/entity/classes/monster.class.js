@@ -7,20 +7,21 @@ import { getUserBySocket } from '../../../session/user.session.js';
 import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
-  constructor(movementId, id, transform, model, name, hp) {
+  constructor(movementId, id, transform, model, name, hp, atk, def, speed) {
     super(movementId, id, transform);
 
     this.model = model;
     this.name = name;
     this.hp = hp;
+    this.atk = atk;
+    this.def = def;
+    this.speed = speed;
 
     this.spawnTransform = { ...this.currentTransform };
     this.attackCount = 0;
     this.isAttack = false;
     this.isDie = false;
     this.isDamage = false;
-
-    
   }
 
   // 0.
@@ -217,7 +218,8 @@ export default class Monster extends Entity {
           MONSTER_SEND_MESSAGE.ATTCK('town');
           // 1. 타겟 유저 찾기 => clear 매개변수 수정으로 해결
           const targetUser = getUserBySocket(user.getSocket());
-          // 1-2. 공격 몬스터 찾기
+          // 1-2. 공격 몬스터 찾기 => 몬스터 클래스 통합으로 해결
+          const damage = Math.max(0, this.atk - targetUser.getDef());
           
           // 2. 타겟 유저에게 데미지 주기
 
