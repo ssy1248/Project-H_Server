@@ -12,36 +12,46 @@ export default class Entity {
   constructor(movementId, id, transform = { posX: 0, posY: 0, posZ: 0, rot: 0 }) {
     this.movementId = movementId;
     this.id = id;
-    this.currentTransform = { ...transform };       // 현재 좌표.
-    this.lastTransform = { ...transform };          // 이전 좌표.
-    this.targetTransform = { ...transform };        // 목표 좌표.
+    this.currentTransform = { ...transform }; // 현재 좌표.
+    this.lastTransform = { ...transform }; // 이전 좌표.
+    this.targetTransform = { ...transform }; // 목표 좌표.
     this.pathfindingDestination = { ...transform }; // 길찾기 최종 목표.
     this.velocity = { x: 0, y: 0, z: 0 };
     this.aSterPath = new Queue(CONSTANTS.UTILS.QUEUE_SIZE);
     this.gridIndexPath = new Queue(CONSTANTS.UTILS.QUEUE_SIZE);
     this.behavior = CONSTANTS.AI_BEHAVIOR.IDLE;
     this.lastUpdateTime = Date.now();
-    
+
     this.isSearchFail = false;
 
     console.log('생성 좌표 : ', this.currentTransform);
     console.log(` ID : ${this.id} / movementId : ${this.movementId}`);
-  
-    this.findAccessiblePosition();
+
+    // this.findAccessiblePosition();
   }
 
   // [엔티티 스폰시 장애물 없는 곳에서 생성]
   findAccessiblePosition() {
     // 스폰지역이 장애물 구역이면 새로 지정.
     while (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, this.currentTransform)) {
-      const transform = {
-        posX: this.generateRandomPlayerTransformInfo(-9, 9),
-        posY: 1,
-        posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
-        rot: this.generateRandomPlayerTransformInfo(0, 360),
-      };
+      let transform = {};
+      if(this.movementId === 'town') {
+        transform = {
+          posX: this.generateRandomPlayerTransformInfo(-9, 9),
+          posY: 1,
+          posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        };
+      } else {
+        transform = {
+          posX: 2,
+          posY: 1,
+          posZ: 25,
+          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        }
+      }
 
-      this.currentTransform = {...transform};
+      this.currentTransform = { ...transform };
     }
 
     // 스폰지역이 지정되면 장애물 지정.
@@ -57,76 +67,82 @@ export default class Entity {
 
   // [패스 경로에서 동적 장애물을 탐색]
   checkPathObstacles() {
-    if(this.gridIndexPath.size() !== 0){
+    if (this.gridIndexPath.size() !== 0) {
       const items = this.gridIndexPath.getItems();
+      let result = false;
       
-      //for(const item of )
+      // for(const item of items){
+      //   result = A_STER_MANAGER.FIND_OBSTACLE(this.movementId, item );
+        
+      //   if(result) break;
+        
+      // }
 
+      // this.gridIndexPath.dequeue();
 
-      const index = this.gridIndexPath.dequeue();
-      return A_STER_MANAGER.FIND_OBSTACLE(this.movementId, index );
+      const test = this.gridIndexPath.dequeue();
+      result = A_STER_MANAGER.FIND_OBSTACLE(this.movementId, test );
+
+      return result;
     }
-   
   }
-
-
 
   // [경로 찾기]
   updatePathFinding(startTransform, endTransform) {
     // 시작 포지션.
-    const startPos = [
-      startTransform.posX,
-      startTransform.posY,
-      startTransform.posZ,
-    ];
+    const startPos = [startTransform.posX, startTransform.posY, startTransform.posZ];
 
     // 도착 포지션.
-    const endPos = [
-      endTransform.posX,
-      endTransform.posY,
-      endTransform.posZ,
-    ];
+    const endPos = [endTransform.posX, endTransform.posY, endTransform.posZ];
 
     // 패스 갱신.
     A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, this.id);
     const paths = A_STER_MANAGER.FIND_PATH(this.movementId, startPos, endPos);
 
     // 길 못찾은경우. 
-    if (paths.length === 0) {
+    if (!paths || paths.gridIndexPath.length === 0 || paths.gridIndexPath.length === 0) {
       // 1. 도착지가 막혀있으면 몇번 탐색후.
       // 2. 길을 계속 못찾을 경우 다른 행동을 하자.
 
       this.isSearchFail = true;
-      console.log("길못찾는다.!!!!")
+      console.log('길못찾는다.!!!!');
       // process.exit(0);
-
+      this.behavior = CONSTANTS.AI_BEHAVIOR.IDLE;
 
       //여기 확인하자. 밥먹고
-      //return true;
+      return true;
     } else {
       this.isSearchFail = false;
     }
 
-
-
-    // 이미 패스가 존재 한다면 삭제. 
+    // 이미 패스가 존재 한다면 삭제.
     if (this.aSterPath.size() !== 0) {
       this.aSterPath.delete();
       this.gridIndexPath.delete();
     }
 
-    
-
-    // 패스 갱신. 
+    // 패스 갱신.
     for (const path of paths.pathCoords) {
       this.aSterPath.enqueue(path);
     }
 
-    // console.log("paths.pathCoords :", paths.pathCoords);
+    //console.log("paths.pathCoords :", paths.pathCoords);
 
     // 그리드 인덱스 패스 갱신
-    for(const gridIndex of  paths.gridIndexPath) {
+    for (const gridIndex of paths.gridIndexPath) {
       this.gridIndexPath.enqueue(gridIndex);
+    }
+
+
+    if(!this.aSterPath.size()){
+      console.log("aSterPath가 비어있다.")
+      //return;
+    }
+
+    
+    if(!this.gridIndexPath.size()){
+      console.log("gridIndexPath가 비어있다.")
+      //return;
     }
 
     //console.log("this.gridIndexPath : ", this.gridIndexPath);
@@ -142,23 +158,19 @@ export default class Entity {
     }
 
     // 인덱스 패스 검사 (재탐색)
-    if(this.checkPathObstacles()){
+    if (this.checkPathObstacles()) {
       return this.updatePathFinding(this.currentTransform, this.pathfindingDestination);
-    };
+    }
 
     // 초기 방향 설정.
     this.updateVelocity();
 
     // 행동 변경.
     this.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
-
-    
-
   }
 
   // [트랜스폼 업데이트]
   updateTransform() {
-
     //console.log(this.behavior);
 
     if (
@@ -170,8 +182,6 @@ export default class Entity {
 
       // 타겟 업데이트.
       this.updateTargetTransform();
-
-      
 
       // 델타타임
       const deltaTime = 1 / CONSTANTS.NETWORK.TICK_RATE; // 프레임당 시간 (60FPS 기준)
@@ -201,15 +211,13 @@ export default class Entity {
         this.lastTransform,
       );
 
-
       // 목표지점을 도착했거나 지나쳤을 경우 타겟 재설정.
       if (isTargetReached) {
-        
         // 1. 엔티티가 타겟 경로에 도착하면 장애물이있는지 탐색한다
         // 2. 엔티티가 존재한다면 바로 재탐색.
-        if(this.checkPathObstacles()) {
+        if (this.checkPathObstacles()) {
           //return this.updatePathFinding(this.currentTransform, this.pathfindingDestination);
-          this.behavior  = CONSTANTS.AI_BEHAVIOR.IDLE;
+          this.behavior = CONSTANTS.AI_BEHAVIOR.IDLE;
           return this.behavior;
         }
 

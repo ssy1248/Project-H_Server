@@ -21,7 +21,6 @@ export default class User extends Entity {
 
     // 길찾기.
     super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
-
   }
 
   // [트랜스폼 업데이트]
@@ -32,7 +31,6 @@ export default class User extends Entity {
     //console.log(this.aSterPath.size());
 
     if (this.behavior === CONSTANTS.AI_BEHAVIOR.CHASE) {
-      
       this.userAiBehaviorCHASE();
     }
   }

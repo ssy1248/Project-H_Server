@@ -37,7 +37,7 @@ class Dungeon {
     this.intervalManager = new IntervalManager();
     // 던전 상태 (matching, progress, end)
     this.isState = 'matching';
-    // 몬스터 종류
+    // 몬스터 class를 집어 넣자
     this.monsterId = [];
     // 플레이어 상태 정보
     this.playerStatus = {};
@@ -68,7 +68,7 @@ class Dungeon {
     // 화살 정보를 저장할 객체
     this.arrows = {};
 
-    //this.startArrowMovement();
+    this.startArrowMovement();
     this.testCount = 0;
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
@@ -82,6 +82,7 @@ class Dungeon {
     }
     new RewardAuction([5, 6], this.partyInfo);
   }
+
   // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
@@ -98,24 +99,25 @@ class Dungeon {
     if (this._positionUpdateIntervalId) {
       return;
     }
-    
+
     this._positionUpdateIntervalId = setInterval(() => {
       // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
       Object.keys(this.playersTransform).forEach((playerName) => {
         const user = getUserByNickname(playerName);
-        // 끊겼을때 이부분 에러
         const userTransform = findUser('dungeon1', user.userInfo.userId);
         if (user && userTransform && userTransform.currentTransform) {
           this.playersTransform[playerName] = {
             x: userTransform.currentTransform.posX,
             y: userTransform.currentTransform.posY,
             z: userTransform.currentTransform.posZ,
-            // rot은 왜 undefined가 나올까?
             rot: userTransform.currentTransform.rot,
           };
-          console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);
+          // console.log(
+          //   `플레이어 [${playerName}] 위치 갱신 완료:`,
+          //   this.playersTransform[playerName],
+          // );
         } else {
-          console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
+          //console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
         }
       });
     }, updateInterval);
@@ -212,6 +214,7 @@ class Dungeon {
 
     return arrow.arrowId; // 화살의 ID를 반환
   }
+
   // 화살 이동
   moveArrow(playerName) {
     const arrows = this.arrows[playerName];
@@ -229,10 +232,12 @@ class Dungeon {
 
       arrow.traveledDistance += adjustedSpeed;
 
+      //console.log(`${playerName}의 화살 상태: `, arrows);
+
       // 화살이 최대 이동 거리보다 멀리 갔으면 소멸
       if (arrow.traveledDistance >= arrow.maxDistance) {
         arrows.splice(i, 1); // 화살 삭제
-        console.log(`${playerName}의 화살이 소멸했습니다.`);
+        //console.log(`${playerName}의 화살이 소멸했습니다.`);
         i--; // 인덱스를 하나 감소시켜서 스킵되는 문제 방지
       }
     }
@@ -241,18 +246,13 @@ class Dungeon {
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
   checkArrowCollision(arrow, monster) {
     const arrowPos = arrow.position;
-
-    if (!monster) {
-      return false; // 몬스터가 없다면 충돌하지 않음
-    }
-
-    const monsterPos = monster.position;
+    const monsterPos = monster.getTransform();
 
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterPos.x, 2) +
-        Math.pow(arrowPos.y - monsterPos.y, 2) +
-        Math.pow(arrowPos.z - monsterPos.z, 2),
+      Math.pow(arrowPos.y - monsterPos.y, 2) +
+      Math.pow(arrowPos.z - monsterPos.z, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
@@ -261,6 +261,7 @@ class Dungeon {
       return true; // 충돌 발생
     }
 
+    console.log('distance 거라가 너무 멈', distance);
     return false; // 충돌하지 않음
   }
 
@@ -327,6 +328,7 @@ class Dungeon {
         }
       }
     }, this.arrowMoveIntervalDuration);
+    this.testArrowMovement();
   }
 
   // 인터벌을 멈추는 함수
@@ -339,15 +341,26 @@ class Dungeon {
     return this.arrows;
   }
 
-  // 던전 내 플레이어 상태 업데이트와 함께 화살 생성 관리
-  updatePlayerStatus(playerName, newStatus) {
-    // 상태 업데이트와 함께 화살 생성 처리
-    if (newStatus.playerClass === 'Archer' && !this.arrows[playerName]) {
-      this.createArrow(playerName); // 아처인 경우 화살을 생성
-    }
+  // 임시로 화살을 생성하고 이동을 테스트하는 메서드
+  testArrowMovement(
+    playerName = 'test',
+    position = { x: 0, y: 0, z: 0 },
+    direction = { x: 1, y: 0, z: 0 },
+    speed = 10,
+    maxDistance = 100,
+  ) {
+    // 화살을 생성
+    const arrowId = this.createArrow(playerName, position, direction, speed, maxDistance);
 
-    // 플레이어 상태 업데이트 로직
-    this.playersTransform[playerName] = newStatus;
+    console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
+  }
+
+  broadcastOther(name, packet) {
+    for (let player of partyInfo.Players) {
+      if (player.playerName !== name) {
+        getUserByNickname(player.playerName).userInfo.socket.write(packet);
+      }
+    }
   }
 }
 

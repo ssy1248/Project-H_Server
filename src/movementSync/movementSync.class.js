@@ -178,14 +178,38 @@ export default class MovementSync {
       };
 
       for (const monsterId of monsterIds) {
-        A_STER_MANAGER.DELETE_OBSTACLE('town', monsterId);
-        A_STER_MANAGER.DELETE_OBSTACLE_List('town', monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE(movementSyncId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE_List(movementSyncId, monsterId);
         delete this.monsters[monsterId];
       }
       const initialResponse = createResponse(
         'town',
         'S_MonsterDie',
         PACKET_TYPE.S_MonsterDie,
+        sMonsterDie,
+      );
+
+      this.broadcast2(initialResponse);
+    }
+  }
+
+  // // [몬스터 애니메이션 동기화] - 데미지
+  updateMonsterDamage() {
+    const monsters = this.entityManager.getMonstersArray();
+    const monsterIds = monsters
+      .filter((monster) => monster.getIsDamage()) // 죽었을경우
+      .map((monster) => monster.getId()); // 몬스터 ID만 추출
+
+    if (monsterIds.length !== 0) {
+      const sMonsterDie = {
+        monsterId: monsterIds,
+        monsterAinID: 'Hit',
+      };
+
+      const initialResponse = createResponse(
+        'town',
+        'S_MonsterHit',
+        PACKET_TYPE.S_MonsterHit,
         sMonsterDie,
       );
 
@@ -260,7 +284,7 @@ export default class MovementSync {
         return;
       }
 
-      this.addMonster();
+      this.addMonster(this.movementId);
 
       const monsterTransformInfo = [];
       for (const monster of monsters) {
@@ -293,7 +317,9 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    this.processMonsterSpawn();
+    if (this.movementId !== 'town') {
+      this.processMonsterSpawn();
+    }
     this.entityMovement();
   }
 
@@ -350,7 +376,18 @@ export default class MovementSync {
     return Object.values(this.monsters);
   }
 
+  deleteMonsters() {
+    const monsters = this.entityManager.getMonsters();
+    const monstersArray = Object.values(monsters);
+    monstersArray.forEach((mon) => {
+      this.entityManager.deleteMonster(mon.id);
+    });
+  }
+
   deleteMonster(id) {
+    A_STER_MANAGER.DELETE_OBSTACLE('town', id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
+
     if (!this.monsters) return;
     delete this.monsters[id];
   }

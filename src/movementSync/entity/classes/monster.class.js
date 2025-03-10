@@ -4,6 +4,7 @@ import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
 import { getUserBySocket } from '../../../session/user.session.js';
+import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp) {
@@ -17,6 +18,7 @@ export default class Monster extends Entity {
     this.attackCount = 0;
     this.isAttack = false;
     this.isDie = false;
+    this.isDamage = false;
 
     
   }
@@ -33,8 +35,28 @@ export default class Monster extends Entity {
   getIsDie() {
     return this.isDie;
   }
+  setIsDie(isDie){
+    this.isDie = isDie;
+  }
+
+  getIsDamage() {
+    return this.isDamage;
+  }
+  setIsDamage(isDamage){
+    this.isDie = isDamage;
+  }
+
+  getHp() {
+    return this.hp;
+  }
+
+  setHp(hp){
+    this.hp = hp
+  }
 
   updateTransform(userTransform) {
+    if(this.isDie) return;
+
     this.updateMonsterSync(userTransform);
     super.updateTransform();
   }
@@ -81,7 +103,7 @@ export default class Monster extends Entity {
     const currentTransform = super.getCurrentTransform();
     const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
-    // console.log('유저 <-> 몬스터 거리: ', distance01);
+    //console.log('유저 <-> 몬스터 거리: ', distance01);
     if (distance01 <= 2) {
       super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
       A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
@@ -107,6 +129,7 @@ export default class Monster extends Entity {
 
     const aSterPath = super.getASterPath();
 
+  
     if (aSterPath.size() === 0) {
       const result = movementUtils.hasPassedTarget(
         currentTransform,
@@ -126,8 +149,8 @@ export default class Monster extends Entity {
 
         // 3. 복귀 중이 아니고 목표에 도달했으면 
         if(spawnDistance > 0.5){
-          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-          super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         }
 
         
@@ -164,10 +187,10 @@ export default class Monster extends Entity {
         this.isAttack = false;
         this.attackCount = 60;
       } else {
-        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
-        super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+        super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+        //super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
         this.isAttack = false;
-        this.attackCount = 60;
+        //this.attackCount = 60;
       }
       
     }
@@ -202,6 +225,7 @@ export default class Monster extends Entity {
           // 4. 파티 전멸 처리
           // 5. 아이템 소실
           //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
         }
       } else {
