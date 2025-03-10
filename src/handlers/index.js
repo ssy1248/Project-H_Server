@@ -1,4 +1,3 @@
-import initialHandler from './user/initial.handler.js';
 import CustomError from '../utils/error/customError.js';
 import { ErrorCodes } from '../utils/error/errorCodes.js';
 import moveHandler from './game/move.handler.js';
@@ -72,7 +71,7 @@ const handlers = {
     protoType: 'user.S_Spawn',
   },
   [PACKET_TYPE.S_DESPAWN]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.S_Despawn',
   },
   [PACKET_TYPE.C_MOVE]: {
