@@ -47,15 +47,15 @@ export default class Monster extends Entity {
     this.hp = hp;
   }
 
-  updateTransform(userTransform) {
+  updateTransform(userTransform, id) {
     if (this.isDie) return;
 
-    this.updateMonsterSync(userTransform);
+    this.updateMonsterSync(userTransform, id);
     super.updateTransform();
   }
 
   // 1. updateMonsterSync
-  updateMonsterSync(userTransform) {
+  updateMonsterSync(userTransform, id) {
     const behavior = super.getBehavior();
 
     if (this.isDamage) {
@@ -77,7 +77,7 @@ export default class Monster extends Entity {
           //this.monsterAiBehaviorCHASE(users);
           break;
         case CONSTANTS.AI_BEHAVIOR.ATTACK:
-          this.monsterAiBehaviorATTACK(userTransform);
+          this.monsterAiBehaviorATTACK(userTransform, id);
           break;
         case CONSTANTS.AI_BEHAVIOR.DAMAGED:
           console.log('여긴와?');
@@ -177,7 +177,7 @@ export default class Monster extends Entity {
     return super.getCurrentTransform();
   }
 
-  monsterAiBehaviorATTACK(userTransform) {
+  monsterAiBehaviorATTACK(userTransform, id) {
     const currentTransform = super.getCurrentTransform();
 
     // 공격 수정
@@ -201,7 +201,7 @@ export default class Monster extends Entity {
           this.isAttack = false;
           console.log('[몬스터 공격 성공하는 시점]');
 
-          userApplyDamage(this.movementId, '1', this.id);
+          userApplyDamage(this.movementId, id, this.id);
         }
       } 
     }

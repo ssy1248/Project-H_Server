@@ -73,21 +73,34 @@ export default class MovementSync {
       for (const monster of monsters) {
         // 가장 근처에있는 유저를 여기서 찾자.
 
-        let closestUserTransform = null; // 가장 가까운 유저.
+       
+        
+        let closestUser = null; // 가장 가까운 유저.
         let minDistance = Infinity; // 가장 작은 거리로 초기화
 
-        for (const userTransform of userTransforms) {
-          const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
-          if (distance < minDistance) {
+        for(const user of users){
+          const distance = movementUtils.Distance(monster.getTransform(), user.getTransform()); // 거리 계산
+          
+          if(distance < minDistance) {
             minDistance = distance;
-            closestUserTransform = userTransform;
+            closestUser = user;
           }
+        
         }
+
+
+        // for (const userTransform of userTransforms) {
+        //   const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
+        //   if (distance < minDistance) {
+        //     minDistance = distance;
+        //     closestUserTransform = userTransform;
+        //   }
+        // }
 
         //console.log("closestUserTransform : ",closestUserTransform);
 
-        if (closestUserTransform) {
-          monster.updateTransform(closestUserTransform);
+        if (closestUser) {
+          monster.updateTransform(closestUser.getTransform(), closestUser.getId());
         }
       }
     }, tickRate);
