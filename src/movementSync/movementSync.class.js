@@ -1,15 +1,16 @@
-import EntityManager from './entity/manager/entity.manager.js';
 import loadNavMeshData from './utils/loadNavMeshData.js';
 import movementUtils from './utils/movementUtils.js';
 import CONSTANTS from './constants/constants.js';
 import { createResponse } from '../utils/response/createResponse.js';
 import A_STER_MANAGER from './pathfinding/testASter.manager.js';
 import { PACKET_TYPE } from '../constants/header.js';
+import User from './entity/classes/user.class.js';
 
 export default class MovementSync {
   constructor(id) {
     this.movementId = id;
-    this.entityManager = new EntityManager();
+    this.users = {};
+    this.monsters = {};
     this.navMeshGridData = null;
     this.updateinterval = 0;
     this.entityIntervar = 0;
@@ -38,18 +39,16 @@ export default class MovementSync {
   async entityMovement() {
     const tickRate = 1000 / CONSTANTS.NETWORK.TICK_RATE;
     this.entityIntervar = setInterval(async () => {
-      const users = this.entityManager.getUsersArray();
-      const monsters = this.entityManager.getMonstersArray();
+      const users = Object.values(this.users);
+      const monsters = Object.values(this.monsters);
 
       // 유저
       if (users.length <= 0) {
         return;
       }
 
-      const userTransforms = [];
       for (const user of users) {
         user.updateTransform();
-        userTransforms.push(user.getTransform());
       }
 
       // 몬스터
@@ -60,21 +59,22 @@ export default class MovementSync {
       for (const monster of monsters) {
         // 가장 근처에있는 유저를 여기서 찾자.
 
-        let closestUserTransform = null; // 가장 가까운 유저.
+        let closestUser = null; // 가장 가까운 유저.
         let minDistance = Infinity; // 가장 작은 거리로 초기화
 
-        for (const userTransform of userTransforms) {
+        for (const user of users) {
+          const userTransform = user.getTransform();
           const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
           if (distance < minDistance) {
             minDistance = distance;
-            closestUserTransform = userTransform;
+            closestUser = user;
           }
         }
 
         // console.log("closestUserTransform : ",closestUserTransform);
 
-        if(closestUserTransform) {
-          monster.updateTransform(closestUserTransform);
+        if (closestUser) {
+          monster.updateTransform(closestUser);
         }
       }
     }, tickRate);
@@ -84,8 +84,8 @@ export default class MovementSync {
   async processMovement() {
     this.updateinterval = setInterval(async () => {
       // 엔티티 불러오기.
-      const users = this.entityManager.getUsersArray();
-      const monsters = this.entityManager.getMonstersArray();
+      const users = Object.values(this.users);
+      const monsters = Object.values(this.monsters);
 
       //A_STER_MANAGER.UPDATE_OBSTACLE("town", users, monsters);
 
@@ -165,7 +165,7 @@ export default class MovementSync {
 
   // [몬스터 애니메이션 삭제] - 죽음
   updateMonsterDie() {
-    const monsters = this.entityManager.getMonstersArray();
+    const monsters = Object.values(this.monsters);
     const monsterIds = monsters
       .filter((monster) => monster.getIsDie()) // 죽었을경우
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
@@ -179,7 +179,7 @@ export default class MovementSync {
       for (const monsterId of monsterIds) {
         A_STER_MANAGER.DELETE_OBSTACLE('town', monsterId);
         A_STER_MANAGER.DELETE_OBSTACLE_List('town', monsterId);
-        this.entityManager.deleteMonster(monsterId);
+        delete this.monsters[monsterId];
       }
       const initialResponse = createResponse(
         'town',
@@ -194,7 +194,7 @@ export default class MovementSync {
 
   // [몬스터 애니메이션 동기화] - 공격
   updateMonsterAttck() {
-    const monsters = this.entityManager.getMonstersArray();
+    const monsters = Object.values(this.monsters);
     const monsterIds = monsters
       .filter((monster) => monster.getIsAttack()) // 공격 중인 몬스터 필터링
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
@@ -247,8 +247,8 @@ export default class MovementSync {
   // [몬스터 리스폰]
   async processMonsterSpawn() {
     this.monsterSpawnInterval = setInterval(async () => {
-      const users = this.entityManager.getUsersArray();
-      const monsters = this.entityManager.getMonstersArray();
+      const users = Object.values(this.users);
+      const monsters = Object.values(this.monsters);
 
       if (users.length === 0) {
         return;
@@ -264,7 +264,7 @@ export default class MovementSync {
       const monsterTransformInfo = [];
       for (const monster of monsters) {
         const test = monster.currentTransform;
-        if(!test.posX){
+        if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
           //process.exit(0); // 정상 종료
           continue;
@@ -303,11 +303,12 @@ export default class MovementSync {
   }
 
   addUser(socket, id, transform) {
-    this.entityManager.addUser(this.movementId, socket, id, transform);
+    this.users[id] = new User(this.movementId, socket, id, transform);
   }
 
   updateUser(id, transform, timestamp) {
-    const user = this.entityManager.getUser(id);
+    const user = this.users[id];
+    if (!user) return;
     user.updateUserTransformSync(transform, timestamp);
   }
 
@@ -315,31 +316,46 @@ export default class MovementSync {
     A_STER_MANAGER.DELETE_OBSTACLE('town', id);
     A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
 
-    this.entityManager.deleteUser(id);
+    if (!this.users) return;
+    console.log("삭제 ID : ", id);
+    console.log("삭제 전 유저들 : ", this.users);
+    delete this.users[id];
+    console.log("삭제 후 유저들 : ", this.users);
   }
 
   findUser(id) {
-    return this.entityManager.getUser(id);
+    return this.users[id];
   }
 
   addMonster() {
-    this.entityManager.addMonster(this.movementId);
+    const transform = {
+      posX: this.generateRandomPlayerTransformInfo(-9, 9),
+      posY: 1,
+      posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+      rot: this.generateRandomPlayerTransformInfo(0, 360),
+    };
+    const monsterId = uuidv4();
+    const randomNum = Math.floor(Math.random() * 30) + 1;
+
+    this.monsters[monsterId] = new Monster(this.movementId, monsterId, transform, 3, 'test', 10);
+
   }
 
   findMonster(id) {
-    return this.entityManager.getMonster(id);
+    return this.monsters[id];
   }
 
   findMonsters() {
-    return this.entityManager.getMonstersArray();
+    return Object.values(this.monsters);
   }
 
   deleteMonster(id) {
-    this.entityManager.deleteMonster(id);
+    if (!this.monsters) return;
+    delete this.monsters[id];
   }
 
   async broadcast(initialResponse) {
-    const users = this.entityManager.getUsersArray();
+    const users = Object.values(this.users);
 
     const promises = users.map((user) => {
       const socket = user.getSocket();
@@ -362,7 +378,7 @@ export default class MovementSync {
   }
 
   broadcast2(initialResponse) {
-    const users = this.entityManager.getUsersArray();
+    const users = Object.values(this.users);
 
     for (const user of users) {
       const socket = user.getSocket();
