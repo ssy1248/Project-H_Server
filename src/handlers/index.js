@@ -39,8 +39,13 @@ import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
-import { playerSkillBuff, rangeAttackCollide, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import {
+  playerSkillBuff,
+  rangeAttackCollide,
+  rangeAttackImpactHandler,
+} from './game/dungeon/player.attack.js';
 import playerRangeAttackHandler from './game/dungeon/player.attack.js';
+import userStateHandler from './user/userState.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -324,13 +329,17 @@ const handlers = {
     handler: rangeAttackCollide,
     protoType: 'dungeon.C_rangeAttcckCollide',
   },
-  [PACKET_TYPE.C_SKILLBUFF]:{
-    handler : playerSkillBuff,
-    protoType : 'dungeon.C_SkillBuff',
+  [PACKET_TYPE.C_SKILLBUFF]: {
+    handler: playerSkillBuff,
+    protoType: 'dungeon.C_SkillBuff',
   },
-  [PACKET_TYPE.S_SKILLBUFF]:{
-    handler : playerSkillBuff,
-    protoType : 'dungeon.S_SkillBuff',
+  [PACKET_TYPE.S_SKILLBUFF]: {
+    handler: playerSkillBuff,
+    protoType: 'dungeon.S_SkillBuff',
+  },
+  [PACKET_TYPE.C_GETUSERSTATE]: {
+    handler: userStateHandler,
+    protoType: 'user.C_GetUserState',
   },
 };
 
