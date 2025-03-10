@@ -649,11 +649,6 @@ message RangeNormalAttackResult {
   string message = 2;
 }
 
-message RangeNormalAttackResult {
-  int32 arrowId = 1;
-  string message = 2;
-}
-
 message C_DungeonEnter {
 
 }
@@ -886,7 +881,6 @@ message S_PlayerRangeAttack {
 }
 
 message C_RangeAttackImpact {
-  int32 arrowId = 1;
   uint32 arrowId = 1;
   int32 hitObject = 2; // 1 -> 몬스터 2 -> 몬스터 아닌 다른거
   string monsterId = 3;
