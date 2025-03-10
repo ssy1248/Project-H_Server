@@ -194,6 +194,8 @@ export default class Monster extends Entity {
           MONSTER_SEND_MESSAGE.ATTCK('town');
           // 1. 타겟 유저 찾기 => clear 매개변수 수정으로 해결
           const targetUser = getUserBySocket(user.getSocket());
+          // 1-2. 공격 몬스터 찾기
+          
           // 2. 타겟 유저에게 데미지 주기
 
           // 3. 타겟 유저 사망 처리

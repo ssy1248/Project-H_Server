@@ -5,6 +5,7 @@ import { createResponse } from '../utils/response/createResponse.js';
 import A_STER_MANAGER from './pathfinding/testASter.manager.js';
 import { PACKET_TYPE } from '../constants/header.js';
 import User from './entity/classes/user.class.js';
+import Monster from './entity/classes/monster.class.js';
 
 export default class MovementSync {
   constructor(id) {
