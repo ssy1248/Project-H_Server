@@ -41,7 +41,7 @@ export default class User {
       posZ: 0,
       rot: 0,
     };
-
+    this.agent = null;
     this.inDungeonId = '';
 
     this.inventory = new Inventory();
