@@ -13,6 +13,7 @@ export default class MovementSync {
     this.navMeshGridData = null;
     this.updateinterval = 0;
     this.entityIntervar = 0;
+    this.bossIntervar = 0;
     this.monsterSpawnInterval = 0;
     this.aSter = 0;
 
@@ -25,7 +26,7 @@ export default class MovementSync {
         this.navMeshGridData = await loadNavMeshData('./navMesh/town.json');
         break;
       case 'dungeon1':
-        this.navMeshGridData = await loadNavMeshData('./navMesh/dungeon1.json');
+        this.navMeshGridData = await loadNavMeshData('./navMesh/dungeon1_test.json');
         break;
       default:
         break;
@@ -34,12 +35,16 @@ export default class MovementSync {
     A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
   }
 
+
+
+
   // [엔티티 인터벌] = 엔티티 좌표 업데이트를 60 프레임 단위로.
   async entityMovement() {
     const tickRate = 1000 / CONSTANTS.NETWORK.TICK_RATE;
     this.entityIntervar = setInterval(async () => {
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
+      const bosses = this.entityManager.getbossesArray();
 
       // 유저
       if (users.length <= 0) {
@@ -52,6 +57,14 @@ export default class MovementSync {
         userTransforms.push(user.getTransform());
       }
 
+      // 보스몬스터 
+      if(bosses.length !== 0) {
+        for(const boss of bosses){
+          const userInfo = JSON.parse(JSON.stringify(users));
+          boss.updateTransform(userInfo);
+        }
+      }
+
       // 몬스터
       if (monsters.length <= 0) {
         return;
@@ -60,21 +73,34 @@ export default class MovementSync {
       for (const monster of monsters) {
         // 가장 근처에있는 유저를 여기서 찾자.
 
-        let closestUserTransform = null; // 가장 가까운 유저.
+       
+        
+        let closestUser = null; // 가장 가까운 유저.
         let minDistance = Infinity; // 가장 작은 거리로 초기화
 
-        for (const userTransform of userTransforms) {
-          const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
-          if (distance < minDistance) {
+        for(const user of users){
+          const distance = movementUtils.Distance(monster.getTransform(), user.getTransform()); // 거리 계산
+          
+          if(distance < minDistance) {
             minDistance = distance;
-            closestUserTransform = userTransform;
+            closestUser = user;
           }
+        
         }
 
-        // console.log("closestUserTransform : ",closestUserTransform);
 
-        if (closestUserTransform) {
-          monster.updateTransform(closestUserTransform);
+        // for (const userTransform of userTransforms) {
+        //   const distance = movementUtils.Distance(monster.getTransform(), userTransform); // 거리 계산
+        //   if (distance < minDistance) {
+        //     minDistance = distance;
+        //     closestUserTransform = userTransform;
+        //   }
+        // }
+
+        //console.log("closestUserTransform : ",closestUserTransform);
+
+        if (closestUser) {
+          monster.updateTransform(closestUser.getTransform(), closestUser.getId());
         }
       }
     }, tickRate);
@@ -97,12 +123,11 @@ export default class MovementSync {
       const userTransformInfo = [];
       for (const user of users) {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
-          if (user.userAiBehaviorCHASE()) {
-            // user.updateTransform();
-            if (user.getIsSearchFail()) continue;
-            const syncData = this.createSyncTransformInfoData(user);
-            userTransformInfo.push(syncData);
-          }
+          // console.error("[유저가 메세지를 보내고있습니다.]")
+          // console.warn("pos : ", user.getTransform());
+          if (user.getIsSearchFail()) continue;
+          const syncData = this.createSyncTransformInfoData(user);
+          userTransformInfo.push(syncData);
         }
       }
 
@@ -157,9 +182,6 @@ export default class MovementSync {
         await this.broadcast2(initialResponse2);
       }
 
-      // 공격/ 죽음
-      //this.updateMonsterAttck();
-      //this.updateMonsterDie();
     }, CONSTANTS.NETWORK.INTERVAL);
   }
 
@@ -200,7 +222,7 @@ export default class MovementSync {
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
 
     if (monsterIds.length !== 0) {
-      const sMonsterDie = {
+      const sMonsterDamage = {
         monsterId: monsterIds,
         monsterAinID: 'Hit',
       };
@@ -209,10 +231,12 @@ export default class MovementSync {
         'town',
         'S_MonsterHit',
         PACKET_TYPE.S_MonsterHit,
-        sMonsterDie,
+        sMonsterDamage,
       );
 
       this.broadcast2(initialResponse);
+
+      //console.log('왔어요.');
     }
   }
 
@@ -275,18 +299,22 @@ export default class MovementSync {
       const monsters = this.entityManager.getMonstersArray();
 
       if (users.length === 0) {
+        console.log("유저가 없어서 생성 불가 ");
         return;
       }
 
       // 몬스터수 제한
-      if (monsters.length >= 10) {
+      if (monsters.length >= 5) {
         return;
       }
 
       this.addMonster(this.movementId);
+      console.log("몬스터 생성이 됬어요.");
+      const tsetMonsters = this.entityManager.getMonstersArray();
 
       const monsterTransformInfo = [];
-      for (const monster of monsters) {
+      for (const monster of tsetMonsters) {
+        console.log(" monster.currentTransform : ",  monster.currentTransform);
         const test = monster.currentTransform;
         if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
@@ -296,6 +324,9 @@ export default class MovementSync {
         const syncData = this.createSyncMonsterTransformInfoData(monster, monster.getMonsterInfo());
         monsterTransformInfo.push(syncData);
       }
+      
+      console.error("monsterTransformInfo :", monsterTransformInfo)
+
 
       // 패깃 생성
       const sMonsterSpawn = {
@@ -316,9 +347,11 @@ export default class MovementSync {
 
   startMovementProcess() {
     this.processMovement();
-    if (this.movementId !== 'town') {
-      this.processMonsterSpawn();
-    }
+    // if (this.movementId !== 'town') {
+    //   this.processMonsterSpawn();
+    // }
+
+    this.processMonsterSpawn();
     this.entityMovement();
   }
 
