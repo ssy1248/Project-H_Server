@@ -179,7 +179,11 @@ export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
   const monster = findMonster(movementSyncId, monsterId);
   const user = findUser(movementSyncId, userId);
 
-  // 유저 넉백은 이동만.
-  user.updateDamageCount(1, 20, 40, 0.2, monster.getCurrentTransform());
+  if(user){
+    // 유저 넉백은 이동만.
+    user.updateDamageCount(1, 20, 40, 0.2, monster.getCurrentTransform());
+  }
+
+  
 
 } 

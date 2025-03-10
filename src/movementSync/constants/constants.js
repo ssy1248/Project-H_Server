@@ -36,6 +36,14 @@ const CONSTANTS = {
     DAMAGED: 5,       // 공격받는 중
   },
 
+  BOSS_AI_BEHAVIOR: {
+    IDLE: 1000,          // 대기
+    SKILL_01: 1001,      // 스킬
+    SKILL_02: 1002,      // 스킬
+    SKILL_03: 1003,      // 스킬
+    DIE: 1004,           // 사망
+  },
+
   UTILS: {
     QUEUE_SIZE: 50, // 큐 크기
   },

@@ -49,7 +49,7 @@ class Dungeon {
       let count = 0;
       partyInfo.Players.forEach((playerStatus) => {
         // playerStatus.playerName 또는 playerStatus에 다른 고유 식별자가 있다면 사용
-        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 0, rot: 0 };
+        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 2, rot: 0 };
         count++;
       });
     }
