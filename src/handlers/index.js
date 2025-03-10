@@ -120,11 +120,11 @@ const handlers = {
     protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
+    handler: ActiveItemRequestHandler,
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler, // TODO : 핸들러 연결
+    handler: animationHandler,
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
