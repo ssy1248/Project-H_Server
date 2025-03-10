@@ -6,8 +6,8 @@ import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
 import { monsterApplyDamage, userApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
-  constructor(movementId, id, transform, model, name, hp) {
-    super(movementId, id, transform);
+  constructor(movementId, id,transform, model, name, hp) {
+    super(movementId, id, "monster" , transform);
 
     this.model = model;
     this.name = name;
@@ -201,7 +201,7 @@ export default class Monster extends Entity {
           this.isAttack = false;
           console.log('[몬스터 공격 성공하는 시점]');
 
-          userApplyDamage(this.movementId, id, this.id);
+          //userApplyDamage(this.movementId, id, this.id);
         }
       } 
     }

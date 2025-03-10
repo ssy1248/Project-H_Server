@@ -351,7 +351,7 @@ export default class MovementSync {
     //   this.processMonsterSpawn();
     // }
 
-    this.processMonsterSpawn();
+    //this.processMonsterSpawn();
     this.entityMovement();
   }
 

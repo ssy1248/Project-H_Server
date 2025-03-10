@@ -5,7 +5,7 @@ import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 
 export default class User extends Entity {
   constructor(movementId, socket, id, transform) {
-    super(movementId, id, transform);
+    super(movementId, id, "user" ,transform);
 
     this.socket = socket;
     this.latency = 0;
@@ -27,12 +27,19 @@ export default class User extends Entity {
     super.setPathfindingDestination(transform);
 
     // 길찾기.
-    super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
+    // super.updatePathFinding(this.currentTransform, this.pathfindingDestination);
+    
+    // 
+    this.targetTransform = { ...transform};
+    super.updateVelocity();
+    super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
+  
   }
 
   // [트랜스폼 업데이트]
   updateTransform() {
     if (this.behavior === CONSTANTS.AI_BEHAVIOR.DAMAGED) {
+      console.log("데미지");
       this.userAiBehaviorDAMAGED(this.damageTagetMonster);
     }
     
@@ -67,30 +74,46 @@ export default class User extends Entity {
 
   // [추격하고 있는지 아닌지 판단.]
   userAiBehaviorCHASE() {
-    const lastTransform = super.getLastTransform();
-    const currentTransform = super.getCurrentTransform();
-    const targetTransform = super.getTargetTransform();
+    // const lastTransform = super.getLastTransform();
+    // const currentTransform = super.getCurrentTransform();
+    // const targetTransform = super.getTargetTransform();
 
-    const aSterPath = super.getASterPath();
+    // const aSterPath = super.getASterPath();
 
-    if (aSterPath.size() === 0) {
-      const result = movementUtils.hasPassedTarget(
-        currentTransform,
-        targetTransform,
-        lastTransform,
-      );
+    // if (aSterPath.size() === 0) {
+    //   const result = movementUtils.hasPassedTarget(
+    //     currentTransform,
+    //     targetTransform,
+    //     lastTransform,
+    //   );
 
-      if (result) {
-        super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
-        console.log('[도착]');
-        return false;
-      } else {
-        super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
-        return true;
-      }
-    } else {
-      return true;
+    //   if (result) {
+    //     super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+    //     console.log('[도착]');
+    //     return false;
+    //   } else {
+    //     super.setBehavior(CONSTANTS.AI_BEHAVIOR.CHASE);
+    //     return true;
+    //   }
+    // } else {
+    //   return true;
+    // }
+
+
+    const result = movementUtils.hasPassedTarget(
+      this.currentTransform,
+      this.targetTransform,
+      this.lastTransform,
+    );
+
+    if(result) {
+      super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
+
+      console.log("this.targetTransform : ",this.targetTransform)
+      console.log('[도착]');
+      return false;
     }
+
   }
 
   // [ 레이 턴시 ]
