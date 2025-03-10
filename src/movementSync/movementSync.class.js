@@ -6,6 +6,8 @@ import A_STER_MANAGER from './pathfinding/testASter.manager.js';
 import { PACKET_TYPE } from '../constants/header.js';
 import User from './entity/classes/user.class.js';
 import Monster from './entity/classes/monster.class.js';
+import { getUserById, getUserBySocket } from '../session/user.session.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class MovementSync {
   constructor(id) {
@@ -330,7 +332,10 @@ export default class MovementSync {
   }
 
   addUser(socket, id, transform) {
-    this.users[id] = new User(this.movementId, socket, id, transform);
+    const user = getUserBySocket(socket);
+    const userAgent = new User(this.movementId, socket, id, transform);
+    this.users[id] = userAgent
+    user.agent = userAgent;
   }
 
   updateUser(id, transform, timestamp) {
@@ -346,6 +351,8 @@ export default class MovementSync {
     if (!this.users) return;
     console.log("삭제 ID : ", id);
     console.log("삭제 전 유저들 : ", this.users);
+    const user = getUserById(id);
+    user.agent = null;
     delete this.users[id];
     console.log("삭제 후 유저들 : ", this.users);
   }
@@ -366,7 +373,6 @@ export default class MovementSync {
 
     // TODO: DB에서 몬스터 데이터 받아서 생성하기
     this.monsters[monsterId] = new Monster(this.movementId, monsterId, transform, 3, 'test', 10, 1, 0, CONSTANTS.ENTITY.DEFAULT_SPEED);
-
   }
 
   findMonster(id) {
@@ -431,5 +437,12 @@ export default class MovementSync {
         });
       }
     }
+  }
+
+  // 랜덤 좌표 및 회전 각도 생성 함수
+  generateRandomPlayerTransformInfo(min, max) {
+    // min ~ max 사이의 랜덤 값
+    const randomValue = Math.floor(Math.random() * (max - min + 1)) + min;
+    return randomValue;
   }
 }
