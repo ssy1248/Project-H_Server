@@ -3,7 +3,7 @@ import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { getUserById } from '../../../session/user.session.js';
+import { getUserById, getUserBySocket } from '../../../session/user.session.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 import { getMonster } from '../../../session/monster.session.js';
 
@@ -13,11 +13,10 @@ const lastdodgeTime = {};
 //줄어든 쿨타임 넣는것
 const playerCooldowns = {};
 
-
 //분기를 어떻게 해야될까
 //공격할떄 (플레이어가 공격을 할떄), 이떄 packetData로 스킬인지 일반공격인지 그리고 스킬은 몇번쨰 스킬인지 보내줘야될것 같다.
 //그리고 스킬이 논타켓팅인지 타켓팅인지 범위형인지는 playerclass에 넣으면 될려나
-//그런 다음에 공격이 몬스터를 타격할떄 
+//그런 다음에 공격이 몬스터를 타격할떄
 //논타켓팅의 경우에는 화살의 궤적을 쫒으면 되지만 타켓팅은 플레이어의 위치, 몬스터 위치를 파악헤서 거리르 재면 될것 같다
 // 범위 형이 문제인데 이건 잠시 넘어 가자
 
@@ -272,7 +271,7 @@ export const rangeAttackCollide = (socket, packetData) => {
     }
 
     //유저 찾기
-    const user = getUserById(socket);
+    const user = getUserBySocket(socket);
     console.log('user:', user);
 
     if (!user) {
@@ -329,14 +328,13 @@ export const rangeAttackCollide = (socket, packetData) => {
   }
 };
 
-
 //버프 스킬 proto는 어떻게 해야할지 정하지 않았다 지금 던전에서 스텟과 쿨타임을 보내지 않아서 이걸 안보내거 true,false할지 고민중이다.
 
 export const playerSkillBuff = (socket, packetData) => {
   try {
     console.log('playerSkill 시작');
 
-    const user = getUserById(socket);
+    const user = getUserBySocket(socket);
     console.log('user:', user);
 
     const userNickName = user.userInfo.nickname;
