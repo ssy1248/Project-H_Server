@@ -158,7 +158,7 @@ export const monsterApplyDamage = (movementSyncId, id, damage) => {
     } else {
       // 5. 몬스터 피격 클라이언트에 브로드 캐스트.
       // 무게, 파워, 밀리는강도, 지속시간)
-      monster.updateDamageCount(1, 10, 20, 0.1);
+      monster.updateDamageCount(1, 20, 40, 0.2);
       movementSyncs[movementSyncId].updateMonsterDamage();
     }
   } else {

@@ -97,8 +97,8 @@ export default class MovementSync {
       const userTransformInfo = [];
       for (const user of users) {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
-          //console.error("[유저가 메세지를 보내고있습니다.]")
-          //console.warn("pos : ", user.getTransform());
+          console.error("[유저가 메세지를 보내고있습니다.]")
+          console.warn("pos : ", user.getTransform());
           if (user.getIsSearchFail()) continue;
           const syncData = this.createSyncTransformInfoData(user);
           userTransformInfo.push(syncData);
