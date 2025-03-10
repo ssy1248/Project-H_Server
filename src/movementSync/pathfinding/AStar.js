@@ -55,18 +55,18 @@ export class AStar {
       // 2-1. 도착지점이 유효할 경우
       if (this.isSurroundingBlocked(this.end)) {
         // 2-2. 도착지 주변이 막혀 있으면 시작점 인근으로 보정
-        console.log('도착지 주변이 막혀서 시작점 인근으로 보정');
+        //console.log('도착지 주변이 막혀서 시작점 인근으로 보정');
         this.end = this.findNearestValidPointAroundStart(start);
       }
     } else {
       // 3. 도착지가 유효하지 않으면 주변을 확인
       if (this.isSurroundingBlocked(this.end)) {
         // 3-1. 주변이 모두 막혀 있으면 시작점 인근으로 보정
-        console.log('도착지 이미 장애물이고 주변이 막혀있으면 시작점 인근으로 보정 ');
+        //console.log('도착지 이미 장애물이고 주변이 막혀있으면 시작점 인근으로 보정 ');
         this.end = this.findNearestValidPointAroundStart(start);
       } else {
         // 3-2. 도착지가 막혀있지 않다면 근처의 유효한 도착지 찾기
-        console.log('도착지 주변이 안막혔다면 근처로 도착점 지정.');
+        //console.log('도착지 주변이 안막혔다면 근처로 도착점 지정.');
         this.end = this.findNearestValidPoint(end);
       }
     }
@@ -178,7 +178,7 @@ export class AStar {
     // 유효한 위치 중 랜덤으로 하나 선택
     if (validPoints.length > 0) {
       let randomIndex = Math.floor(Math.random() * validPoints.length);
-      console.log('랜덤으로 선택된 인덱스:', randomIndex, '좌표:', validPoints[randomIndex]);
+      //console.log('랜덤으로 선택된 인덱스:', randomIndex, '좌표:', validPoints[randomIndex]);
       return validPoints[randomIndex];
     }
 

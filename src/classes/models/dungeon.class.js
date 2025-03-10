@@ -112,12 +112,12 @@ class Dungeon {
             z: userTransform.currentTransform.posZ,
             rot: userTransform.currentTransform.rot,
           };
-          console.log(
-            `플레이어 [${playerName}] 위치 갱신 완료:`,
-            this.playersTransform[playerName],
-          );
+          // console.log(
+          //   `플레이어 [${playerName}] 위치 갱신 완료:`,
+          //   this.playersTransform[playerName],
+          // );
         } else {
-          console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
+          //console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
         }
       });
     }, updateInterval);
@@ -246,18 +246,13 @@ class Dungeon {
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
   checkArrowCollision(arrow, monster) {
     const arrowPos = arrow.position;
-
-    if (!monster) {
-      return false; // 몬스터가 없다면 충돌하지 않음
-    }
-
-    const monsterPos = monster.position;
+    const monsterPos = monster.getTransform();
 
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterPos.x, 2) +
-        Math.pow(arrowPos.y - monsterPos.y, 2) +
-        Math.pow(arrowPos.z - monsterPos.z, 2),
+      Math.pow(arrowPos.y - monsterPos.y, 2) +
+      Math.pow(arrowPos.z - monsterPos.z, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
