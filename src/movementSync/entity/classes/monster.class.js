@@ -219,8 +219,8 @@ export default class Monster extends Entity {
           // 1. 타겟 유저 찾기 => clear 매개변수 수정으로 해결
           const targetUser = getUserBySocket(user.getSocket());
           // 1-2. 공격 몬스터 찾기 => 몬스터 클래스 통합으로 해결
-          const damage = Math.max(0, this.atk - targetUser.getDef());
-          
+          // const damage = Math.max(0, this.atk - targetUser.getDef());
+          console.log(`몬스터 공격력 : ${this.atk}`);
           // 2. 타겟 유저에게 데미지 주기
 
           // 3. 타겟 유저 사망 처리
