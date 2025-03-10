@@ -179,5 +179,17 @@ export default class User {
     this.transformInfo.rot = transform.rot;
   }
 
+  getDamage(damage) {
+    this.playerStatInfo.hp -= damage;
+    if (this.playerStatInfo.hp <= 0) {
+      this.die();
+    }
+  }
+
+  die() {
+    // 사망 처리
+    // 기능 정지
+    
+  }
   // 추가 함수 작성...
 }

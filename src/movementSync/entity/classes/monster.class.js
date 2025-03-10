@@ -3,6 +3,7 @@ import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp) {
@@ -39,16 +40,16 @@ export default class Monster extends Entity {
   }
 
   // 1. updateMonsterSync
-  updateMonsterSync(userTransform) {
+  updateMonsterSync(user) {
     const behavior = super.getBehavior();
 
     if (behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
       this.isAttack = false;
-      this.monsterAiBehaviorIDLE(userTransform);
+      this.monsterAiBehaviorIDLE(user);
     } else {
       switch (behavior) {
         case CONSTANTS.AI_BEHAVIOR.CHASE:
-          this.monsterAiBehaviorCHASE(userTransform);
+          this.monsterAiBehaviorCHASE(user);
           break;
         case CONSTANTS.AI_BEHAVIOR.RETURN:
           this.monsterAiBehaviorRETURN();
@@ -57,10 +58,10 @@ export default class Monster extends Entity {
           //this.monsterAiBehaviorCHASE(users);
           break;
         case CONSTANTS.AI_BEHAVIOR.ATTACK:
-          this.monsterAiBehaviorATTACK(userTransform);
+          this.monsterAiBehaviorATTACK(user);
           break;
         case CONSTANTS.AI_BEHAVIOR.DAMAGED:
-          this.monsterAiBehaviorDAMAGED(userTransform);
+          this.monsterAiBehaviorDAMAGED(user);
           break;
         default:
           break;
@@ -74,8 +75,9 @@ export default class Monster extends Entity {
   // 문제 발생
   // 1.
 
-  monsterAiBehaviorIDLE(userTransform) {
+  monsterAiBehaviorIDLE(user) {
     // 거리 측정.
+    const userTransform = user.getTransform();
     const currentTransform = super.getCurrentTransform();
     const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
@@ -97,7 +99,8 @@ export default class Monster extends Entity {
     }
   }
 
-  monsterAiBehaviorCHASE(userTransform) {
+  monsterAiBehaviorCHASE(user) {
+    const userTransform = user.getTransform();
     const lastTransform = super.getLastTransform();
     const currentTransform = super.getCurrentTransform();
     const targetTransform = super.getTargetTransform();
@@ -149,7 +152,8 @@ export default class Monster extends Entity {
     return super.getCurrentTransform();
   }
 
-  monsterAiBehaviorATTACK(userTransform) {
+  monsterAiBehaviorATTACK(user) {
+    const userTransform = user.getTransform();
     const currentTransform = super.getCurrentTransform();
 
     // 공격 수정
@@ -187,8 +191,14 @@ export default class Monster extends Entity {
       ) {
         this.isAttack = true;
         if (this.isAttack) {
-          //console.log('공격 성공!');
           MONSTER_SEND_MESSAGE.ATTCK('town');
+          // 1. 타겟 유저 찾기 => clear 매개변수 수정으로 해결
+          const targetUser = getUserBySocket(user.getSocket());
+          // 2. 타겟 유저에게 데미지 주기
+
+          // 3. 타겟 유저 사망 처리
+          // 4. 파티 전멸 처리
+          // 5. 아이템 소실
           //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
         }

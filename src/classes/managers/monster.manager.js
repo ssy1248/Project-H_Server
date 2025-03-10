@@ -1,4 +1,4 @@
-import { Monster, MONSTER_AI_BEHAVIOR } from '../models/monster.class.js';
+import Monster, { MONSTER_AI_BEHAVIOR } from '../models/monster.class.js';
 import {
   addEntitySync,
   findMovementSync,
