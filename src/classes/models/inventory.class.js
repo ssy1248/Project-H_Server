@@ -1,4 +1,4 @@
-import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, removeItemFromInventory, storeItem, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
+import { addItemToInventory, disrobeItem, equipItem, getInventoryFromCharId, loseInventory, removeItemFromInventory, storeItem, updateItemPosition, updateItemQuantity } from '../../db/inventory/inventory.db.js';
 import { findItemById } from '../../db/inventory/item.db.js';
 import { createResponse } from "../../utils/response/createResponse.js";
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -69,7 +69,7 @@ export default class Inventory {
     async store(inventoryId) {
         try {
             var item = this.inventory.find((item) => item.id === inventoryId);
-            if(!item) throw new Error('item not found');
+            if (!item) throw new Error('item not found');
 
             await storeItem(this.charId, inventoryId);
             item.equiped = 2;
@@ -144,6 +144,17 @@ export default class Inventory {
                 throw new Error('item not found');
             }
         } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // 전멸시 모든 아이템 소실
+    async lost() {
+        try{
+            await loseInventory(this.charId);
+            this.inventory = this.inventory.filter((item) => item.equipped === 2);
+            this.send();
+        }catch(error){
             console.error(error);
         }
     }

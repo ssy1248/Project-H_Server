@@ -81,12 +81,25 @@ export const getCharacterTable = async () => {
     const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_CHARACTER_TABLE);
     return rows;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return null;
   }
 };
 
 export const getItemBuyInventoryId = async (charId, id) => {
-  const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ITEM_BUY_INVENTORY, [charId, id]);
-  return rows;
+  try {
+    const [rows] = await pools.USER_DB.query(SQL_QUERIES.GET_ITEM_BUY_INVENTORY, [charId, id]);
+    return rows;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 };
+
+export const loseInventory = async (charId) => {
+  try {
+    await pools.USER_DB.query(SQL_QUERIES.LOSE, [charId]);
+  } catch (error) {
+    console.error(error);
+  }
+}
