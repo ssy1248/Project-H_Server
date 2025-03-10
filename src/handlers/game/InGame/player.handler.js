@@ -157,7 +157,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
     return;
   }
 
-  // 피해량 계산 (여기서는 고정 50 데미지) -> 추후 플레이어 클래스의 데미지로 변경
+  // 피해량 계산
   console.log(`[${attackerName}] 타겟이 사거리 내에 있습니다. 공격 진행합니다.`);
   const normalAttackResult = {
     targetId,

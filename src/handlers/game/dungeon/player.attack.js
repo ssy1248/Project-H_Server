@@ -1,11 +1,9 @@
-import CustomError from '../../../utils/error/customError.js';
-import { ErrorCodes } from '../../../utils/error/errorCodes.js';
 import { handlerError } from '../../../utils/error/errorHandler.js';
 import { createResponse } from '../../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
-import { getUserById, getUserBySocket } from '../../../session/user.session.js';
+import { getUserBySocket } from '../../../session/user.session.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
-import { getMonster } from '../../../session/monster.session.js';
+import { findMonster, monsterApplyDamage } from '../../../movementSync/movementSync.manager.js';
 
 const lastAttackTime = {};
 const lastSkillTime = {};
@@ -66,7 +64,7 @@ const playerRangeAttackHandler = (socket, packetData) => {
     }
 
     // 유저 정보 확인
-    const user = getUserById(socket);
+    const user = getUserBySocket(socket);
     console.log('user:', user);
 
     if (!user) {
@@ -155,93 +153,75 @@ const playerRangeAttackHandler = (socket, packetData) => {
 //투사체가 몬스터에게 준 공격에 대한 핸들러 (몬스터가 투사체에 맞을떄)
 export const rangeAttackImpactHandler = (socket, packetData) => {
   try {
-    const { monsterId, arrowId } = packetData;
+    const { arrowId, hitObject, monsterId } = packetData;
+    if (hitObject === 1) {
+      console.log('몬스터에게 공격 성공');
 
-    console.log('monsterId', monsterId);
-    if (typeof monsterId !== 'string') {
-      console.log('monsterId', monsterId);
-      console.log('monsterId가 문자형 아님');
-      return;
-    }
+      // 유저 정보 확인
+      const user = getUserBySocket(socket);
+      if (!user) {
+        console.error('공격자를 찾을 수 없습니다.');
+        return;
+      }
+      //유저 닉네임 찾기
+      const userNickName = user.userInfo.nickname;
 
-    console.log('arrowId', arrowId);
-    if (typeof arrowId !== 'number' || arrowId < 0 || arrowId > 100) {
-      console.log('arrowId', arrowId);
-      console.log('arrowId가 숫자형이 아니거나, 0부터 100 사이의 값이 아닙니다');
-      return;
-    }
+      // 현재 던전 정보를 가져옵니다.
+      const dungeon = getDungeonInPlayerName(userNickName);
 
-    // 유저 정보 확인
-    const user = getUserById(socket);
-    console.log('user', user);
+      const monster = findMonster('dungeon1', monsterId);
+      if(!monster) {
+        console.log('몬스터를 찾을 수 없습니다.');
+        return;
+      }
 
-    if (!user) {
-      console.error('공격자를 찾을 수 없습니다.');
-      return;
-    }
+      // 던전 내 화살 목록에서 arrowId를 이용해 화살 찾기
+      const arrow = dungeon.getArrowById(arrowId);
 
-    const monster = getMonster(monsterId);
-    console.log('monster', monster);
+      // 몬스터와의 충돌 여부 확인
+      const collisionOccurred = dungeon.checkArrowCollision(arrow, monsterId);
+      console.log('collide', collisionOccurred);
 
-    if (!monster) {
-      console.error('몬스터가 업습니다');
-    }
+      if (collisionOccurred) {
+        // 이게 못찾아질거 같은데
+        const userStatus = dungeon.playerStatus[userNickName];
+        console.log('찾은 유저 스탯 정보 : ', userStatus);
+        const players = dungeon.players[userNickName];
 
-    //유저 닉네임 찾기
-    const userNickName = user.userInfo.nickname;
-    console.log('userNickName', userNickName);
+        // 공격 처리 함수
 
-    // 현재 던전 정보를 가져옵니다.
-    const dungeon = getDungeonInPlayerName(userNickName);
-    console.log('dungeon:', dungeon);
+        //대미지 계산하기 위해서
+        const randomFactors = [0.8, 0.9, 1, 1.1, 1.2];
+        const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
+        //유저 공격 데미지
+        const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
 
-    // 던전 내 화살 목록에서 arrowId를 이용해 화살 찾기
-    const arrow = getArrowById(arrowId);
-    console.log('arrow', arrow);
+        const damage = attack; //* (1 - monster.def / (attack + monster.def));
 
-    // 몬스터와의 충돌 여부 확인
-    const collisionOccurred = dungeon.checkArrowCollision(arrow, monsterId);
-    console.log('collide', collisionOccurred);
+        console.log(`몬스터에게 ${damage}의 피해를 입혔습니다.`);
+        console.log(`남은 체력: ${monster.hp}`);
 
-    if (collisionOccurred) {
-      const userStatus = dungeon.playerStatus[userNickName];
-      const players = dungeon.players[userNickName];
+        const rangeNormalAttackResult = {
+          arrowId: arrowId,
+          message: '화살공격완료',
+        };
 
-      // 공격 처리 함수
+        const payload = {
+          rangeNormalAttackResult,
+          success: true,
+          message : '화살 공격 성공~!',
+        };
+        const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
+        socket.write(packet);
 
-      //대미지 계산하기 위해서
-      const randomFactors = [0.8, 0.9, 1, 1.1, 1.2];
-      const randomFactor = randomFactors[Math.floor(Math.random() * randomFactors.length)];
-      //유저 공격 데미지
-      const attack = userStatus.atk * players.normalAttack.damage * randomFactor;
-
-      const damage = attack * (1 - monster.def / (attack + monster.def));
-
-      monster.takeDamage(damage);
-
-      console.log(`몬스터에게 ${damage}의 피해를 입혔습니다.`);
-
-      console.log(`남은 체력: ${monster.hp}`);
-
-      const rangeAttackImpactPayload = {
-        monsterId,
-        monsterHp: monster.hp,
-        damage: damage,
-        message: '화살공격완료',
-      };
-
-      const rangeAttackImpactResponse = createResponse(
-        'dungeon',
-        'S_RangeAttackImpact',
-        PACKET_TYPE.S_RANGEATTACKIMPACT,
-        rangeAttackImpactPayload,
-      );
-      socket.write(rangeAttackImpactResponse);
+        monsterApplyDamage(damage);
+      } else {
+        console.error('몬스터가 멀리 있습니다');
+      }
+      socket.write();
     } else {
-      console.error('몬스터가 멀리 있습니다');
+      console.log('몬스터아닌 오브젝트 공격 성공');
     }
-
-    socket.write();
   } catch (error) {
     handlerError(socket, error);
   }
@@ -474,7 +454,7 @@ export const playerDodge = (socket, packetData) => {
     const { direction } = packetData;
     console.log('playerDodge 처리 시작');
 
-    const user = getUserById(socket);
+    const user = getUserBySocket(socket);
     console.log('user:', user);
 
     const userNickName = user.userInfo.nickname;
