@@ -23,18 +23,19 @@ class Players {
         this.normalAttack = {
           attackRange: 4, // 공격 범위 -> 유니티에 원범위를 이걸로 설정
           attackType: 1, // 단일 1 / 범위 2 / 도트딜? 3 / cc 4
-          attackCoolTime: 3, // 기본 공격 쿨타임 (초)
-          damage: 50,
+          attackCoolTime: 1, // 기본 공격 쿨타임 (초)
+          damage: 5,
         };
         this.skillAttack = new Skill(1, 1, '찌르기', '적을 찌른다.', 1, 10, 5, 10, 3, 0); // type - 1: 단일, 2: 범위, 3: 버프, 4: 디버프
         this.dodge = {
+          // 제자리에서 반격이니 이동거리가 필요가 없네
           dodgeCoolTime: 8, // 회피 쿨타임 (초)
-          dodgeRange: 3, // 회피 이동 거리
+          dodgeRange: 0, // 회피 이동 거리
         };
         break;
       case PLAYER_CLASS.ROGUE:
         this.normalAttack = {
-          attackRange: 6,
+          attackRange: 2,
           attackType: 1,
           attackCoolTime: 1,
           damage: 10,
