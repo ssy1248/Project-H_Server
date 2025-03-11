@@ -6,8 +6,8 @@ import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
 import { monsterApplyDamage, userApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
-  constructor(movementId, id, transform, model, name, hp) {
-    super(movementId, id, transform);
+  constructor(movementId, id,transform, model, name, hp) {
+    super(movementId, id, "monster" , transform);
 
     this.model = model;
     this.name = name;
@@ -47,15 +47,15 @@ export default class Monster extends Entity {
     this.hp = hp;
   }
 
-  updateTransform(userTransform) {
+  updateTransform(userTransform, id) {
     if (this.isDie) return;
 
-    this.updateMonsterSync(userTransform);
+    this.updateMonsterSync(userTransform, id);
     super.updateTransform();
   }
 
   // 1. updateMonsterSync
-  updateMonsterSync(userTransform) {
+  updateMonsterSync(userTransform, id) {
     const behavior = super.getBehavior();
 
     if (this.isDamage) {
@@ -77,7 +77,7 @@ export default class Monster extends Entity {
           //this.monsterAiBehaviorCHASE(users);
           break;
         case CONSTANTS.AI_BEHAVIOR.ATTACK:
-          this.monsterAiBehaviorATTACK(userTransform);
+          this.monsterAiBehaviorATTACK(userTransform, id);
           break;
         case CONSTANTS.AI_BEHAVIOR.DAMAGED:
           console.log('여긴와?');
@@ -177,7 +177,7 @@ export default class Monster extends Entity {
     return super.getCurrentTransform();
   }
 
-  monsterAiBehaviorATTACK(userTransform) {
+  monsterAiBehaviorATTACK(userTransform, id) {
     const currentTransform = super.getCurrentTransform();
 
     // 공격 수정
@@ -201,7 +201,7 @@ export default class Monster extends Entity {
           this.isAttack = false;
           console.log('[몬스터 공격 성공하는 시점]');
 
-          userApplyDamage(this.movementId, '1', this.id);
+          //userApplyDamage(this.movementId, id, this.id);
         }
       } 
     }
@@ -225,18 +225,47 @@ export default class Monster extends Entity {
       this.damageRot = yaw;
       this.currentTransform.rot = this.damageRot;
 
-      // 넉백 방향이 장애물인 경우 바로 피격 종료.
-      //const deltaTime = 1 / CONSTANTS.NETWORK.TICK_RATE;
-      const pos = {
-        posX: this.currentTransform.posX + velocity.x + 1,
-        posY: this.currentTransform.posY + velocity.y + 1,
-        posZ: this.currentTransform.posZ + velocity.z + 1,
-      };
+      // 넉백 각도 
+      const knockback = movementUtils.Rotation(userTransform, this.currentTransform);
+      const { topLeft, topRight, bottomLeft, bottomRight } = movementUtils.obbBox(1,1,this.currentTransform, knockback.yaw);
 
-      if (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, pos)) {
-        //console.log('못가는곳에 왔어요');
-        this.resetDamageState();
-        return;
+
+
+      // 넉백 방향이 장애물인 경우 바로 피격 종료.
+      // 지금은 테스트라 y축은 냅두는데 테스트 종료후 삭제예정
+      // 테스트
+      const testArr = [];
+      testArr.push({
+        posX: topLeft.x,
+        posY: 0,
+        posZ: topLeft.z,
+      })
+
+      testArr.push({
+        posX: topRight.x,
+        posY: 0,
+        posZ: topRight.z,
+      })
+
+      testArr.push({
+        posX: bottomLeft.x,
+        posY: 0,
+        posZ: bottomLeft.z,
+      })
+
+      testArr.push({
+        posX: bottomRight.x,
+        posY: 0,
+        posZ: bottomRight.z,
+      })
+
+      for(const pos of testArr){
+        if (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, pos)) {
+          // console.error("유저 넉백 장애물 불가");
+          this.resetDamageState();
+          console.error("[유저 - 넉백 불가]");
+          return;
+        }
       }
 
       // 점진적으로 감속 (실제 시간 기준 감소)

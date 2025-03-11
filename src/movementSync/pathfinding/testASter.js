@@ -62,25 +62,25 @@ export default class TestASter {
   // A* 알고리즘을 사용한 경로 찾기 테스트
   testPathfinding() {
     const startPos = [2, 0, 1]; // 시작 위치 (3D 좌표)
-    const endPos = [30, 0, 100]; // 끝 위치 (3D 좌표)
+    const endPos = [30, 0, 48]; // 끝 위치 (3D 좌표)
 
-    const startIndex = this.coordToIndex([1, 0, 3]); 
-    const endIndex = this.coordToIndex([30, 0, 100]); 
+    const startIndex = this.coordToIndex(startPos); 
+    const endIndex = this.coordToIndex(endPos); 
 
     
-    const sx = startIndex.index % this.gridWidth; // x 좌표
-    const sy = Math.floor(startIndex.index / this.gridWidth); // z 좌표
+    // const sx = startIndex.index % this.gridWidth; // x 좌표
+    // const sy = Math.floor(startIndex.index / this.gridWidth); // z 좌표
 
 
-    const ex = endIndex.index % this.gridWidth; // x 좌표
-    const ey = Math.floor(endIndex.index / this.gridWidth); // z 좌표
+    // const ex = endIndex.index % this.gridWidth; // x 좌표
+    // const ey = Math.floor(endIndex.index / this.gridWidth); // z 좌표
 
-    // const sx = 31; // x 좌표
-    // const sy = 28; // z 좌표
+    const sx = 31; // x 좌표
+    const sy = 28; // z 좌표
 
 
-    // const ex = 31; // x 좌표
-    // const ey = 1; // z 좌표
+    const ex = 43; // x 좌표
+    const ey = 130; // z 좌표
 
 
     // 엔드포인트 주변 8방향을 막기
@@ -131,9 +131,9 @@ export default class TestASter {
           //console.log("삼각형 밖에있어요.");
           // 함수 추가
           this.addObstacle([x, y], 'staticObstacle', true);
-        } else {
           count++;
-        }
+        
+        } 
       }
     }
     console.log('count :', count);
@@ -191,8 +191,8 @@ export default class TestASter {
       // 도착지점이 장애물 인 경우.
     }
 
-    //console.log('startGrid', startGrid);
-    //console.log('endGrid', endGrid);
+    console.log('startGrid', startGrid);
+    console.log('endGrid', endGrid);
 
     // 시작 좌표와 끝 좌표가 유효한지 체크
     if (
@@ -228,21 +228,21 @@ export default class TestASter {
     const storedValue = this.grid.get(obstacle); // 그리드 값 확인
     //console.log(`⭕ 시작 시점 (${obstacle[0]}, ${obstacle[1]}):`, storedValue);
 
-    // console.log('start :', [
-    //   startGrid.index % this.gridWidth,
-    //   Math.floor(startGrid.index / this.gridWidth),
-    // ]);
+    console.log('start :', [
+      startGrid.index % this.gridWidth,
+      Math.floor(startGrid.index / this.gridWidth),
+    ]);
 
     const obstacle1 = [endGrid.index % this.gridWidth, Math.floor(endGrid.index / this.gridWidth)];
     const storedValue1 = this.grid.get(obstacle1); // 그리드 값 확인
     //console.log(`⭕ 도착 시점 (${obstacle1[0]}, ${obstacle1[1]}):`, storedValue1);
 
-    // console.log('end :', [
-    //   endGrid.index % this.gridWidth,
-    //   Math.floor(endGrid.index / this.gridWidth),
-    // ]);
+    console.log('end :', [
+      endGrid.index % this.gridWidth,
+      Math.floor(endGrid.index / this.gridWidth),
+    ]);
 
-    // console.log('장애물 : ', this.entityObstacles);
+    //console.log('장애물 : ', this.entityObstacles);
 
     // 경로가 없으면 빈 배열 반환
     if (!path || path.length === 0) {
@@ -361,6 +361,7 @@ export default class TestASter {
 
   // 장애물 추가
   addObstacle(obstacle, id, staticObstacle = false) {
+    //console.error("obstacle", obstacle);
     this.grid.set(obstacle, 'value', 1); // 장애물 위치 그리드에 설정
 
     // 장애물 추가

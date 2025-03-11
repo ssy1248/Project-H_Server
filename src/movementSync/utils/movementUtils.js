@@ -155,6 +155,67 @@ const calculateRotatedBox = (range, width, sourceTransform, rot) => {
 };
 
 
+// [내 주변 회전된 사각형 충돌 감지]
+const isTargetInRotatedAreaAroundMe = (width, sourceTransform, targetTransform, rot = null) => {
+  let sourceRot = rot;
+  if (rot === null) {
+    sourceRot = sourceTransform.rot; // 기본적으로 보스의 회전값을 사용
+  }
+  
+  // 내 주변을 기준으로 회전된 사각형의 네 꼭지점 계산
+  const { topLeft, topRight, bottomLeft, bottomRight } = calculateRotatedBoxAroundMe(width, sourceTransform, sourceRot);
+
+  // 대상이 내 주변의 회전된 사각형 범위 내에 있는지 체크 (최소/최대 좌표를 이용한 충돌 감지)
+  const isTargetInRange =
+    targetTransform.posX >= Math.min(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x) &&
+    targetTransform.posX <= Math.max(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x) &&
+    targetTransform.posZ >= Math.min(topLeft.z, topRight.z, bottomLeft.z, bottomRight.z) &&
+    targetTransform.posZ <= Math.max(topLeft.z, topRight.z, bottomLeft.z, bottomRight.z);
+
+  return isTargetInRange;
+};
+
+// [내 주변 회전된 사각형 생성]
+const calculateRotatedBoxAroundMe = (width, sourceTransform, rot) => {
+  const attackWidth = width; // 사각형의 폭 (내 주변을 기준으로 하는 폭)
+
+  // 객체의 forward (앞) 방향 벡터
+  const forwardX = Math.cos(rot); // 회전값에 따른 X 방향
+  const forwardZ = Math.sin(rot); // 회전값에 따른 Z 방향
+
+  // 객체의 오른쪽 방향 벡터 (회전된 X, Z 좌표)
+  const rightX = -forwardZ;
+  const rightZ = forwardX;
+
+  // 원본 객체의 위치 (중심)
+  const sourceX = sourceTransform.posX;
+  const sourceZ = sourceTransform.posZ;
+
+  // 공격 범위의 중심을 계산 (여기서는 범위가 0이므로 중앙 위치로 설정)
+  const centerX = sourceX;
+  const centerZ = sourceZ;
+
+  // 사각형의 네 꼭지점 계산
+  const topLeftX = centerX - (attackWidth / 2) * rightX;
+  const topLeftZ = centerZ - (attackWidth / 2) * rightZ;
+  const topRightX = centerX + (attackWidth / 2) * rightX;
+  const topRightZ = centerZ + (attackWidth / 2) * rightZ;
+
+  const bottomLeftX = centerX - (attackWidth / 2) * rightX;
+  const bottomLeftZ = centerZ - (attackWidth / 2) * rightZ;
+  const bottomRightX = centerX + (attackWidth / 2) * rightX;
+  const bottomRightZ = centerZ + (attackWidth / 2) * rightZ;
+
+  // 반환값: 네 꼭지점의 좌표를 포함하는 객체
+  return {
+    topLeft: { x: topLeftX, z: topLeftZ },
+    topRight: { x: topRightX, z: topRightZ },
+    bottomLeft: { x: bottomLeftX, z: bottomLeftZ },
+    bottomRight: { x: bottomRightX, z: bottomRightZ }
+  };
+};
+
+
 
 const movementUtils = {
   Distance: calculateDistance,
@@ -163,6 +224,8 @@ const movementUtils = {
   hasPassedTarget: hasPassedTarget,
   obbCollision:isInRotatedRange,
   obbBox: calculateRotatedBox,
+  obbMyCollision: isTargetInRotatedAreaAroundMe,
+  obbMyBox: calculateRotatedBoxAroundMe,
 };
 
 export default movementUtils;
