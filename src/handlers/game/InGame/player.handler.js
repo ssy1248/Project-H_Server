@@ -22,9 +22,18 @@ export const processPlayerActionHandler = (socket, packet) => {
     console.log('일반 근접 공격 요청 처리');
     processAttackHandler(socket, packet.normalAttack.attackerName, packet.normalAttack.targetId);
   } else if (packet.skillAttack) {
-    // 스킬 공격 처리
-    console.log('스킬 공격 요청 처리');
-    processSkillAttackHandler(socket, packet.skillAttack.attackerName, packet.skillAttack.targetId);
+    if (packet.skillAttack.targetId[0] === 'Buff') {
+      console.log('버프 스킬 들어왔다');
+      processBuffSkillHandler(socket, packet.skillAttack.attackerName);
+    } else {
+      // 스킬 공격 처리
+      console.log('스킬 공격 요청 처리');
+      processSkillAttackHandler(
+        socket,
+        packet.skillAttack.attackerName,
+        packet.skillAttack.targetId,
+      );
+    }
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
@@ -47,9 +56,7 @@ export const processPlayerActionHandler = (socket, packet) => {
 };
 
 // 클라에서 원거리 투사체가 어딘가에 부딪혀서 패킷을 보내면 처리할 핸들러
-export const rangeAttackHitHandler = (socket, packet) => {
-
-}
+export const rangeAttackHitHandler = (socket, packet) => {};
 
 /**
  * 실패 패킷을 보내는 함수
@@ -241,7 +248,7 @@ const processRangeAttackHandler = (socket, direction) => {
     // 화살 ID 생성 및 전송 처리
     const userPosition = dungeon.playersTransform[userNickName];
     const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
-    const speed = 1; // 기본 속도 1로 설정
+    const speed = 1; // 기본 속도 1로 설정 -> 화살 속도를 클라와 서버를 동일시 하면 1로 가능할듯?
     const maxDisatnce = player.normalAttack.attackRange;
     const arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
 
@@ -258,7 +265,7 @@ const processRangeAttackHandler = (socket, direction) => {
       rangeNormalAttackResult,
       success: true,
       message: '화살생성완료',
-    }
+    };
 
     const playerAttackResponse = createResponse(
       'dungeon',
@@ -469,6 +476,115 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
   );
 
   socket.write(sPlayerActionPacket);
+};
+
+// PlayerAction 에 추가를 해야하나 아님 그냥 프로토버퍼에서 구분을 해야하나
+// 고민을 해야할듯
+
+export const processBuffSkillHandler = (socket, attackerName) => {
+  try {
+    console.log('playerBuffSkill 시작');
+
+    // 3) 공격자(플레이어)를 던전에서 찾음
+    const attackerSessions = getDungeonInPlayerName(attackerName);
+    if (!attackerSessions || attackerSessions.length === 0) {
+      console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
+      sendActionFailure(socket, '던전 세션에서 공격자를 찾을 수 없습니다.');
+      return;
+    }
+    const dungeon = attackerSessions[0];
+
+    // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
+    const player = dungeon.players[attackerName];
+    if (!player) {
+      console.error('던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
+      sendActionFailure(socket, '던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
+      return;
+    }
+
+    try {
+      player.skillAttack.use();
+    } catch (error) {
+      sendActionFailure(socket, error.message);
+      return;
+    }
+
+    let user;
+    dungeon.partyInfo.Players.forEach((player) => {
+      if (player.playerName === attackerName) {
+        user = player;
+      }
+    });
+
+    let playerCurrentMp = user.playerCurMp;
+    if (playerCurrentMp < player.skillAttack.cost) {
+      player.skillAttack.resetCooldown();
+      console.error('마나가 부족합니다.');
+      return;
+    }
+
+    playerCurrentMp -= player.skillAttack.cost;
+    console.log('playerCurrentMp 남은 마나 : ', playerCurrentMp);
+    user.playerCurMp = playerCurrentMp;
+
+    // Archer일 때만 공격 속도 증가 버프 적용
+    if (player.playerClass === 3) {
+      // 현재 일반 공격 쿨타임
+      let originalAtkDelay = player.normalAttack.attackCoolTime;
+      console.log('원래 공격 쿨타임: ' + originalAtkDelay);
+
+      // 버프 효과로 줄일 값 (예: 1초 감소, 최소 0.5초는 유지)
+      const reductionAmount = 1;
+      const newAtkDelay = Math.max(originalAtkDelay - reductionAmount, 0.5);
+
+      // 쿨타임 적용: 던전의 플레이어 인스턴스 업데이트
+      player.normalAttack.attackCoolTime = newAtkDelay;
+      console.log(`공격 쿨타임이 ${newAtkDelay}초로 감소되었습니다.`);
+
+      // 스킬 지속시간(밀리초) 동안 유지 후 복원.
+      const skillDurationTime = player.skillAttack.duration; // 이 값은 밀리초 단위라고 가정
+      setTimeout(() => {
+        // 원래 스탯으로 복원
+        player.normalAttack.attackCoolTime = originalAtkDelay;
+        console.log('공격 쿨타임이 원래 값으로 복원되었습니다.');
+        // 복원 완료 후 클라에 복원 완료 메시지 전송 (옵션)
+        // const buffRestorePayload = {
+        //   // 빈값 보내서 지속시간 동안 이펙트를 유지 시키고 이게 날라오면
+        // };
+        // const restorePacket = createResponse(
+        //   'dungeon',
+        //   'S_SkillBuff',
+        //   PACKET_TYPE.S_SKILLBUFF,
+        //   buffRestorePayload,
+        // );
+        // socket.write(restorePacket);
+      }, skillDurationTime * 1000);
+
+      // 버프 적용 즉시 결과 전송
+      const skillPayload = {
+        skillId: player.skillAttack.id,
+        useUserName: attackerName,
+        currentMp: playerCurrentMp,
+      };
+      const skillBuffPacket = {
+        skillPayload, 
+        success: true,
+        message: '스킬 사용을 성공했습니다.',
+      };
+      const packet = createResponse(
+        'dungeon',
+        'S_PlayerAction',
+        PACKET_TYPE.S_PLAYERACTION,
+        skillBuffPacket,
+      );
+      socket.write(packet);
+    } else {
+      console.log('해당 플레이어는 버프 스킬 적용 대상이 아닙니다.');
+      // 다른 클래스에 대해 별도 처리가 필요한 경우 여기에 구현
+    }
+  } catch (e) {
+    console.log('버프 스킬 핸들러 에러 : ', e);
+  }
 };
 
 // 클라측에서 힐?을 요청할떄 처리할 핸들러 -> 애매

@@ -881,7 +881,7 @@ message S_PlayerRangeAttack {
 }
 
 message C_RangeAttackImpact {
-  uint32 arrowId = 1;
+  int32 arrowId = 1;
   int32 hitObject = 2; // 1 -> 몬스터 2 -> 몬스터 아닌 다른거
   string monsterId = 3;
 }

@@ -3,6 +3,7 @@ import {
   disrobeItem,
   equipItem,
   getInventoryFromCharId,
+  loseInventory,
   removeItemFromInventory,
   storeItem,
   updateItemPosition,
@@ -154,6 +155,17 @@ export default class Inventory {
       } else {
         throw new Error('item not found');
       }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  // 전멸시 모든 아이템 소실
+  async lost() {
+    try {
+      await loseInventory(this.charId);
+      this.inventory = this.inventory.filter((item) => item.equipped === 2);
+      this.send();
     } catch (error) {
       console.error(error);
     }

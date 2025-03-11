@@ -31,8 +31,29 @@ class Dungeon {
   constructor(id, partyInfo) {
     // 던전 고유 아이디
     this.id = id;
+    /*
+    partyInfo: {
+      dungeonIndex,
+      maximum ,
+      partyId,
+      partyLeaderId,
+      partyName,
+      Players = 
+      [
+        {
+          playerName,
+          playerLevel,
+          playerClass,
+          playerFullHp,
+          playerCurHp,
+          playerFullMp,
+          playerCurMp,
+        }
+      ]
+    },
+    */
     // 파티 정보
-    this.partyInfo = partyInfo;
+    this.partyInfo = partyInfo; // => 파티 정보에 user 인스턴스를 추가해서 직접 참조하자
     // 인터벌 매니저
     this.intervalManager = new IntervalManager();
     // 던전 상태 (matching, progress, end)
@@ -40,10 +61,11 @@ class Dungeon {
     // 몬스터 class를 집어 넣자
     this.monsterId = [];
     // 플레이어 상태 정보
-    this.playerStatus = {};
+    this.playerStatus = {}; // => 플레이어 스탯을 복사해오는데, 그러지 말고 user 인스턴스를 직접 참조하자
     // 플레이어들의 위치 정보 관리 객체
-    this.playersTransform = {};
+    this.playersTransform = {}; // => user 인스턴스를 직접 참조하고, 인스턴스에 있는 transformInfo를 참조하자
 
+    // => user 인스턴스를 직접 참조하고, 인스턴스에 있는 transformInfo를 참조하자
     // 초기 위치 설정
     if (partyInfo.Players && partyInfo.Players.length > 0) {
       let count = 0;
@@ -54,6 +76,7 @@ class Dungeon {
       });
     }
 
+    // => Players 클래스의 주석을 참조해주세요
     // 던전 생성 시 플레이어 클래스 생성
     this.players = {};
     if (partyInfo.Players && Array.isArray(partyInfo.Players)) {
@@ -84,16 +107,19 @@ class Dungeon {
   }
 
   // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
+  // => 던전에서 movementSync를 생성하고 사용하자
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
   }
 
   // 던전 내 플레이어 위치 가져오기
+  // => 던전에서 movementSync를 생성하고 사용하자
   getPlayerPosition(playerName) {
     return this.playersTransform[playerName] || null;
   }
 
   // 주기적으로 던전 내 모든 플레이어의 위치를 업데이트하는 메서드
+  // => 던전에서 movementSync를 생성하고 사용하자
   startPeriodicPositionUpdates(updateInterval = 10000) {
     // 이미 인터벌이 설정되어 있다면 재설정하지 않음
     if (this._positionUpdateIntervalId) {
@@ -244,24 +270,24 @@ class Dungeon {
   }
 
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
-  checkArrowCollision(arrow, monster) {
+  checkArrowCollision(arrow, monsterTrans) {
     const arrowPos = arrow.position;
-    const monsterPos = monster.getTransform();
+    console.log('충돌 화살 좌표 : ', arrowPos);
 
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
-      Math.pow(arrowPos.x - monsterPos.x, 2) +
-      Math.pow(arrowPos.y - monsterPos.y, 2) +
-      Math.pow(arrowPos.z - monsterPos.z, 2),
+      Math.pow(arrowPos.x - monsterTrans.posX, 2) +
+      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
-    const collisionThreshold = 1; // 이 값을 적절히 설정 (예: 1)
+    const collisionThreshold = 5; // 이 값을 적절히 설정 (예: 1)
     if (distance < collisionThreshold) {
       return true; // 충돌 발생
     }
 
-    console.log('distance 거라가 너무 멈', distance);
+    console.log('distance 거라가 너무 멈', distance); 
     return false; // 충돌하지 않음
   }
 

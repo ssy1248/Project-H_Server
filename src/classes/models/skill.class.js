@@ -1,5 +1,5 @@
 class Skill {
-  constructor(id, type, name, description, level, damage, cooldown, cost, range) {
+  constructor(id, type, name, description, level, damage, cooldown, cost, range, duration) {
     this.id = id; // 스킬 아이디
     this.type = type; // 스킬 타입 (단일, 범위, 버프, 디버프)
     this.name = name; // 스킬 이름
@@ -9,6 +9,7 @@ class Skill {
     this.damage = damage; // 스킬 데미지
     this.cost = cost; // 소비 마나
     this.range = range; // 스킬 범위
+    this.duration = duration; // 스킬 지속 시간
 
     // 스킬 사용 시각을 기록하여 쿨타임 계산에 사용 (초기값: 과거 시각)
     this.lastUsedTime = 0;
