@@ -3,17 +3,25 @@ import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 import MONSTER_SEND_MESSAGE from '../../handlers/monster.handler.js';
-import { monsterApplyDamage, userApplyDamage } from '../../movementSync.manager.js';
+import { getUserBySocket } from '../../../session/user.session.js';
+import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
-  constructor(movementId, id,transform, model, name, hp) {
-    super(movementId, id, "monster" , transform);
+  constructor(movementId, id, transform, model, name, hp, atk, def, speed) {
+    super(movementId, id, transform);
 
     this.model = model;
     this.name = name;
     this.hp = hp;
+    this.atk = atk;
+    this.def = def;
+    this.speed = speed;
 
     this.spawnTransform = { ...this.currentTransform };
+    this.attackCount = 0;
+    this.isAttack = false;
+    this.isDie = false;
+    this.isDamage = false;
   }
 
   // 0.
@@ -55,7 +63,7 @@ export default class Monster extends Entity {
   }
 
   // 1. updateMonsterSync
-  updateMonsterSync(userTransform, id) {
+  updateMonsterSync(user) {
     const behavior = super.getBehavior();
 
     if (this.isDamage) {
@@ -64,11 +72,11 @@ export default class Monster extends Entity {
 
     if (behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
       this.isAttack = false;
-      this.monsterAiBehaviorIDLE(userTransform);
+      this.monsterAiBehaviorIDLE(user);
     } else {
       switch (behavior) {
         case CONSTANTS.AI_BEHAVIOR.CHASE:
-          this.monsterAiBehaviorCHASE(userTransform);
+          this.monsterAiBehaviorCHASE(user);
           break;
         case CONSTANTS.AI_BEHAVIOR.RETURN:
           this.monsterAiBehaviorRETURN();
@@ -77,11 +85,10 @@ export default class Monster extends Entity {
           //this.monsterAiBehaviorCHASE(users);
           break;
         case CONSTANTS.AI_BEHAVIOR.ATTACK:
-          this.monsterAiBehaviorATTACK(userTransform, id);
+          this.monsterAiBehaviorATTACK(user);
           break;
         case CONSTANTS.AI_BEHAVIOR.DAMAGED:
-          console.log('여긴와?');
-          this.monsterAiBehaviorDAMAGED(userTransform);
+          this.monsterAiBehaviorDAMAGED(user);
           break;
         default:
           break;
@@ -92,8 +99,9 @@ export default class Monster extends Entity {
   // 문제 발생
   // 1.
 
-  monsterAiBehaviorIDLE(userTransform) {
+  monsterAiBehaviorIDLE(user) {
     // 거리 측정.
+    const userTransform = user.getTransform();
     const currentTransform = super.getCurrentTransform();
     const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
@@ -113,7 +121,8 @@ export default class Monster extends Entity {
     }
   }
 
-  monsterAiBehaviorCHASE(userTransform) {
+  monsterAiBehaviorCHASE(user) {
+    const userTransform = user.getTransform();
     const lastTransform = super.getLastTransform();
     const currentTransform = super.getCurrentTransform();
     const targetTransform = super.getTargetTransform();
@@ -177,7 +186,8 @@ export default class Monster extends Entity {
     return super.getCurrentTransform();
   }
 
-  monsterAiBehaviorATTACK(userTransform, id) {
+  monsterAiBehaviorATTACK(user) {
+    const userTransform = user.getTransform();
     const currentTransform = super.getCurrentTransform();
 
     // 공격 수정
@@ -198,6 +208,18 @@ export default class Monster extends Entity {
         this.isAttack = true;
         if (this.isAttack) {
           MONSTER_SEND_MESSAGE.ATTCK(this.movementId);
+          // 1. 타겟 유저 찾기 => 매개변수로 받아옴
+          const targetUser = getUserBySocket(user.getSocket());
+          // 1-2. 공격 몬스터 찾기 => this
+          // TODO: 몬스터 공격력 계산
+          const damage = Math.max(0, this.atk - user.getDef());
+          // 2. 타겟 유저에게 데미지 주기
+          user.getDamage(damage);
+          // 3. 타겟 유저 사망 처리
+          // 4. 파티 전멸 처리
+          // 5. 아이템 소실
+          //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
+          super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
           console.log('[몬스터 공격 성공하는 시점]');
 

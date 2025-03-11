@@ -9,7 +9,7 @@ export const inventoryHandler = async (socket, data) => {
 
         // socket의 플레이어가 charId인지 검증(남의 인벤토리는 볼 수 없음)
         const user = getUserBySocket(socket);
-        if (user.PlayerInfo.charId !== charId) { // TODO : Class user.PlayerInfo에 charId가 있어야함 ('../../classes/models/user.class.js')
+        if (user.PlayerInfo.charId !== charId) {
             throw new Error("Character ID is invalid!");
         }
 

@@ -1,4 +1,3 @@
-import initialHandler from './user/initial.handler.js';
 import CustomError from '../utils/error/customError.js';
 import { ErrorCodes } from '../utils/error/errorCodes.js';
 import moveHandler from './game/move.handler.js';
@@ -34,12 +33,16 @@ import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
-import { processBuffSkillHandler, processPlayerActionHandler } from './game/InGame/player.handler.js';
+import {
+  processBuffSkillHandler,
+  processPlayerActionHandler,
+} from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
-import reSpawnUserHandler from './user/reSpawnUser.handler.js';
+import reSpawnUserHandler from './user/respawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 import { rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import userStateHandler from './user/userState.handler.js';
 //import playerRangeAttackHandler from './game/dungeon/player.attack.js';
 
 const handlers = {
@@ -72,7 +75,7 @@ const handlers = {
     protoType: 'user.S_Spawn',
   },
   [PACKET_TYPE.S_DESPAWN]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.S_Despawn',
   },
   [PACKET_TYPE.C_MOVE]: {
@@ -120,11 +123,11 @@ const handlers = {
     protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
+    handler: ActiveItemRequestHandler,
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler, // TODO : 핸들러 연결
+    handler: animationHandler,
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
@@ -324,13 +327,17 @@ const handlers = {
     handler: undefined,
     protoType: 'dungeon.C_rangeAttcckCollide',
   },
-  [PACKET_TYPE.C_SKILLBUFF]:{
-    handler : processBuffSkillHandler,
-    protoType : 'dungeon.C_SkillBuff',
+  [PACKET_TYPE.C_SKILLBUFF]: {
+    handler: processBuffSkillHandler,
+    protoType: 'dungeon.C_SkillBuff',
   },
-  [PACKET_TYPE.S_SKILLBUFF]:{
-    handler : undefined,
-    protoType : 'dungeon.S_SkillBuff',
+  [PACKET_TYPE.S_SKILLBUFF]: {
+    handler: undefined,
+    protoType: 'dungeon.S_SkillBuff',
+  },
+  [PACKET_TYPE.C_GETUSERSTATE]: {
+    handler: userStateHandler,
+    protoType: 'user.C_GetUserState',
   },
 };
 

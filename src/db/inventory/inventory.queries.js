@@ -17,4 +17,5 @@ export const SQL_QUERIES = {
   DISROBE_ITEM: 'UPDATE Inventory SET equipped = 0 WHERE id = ? AND charId = ?',
   STORE_ITEM: 'UPDATE Inventory SET equipped = 2 WHERE id = ? AND charId = ?',
   GET_ITEM_BUY_INVENTORY: `SELECT * FROM Inventory WHERE charId = ? AND  id =?`,
+  LOSE: 'DELETE FROM Inventory WHERE charId = ? AND (equipped = 0 OR equipped = 1)',
 };
