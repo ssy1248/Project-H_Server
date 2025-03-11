@@ -9,6 +9,7 @@ import Monster from './entity/classes/monster.class.js';
 import { getUserById, getUserBySocket } from '../session/user.session.js';
 import { v4 as uuidv4 } from 'uuid';
 
+
 /* 
 클래스에 등록된 유저와 몬스터의 좌표를 60프레임 단위로 동기화하는 클래스
 entity를 상속하는 별도의 user 클래스를 사용하기 때문에 코드가 분산되는 문제가 있음
@@ -61,8 +62,8 @@ export default class MovementSync {
       const bosses = Object.values(this.bosses);
 
 
-      const userInfo = JSON.parse(JSON.stringify(users));
-      console.log("userInfo : ", userInfo);
+      //const userInfo = JSON.parse(JSON.stringify(users));
+      //console.log("userInfo : ", userInfo);
 
       // 유저
       if (users.length <= 0) {
@@ -364,7 +365,7 @@ export default class MovementSync {
     //   this.processMonsterSpawn();
     // }
 
-    //this.processMonsterSpawn();
+    this.processMonsterSpawn();
     this.entityMovement();
   }
 

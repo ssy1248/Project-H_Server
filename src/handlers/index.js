@@ -41,7 +41,7 @@ import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/respawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
-import { playerSkillBuff, rangeAttackCollide, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import { playerSkillBuff,  rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
 import userStateHandler from './user/userState.handler.js';
 //import playerRangeAttackHandler from './game/dungeon/player.attack.js';
 import bossSkillHandler from './game/dungeon/bossSkill.handler.js';
