@@ -34,7 +34,7 @@ import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
-import { processPlayerActionHandler } from './game/InGame/player.handler.js';
+import { processBuffSkillHandler, processPlayerActionHandler } from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/reSpawnUser.handler.js';
@@ -325,7 +325,7 @@ const handlers = {
     protoType: 'dungeon.C_rangeAttcckCollide',
   },
   [PACKET_TYPE.C_SKILLBUFF]:{
-    handler : playerSkillBuff,
+    handler : processBuffSkillHandler,
     protoType : 'dungeon.C_SkillBuff',
   },
   [PACKET_TYPE.S_SKILLBUFF]:{
