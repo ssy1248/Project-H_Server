@@ -1,8 +1,11 @@
 import MovementSync from './movementSync.class.js';
-import { createResponse } from '../utils/response/createResponse.js';
-import { PACKET_TYPE } from '../constants/header.js';
-import CONSTANTS from './constants/constants.js';
 const movementSyncs = {};
+
+/*
+movementSync 클래스 인스턴스를 관리하는 매니저
+movementSync 인스턴스는 던전에 종속되므로, 던전에서 생성하고 관리하는 것이 좋을 것 같다.
+어차피 town도 세션으로 관리해줘야 한다. town도 던전과 같은 방식으로 movementSync를 생성하고 관리하는 것이 좋을 것 같다.
+*/
 
 // [movementSync 생성].
 export const createMovementSync = (movementSyncId, type) => {

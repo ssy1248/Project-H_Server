@@ -641,6 +641,14 @@ message HitResult {
   string userName = 3;// 피격당한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
+// 요청
+message C_GetUserState{
+}
+// 정보 보내주기 
+message S_SetUserState{
+  StatInfo data =1;
+  float exp = 2;
+}
 
 message RangeNormalAttackResult {
   int32 arrowId = 1;

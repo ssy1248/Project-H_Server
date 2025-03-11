@@ -91,10 +91,8 @@ class Match {
               (p) => p.id !== party1.id && p.id !== party2.id,
             );
             console.log(
-              `매칭 완료: 파티 ${party1.id}와 파티 ${
-                party2.id
-              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${
-                party1.partyMembers.length + party2.partyMembers.length
+              `매칭 완료: 파티 ${party1.id}와 파티 ${party2.id
+              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length
               }).`,
             );
             // 두 파티 중 레벨이 높은 리더를 기준으로 결합하거나 원하는 로직으로 처리
@@ -211,15 +209,40 @@ class Match {
     }
   }
 
+  /*
+  party = {
+    dungeonIndex,
+    id,
+    partyInfo: { => 객체를 풀어서 바깥의 요소들과 함께 전달하는게 좋아보임
+      dungeonIndex, => 바깥의 dungeonIndex와 중복됨
+      maximum, => 바깥의 id와 중복됨
+      partyId,
+      partyLeaderId,
+      partyName,
+      Players = [ // => 밑에 user 객체를 직접 참조하니까 이건 필요가 없음
+        {
+          playerName,
+          playerLevel,
+          playerClass,
+          playerFullHp,
+          playerCurHp,
+          playerFullMp,
+          playerCurMp,
+        }
+      ]
+    },
+    partyLeader : User,
+    partyMembers : [User],
+  }
+  */
   // 던전 입장 함수: 매칭된 멤버들이 던전에 입장하도록 처리
   enterDungeon(party) {
     // 던전 고유 번호 생성
     const dungeonId = uuidv4();
     // 던전 세션 추가
-    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo);
+    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo); // => party 정보 전체를 전달하고 아래 내용들 전부 던전 생성자에서 처리하는게 나아보임
 
-    //여기에서 던전인덱스에 따라서 던전 몬스터들 추가
-
+    //#region 던전 생성자에서 처리해도 되는 내용
     party.partyInfo.Players.forEach((member) => {
       const userSock = getUserByNickname(member.playerName);
       userSock.inDungeonId = dungeonId;
@@ -235,6 +258,7 @@ class Match {
     console.log(party, 'party');
 
     dungeonSession.setDungeonState('progress');
+    //#endregion
 
     // 실제 게임 로직에서는 던전 입장 패킷 전송, 게임 상태 업데이트 등을 수행
     console.log('던전 입장 처리 중...', party.partyInfo.Players);

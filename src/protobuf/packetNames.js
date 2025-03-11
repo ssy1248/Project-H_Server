@@ -8,6 +8,8 @@ export const packetNames = {
     S_Enter: 'Google.Protobuf.Protocol.S_Enter',
     S_Spawn: 'Google.Protobuf.Protocol.S_Spawn',
     S_Despawn: 'Google.Protobuf.Protocol.S_Despawn',
+    S_SetUserState: 'Google.Protobuf.Protocol.S_SetUserState',
+    C_GetUserState: 'Google.Protobuf.Protocol.C_GetUserState',
   },
   town: {
     C_Move: 'Google.Protobuf.Protocol.C_Move',
