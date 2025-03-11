@@ -52,7 +52,7 @@ class Players {
           attackCoolTime: 2,
           damage: 35,
         };
-        // 아이디, 타입, 이름, 설명, 레벨, 쿨타임, 데미지, 마나, 범위, 지속시간간
+        // 아이디, 타입, 이름, 설명, 레벨, 쿨타임, 데미지, 마나, 범위, 지속시간
         this.skillAttack = new Skill(3, 3, '공속증가', '공격 속도를 증가시킵니다.', 1, 0, 10, 15, 0, 5);
         this.dodge = {
           dodgeCoolTime: 5,

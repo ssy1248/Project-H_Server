@@ -22,14 +22,17 @@ export const processPlayerActionHandler = (socket, packet) => {
     console.log('일반 근접 공격 요청 처리');
     processAttackHandler(socket, packet.normalAttack.attackerName, packet.normalAttack.targetId);
   } else if (packet.skillAttack) {
-    if(packet.skillAttack.targetId[0] === 'Buff')
-    {
+    if (packet.skillAttack.targetId[0] === 'Buff') {
       console.log('버프 스킬 들어왔다');
-      processBuffSkillHandler(socket, packet.skillAttack.attackerName)
+      processBuffSkillHandler(socket, packet.skillAttack.attackerName);
     } else {
       // 스킬 공격 처리
       console.log('스킬 공격 요청 처리');
-      processSkillAttackHandler(socket, packet.skillAttack.attackerName, packet.skillAttack.targetId);
+      processSkillAttackHandler(
+        socket,
+        packet.skillAttack.attackerName,
+        packet.skillAttack.targetId,
+      );
     }
   } else if (packet.dodgeAction) {
     // 회피 처리
@@ -476,22 +479,14 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
 };
 
 // PlayerAction 에 추가를 해야하나 아님 그냥 프로토버퍼에서 구분을 해야하나
-// 고민을 해야할듯 
+// 고민을 해야할듯
 
 export const processBuffSkillHandler = (socket, attackerName) => {
   try {
     console.log('playerBuffSkill 시작');
 
-    const user = getUserBySocket(socket);
-    // 유저가 없을 경우
-    if (!user) {
-      console.error('공격자를 찾을 수 없습니다.');
-      return;
-    }
-    const userNickName = user.userInfo.nickname;
-
     // 3) 공격자(플레이어)를 던전에서 찾음
-    const attackerSessions = getDungeonInPlayerName(userNickName);
+    const attackerSessions = getDungeonInPlayerName(attackerName);
     if (!attackerSessions || attackerSessions.length === 0) {
       console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
       sendActionFailure(socket, '던전 세션에서 공격자를 찾을 수 없습니다.');
@@ -500,12 +495,37 @@ export const processBuffSkillHandler = (socket, attackerName) => {
     const dungeon = attackerSessions[0];
 
     // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
-    const player = dungeon.players[userNickName];
+    const player = dungeon.players[attackerName];
     if (!player) {
       console.error('던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
       sendActionFailure(socket, '던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
       return;
     }
+
+    try {
+      player.skillAttack.use();
+    } catch (error) {
+      sendActionFailure(socket, error.message);
+      return;
+    }
+
+    let user;
+    dungeon.partyInfo.Players.forEach((player) => {
+      if (player.playerName === attackerName) {
+        user = player;
+      }
+    });
+
+    let playerCurrentMp = user.playerCurMp;
+    if (playerCurrentMp < player.skillAttack.cost) {
+      player.skillAttack.resetCooldown();
+      console.error('마나가 부족합니다.');
+      return;
+    }
+
+    playerCurrentMp -= player.skillAttack.cost;
+    console.log('playerCurrentMp 남은 마나 : ', playerCurrentMp);
+    user.playerCurMp = playerCurrentMp;
 
     // Archer일 때만 공격 속도 증가 버프 적용
     if (player.playerClass === 3) {
@@ -528,37 +548,42 @@ export const processBuffSkillHandler = (socket, attackerName) => {
         player.normalAttack.attackCoolTime = originalAtkDelay;
         console.log('공격 쿨타임이 원래 값으로 복원되었습니다.');
         // 복원 완료 후 클라에 복원 완료 메시지 전송 (옵션)
-        const buffRestorePayload = {
-          playerAtkDelay: originalAtkDelay,
-          message: '스탯 버프 복원 완료',
-        };
-        const restorePacket = createResponse(
-          'dungeon',
-          'S_SkillBuff',
-          PACKET_TYPE.S_SKILLBUFF,
-          buffRestorePayload,
-        );
-        socket.write(restorePacket);
-      }, skillDurationTime);
+        // const buffRestorePayload = {
+        //   // 빈값 보내서 지속시간 동안 이펙트를 유지 시키고 이게 날라오면
+        // };
+        // const restorePacket = createResponse(
+        //   'dungeon',
+        //   'S_SkillBuff',
+        //   PACKET_TYPE.S_SKILLBUFF,
+        //   buffRestorePayload,
+        // );
+        // socket.write(restorePacket);
+      }, skillDurationTime * 1000);
 
       // 버프 적용 즉시 결과 전송
-      const buffPayload = {
-        playerAtkDelay: newAtkDelay,
-        message: '스탯 버프 적용됨',
+      const skillPayload = {
+        skillId: player.skillAttack.id,
+        useUserName: attackerName,
+        currentMp: playerCurrentMp,
       };
-      const buffPacket = createResponse(
+      const skillBuffPacket = {
+        skillPayload, 
+        success: true,
+        message: '스킬 사용을 성공했습니다.',
+      };
+      const packet = createResponse(
         'dungeon',
-        'S_SkillBuff',
-        PACKET_TYPE.S_SKILLBUFF,
-        buffPayload,
+        'S_PlayerAction',
+        PACKET_TYPE.S_PLAYERACTION,
+        skillBuffPacket,
       );
-      socket.write(buffPacket);
+      socket.write(packet);
     } else {
       console.log('해당 플레이어는 버프 스킬 적용 대상이 아닙니다.');
       // 다른 클래스에 대해 별도 처리가 필요한 경우 여기에 구현
     }
   } catch (e) {
-    handlerError(socket, e);
+    console.log('버프 스킬 핸들러 에러 : ', e);
   }
 };
 

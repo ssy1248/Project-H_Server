@@ -495,7 +495,7 @@ export const playerDodge = (socket, packetData) => {
   }
 };
 
-export default playerRangeAttackHandler;
+//export default playerRangeAttackHandler;
 
 //자 기본 공격,(논타켓팅) 스킬공격(논타겟티잉거나 타겟팅), 스킬 버프,
 //자 그러면 분기를 나누어서 이것들을 처리 시키고 싶어 왜냐하면 쿨타임 계산식을 모든 스킬 핸들러에 추가 하는것보다 낳을것 같거든
