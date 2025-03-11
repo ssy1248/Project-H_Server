@@ -44,7 +44,7 @@ export default class User {
     };
     this.agent = null;
     this.inDungeonId = '';
-
+    this.isAlive = true;
     this.inventory = new Inventory();
   }
 
@@ -193,18 +193,24 @@ export default class User {
   }
 
   getDamage(damage) {
+    // TODO : broadcast로 데미지 정보 전달
     this.playerStatInfo.hp -= damage;
     if (this.playerStatInfo.hp <= 0) {
+      this.playerStatInfo.hp = 0;
       this.die();
     }
   }
 
   die() {
     // 사망 처리
-    // 기능 정지
+    this.isAlive = false;
+    this.agent.isAlive = false;
     // 참여한 던전 찾기
     const dungeon = getDungeonSession(this.inDungeonId);
-    
+    // 던전에 플레이어 사망 상태 반영하기
+    // 던전은 파티가 전멸 상태인지 아닌지 확인해야함
+    // 파티가 전멸 상태라면 던전 종료
+    dungeon.Alives--;
   }
   // 추가 함수 작성...
 }

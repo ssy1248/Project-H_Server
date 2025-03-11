@@ -214,10 +214,7 @@ export default class Monster extends Entity {
           // TODO: 몬스터 공격력 계산
           const damage = Math.max(0, this.atk - user.getDef());
           // 2. 타겟 유저에게 데미지 주기
-          user.getDamage(damage);
-          // 3. 타겟 유저 사망 처리
-          // 4. 파티 전멸 처리
-          // 5. 아이템 소실
+          targetUser.getDamage(damage);
           //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
