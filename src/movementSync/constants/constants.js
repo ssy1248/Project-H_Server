@@ -11,6 +11,7 @@ const CONSTANTS = {
     PLAYER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
     MONSTER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
     MONSTER_SPAWN_INTERVAL: 10000,
+    SKILL_COOLDOWN: 120,
   },
 
   NETWORK: {
@@ -41,6 +42,8 @@ const CONSTANTS = {
     SKILL_01: 1001,      // 스킬
     SKILL_02: 1002,      // 스킬
     SKILL_03: 1003,      // 스킬
+    SKILL_04: 1003,      // 스킬
+    SKILL_05: 1003,      // 스킬
     DIE: 1004,           // 사망
   },
 

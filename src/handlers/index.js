@@ -41,6 +41,7 @@ import reSpawnUserHandler from './user/reSpawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 import { playerSkillBuff, rangeAttackCollide, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
 import playerRangeAttackHandler from './game/dungeon/player.attack.js';
+import bossSkillHandler from './game/dungeon/bossSkill.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -332,6 +333,10 @@ const handlers = {
     handler : playerSkillBuff,
     protoType : 'dungeon.S_SkillBuff',
   },
+  [PACKET_TYPE.C_BOSSSKILL]: {
+    handler : bossSkillHandler,
+    protoType : 'dungeon.C_BossSkill',
+  }
 };
 
 export const getHandlerById = (handlerId) => {

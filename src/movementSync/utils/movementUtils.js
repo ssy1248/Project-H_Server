@@ -94,13 +94,18 @@ const hasPassedTarget = (currentTransform, targetTransform, lastTransform) => {
 
 // [ OBB 충돌]
 const isInRotatedRange = (range, width, sourceTransform, targetTransform, rot = null) => {
-  let sourceRot = rot
-  if(rot === null) {
-    sourceRot = targetTransform.rot
+  let sourceRot = rot;
+  if (rot === null) {
+    sourceRot = targetTransform.rot;
   }
-  
+
   // 공격 범위의 네 꼭지점 계산
-  const { topLeft, topRight, bottomLeft, bottomRight } = calculateRotatedBox(range, width, sourceTransform, sourceRot);
+  const { topLeft, topRight, bottomLeft, bottomRight } = calculateRotatedBox(
+    range,
+    width,
+    sourceTransform,
+    sourceRot,
+  );
 
   // 대상이 공격 범위 내에 있는지 체크 (최소/최대 좌표를 이용한 충돌 감지)
   const isTargetInRange =
@@ -110,7 +115,6 @@ const isInRotatedRange = (range, width, sourceTransform, targetTransform, rot = 
     targetTransform.posZ <= Math.max(topLeft.z, topRight.z, bottomLeft.z, bottomRight.z);
 
   return isTargetInRange;
-
 };
 
 const calculateRotatedBox = (range, width, sourceTransform, rot) => {
@@ -150,10 +154,9 @@ const calculateRotatedBox = (range, width, sourceTransform, rot) => {
     topLeft: { x: topLeftX, z: topLeftZ },
     topRight: { x: topRightX, z: topRightZ },
     bottomLeft: { x: bottomLeftX, z: bottomLeftZ },
-    bottomRight: { x: bottomRightX, z: bottomRightZ }
+    bottomRight: { x: bottomRightX, z: bottomRightZ },
   };
 };
-
 
 // [내 주변 회전된 사각형 충돌 감지]
 const isTargetInRotatedAreaAroundMe = (width, sourceTransform, targetTransform, rot = null) => {
@@ -161,9 +164,13 @@ const isTargetInRotatedAreaAroundMe = (width, sourceTransform, targetTransform, 
   if (rot === null) {
     sourceRot = sourceTransform.rot; // 기본적으로 보스의 회전값을 사용
   }
-  
+
   // 내 주변을 기준으로 회전된 사각형의 네 꼭지점 계산
-  const { topLeft, topRight, bottomLeft, bottomRight } = calculateRotatedBoxAroundMe(width, sourceTransform, sourceRot);
+  const { topLeft, topRight, bottomLeft, bottomRight } = calculateRotatedBoxAroundMe(
+    width,
+    sourceTransform,
+    sourceRot,
+  );
 
   // 대상이 내 주변의 회전된 사각형 범위 내에 있는지 체크 (최소/최대 좌표를 이용한 충돌 감지)
   const isTargetInRange =
@@ -211,21 +218,77 @@ const calculateRotatedBoxAroundMe = (width, sourceTransform, rot) => {
     topLeft: { x: topLeftX, z: topLeftZ },
     topRight: { x: topRightX, z: topRightZ },
     bottomLeft: { x: bottomLeftX, z: bottomLeftZ },
-    bottomRight: { x: bottomRightX, z: bottomRightZ }
+    bottomRight: { x: bottomRightX, z: bottomRightZ },
   };
 };
 
+// [보스 - 사각형 생성]
+const bossCalculateRectangleCorners = (center, direction, width, height, length) => {
+  const halfWidth = width / 2;
+  const halfLength = length / 2; // height는 필요 없음 (XZ 평면 기준)
 
+  // 방향 벡터를 기준으로 사각형의 4개 코너를 계산
+  const right = { x: direction.x * halfWidth, z: direction.z * halfWidth };
+  const forward = { x: -direction.z * halfLength, z: direction.x * halfLength }; // 회전 고려
+
+  // 4개의 모서리 좌표 계산
+  const corners = [
+    { x: center.x + right.x + forward.x, z: center.z + right.z + forward.z }, // Top-Right
+    { x: center.x - right.x + forward.x, z: center.z - right.z + forward.z }, // Top-Left
+    { x: center.x + right.x - forward.x, z: center.z + right.z - forward.z }, // Bottom-Right
+    { x: center.x - right.x - forward.x, z: center.z - right.z - forward.z }, // Bottom-Left
+  ];
+
+  return corners;
+};
+
+
+// [보스 - 사각형 충돌]
+const bossCheckRectangleCollision = (userPosition, corners) => {
+  // 사각형 내부에 유저가 있는지 확인하는 로직 (단순히 x, y좌표 기준으로)
+  const { posX, posZ } = userPosition;
+
+  // 사각형의 두 점 사이의 거리를 확인
+  const minX = Math.min(corners[0].x, corners[3].x);
+  const maxX = Math.max(corners[1].x, corners[2].x);
+  const minZ = Math.min(corners[0].z, corners[1].z);
+  const maxZ = Math.max(corners[2].z, corners[3].z);
+
+  return posX >= minX && posX <= maxX && posZ >= minZ && posZ <= maxZ;
+}
+
+// [보스 - 부채꼴 충돌 검사]
+const bossCheckSectorCollision = (userPosition, center, direction, radius, angle) => {
+  // 1. 중심점과 유저 거리 계산
+  const dx = userPosition.posX - center.x;
+  const dz = userPosition.posZ - center.z;
+  const distanceSquared = dx * dx + dz * dz;
+
+  if (distanceSquared > radius * radius) return false; // 반지름 바깥이면 충돌 X
+
+  // 2. 방향 벡터와 유저 벡터의 각도 비교
+  const userAngle = Math.atan2(dz, dx); // 유저 방향 (라디안)
+  const forwardAngle = Math.atan2(direction.z, direction.x); // 보스 방향 (라디안)
+  
+  let angleDiff = userAngle - forwardAngle;
+  angleDiff = ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI; // -π ~ π 범위로 변환
+
+  return Math.abs(angleDiff) <= angle / 2; // 부채꼴 각도 내에 있으면 충돌 O
+};
 
 const movementUtils = {
   Distance: calculateDistance,
   DirectionAndVelocity: calculateDirectionAndVelocity,
   Rotation: calculateRotation,
   hasPassedTarget: hasPassedTarget,
-  obbCollision:isInRotatedRange,
+  obbCollision: isInRotatedRange,
   obbBox: calculateRotatedBox,
   obbMyCollision: isTargetInRotatedAreaAroundMe,
   obbMyBox: calculateRotatedBoxAroundMe,
+
+  BossCreateRectangle: bossCalculateRectangleCorners,
+  BossRectangleCollision: bossCheckRectangleCollision,
+  BossSectorCollision: bossCheckSectorCollision,
 };
 
 export default movementUtils;

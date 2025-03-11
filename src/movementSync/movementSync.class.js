@@ -17,6 +17,8 @@ export default class MovementSync {
     this.monsterSpawnInterval = 0;
     this.aSter = 0;
 
+    this.bossCount = 0;
+
     this.startMovementProcess();
   }
 
@@ -45,6 +47,10 @@ export default class MovementSync {
       const users = this.entityManager.getUsersArray();
       const monsters = this.entityManager.getMonstersArray();
       const bosses = this.entityManager.getbossesArray();
+
+
+      const userInfo = JSON.parse(JSON.stringify(users));
+      console.log("userInfo : ", userInfo);
 
       // 유저
       if (users.length <= 0) {
@@ -308,6 +314,13 @@ export default class MovementSync {
         return;
       }
 
+      // 보스 생성 (보스 생성 후 몬스터 리스폰 종료.)
+      if(this.bossCount === 5){
+        this.addBoss();
+        clearInterval(this.monsterSpawnInterval);
+        this.bossCount = 0;
+      }
+
       this.addMonster(this.movementId);
       console.log("몬스터 생성이 됬어요.");
       const tsetMonsters = this.entityManager.getMonstersArray();
@@ -342,6 +355,10 @@ export default class MovementSync {
 
       // 브로드 캐스트
       await this.broadcast2(initialResponse);
+
+      // 보스카운터 1 증가.
+      this.bossCount++;
+
     }, CONSTANTS.ENTITY.MONSTER_SPAWN_INTERVAL);
   }
 
@@ -361,6 +378,7 @@ export default class MovementSync {
     clearInterval(this.entityIntervar);
   }
 
+  // [유저]
   addUser(socket, id, transform) {
     this.entityManager.addUser(this.movementId, socket, id, transform);
   }
@@ -371,8 +389,8 @@ export default class MovementSync {
   }
 
   deleteUser(id) {
-    A_STER_MANAGER.DELETE_OBSTACLE('town', id);
-    A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
+    A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, id);
 
     this.entityManager.deleteUser(id);
   }
@@ -381,6 +399,11 @@ export default class MovementSync {
     return this.entityManager.getUser(id);
   }
 
+  findUsers() {
+    return this.entityManager.getUsersArray();
+  }
+
+  // [몬스터]
   addMonster() {
     this.entityManager.addMonster(this.movementId);
   }
@@ -402,11 +425,32 @@ export default class MovementSync {
   }
 
   deleteMonster(id) {
-    A_STER_MANAGER.DELETE_OBSTACLE('town', id);
-    A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
+    A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, id);
 
     this.entityManager.deleteMonster(id);
   }
+
+  // [보스]
+  addBoss() {
+    this.entityManager.addBoss(this.movementId);
+  }
+
+  findBoss(id) {
+    return this.entityManager.getBoss(id);
+  }
+
+  findBosses() {
+    return this.entityManager.getBossesArray();
+  }
+
+  deleteBoss(id) {
+    A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, id);
+    A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, id);
+
+    this.entityManager.deleteBoss(id);
+  }
+
 
   async broadcast(initialResponse) {
     const users = this.entityManager.getUsersArray();

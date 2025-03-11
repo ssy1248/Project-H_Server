@@ -40,15 +40,15 @@ export default class EntityManager {
     delete this.bosses[id];
   }
 
-  getbosses() {
+  getBosses() {
     return this.bosses;
   }
 
-  getbossesArray() {
+  getBossesArray() {
     return Object.values(this.bosses);
   }
 
-  getboss(id) {
+  getBoss(id) {
     return this.bosses[id];
   }
 

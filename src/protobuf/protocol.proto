@@ -96,7 +96,13 @@ enum MsgId {
   C_RANGEATTACKCOLLIDE=87;
   S_SKILLBUFF=88;
   C_SKILLBUFF=89;
-
+  S_BOSSSPAWN=90;
+  S_BOSSMOVE=91;
+  S_BOSSHIT=92;
+  S_BOSSDIE=93;
+  S_BOSSSKILLSTART=94;
+  S_BOSSSKILLEND=95;
+  C_BOSSSKILL=96;
 }
 
 //회원가입 요청
@@ -900,31 +906,77 @@ message C_SkillBuff{
 
 }
 
-// 보스몬스터 관련 패킷
+// [ 보스몬스터 관련 패킷]
 message S_BossSpawn{
-
+  string bossId = 1; // 보스 id 
+  int32 hp = 2; // 보스 hp
+  Vector currentPosition = 3; // 보스 스폰 포지션
 }
 
-message C_BossSpawn{
-
-}
-
-message S_BossDie{
-
-}
-
-message S_BossSkill01{
-
-}
-
-message S_BossSkill02{
-
-}
-
-message S_BossSkill03{
-
+message S_BossMove{
+  string bossId = 1; 
+  Vector targetPosition = 2;
 }
 
 message S_BossHit{
-
+  string bossId = 1; 
+  int32 damage = 2;
 }
+
+message S_BossDie{
+  string bossId = 1; 
+}
+
+message S_BossSkillStart{
+  string bossId = 1;
+  string type = 2;
+}
+
+message S_BossSkillEnd{
+  string bossId = 1;
+}
+
+message C_BossSkill {
+  string bossId = 1;
+  string type = 2;
+  Vector currentPosition = 3;
+  oneof skill_range {
+    RectangleArea rectangle = 4;
+    SectorArea sector = 5;
+    MultiCircleAttack multiCircle = 6;
+    CircleArea circles = 7;
+  }
+}
+
+// 부채꼴
+message SectorArea {
+  Vector center = 1;
+  Vector direction = 2;
+  float radius = 3;
+  float angle = 4;
+}
+
+
+// 상자
+message RectangleArea {
+  Vector center = 1;      // 중심 위치
+  Vector direction = 2;   // 바라보는 방향 (forward 벡터)
+  float width = 3;        // 가로 길이
+  float height = 4;       // 세로 길이 (필요하면)
+  float length = 5;       // 세로 또는 깊이 길이
+}
+
+// 원형 
+message CircleArea {
+  Vector center = 1;  // 원의 중심 좌표
+  float radius = 2;   // 반지름
+}
+
+message MultiCircleAttack {
+  repeated CircleArea circles = 1;  // 여러 개의 원 정보
+}
+
+
+
+
+

@@ -48,6 +48,7 @@ export const addUser = (movementSyncId, socket, id, transform) => {
   movementSyncs[movementSyncId].addUser(socket, id, transform);
 };
 
+
 // [유저 찾기]
 export const findUser = (movementSyncId, id) => {
   if (!findMovementSync(movementSyncId)) {
@@ -56,6 +57,15 @@ export const findUser = (movementSyncId, id) => {
   }
 
   return movementSyncs[movementSyncId].findUser(id);
+};
+
+export const findUsers = (movementSyncId) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(`[유저 찾기] movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  return movementSyncs[movementSyncId].findUsers();
 };
 
 // [유저 업데이트]
@@ -184,6 +194,44 @@ export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
     user.updateDamageCount(1, 20, 40, 0.2, monster.getCurrentTransform());
   }
 
-  
+}
 
-} 
+// [보스 피격]
+export const bossApplyDamage = (movementSyncId, damage) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(` movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  // 보스체력 업데이트
+  const boss = movementSyncs[movementSyncId].findBosses();
+  let bossHp = boss[0].getHp();
+  bossHp -= damage;
+  boss[0].setHp(bossHp);
+
+  // 보스 사망 검증 
+  if(bossHp <= 0){
+    boss[0].bossDie();
+    boss[0].deleteBoss(boss[0].id);
+  } else {
+    boss[0].bossTakeDamage(damage);
+  }
+
+}
+
+// [보스 스킬]
+export const handleBossSkill = (movementSyncId, bossId, type, currentPosition, skill_range ) => {
+  if (!findMovementSync(movementSyncId)) {
+    console.log(` movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
+    return false;
+  }
+
+  const boss = movementSyncs[movementSyncId].findBoss(bossId);
+  const users = findMonsters(movementSyncId);
+
+  if(boss){
+    boss.handleBossSkill(bossId, type, currentPosition, skill_range, users);
+  } else{
+    console.log("보스가 존재 하지 않습니다. : ", bossId);
+  }
+}
