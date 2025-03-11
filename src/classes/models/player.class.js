@@ -8,6 +8,9 @@ const PLAYER_CLASS = {
   MAGE: 5,
 };
 
+// 클래스로 구현 하지 말고 전역에서 참조 할 수 있게 하는게 좋을듯
+// 패킷 핸들러처럼 클래스ID - 스킬ID 매핑을 따로 만들어서 관리
+// 아직 스킬은 사용되는 곳이 없으니까 고치려면 지금임
 class Players {
   constructor(partyData) {
     if (!partyData || typeof partyData.playerClass !== 'number') {

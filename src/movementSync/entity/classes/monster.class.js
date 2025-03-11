@@ -216,13 +216,13 @@ export default class Monster extends Entity {
         this.isAttack = true;
         if (this.isAttack) {
           MONSTER_SEND_MESSAGE.ATTCK('town');
-          // 1. 타겟 유저 찾기 => clear 매개변수 수정으로 해결
+          // 1. 타겟 유저 찾기 => 매개변수로 받아옴
           const targetUser = getUserBySocket(user.getSocket());
-          // 1-2. 공격 몬스터 찾기 => 몬스터 클래스 통합으로 해결
-          // const damage = Math.max(0, this.atk - targetUser.getDef());
-          console.log(`몬스터 공격력 : ${this.atk}`);
+          // 1-2. 공격 몬스터 찾기 => this
+          // TODO: 몬스터 공격력 계산
+          const damage = Math.max(0, this.atk - user.getDef());
           // 2. 타겟 유저에게 데미지 주기
-
+          user.getDamage(damage);
           // 3. 타겟 유저 사망 처리
           // 4. 파티 전멸 처리
           // 5. 아이템 소실

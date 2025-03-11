@@ -9,6 +9,13 @@ import Monster from './entity/classes/monster.class.js';
 import { getUserById, getUserBySocket } from '../session/user.session.js';
 import { v4 as uuidv4 } from 'uuid';
 
+/* 
+클래스에 등록된 유저와 몬스터의 좌표를 60프레임 단위로 동기화하는 클래스
+entity를 상속하는 별도의 user 클래스를 사용하기 때문에 코드가 분산되는 문제가 있음
+user 클래스를 통합하려고 했으나 이미 구현된 코드가 많아서 그대로 두기로 결정
+movementySync.manager에서 모든 인스턴스를 관리하고 있는데,
+movementSync는 던전 인스턴스에 종속되므로 던전에서 생성하고 관리하는게 좋을 듯
+*/
 export default class MovementSync {
   constructor(id) {
     this.movementId = id;
