@@ -42,6 +42,7 @@ import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/respawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
 import { rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import userStateHandler from './user/userState.handler.js';
 //import playerRangeAttackHandler from './game/dungeon/player.attack.js';
 
 const handlers = {
