@@ -9,8 +9,9 @@ import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
  */
 
 export default class Entity {
-  constructor(movementId, id, transform = { posX: 0, posY: 0, posZ: 0, rot: 0 }) {
+  constructor(movementId, id, type,transform = { posX: 0, posY: 0, posZ: 0, rot: 0 }) {
     this.movementId = movementId;
+    this.type = type;
     this.id = id;
     this.currentTransform = { ...transform }; // 현재 좌표.
     this.lastTransform = { ...transform }; // 이전 좌표.
@@ -196,7 +197,9 @@ export default class Entity {
 
       // 타겟 업데이트.
       if (this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK) {
-        this.updateTargetTransform();
+        if(this.type !== "user"){
+          this.updateTargetTransform();
+        }
       }
 
       // 델타타임

@@ -909,3 +909,32 @@ message S_SkillBuff{
 message C_SkillBuff{
 
 }
+
+// 보스몬스터 관련 패킷
+message S_BossSpawn{
+
+}
+
+message C_BossSpawn{
+
+}
+
+message S_BossDie{
+
+}
+
+message S_BossSkill01{
+
+}
+
+message S_BossSkill02{
+
+}
+
+message S_BossSkill03{
+
+}
+
+message S_BossHit{
+
+}
