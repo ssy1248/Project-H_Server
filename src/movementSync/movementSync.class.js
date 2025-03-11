@@ -13,8 +13,14 @@ import { v4 as uuidv4 } from 'uuid';
 클래스에 등록된 유저와 몬스터의 좌표를 60프레임 단위로 동기화하는 클래스
 entity를 상속하는 별도의 user 클래스를 사용하기 때문에 코드가 분산되는 문제가 있음
 user 클래스를 통합하려고 했으나 이미 구현된 코드가 많아서 그대로 두기로 결정
+
 movementySync.manager에서 모든 인스턴스를 관리하고 있는데,
 movementSync는 던전 인스턴스에 종속되므로 던전에서 생성하고 관리하는게 좋을 듯
+
+movementSync 인스턴스는 던전의 지형 데이터만 가지고,
+users, monsters, bosses는 parameter로 받아서 경로를 계산하는 기능만 있는게 좋을듯
+아니면 인스턴스 레퍼런스를 받아서 사용하는 방법도 있을 듯
+지형 생성, 지형 갱신, 경로 계산 기능만 있으면 될 것 같다
 */
 export default class MovementSync {
   constructor(id) {
@@ -68,8 +74,8 @@ export default class MovementSync {
       }
 
       // 보스몬스터 
-      if(bosses.length !== 0) {
-        for(const boss of bosses){
+      if (bosses.length !== 0) {
+        for (const boss of bosses) {
           const userInfo = JSON.parse(JSON.stringify(users));
           boss.updateTransform(userInfo);
         }
@@ -92,7 +98,7 @@ export default class MovementSync {
             minDistance = distance;
             closestUser = user;
           }
-        
+
         }
 
         if (closestUser) {
@@ -212,7 +218,7 @@ export default class MovementSync {
 
   // // [몬스터 애니메이션 동기화] - 데미지
   updateMonsterDamage() {
-    const monsters = this.entityManager.getMonstersArray();
+    const monsters = Object.values(this.monsters);
     const monsterIds = monsters
       .filter((monster) => monster.getIsDamage()) // 죽었을경우
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
@@ -306,11 +312,11 @@ export default class MovementSync {
 
       this.addMonster(this.movementId);
       console.log("몬스터 생성이 됬어요.");
-      const tsetMonsters = this.entityManager.getMonstersArray();
+      const tsetMonsters = Object.values(this.monsters);
 
       const monsterTransformInfo = [];
       for (const monster of tsetMonsters) {
-        console.log(" monster.currentTransform : ",  monster.currentTransform);
+        console.log(" monster.currentTransform : ", monster.currentTransform);
         const test = monster.currentTransform;
         if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
@@ -320,7 +326,7 @@ export default class MovementSync {
         const syncData = this.createSyncMonsterTransformInfoData(monster, monster.getMonsterInfo());
         monsterTransformInfo.push(syncData);
       }
-      
+
       console.error("monsterTransformInfo :", monsterTransformInfo)
 
 
@@ -410,10 +416,9 @@ export default class MovementSync {
   }
 
   deleteMonsters() {
-    const monsters = this.entityManager.getMonsters();
-    const monstersArray = Object.values(monsters);
-    monstersArray.forEach((mon) => {
-      this.entityManager.deleteMonster(mon.id);
+    const monsters = Object.values(this.monsters);
+    monsters.forEach((mon) => {
+      deleteMonster(mon.id);
     });
   }
 
