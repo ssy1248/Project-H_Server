@@ -547,17 +547,6 @@ export const processBuffSkillHandler = (socket, attackerName) => {
         // 원래 스탯으로 복원
         player.normalAttack.attackCoolTime = originalAtkDelay;
         console.log('공격 쿨타임이 원래 값으로 복원되었습니다.');
-        // 복원 완료 후 클라에 복원 완료 메시지 전송 (옵션)
-        // const buffRestorePayload = {
-        //   // 빈값 보내서 지속시간 동안 이펙트를 유지 시키고 이게 날라오면
-        // };
-        // const restorePacket = createResponse(
-        //   'dungeon',
-        //   'S_SkillBuff',
-        //   PACKET_TYPE.S_SKILLBUFF,
-        //   buffRestorePayload,
-        // );
-        // socket.write(restorePacket);
       }, skillDurationTime * 1000);
 
       // 버프 적용 즉시 결과 전송
