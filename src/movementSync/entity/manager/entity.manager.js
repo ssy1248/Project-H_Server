@@ -1,11 +1,55 @@
 import User from '../classes/user.class.js';
 import Monster from '../classes/monster.class.js';
 import { v4 as uuidv4 } from 'uuid';
+import Boss1 from '../classes/boss1.class.js';
 
 export default class EntityManager {
   constructor() {
     this.users = {};
     this.monsters = {};
+    this.bosses = {};
+  }
+
+  addBoss(movementId) {
+    let transform = {};
+    console.log('Add Monster : ', movementId);
+    if (movementId === 'town') {
+      transform = {
+        posX: this.generateRandomPlayerTransformInfo(-9, 9),
+        posY: 1,
+        posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      };
+    } else {
+      transform = {
+        posX: 2,
+        posY: 1,
+        posZ: 25,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      };
+    }
+
+    const monsterId = uuidv4();
+    const randomNum = Math.floor(Math.random() * 30) + 1;
+
+    this.bosses[monsterId] = new Boss1(movementId, monsterId, transform, randomNum, 'Demonking', 3000);
+  }
+
+  deleteBoss(id) {
+    if (!this.bosses) return;
+    delete this.bosses[id];
+  }
+
+  getbosses() {
+    return this.bosses;
+  }
+
+  getbossesArray() {
+    return Object.values(this.bosses);
+  }
+
+  getboss(id) {
+    return this.bosses[id];
   }
 
   addUser(movementId, socket, id, transform) {
@@ -43,18 +87,30 @@ export default class EntityManager {
   }
 
   addMonster(movementId) {
+    // movementId -> town일때만
+    // movementId -> dungeon1이면 다른 생성 지점을 가져야 할듯
+    let transform = {};
     console.log('Add Monster : ', movementId);
-    const transform = {
-      posX: 2,
-      posY: 1,
-      posZ: 25,
-      rot: this.generateRandomPlayerTransformInfo(0, 360),
-    };
+    if (movementId === 'town') {
+      transform = {
+        posX: this.generateRandomPlayerTransformInfo(-9, 9),
+        posY: 1,
+        posZ: this.generateRandomPlayerTransformInfo(-8, 8) + 130,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      };
+    } else {
+      transform = {
+        posX: 2,
+        posY: 1,
+        posZ: 25,
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
+      };
+    }
 
     const monsterId = uuidv4();
     const randomNum = Math.floor(Math.random() * 30) + 1;
 
-    this.monsters[monsterId] = new Monster(movementId, monsterId, transform, 3, 'test', 10);
+    this.monsters[monsterId] = new Monster(movementId, monsterId, transform, randomNum, 'test', 10);
   }
 
   deleteMonster(id) {
