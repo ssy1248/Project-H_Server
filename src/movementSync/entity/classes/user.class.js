@@ -3,6 +3,8 @@ import CONSTANTS from '../../constants/constants.js';
 import movementUtils from '../../utils/movementUtils.js';
 import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
 
+// entity를 상속하는 user 클래스
+// src/classes/models/user.class.js와 통합하려고 했으나 이미 구현된 부분이 많아서 일단 따로 둠
 export default class User extends Entity {
   constructor(movementId, socket, id, transform) {
     super(movementId, id, "user" ,transform);

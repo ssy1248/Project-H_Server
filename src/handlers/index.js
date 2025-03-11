@@ -1,4 +1,3 @@
-import initialHandler from './user/initial.handler.js';
 import CustomError from '../utils/error/customError.js';
 import { ErrorCodes } from '../utils/error/errorCodes.js';
 import moveHandler from './game/move.handler.js';
@@ -72,7 +71,7 @@ const handlers = {
     protoType: 'user.S_Spawn',
   },
   [PACKET_TYPE.S_DESPAWN]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.S_Despawn',
   },
   [PACKET_TYPE.C_MOVE]: {
@@ -120,11 +119,11 @@ const handlers = {
     protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
+    handler: ActiveItemRequestHandler,
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler, // TODO : 핸들러 연결
+    handler: animationHandler,
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
