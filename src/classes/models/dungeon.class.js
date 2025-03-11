@@ -71,7 +71,7 @@ class Dungeon {
       let count = 0;
       partyInfo.Players.forEach((playerStatus) => {
         // playerStatus.playerName 또는 playerStatus에 다른 고유 식별자가 있다면 사용
-        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 0, rot: 0 };
+        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 2, rot: 0 };
         count++;
       });
     }
@@ -270,24 +270,24 @@ class Dungeon {
   }
 
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
-  checkArrowCollision(arrow, monster) {
+  checkArrowCollision(arrow, monsterTrans) {
     const arrowPos = arrow.position;
-    const monsterPos = monster.getTransform();
+    console.log('충돌 화살 좌표 : ', arrowPos);
 
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
-      Math.pow(arrowPos.x - monsterPos.x, 2) +
-      Math.pow(arrowPos.y - monsterPos.y, 2) +
-      Math.pow(arrowPos.z - monsterPos.z, 2),
+      Math.pow(arrowPos.x - monsterTrans.posX, 2) +
+      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
-    const collisionThreshold = 1; // 이 값을 적절히 설정 (예: 1)
+    const collisionThreshold = 5; // 이 값을 적절히 설정 (예: 1)
     if (distance < collisionThreshold) {
       return true; // 충돌 발생
     }
 
-    console.log('distance 거라가 너무 멈', distance);
+    console.log('distance 거라가 너무 멈', distance); 
     return false; // 충돌하지 않음
   }
 

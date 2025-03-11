@@ -23,7 +23,7 @@ export class AStar {
   constructor(grid, options = {}) {
     // 그리드를 참조가 아닌 깊은 복사로 가져오기.
     // 동적 장애물 갱신에 영향 가능성을 없애기 위해 깊은 복사 진행.
-    this.grid = _.cloneDeep(grid); 
+    this.grid = _.cloneDeep(grid);
     this.options = Object.assign(
       {
         rightAngle: false,
@@ -71,10 +71,10 @@ export class AStar {
       }
     }
 
-
-    // 그래도 유효한 위치가 없으면 리트라이 
+    // 그래도 유효한 위치가 없으면 리트라이
     if (!this.isValid(this.end) || !this.isValid(this.start)) {
-      if (this.retryCount >= 3) {  // 최대 3번까지만 재시도
+      if (this.retryCount >= 3) {
+        // 최대 3번까지만 재시도
         console.error('리트라이 횟수를 넘겼다.');
         return null;
       }
@@ -84,42 +84,75 @@ export class AStar {
     }
 
     let depth = 0;
+    // 시작 노드를 openList에 추가 (우선순위 큐에 시작 노드 넣기, 0은 fScore의 초기값)
     this.openList.enqueue(start, 0);
-    const cameFrom = new Map();
-    const gScore = new Map();
-    gScore.set(start.toString(), 0);
+    const cameFrom = new Map(); // 각 노드의 이전 노드를 저장 (경로 추적용)
+    const gScore = new Map(); // 각 노드의 gScore (시작 노드로부터의 실제 이동 비용)
+    gScore.set(start.toString(), 0); // 시작 노드의 gScore를 0으로 설정
 
+    // openList가 비지 않았고, 깊이가 최대 깊이보다 작을 때까지 반복
     while (!this.openList.isEmpty() && depth < this.options.maxDepth) {
+      // 우선순위 큐에서 가장 작은 fScore를 가진 노드를 꺼내 current로 설정
       let current = this.openList.dequeue();
 
+      // 목표 노드에 도달한 경우 경로를 복원하여 리턴
       if (current.toString() === this.end.toString()) {
-        //console.log('End node reached! Reconstructing path...');
         return this.reconstructPath(cameFrom, current);
       }
 
+      // 현재 노드를 closeList에 추가 (이미 방문한 노드로 표시)
       this.closeList.add(current.toString());
-      for (let neighbor of this.getNeighbors(current)) {
-        if (this.closeList.has(neighbor.toString())) continue;
 
+      // 현재 노드의 이웃들을 반복
+      for (let neighbor of this.getNeighbors(current)) {
+        // 이미 closeList에 포함된 이웃은 건너뛰기 (이미 방문한 노드)
+        if (this.closeList.has(neighbor.toString())) {
+          continue;
+        }
+
+        // 현재 노드에서 이웃 노드로 가는 경로의 예상 비용 계산
         let tentativeGScore = gScore.get(current.toString()) + this.g(current, neighbor);
 
+        // 이웃 노드에 대한 gScore가 없거나, 새로운 경로가 더 나은 경우 업데이트
         if (!gScore.has(neighbor.toString()) || tentativeGScore < gScore.get(neighbor.toString())) {
+          // 해당 노드의 이전 노드를 current로 설정
           cameFrom.set(neighbor.toString(), current);
+          // gScore를 갱신
           gScore.set(neighbor.toString(), tentativeGScore);
+
+          // fScore 계산 (gScore + hScore, 목표까지의 추정 비용)
           let fScore = tentativeGScore + this.h(neighbor, this.end);
+
+          // 우선순위 큐에 이웃 노드를 fScore와 함께 추가
           this.openList.enqueue(neighbor, fScore);
         }
       }
+
+      // 깊이 증가 (한 번의 반복이 한 깊이로 간주)
       depth++;
     }
 
+    console.log('A* search completed without reaching the end node.');
+
     // 여기오는거 같은데 ?
     // 여기 왜오는데!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // 반복문 종료 후, 경로를 찾지 못한 경우
+    if (this.openList.isEmpty()) {
+      console.log('❌ 경로를 찾을 수 없습니다. (막혀 있거나 도달 불가능)');
+    } else if (depth >= this.options.maxDepth) {
+      console.log('⚠️ 탐색이 최대 깊이 제한에 도달하여 중단되었습니다.');
+    }
 
+    // 🔍 디버깅용 추가 로그
+    console.log('🚧 Close List (방문한 노드들):', [...this.closeList]);
+   
+
+    console.error('depth : ', depth);
     console.log('No valid path found');
+    console.log();
+    console.warn('도착지점 장애물 : ', this.isValid(this.end));
     console.error(`start: ${this.start}, end: ${this.end}`);
-    console.log()
-
+    console.log();
 
     return null; // 경로 탐색 실패
   }
@@ -160,10 +193,10 @@ export class AStar {
             visited.add(`${nx},${ny}`); // 방문 체크는 여기서 추가
 
             if (this.isValid([nx, ny])) {
-              //console.log('유효한 위치 저장: ', nx, ny);
+              // console.log('유효한 위치 저장: ', nx, ny);
               validPoints.push([nx, ny]); // 유효한 위치 저장
             } else {
-              //console.log('유효한 위치 저장 못함: ', nx, ny);
+              // console.log('유효한 위치 저장 못함: ', nx, ny);
             }
           }
         }
@@ -178,7 +211,7 @@ export class AStar {
     // 유효한 위치 중 랜덤으로 하나 선택
     if (validPoints.length > 0) {
       let randomIndex = Math.floor(Math.random() * validPoints.length);
-      //console.log('랜덤으로 선택된 인덱스:', randomIndex, '좌표:', validPoints[randomIndex]);
+      // console.log('랜덤으로 선택된 인덱스:', randomIndex, '좌표:', validPoints[randomIndex]);
       return validPoints[randomIndex];
     }
 
@@ -300,7 +333,7 @@ export class AStar {
     if (current[0] === neighbor[0] || current[1] === neighbor[1]) {
       return 10; // 직선 이동 (10)
     }
-    return 10; // 대각선 이동 (14)
+    return 14; // 대각선 이동 (14)
   }
 
   h(node, end) {
@@ -311,7 +344,7 @@ export class AStar {
     // 유클리드 10
     // 맨핸튼 10
     return this.options.heuristic === 'euclidean'
-      ? Math.sqrt(dx * dx + dy * dy) * 2
-      : (dx + dy) * 5;
+      ? Math.sqrt(dx * dx + dy * dy) * 10
+      : (dx + dy) * 10;
   }
 }
