@@ -1,3 +1,4 @@
+import { getDungeonSession } from '../../session/dungeon.session.js';
 import Inventory from './inventory.class.js';
 
 export default class User {
@@ -179,6 +180,18 @@ export default class User {
     this.transformInfo.rot = transform.rot;
   }
 
+  getAtk(){
+    return this.playerStatInfo.atk;
+  }
+
+  getDef(){
+    return this.playerStatInfo.def;
+  }
+
+  getSpeed(){
+    return this.playerStatInfo.speed;
+  }
+
   getDamage(damage) {
     this.playerStatInfo.hp -= damage;
     if (this.playerStatInfo.hp <= 0) {
@@ -189,6 +202,8 @@ export default class User {
   die() {
     // 사망 처리
     // 기능 정지
+    // 참여한 던전 찾기
+    const dungeon = getDungeonSession(this.inDungeonId);
     
   }
   // 추가 함수 작성...
