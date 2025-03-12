@@ -1,6 +1,11 @@
 import { PACKET_TYPE } from '../../constants/header.js';
 import MovementSync from '../../movementSync/movementSync.class.js';
-import { addMovementSync, deleteMovementSync, findMovementSync, findUser } from '../../movementSync/movementSync.manager.js';
+import {
+  addMovementSync,
+  deleteMovementSync,
+  findMovementSync,
+  findUser,
+} from '../../movementSync/movementSync.manager.js';
 import { removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
@@ -105,17 +110,18 @@ class Dungeon {
     // 유저 배열
     this.users = users;
     this.alives = users.length;
-    Object.defineProperties(this, "Alives", {
-      get: () => this.alives,
+
+    Object.defineProperty(this, 'Alives', {
+      get: () => this._alives, // 내부 변수 사용
       set: (value) => {
-        this.alives = value;
-        if (alives <= 0) {
+        this._alives = value; // 내부 변수에 값 설정
+        console.log(`Alives 변경: ${this._alives}`);
+
+        if (this._alives <= 0) {
           // 파티 전멸
-          // 던전 종료
           this.endDungeonFailed();
-          // 
         }
-      }
+      },
     });
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
@@ -182,16 +188,14 @@ class Dungeon {
   }
 
   // 던전 성공 처리
-  endDungeonSuccess() {
-
-  }
+  endDungeonSuccess() {}
 
   // 던전 실패 처리
   endDungeonFailed() {
     // 던전 실패 패킷
     const packet = {
       success: false,
-    }
+    };
 
     const leaveDungeonPacket = createResponse(
       'dungeon',

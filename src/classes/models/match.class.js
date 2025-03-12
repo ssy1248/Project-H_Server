@@ -91,8 +91,10 @@ class Match {
               (p) => p.id !== party1.id && p.id !== party2.id,
             );
             console.log(
-              `매칭 완료: 파티 ${party1.id}와 파티 ${party2.id
-              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length
+              `매칭 완료: 파티 ${party1.id}와 파티 ${
+                party2.id
+              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${
+                party1.partyMembers.length + party2.partyMembers.length
               }).`,
             );
             // 두 파티 중 레벨이 높은 리더를 기준으로 결합하거나 원하는 로직으로 처리
@@ -240,7 +242,7 @@ class Match {
     // 던전 고유 번호 생성
     const dungeonId = uuidv4();
     // 던전 세션 추가
-    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo, [partyLeader, ...partyMembers]); // => party 정보 전체를 전달하고 아래 내용들 전부 던전 생성자에서 처리하는게 나아보임
+    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo, party.partyMembers); // => party 정보 전체를 전달하고 아래 내용들 전부 던전 생성자에서 처리하는게 나아보임
 
     //#region 던전 생성자에서 처리해도 되는 내용
     party.partyInfo.Players.forEach((member) => {
