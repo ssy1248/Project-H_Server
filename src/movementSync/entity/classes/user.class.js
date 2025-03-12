@@ -111,7 +111,7 @@ export default class User extends Entity {
     if(result) {
       super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
 
-      console.log("this.targetTransform : ",this.targetTransform)
+      //console.log("this.targetTransform : ",this.targetTransform)
       console.log('[도착]');
       return false;
     }

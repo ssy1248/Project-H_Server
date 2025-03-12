@@ -6,7 +6,7 @@ const CONSTANTS = {
   },
 
   ENTITY: {
-    DEFAULT_SPEED: 10, // 기본 이동 속도
+    DEFAULT_SPEED: 4, // 기본 이동 속도
     MONSTER_DETECTION_RANGE: 10, // 몬스터 탐지 범위
     PLAYER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
     MONSTER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
@@ -16,7 +16,7 @@ const CONSTANTS = {
 
   NETWORK: {
     TICK_RATE: 60, // 서버 업데이트 주기 (Hz)
-    INTERVAL: 100, // 1초(1000ms)를 60으로 나눈 값 → 16.7ms
+    INTERVAL: 10, // 1초(1000ms)를 60으로 나눈 값 → 16.7ms
     NETWORK_LATENCY: 100, // 예상 네트워크 지연 (ms)
     SNAPSHOT_INTERVAL: 0.1, // 스냅샷 전송 주기 (초)
   },

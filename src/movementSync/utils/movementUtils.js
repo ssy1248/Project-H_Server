@@ -223,57 +223,128 @@ const calculateRotatedBoxAroundMe = (width, sourceTransform, rot) => {
 };
 
 // [보스 - 사각형 생성]
-const bossCalculateRectangleCorners = (center, direction, width, height, length) => {
+const bossCalculateRectangleCorners = (
+  currentTransform,
+  center,
+  direction,
+  width,
+  height,
+  length,
+) => {
   const halfWidth = width / 2;
-  const halfLength = length / 2; // height는 필요 없음 (XZ 평면 기준)
+  const halfLength = length / 2;
+  const { posX, posZ } = currentTransform;
 
-  // 방향 벡터를 기준으로 사각형의 4개 코너를 계산
-  const right = { x: direction.x * halfWidth, z: direction.z * halfWidth };
-  const forward = { x: -direction.z * halfLength, z: direction.x * halfLength }; // 회전 고려
+  // 방향 벡터를 기준으로 오른쪽 벡터 계산 (90도 회전)
+  const right = { x: direction.z, z: -direction.x };
+  const forward = { x: direction.x, z: direction.z };
 
-  // 4개의 모서리 좌표 계산
+  // 벡터 길이 계산 (정규화)
+  const rightLength = Math.hypot(right.x, right.z);
+  const forwardLength = Math.hypot(forward.x, forward.z);
+
+  // 정규화 벡터
+  const normRight = { x: right.x / rightLength, z: right.z / rightLength };
+  const normForward = { x: forward.x / forwardLength, z: forward.z / forwardLength };
+
+  console.log('Normalized Right: ', normRight);
+  console.log('Normalized Forward: ', normForward);
+
+  // 사각형 꼭짓점 계산
   const corners = [
-    { x: center.x + right.x + forward.x, z: center.z + right.z + forward.z }, // Top-Right
-    { x: center.x - right.x + forward.x, z: center.z - right.z + forward.z }, // Top-Left
-    { x: center.x + right.x - forward.x, z: center.z + right.z - forward.z }, // Bottom-Right
-    { x: center.x - right.x - forward.x, z: center.z - right.z - forward.z }, // Bottom-Left
+    {
+      x: center.x + normRight.x * halfWidth + normForward.x * halfLength,
+      z: center.z + normRight.z * halfWidth + normForward.z * halfLength,
+    }, // Top-Left
+    {
+      x: center.x - normRight.x * halfWidth + normForward.x * halfLength,
+      z: center.z - normRight.z * halfWidth + normForward.z * halfLength,
+    }, // Top-Right
+    {
+      x: center.x - normRight.x * halfWidth - normForward.x * halfLength,
+      z: center.z - normRight.z * halfWidth - normForward.z * halfLength,
+    }, // Bottom-Right
+    {
+      x: center.x + normRight.x * halfWidth - normForward.x * halfLength,
+      z: center.z + normRight.z * halfWidth - normForward.z * halfLength,
+    }, // Bottom-Left
   ];
+
+  console.log('Rectangle Corners: ', corners);
 
   return corners;
 };
 
-
 // [보스 - 사각형 충돌]
+// 유저 위치를 회전된 사각형의 로컬 좌표계로 변환 후 충돌 검사
 const bossCheckRectangleCollision = (userPosition, corners) => {
-  // 사각형 내부에 유저가 있는지 확인하는 로직 (단순히 x, y좌표 기준으로)
-  const { posX, posZ } = userPosition;
+  const { posX, posZ, rot } = userPosition; // 유저의 월드 좌표와 회전값
+  const angle = -rot * (Math.PI / 180); // 유저 회전값을 라디안으로 변환
 
-  // 사각형의 두 점 사이의 거리를 확인
-  const minX = Math.min(corners[0].x, corners[3].x);
-  const maxX = Math.max(corners[1].x, corners[2].x);
-  const minZ = Math.min(corners[0].z, corners[1].z);
-  const maxZ = Math.max(corners[2].z, corners[3].z);
+  // 사각형의 중심점 계산 (대각선 중간점)
+  const centerX = (corners[0].x + corners[2].x) / 2;
+  const centerZ = (corners[0].z + corners[2].z) / 2;
 
-  return posX >= minX && posX <= maxX && posZ >= minZ && posZ <= maxZ;
-}
+  // 유저의 위치를 사각형의 중심을 기준으로 변환
+  const localPosX = posX - centerX;
+  const localPosZ = posZ - centerZ;
+
+  // 회전값을 반영하여 유저의 로컬 좌표 계산
+  const rotatedPosX = localPosX * Math.cos(angle) + localPosZ * Math.sin(angle);
+  const rotatedPosZ = -localPosX * Math.sin(angle) + localPosZ * Math.cos(angle);
+
+  // 사각형의 축 벡터 계산 (회전된 방향)
+  const axisX = corners[1].x - corners[0].x; // X 방향 벡터
+  const axisZ = corners[2].z - corners[0].z; // Z 방향 벡터
+
+  // 사각형의 크기 (반지름) 계산
+  const halfWidth = Math.abs(axisX); // X 방향의 반 크기
+  const halfHeight = Math.abs(axisZ); // Z 방향의 반 크기
+
+  // SAT 충돌 검사
+  return Math.abs(rotatedPosX) <= halfWidth && Math.abs(rotatedPosZ) <= halfHeight;
+};
 
 // [보스 - 부채꼴 충돌 검사]
+// [보스 - 부채꼴 충돌 검사]
 const bossCheckSectorCollision = (userPosition, center, direction, radius, angle) => {
-  // 1. 중심점과 유저 거리 계산
-  const dx = userPosition.posX - center.x;
-  const dz = userPosition.posZ - center.z;
-  const distanceSquared = dx * dx + dz * dz;
+  // 1. 삼각형의 세 점 계산 (부채꼴의 꼭지점)
+  const halfAngle = angle / 2;
+  const angle1 = Math.atan2(direction.z, direction.x) - halfAngle;
+  const angle2 = Math.atan2(direction.z, direction.x) + halfAngle;
 
-  if (distanceSquared > radius * radius) return false; // 반지름 바깥이면 충돌 X
+  const point1 = {
+    x: center.x + radius * Math.cos(angle1),
+    z: center.z + radius * Math.sin(angle1),
+  };
+  const point2 = {
+    x: center.x + radius * Math.cos(angle2),
+    z: center.z + radius * Math.sin(angle2),
+  };
 
-  // 2. 방향 벡터와 유저 벡터의 각도 비교
-  const userAngle = Math.atan2(dz, dx); // 유저 방향 (라디안)
-  const forwardAngle = Math.atan2(direction.z, direction.x); // 보스 방향 (라디안)
-  
-  let angleDiff = userAngle - forwardAngle;
-  angleDiff = ((angleDiff + Math.PI) % (2 * Math.PI)) - Math.PI; // -π ~ π 범위로 변환
+  // 2. 삼각형의 세 점과 유저 위치 비교 (삼각형 내부 검사)
+  const triangleVertices = [center, point1, point2];
+  const isInside = isPointInsideTriangle(userPosition, triangleVertices);
 
-  return Math.abs(angleDiff) <= angle / 2; // 부채꼴 각도 내에 있으면 충돌 O
+  return isInside; // 유저가 삼각형 내부에 있으면 충돌 O
+};
+
+// 삼각형 내부 점 검사 함수 (벡터 외적 사용)
+const isPointInsideTriangle = (point, triangleVertices) => {
+  const [v0, v1, v2] = triangleVertices;
+
+  const dX1 = v1.x - v0.x;
+  const dZ1 = v1.z - v0.z;
+  const dX2 = v2.x - v0.x;
+  const dZ2 = v2.z - v0.z;
+  const dX3 = point.posX - v0.x;
+  const dZ3 = point.posZ - v0.z;
+
+  const cross1 = dX1 * dZ3 - dZ1 * dX3;
+  const cross2 = dX2 * dZ3 - dZ2 * dX3;
+  const cross3 = dX1 * dZ2 - dZ1 * dX2;
+
+  return (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
 };
 
 const movementUtils = {

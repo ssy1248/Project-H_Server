@@ -101,7 +101,7 @@ const syncSpawnedUser = async (socket, user) => {
         const userInfo = value.getUserInfo();
         const user = findUser('town', userInfo.userId);
         if (user) {
-          //value.getUserById(user.currentTransform);
+          value.setTransformInfo(user.currentTransform);
         }
 
         const playerInfo = createPlayerInfoPacketData(value);

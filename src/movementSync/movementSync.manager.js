@@ -223,17 +223,17 @@ export const bossApplyDamage = (movementSyncId, damage) => {
 }
 
 // [보스 스킬]
-export const handleBossSkill = (movementSyncId, bossId, type, currentPosition, skill_range ) => {
+export const handleBossSkill = (movementSyncId, bossId, packetData ) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(` movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
   }
 
   const boss = movementSyncs[movementSyncId].findBoss(bossId);
-  const users = findMonsters(movementSyncId);
+  const users = findUsers(movementSyncId);
 
   if(boss){
-    boss.handleBossSkill(bossId, type, currentPosition, skill_range, users);
+    boss.handleBossSkill(packetData, users);
   } else{
     console.log("보스가 존재 하지 않습니다. : ", bossId);
   }

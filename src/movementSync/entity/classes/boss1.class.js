@@ -39,6 +39,7 @@ export default class Boss1 extends Entity {
     this.spawnTransform = { ...this.currentTransform };
 
     this.isSpawn = false;
+    this.isSkill = false;
   }
 
   // [보스 몬스터 스폰]
@@ -60,6 +61,8 @@ export default class Boss1 extends Entity {
       sBossSpawn,
     );
 
+    //console.log("userInfo :", userInfo);
+
     this.broadcast(initialResponse, userInfo);
 
     this.isSpawn = true;
@@ -69,8 +72,16 @@ export default class Boss1 extends Entity {
   updateTransform(userInfo) {
     if (this.isDie) return;
 
+    // 보스 몬스터 스폰 (한번만 스폰.)
+    if (!this.isSpawn) {
+      this.spawnBossMonster(userInfo);
+    }
+
     this.updateBossSync(userInfo);
-    super.updateTransform();
+
+    if(this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE){
+      super.updateTransform();
+    }
   }
 
   // 보스 몬스터 업데이트
@@ -83,38 +94,35 @@ export default class Boss1 extends Entity {
 
     // 보스 몬스터가 스킬을 사용 중 이라면
     if (this.bossBehavior !== CONSTANTS.BOSS_AI_BEHAVIOR.IDLE) {
-      switch (this.bossBehavior) {
-        case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_01:
-          this.boosAiBehaviorSkill(this.skillActiveTimes.skill_1, 'skill_01', userInfo);
-          break;
-        case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_02:
-          this.boosAiBehaviorSkill(this.skillActiveTimes.skill_2, 'skill_02', userInfo);
-          break;
-        case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_03:
-          this.boosAiBehaviorSkill(this.skillActiveTimes.skill_3, 'skill_03', userInfo);
-          break;
-        case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04:
-          this.boosAiBehaviorSkill(this.skillActiveTimes.skill_4, 'skill_04', userInfo);
-          break;
-        case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_05:
-          this.boosAiBehaviorSkill(this.skillActiveTimes.skill_5, 'skill_05', userInfo);
-          break;
+      if (this.skillCooldown === 0) {
+        switch (this.bossBehavior) {
+          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_01:
+            this.boosAiBehaviorSkill('skill_01', userInfo);
+            break;
+          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_02:
+            this.boosAiBehaviorSkill( 'skill_02', userInfo);
+            break;
+          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_03:
+            this.boosAiBehaviorSkill( 'skill_03', userInfo);
+            break;
+          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04:
+            this.boosAiBehaviorSkill('skill_04', userInfo);
+            break;
+          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_05:
+            this.boosAiBehaviorSkill( 'skill_05', userInfo);
+            break;
 
-        default:
-          break;
+          default:
+            break;
+        }
+      } else {
+        this.skillCooldown -= 1;
       }
-    } else {
-      this.skillCooldown -= 1;
     }
   }
 
   // [보스 행동 결정 함수]
   determineBossAction(userInfo) {
-    // 보스 몬스터 스폰 (한번만 스폰.)
-    if (!this.isSpawn) {
-      this.spawnBossMonster(userInfo);
-    }
-
     // 유저 중에 가장 가까운 유저를 찾자.
     let closestUser = null;
     let closestDistance = Infinity; // 가장 작은 거리를 찾기 위해 초기값을 무한대로 설정
@@ -132,21 +140,30 @@ export default class Boss1 extends Entity {
     }
 
     // 보스 몬스터 범위에 들어와있다면
-    const collisionDetected = movementUtils.obbMyCollision(
-      5,
-      this.currentTransform,
-      closestUser.currentTransform,
-    );
+    // const collisionDetected = movementUtils.obbMyCollision(
+    //   2,
+    //   this.currentTransform,
+    //   closestUser.currentTransform,
+    // );
 
-    if (collisionDetected) {
+    // 두 지점 간의 거리 계산 (유클리드 거리)
+    const dx = closestUser.currentTransform.posX - this.currentTransform.posX;
+    const dz = closestUser.currentTransform.posZ - this.currentTransform.posZ;
+    const distance = Math.sqrt(dx * dx + dz * dz); // 두 점 사이의 거리 (2D 기준)
+
+    if (distance <= 3.5) {
       // 보스 상태가 IDLE 일 경우 스킬 세팅.
       if (this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE) {
-        if (this.skillCooldown === CONSTANTS.ENTITY.SKILL_COOLDOWN) {
-          this.prepareBossSkill();
+
+        if(!this.isSkill){
+          //this.prepareBossSkill();
+          this.bossBehavior = CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_01;
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
         }
+
+        
       }
-    } else {
+    } else if (this.behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
       this.chasePlayer(closestUser.currentTransform);
     }
   }
@@ -178,19 +195,16 @@ export default class Boss1 extends Entity {
   }
 
   // [보스 스킬]
-  boosAiBehaviorSkill(duration, type, userInfo) {
-    this.runForLimitedTime(
-      100,
-      this.skillActiveTimes.skill_1,
-      () => this.boosAiBehaviorSkill_Start(type, userInfo),
-      () => this.boosAiBehaviorSkill_End(userInfo),
-    );
+  boosAiBehaviorSkill(type, userInfo) {
+    if(!this.isSkill) {
+      this.boosAiBehaviorSkill_Start(type, userInfo);
+    }
   }
 
   // [보스 스킬 시작]
   boosAiBehaviorSkill_Start(type, userInfo) {
     const sBossSkillStart = {
-      bossId: bossId,
+      bossId: this.id,
       type: type,
     };
 
@@ -202,12 +216,13 @@ export default class Boss1 extends Entity {
     );
 
     this.broadcast(initialResponse, userInfo);
+    this.isSkill = true;
   }
 
   // [보스 스킬 종료]
-  boosAiBehaviorSkill_End(userInfo) {
+  boosAiBehaviorSkill_End(userInfo, currentPosition) {
     const sBossSkillEnd = {
-      bossId: bossId,
+      bossId: this.id,
     };
 
     const initialResponse = createResponse(
@@ -228,10 +243,11 @@ export default class Boss1 extends Entity {
       posY: currentPosition.y,
       posZ: currentPosition.z,
       rot: this.currentTransform.rot,
-    }
+    };
 
-    this.currentTransform = {...pos};
+    this.currentTransform = { ...pos };
 
+    this.isSkill = false;
   }
 
   // [시간제한 함수]
@@ -275,7 +291,7 @@ export default class Boss1 extends Entity {
 
     if (selectedSkill) {
       // 선택된 스킬 실행
-      this.executeSkill(selectedSkill);
+      //this.executeSkill(selectedSkill);
 
       // 스킬 가중치 감소 및 회복
       this.adjustSkillWeights(selectedSkill);
@@ -362,7 +378,7 @@ export default class Boss1 extends Entity {
   // [보스몬스터 사망]
   bossDie() {
     const sBossDie = {
-      bossId: bossId,
+      bossId: this.id,
     };
 
     const initialResponse = createResponse('dungeon', 'S_BossDie', PACKET_TYPE.S_BOSSDIE, sBossDie);
@@ -371,52 +387,62 @@ export default class Boss1 extends Entity {
   }
 
   // [보스 몬스터 핸들러]
-  handleBossSkill(bossId, type, currentPosition, skill_range, users) {
-    if (this.id !== bossId) {
-      console.log('해당 ID를 가진 보스몬스터는 없습니다. :', bossId);
-
-      switch (type) {
-        case 'skill_01':
-          this.handleRectangleSkillCollision(skill_range, users, currentPosition);
-          break;
-        case 'skill_02':
-          this.handleSectorSkillCollision(skill_range, users, currentPosition);
-          break;
-        case 'skill_03':
-          this.handleMultiCircleSkillCollision(skill_range, users, currentPosition);
-          break;
-        case 'skill_04':
-          this.handleSectorSkillCollision(skill_range, users, currentPosition);
-          break;
-        case 'skill_05':
-          this.handleCircleSkillCollision(skill_range, users, currentPosition);
-          break;
-      }
+  handleBossSkill(packetData, users) {
+    const { type, currentPosition } = packetData;
+    console.log("type: ", type);
+    switch (type.toLowerCase()) {
+      case 'skill_01':
+        this.handleRectangleSkillCollision(packetData.rectangle , users, currentPosition);
+        break;
+      case 'skill_02':
+        this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
+        break;
+      case 'skill_03':
+        this.handleMultiCircleSkillCollision(packetData.secmultiCircle , users, currentPosition);
+        break;
+      case 'skill_04':
+        this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
+        break;
+      case 'skill_05':
+        this.handleCircleSkillCollision(packetData.circles , users, currentPosition);
+        break;
     }
   }
 
   // [스킬 1 - 사각형]
-  handleRectangleSkillCollision(skill_range, users, currentPosition) {
+  handleRectangleSkillCollision(rectangle, users, currentPosition) {
+    console.log("[스킬 충돌 검사 시작 - 여기까지 오니?]")
+    //console.log("users : ", users);
     if (users.length === 0) return;
 
-    if (skill_range.rectangle) {
-      const { center, direction, width, height, length } = skill_range.rectangle;
+    console.log("[스킬 충돌 검사 시작]")
+    if (rectangle) {
+      const { center, direction, width, height, length } = rectangle;
 
       // 사각형 만들기
-      const rectangle = movementUtils.BossCreateRectangle(center, direction, width, height, length);
+      const bossRectangle  = movementUtils.BossCreateRectangle(this.currentTransform, center, direction, width, height, length );
 
       // 충돌 검사.
       for (const user of users) {
         const userCurrentPosition = user.getTransform();
-
-        if (movementUtils.BossRectangleCollision(userCurrentPosition, rectangle)) {
+        if (movementUtils.BossRectangleCollision(userCurrentPosition, bossRectangle )) {
           const userInfo = getUserById(user.getId());
           const playerStatInfo = userInfo.getPlayerStatInfo();
           const playerHp = playerStatInfo.hp;
 
           // 최소 0으로 설정
-          const newHp = Math.max(playerHp - 10, 0);  
+          const newHp = Math.max(playerHp - 10, 0);
           userInfo.setHp(newHp);
+
+          console.error("rectangle 정보: ", rectangle);
+          console.log("충돌 사각형 : ", bossRectangle );
+          console.log("유저 포지션 : ", userCurrentPosition);
+          console.log("[유저 충돌함]")
+        } else {
+          console.error("rectangle 정보: ", rectangle);
+          console.log("충돌 사각형 : ", bossRectangle );
+          console.log("유저 포지션 : ", userCurrentPosition);
+          console.log("충돌 안된 유저 : ", user.getId());
         }
       }
 
@@ -426,11 +452,11 @@ export default class Boss1 extends Entity {
   }
 
   // [스킬 2 - 부채꼴]
-  handleSectorSkillCollision(skill_range, users, currentPosition) {
+  handleSectorSkillCollision(sector, users, currentPosition) {
     if (users.length === 0) return;
 
-    if (skill_range.sector) {
-      const { center, direction, radius, angle } = skill_range.sector;
+    if (sector) {
+      const { center, direction, radius, angle } = sector;
 
       // 충돌 검사.
       for (const user of users) {
@@ -444,8 +470,15 @@ export default class Boss1 extends Entity {
           const playerHp = playerStatInfo.hp;
 
           // 최소 0으로 설정
-          const newHp = Math.max(playerHp - 10, 0);  
+          const newHp = Math.max(playerHp - 10, 0);
           userInfo.setHp(newHp);
+          console.error("sector : ", sector);
+          console.error("user : ", userCurrentPosition);
+          console.log("[유저 충돌 - 부채꼴]")
+        } else {
+          console.error("sector : ", sector);
+          console.error("user : ", userCurrentPosition);
+          console.log("[유저 충돌 안함 - 부채꼴]")
         }
       }
 
@@ -477,7 +510,7 @@ export default class Boss1 extends Entity {
             const playerHp = playerStatInfo.hp;
 
             // 최소 0으로 설정
-            const newHp = Math.max(playerHp - 10, 0);  
+            const newHp = Math.max(playerHp - 10, 0);
             userInfo.setHp(newHp);
           }
         }
@@ -492,26 +525,26 @@ export default class Boss1 extends Entity {
   handleCircleSkillCollision(skill_range, users, currentPosition) {
     if (users.length === 0) return;
 
-    if (skill_range.circles ) {
+    if (skill_range.circles) {
       // 충돌 검사
       for (const user of users) {
         const userCurrentPosition = user.getTransform();
         const { center, radius } = skill_range.circles;
 
-          // 충돌 검사 로직 (원 안에 있는지 확인)
-          const dx = userCurrentPosition.posX - center.x;
-          const dz = userCurrentPosition.posZ - center.z;
-          const distanceSquared = dx * dx + dz * dz;
+        // 충돌 검사 로직 (원 안에 있는지 확인)
+        const dx = userCurrentPosition.posX - center.x;
+        const dz = userCurrentPosition.posZ - center.z;
+        const distanceSquared = dx * dx + dz * dz;
 
-          if (distanceSquared <= radius * radius) {
-            const userInfo = getUserById(user.getId());
-            const playerStatInfo = userInfo.getPlayerStatInfo();
-            const playerHp = playerStatInfo.hp;
+        if (distanceSquared <= radius * radius) {
+          const userInfo = getUserById(user.getId());
+          const playerStatInfo = userInfo.getPlayerStatInfo();
+          const playerHp = playerStatInfo.hp;
 
-            // 최소 0으로 설정
-            const newHp = Math.max(playerHp - 10, 0);  
-            userInfo.setHp(newHp);
-          }
+          // 최소 0으로 설정
+          const newHp = Math.max(playerHp - 10, 0);
+          userInfo.setHp(newHp);
+        }
       }
 
       // 보스몬스터 스킬 종료
@@ -519,18 +552,22 @@ export default class Boss1 extends Entity {
     }
   }
 
-
   // [브로드 케스트]
   async broadcast(initialResponse, users) {
     const promises = users.map((user) => {
-      const socket = user.getSocket();
+      const player = getUserById(user.id);
+      const userInfo = player.getUserInfo();
+      const socket = userInfo.socket;
+
+      //console.log("socket : ", socket)
       if (socket) {
         return new Promise((resolve, reject) => {
           socket.write(initialResponse, (err) => {
             if (err) {
-              reject();
-              //reject(new Error(`데이터를 보내는데 실패 user: ${err.message}`)); // 에러가 발생하면 reject
+              //reject();
+              reject(new Error(`데이터를 보내는데 실패 user: ${err.message}`)); // 에러가 발생하면 reject
             } else {
+              console.error('[메세지 보냄]');
               resolve(); // 성공적으로 보냈으면 resolve
             }
           });
