@@ -104,18 +104,19 @@ class Dungeon {
     // 유저 배열
     this.users = users;
     this.alives = users.length;
-    Object.defineProperties(this, "Alives", {
-      get: () => this.alives,
-      set: (value) => {
-        this.alives = value;
-        if (alives <= 0) {
-          // 파티 전멸
-          // 던전 종료
-          this.endDungeonFailed();
-          // 
+    Object.defineProperty(this, "Alives",
+      {
+        get: () => this.alives,
+        set: (value) => {
+          this.alives = value;
+          if (this.alives <= 0) {
+            // 파티 전멸
+            // 던전 종료
+            this.endDungeonFailed();
+            // 
+          }
         }
-      }
-    });
+      });
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
