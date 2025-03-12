@@ -36,7 +36,7 @@ export default class MovementSync {
     this.monsterSpawnInterval = 0;
     this.aSter = 0;
     this.bossCount = 5;
-    
+
     this.loadNavMeshDataOnce(type);
     this.startMovementProcess();
   }
@@ -128,8 +128,8 @@ export default class MovementSync {
       const userTransformInfo = [];
       for (const user of users) {
         if (user.getBehavior() !== CONSTANTS.AI_BEHAVIOR.IDLE) {
-          console.error('[유저가 메세지를 보내고있습니다.]');
-          console.warn('pos : ', user.getTransform());
+          //console.error('[유저가 메세지를 보내고있습니다.]');
+          //console.warn('pos : ', user.getTransform());
           if (user.getIsSearchFail()) continue;
           const syncData = this.createSyncTransformInfoData(user);
           userTransformInfo.push(syncData);
@@ -328,7 +328,6 @@ export default class MovementSync {
       const monsters = Object.values(this.monsters);
 
       if (users.length === 0) {
-        console.log('유저가 없어서 생성 불가 ');
         return;
       }
 
@@ -346,7 +345,7 @@ export default class MovementSync {
       }
 
       this.addMonster(this.movementId);
-      console.log('몬스터 생성이 됬어요.');
+      //console.log('몬스터 생성이 됬어요.');
       const tsetMonsters = Object.values(this.monsters);
 
       const monsterTransformInfo = [];
@@ -419,12 +418,12 @@ export default class MovementSync {
     A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, id);
 
     if (!this.users) return;
-    console.log('삭제 ID : ', id);
-    console.log('삭제 전 유저들 : ', this.users);
+    // console.log('삭제 ID : ', id);
+    // console.log('삭제 전 유저들 : ', this.users);
     const user = getUserById(id);
     user.agent = null;
     delete this.users[id];
-    console.log('삭제 후 유저들 : ', this.users);
+    // console.log('삭제 후 유저들 : ', this.users);
   }
 
   findUser(id) {

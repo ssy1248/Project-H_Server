@@ -411,11 +411,11 @@ export default class Boss1 extends Entity {
 
   // [스킬 1 - 사각형]
   handleRectangleSkillCollision(rectangle, users, currentPosition) {
-    console.log("[스킬 충돌 검사 시작 - 여기까지 오니?]")
+    //console.log("[스킬 충돌 검사 시작 - 여기까지 오니?]")
     //console.log("users : ", users);
     if (users.length === 0) return;
 
-    console.log("[스킬 충돌 검사 시작]")
+    //console.log("[스킬 충돌 검사 시작]")
     if (rectangle) {
       const { center, direction, width, height, length } = rectangle;
 
@@ -434,16 +434,11 @@ export default class Boss1 extends Entity {
           const newHp = Math.max(playerHp - 10, 0);
           userInfo.setHp(newHp);
 
-          console.error("rectangle 정보: ", rectangle);
-          console.log("충돌 사각형 : ", bossRectangle );
-          console.log("유저 포지션 : ", userCurrentPosition);
+          // console.error("rectangle 정보: ", rectangle);
+          // console.log("충돌 사각형 : ", bossRectangle );
+          // console.log("유저 포지션 : ", userCurrentPosition);
           console.log("[유저 충돌함]")
-        } else {
-          console.error("rectangle 정보: ", rectangle);
-          console.log("충돌 사각형 : ", bossRectangle );
-          console.log("유저 포지션 : ", userCurrentPosition);
-          console.log("충돌 안된 유저 : ", user.getId());
-        }
+        } 
       }
 
       // 보스몬스터 스킬 종료
