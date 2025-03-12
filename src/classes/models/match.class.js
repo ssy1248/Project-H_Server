@@ -240,7 +240,7 @@ class Match {
     // 던전 고유 번호 생성
     const dungeonId = uuidv4();
     // 던전 세션 추가
-    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo); // => party 정보 전체를 전달하고 아래 내용들 전부 던전 생성자에서 처리하는게 나아보임
+    const dungeonSession = addDungeonSession(dungeonId, party.partyInfo, [partyLeader, ...partyMembers]); // => party 정보 전체를 전달하고 아래 내용들 전부 던전 생성자에서 처리하는게 나아보임
 
     //#region 던전 생성자에서 처리해도 되는 내용
     party.partyInfo.Players.forEach((member) => {
