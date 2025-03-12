@@ -8,7 +8,7 @@ import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp, atk, def, speed) {
-    super(movementId, id, transform);
+    super(movementId, id, "monster",transform);
 
     this.model = model;
     this.name = name;
