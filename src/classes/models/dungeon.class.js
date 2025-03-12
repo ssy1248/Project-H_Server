@@ -1,6 +1,10 @@
-import { findUser } from '../../movementSync/movementSync.manager.js';
+import { PACKET_TYPE } from '../../constants/header.js';
+import MovementSync from '../../movementSync/movementSync.class.js';
+import { addMovementSync, deleteMovementSync, findMovementSync, findUser } from '../../movementSync/movementSync.manager.js';
+import { removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 import ArrowPool from '../managers/arrowPool,manager.js';
 import IntervalManager from '../managers/interval.manager.js';
 import Players from './player.class.js';
@@ -28,7 +32,7 @@ import RewardAuction from './rewardAuction.class.js';
 */
 
 class Dungeon {
-  constructor(id, partyInfo) {
+  constructor(id, partyInfo, users) {
     // 던전 고유 아이디
     this.id = id;
     /*
@@ -97,6 +101,25 @@ class Dungeon {
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
     this._positionUpdateIntervalId = null;
+
+    // 유저 배열
+    this.users = users;
+    this.alives = users.length;
+    Object.defineProperties(this, "Alives", {
+      get: () => this.alives,
+      set: (value) => {
+        this.alives = value;
+        if (alives <= 0) {
+          // 파티 전멸
+          // 던전 종료
+          this.endDungeonFailed();
+          // 
+        }
+      }
+    });
+
+    this.movementSync = new MovementSync(this.id, 'dungeon1');
+    addMovementSync(this.id, this.movementSync);
   }
 
   checkAuctionTest() {
@@ -156,6 +179,43 @@ class Dungeon {
       clearInterval(this._positionUpdateIntervalId);
       this._positionUpdateIntervalId = null;
     }
+  }
+
+  // 던전 성공 처리
+  endDungeonSuccess() {
+
+  }
+
+  // 던전 실패 처리
+  endDungeonFailed() {
+    // 던전 실패 패킷
+    const packet = {
+      success: false,
+    }
+
+    const leaveDungeonPacket = createResponse(
+      'dungeon',
+      'S_LeaveDungeon',
+      PACKET_TYPE.S_LEAVEDUNGEON,
+      packet,
+    );
+
+    // 던전 실패 메시지 전송
+    this.broadCastAll(leaveDungeonPacket);
+
+    // 모든 유저의 인벤토리 소실
+    this.users.forEach(async (user) => await user.inventory.lost());
+
+    // 던전에 사용되는 movementSync 정지
+    // 즉시 정지해도 되는건가?
+    deleteMovementSync(this.id);
+    this.movementSync = null;
+
+    // 던전 제거
+  }
+
+  deleteDungeon() {
+    removeDungeonSession(this.id);
   }
 
   // 현재 던전에 있는 모든 플레이어의 위치를 반환하는 함수
@@ -380,6 +440,12 @@ class Dungeon {
     const arrowId = this.createArrow(playerName, position, direction, speed, maxDistance);
 
     console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
+  }
+
+  broadCastAll(packet) {
+    for (const user of users) {
+      user.userInfo.socket.write(packet);
+    }
   }
 
   broadcastOther(name, packet) {

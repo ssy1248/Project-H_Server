@@ -14,13 +14,17 @@ export const createMovementSync = (movementSyncId, type) => {
     return false;
   }
   // 생성
-  movementSyncs[movementSyncId] = new MovementSync(movementSyncId);
-  // 네브메쉬데이터 그리드로 변환
-  movementSyncs[movementSyncId].loadNavMeshDataOnce(movementSyncId);
-  // 셋인터벌 실행.
-  movementSyncs[movementSyncId].startMovementProcess();
+  movementSyncs[movementSyncId] = new MovementSync(movementSyncId, type);
   return true;
 };
+
+export const addMovementSync = (id, movementSync) => {
+  if(findMovementSync(id)){
+    console.log(`movementSync 이미 존재: ${movementSyncId}`);
+    return false;
+  }
+  movementSyncs[id] = movementSync;
+}
 
 // [movementSync 찾기].
 export const findMovementSync = (movementSyncId) => {
@@ -170,7 +174,7 @@ export const monsterApplyDamage = (movementSyncId, id, damage) => {
 }
 
 // [유저 피격]
-export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
+export const userApplyDamage = (movementSyncId, userId, monsterId) => {
   if (!findMovementSync(movementSyncId)) {
     console.log(`movementSync 가 존재 하지 않습니다 (id : ${movementSyncId})`);
     return false;
@@ -182,11 +186,11 @@ export const userApplyDamage = (movementSyncId, userId, monsterId) =>{
   const monster = findMonster(movementSyncId, monsterId);
   const user = findUser(movementSyncId, userId);
 
-  if(user){
+  if (user) {
     // 유저 넉백은 이동만.
     user.updateDamageCount(1, 20, 40, 0.2, monster.getCurrentTransform());
   }
 
-  
+
 
 } 
