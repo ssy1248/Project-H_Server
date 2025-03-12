@@ -202,8 +202,8 @@ export default class MovementSync {
       };
 
       for (const monsterId of monsterIds) {
-        A_STER_MANAGER.DELETE_OBSTACLE(movementSyncId, monsterId);
-        A_STER_MANAGER.DELETE_OBSTACLE_List(movementSyncId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, monsterId);
         delete this.monsters[monsterId];
       }
       const initialResponse = createResponse(
