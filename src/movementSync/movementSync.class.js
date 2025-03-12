@@ -24,7 +24,7 @@ users, monsters, bosses는 parameter로 받아서 경로를 계산하는 기능�
 지형 생성, 지형 갱신, 경로 계산 기능만 있으면 될 것 같다
 */
 export default class MovementSync {
-  constructor(id) {
+  constructor(id, type) {
     this.movementId = id;
     this.users = {};
     this.monsters = {};
@@ -35,9 +35,9 @@ export default class MovementSync {
     this.bossIntervar = 0;
     this.monsterSpawnInterval = 0;
     this.aSter = 0;
-
     this.bossCount = 5;
-
+    
+    this.loadNavMeshDataOnce(type);
     this.startMovementProcess();
   }
 
@@ -228,8 +228,8 @@ export default class MovementSync {
       };
 
       for (const monsterId of monsterIds) {
-        A_STER_MANAGER.DELETE_OBSTACLE(movementSyncId, monsterId);
-        A_STER_MANAGER.DELETE_OBSTACLE_List(movementSyncId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE(this.movementId, monsterId);
+        A_STER_MANAGER.DELETE_OBSTACLE_List(this.movementId, monsterId);
         delete this.monsters[monsterId];
       }
       const initialResponse = createResponse(
