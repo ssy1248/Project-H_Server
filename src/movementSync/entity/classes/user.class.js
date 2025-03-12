@@ -18,6 +18,8 @@ export default class User extends Entity {
       posZ : 0,
       rot : 0,
     }
+
+    this.isAlive = true;
   }
 
   // [유저 트랜스폼 동기화]
@@ -40,6 +42,7 @@ export default class User extends Entity {
 
   // [트랜스폼 업데이트]
   updateTransform() {
+    if(!this.isAlive) return;
     if (this.behavior === CONSTANTS.AI_BEHAVIOR.DAMAGED) {
       console.log("데미지");
       this.userAiBehaviorDAMAGED(this.damageTagetMonster);
@@ -100,7 +103,7 @@ export default class User extends Entity {
     // } else {
     //   return true;
     // }
-
+    if(!this.isAlive) return;
 
     const result = movementUtils.hasPassedTarget(
       this.currentTransform,
@@ -134,6 +137,7 @@ export default class User extends Entity {
 
   // [유저 피격]
   userAiBehaviorDAMAGED( monsterTransform) {
+    if(!this.isAlive) return;
     if (this.damageCount > 0) {
       // Knockback 계산 (넉백 파워 = (공격력 / 무게) * 밀리는 강도)
       const knockbackPower = (this.power / this.mass) * this.factor;

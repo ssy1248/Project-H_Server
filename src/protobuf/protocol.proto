@@ -395,7 +395,9 @@ message S_EnterDungeon {
 }
 
 // Me
-message S_LeaveDungeon {}
+message S_LeaveDungeon {
+  bool success = 1;
+}
 
 // Me
 message S_ScreenText {
@@ -661,7 +663,7 @@ message S_DungeonDeSpawn {
   int32 playerId = 1;// 유저 id
 }
 message C_DungeonExit {
-
+  bool success = 1;
 }
 // 정보 구조체
 
