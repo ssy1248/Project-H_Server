@@ -57,7 +57,7 @@ const dungeonSpawnHandler = async (socket, payload) => {
       transformInfo.push(transform);
     });
 
-    dungeondata.checkAuctionTest();
+    //dungeondata.checkAuctionTest();
     dungeondata.startPeriodicPositionUpdates(1000);
 
     const packet = createResponse('dungeon', 'S_DungeonSpawn', PACKET_TYPE.S_DUNGEONSPAWN, {

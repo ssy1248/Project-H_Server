@@ -54,9 +54,6 @@ export default class MovementSync {
     A_STER_MANAGER.ADD(this.movementId, this.navMeshGridData, 1000, 1000);
   }
 
-
-
-
   // [엔티티 인터벌] = 엔티티 좌표 업데이트를 60 프레임 단위로.
   async entityMovement() {
     const tickRate = 1000 / CONSTANTS.NETWORK.TICK_RATE;
@@ -74,7 +71,7 @@ export default class MovementSync {
         user.updateTransform();
       }
 
-      // 보스몬스터 
+      // 보스몬스터
       if (bosses.length !== 0) {
         for (const boss of bosses) {
           const userInfo = JSON.parse(JSON.stringify(users));
@@ -99,7 +96,6 @@ export default class MovementSync {
             minDistance = distance;
             closestUser = user;
           }
-
         }
 
         if (closestUser) {
@@ -184,7 +180,6 @@ export default class MovementSync {
         );
         await this.broadcast2(initialResponse2);
       }
-
     }, CONSTANTS.NETWORK.INTERVAL);
   }
 
@@ -302,7 +297,7 @@ export default class MovementSync {
       const monsters = Object.values(this.monsters);
 
       if (users.length === 0) {
-        console.log("유저가 없어서 생성 불가 ");
+        console.log('유저가 없어서 생성 불가 ');
         return;
       }
 
@@ -312,12 +307,12 @@ export default class MovementSync {
       }
 
       this.addMonster(this.movementId);
-      console.log("몬스터 생성이 됬어요.");
+      console.log('몬스터 생성이 됬어요.');
       const tsetMonsters = Object.values(this.monsters);
 
       const monsterTransformInfo = [];
       for (const monster of tsetMonsters) {
-        console.log(" monster.currentTransform : ", monster.currentTransform);
+        console.log(' monster.currentTransform : ', monster.currentTransform);
         const test = monster.currentTransform;
         if (!test.posX) {
           //console.log("종료전 몬스터 트랜스폼 : ", test)
@@ -328,8 +323,7 @@ export default class MovementSync {
         monsterTransformInfo.push(syncData);
       }
 
-      console.error("monsterTransformInfo :", monsterTransformInfo)
-
+      console.error('monsterTransformInfo :', monsterTransformInfo);
 
       // 패깃 생성
       const sMonsterSpawn = {
@@ -354,7 +348,7 @@ export default class MovementSync {
     //   this.processMonsterSpawn();
     // }
 
-    //this.processMonsterSpawn();
+    this.processMonsterSpawn();
     this.entityMovement();
   }
 
@@ -367,7 +361,7 @@ export default class MovementSync {
   addUser(socket, id, transform) {
     const user = getUserBySocket(socket);
     const userAgent = new User(this.movementId, socket, id, transform);
-    this.users[id] = userAgent
+    this.users[id] = userAgent;
     user.agent = userAgent;
   }
 
@@ -382,12 +376,12 @@ export default class MovementSync {
     A_STER_MANAGER.DELETE_OBSTACLE_List('town', id);
 
     if (!this.users) return;
-    console.log("삭제 ID : ", id);
-    console.log("삭제 전 유저들 : ", this.users);
+    console.log('삭제 ID : ', id);
+    console.log('삭제 전 유저들 : ', this.users);
     const user = getUserById(id);
     user.agent = null;
     delete this.users[id];
-    console.log("삭제 후 유저들 : ", this.users);
+    console.log('삭제 후 유저들 : ', this.users);
   }
 
   findUser(id) {
@@ -405,7 +399,17 @@ export default class MovementSync {
     const randomNum = Math.floor(Math.random() * 30) + 1;
 
     // TODO: DB에서 몬스터 데이터 받아서 생성하기
-    this.monsters[monsterId] = new Monster(this.movementId, monsterId, transform, 3, 'test', 10, 1, 0, CONSTANTS.ENTITY.DEFAULT_SPEED);
+    this.monsters[monsterId] = new Monster(
+      this.movementId,
+      monsterId,
+      transform,
+      3,
+      'test',
+      10,
+      1,
+      0,
+      CONSTANTS.ENTITY.DEFAULT_SPEED,
+    );
   }
 
   findMonster(id) {

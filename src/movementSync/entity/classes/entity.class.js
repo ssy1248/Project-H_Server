@@ -9,7 +9,7 @@ import A_STER_MANAGER from '../../pathfinding/testASter.manager.js';
  */
 
 export default class Entity {
-  constructor(movementId, id, type,transform = { posX: 0, posY: 0, posZ: 0, rot: 0 }) {
+  constructor(movementId, id, type, transform = { posX: 0, posY: 0, posZ: 0, rot: 0 }) {
     this.movementId = movementId;
     this.type = type;
     this.id = id;
@@ -120,9 +120,9 @@ export default class Entity {
 
       const transform = {
         posX: this.generateRandomPlayerTransformInfo(-20, 20),
-          posY: 1,
-          posZ: this.generateRandomPlayerTransformInfo(0, 40),
-          rot: this.generateRandomPlayerTransformInfo(0, 360),
+        posY: 1,
+        posZ: this.generateRandomPlayerTransformInfo(0, 40),
+        rot: this.generateRandomPlayerTransformInfo(0, 360),
       };
 
       this.setPathfindingDestination(transform);
@@ -197,7 +197,7 @@ export default class Entity {
 
       // 타겟 업데이트.
       if (this.behavior !== CONSTANTS.AI_BEHAVIOR.ATTACK) {
-        if(this.type !== "user"){
+        if (this.type !== 'user') {
           this.updateTargetTransform();
         }
       }
@@ -285,6 +285,13 @@ export default class Entity {
 
   // [마지막 트랜스폼 갱신]
   updateLastTransform(transform) {
+    if (
+      this.currentTransform.posX === NaN ||
+      this.currentTransform.posY === NaN ||
+      this.currentTransform.posZ === NaN
+    ) {
+      console.log('에러 발생');
+    }
     this.lastTransform = { ...this.currentTransform };
     this.currentTransform = { ...transform };
     //console.log(transform);
