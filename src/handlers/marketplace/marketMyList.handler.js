@@ -22,6 +22,11 @@ const marketMyListHandler = (socket, payload) => {
           stat: inventory[i].stat,
           equiped: inventory[i].equiped,
           rarity: inventory[i].rarity,
+          position: inventory[i].position,
+          imgsrc: inventory[i].imgsrc,
+          quantity: inventory[i].quantity,
+          stackable: inventory[i].stackable,
+          itemId: inventory[i].itemId,
         });
       }
     }
