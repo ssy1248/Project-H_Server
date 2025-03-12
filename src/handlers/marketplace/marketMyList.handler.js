@@ -11,7 +11,8 @@ const marketMyListHandler = (socket, payload) => {
   const user = getUserBySocket(socket);
   const inventory = user.inventory.getInventory();
   const data = [];
-  for (let i = (page - 1) * count; data.length < count; i++) {
+
+  for (let i = (page - 1) * count; data.length <= count; i++) {
     if (inventory.length <= i) {
       break;
     }
@@ -30,6 +31,9 @@ const marketMyListHandler = (socket, payload) => {
         stackable: inventory[i].stackable,
         itemId: inventory[i].itemId,
       });
+    }
+    if (!data.length < count) {
+      break;
     }
   }
   const maxPage = inventory.length / count;
