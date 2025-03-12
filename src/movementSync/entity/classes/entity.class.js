@@ -285,13 +285,6 @@ export default class Entity {
 
   // [마지막 트랜스폼 갱신]
   updateLastTransform(transform) {
-    if (
-      this.currentTransform.posX === NaN ||
-      this.currentTransform.posY === NaN ||
-      this.currentTransform.posZ === NaN
-    ) {
-      console.log('에러 발생');
-    }
     this.lastTransform = { ...this.currentTransform };
     this.currentTransform = { ...transform };
     //console.log(transform);
