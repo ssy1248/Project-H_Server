@@ -92,6 +92,7 @@ class Dungeon {
     this.arrows = {};
 
     this.startArrowMovement();
+    // 이거 전부다 들어온지 체크하는 용도입니다.
     this.testCount = 0;
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
@@ -99,7 +100,7 @@ class Dungeon {
   }
 
   checkAuctionTest() {
-    if (this.testCount < 1) {
+    if (this.testCount < this.partyInfo.maximum - 1) {
       this.testCount++;
       return;
     }
@@ -277,8 +278,8 @@ class Dungeon {
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterTrans.posX, 2) +
-      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
-      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
+        Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+        Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
@@ -287,7 +288,7 @@ class Dungeon {
       return true; // 충돌 발생
     }
 
-    console.log('distance 거라가 너무 멈', distance); 
+    console.log('distance 거라가 너무 멈', distance);
     return false; // 충돌하지 않음
   }
 
