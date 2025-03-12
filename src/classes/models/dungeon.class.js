@@ -1,11 +1,6 @@
 import { PACKET_TYPE } from '../../constants/header.js';
 import MovementSync from '../../movementSync/movementSync.class.js';
-import {
-  addMovementSync,
-  deleteMovementSync,
-  findMovementSync,
-  findUser,
-} from '../../movementSync/movementSync.manager.js';
+import { addMovementSync, deleteMovementSync, findMovementSync, findUser } from '../../movementSync/movementSync.manager.js';
 import { removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
@@ -101,7 +96,6 @@ class Dungeon {
     this.arrows = {};
 
     this.startArrowMovement();
-    // 이거 전부다 들어온지 체크하는 용도입니다.
     this.testCount = 0;
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
@@ -110,26 +104,26 @@ class Dungeon {
     // 유저 배열
     this.users = users;
     this.alives = users.length;
-
-    Object.defineProperty(this, 'Alives', {
-      get: () => this._alives, // 내부 변수 사용
-      set: (value) => {
-        this._alives = value; // 내부 변수에 값 설정
-        console.log(`Alives 변경: ${this._alives}`);
-
-        if (this._alives <= 0) {
-          // 파티 전멸
-          this.endDungeonFailed();
+    Object.defineProperty(this, "Alives",
+      {
+        get: () => this.alives,
+        set: (value) => {
+          this.alives = value;
+          if (this.alives <= 0) {
+            // 파티 전멸
+            // 던전 종료
+            this.endDungeonFailed();
+            // 
+          }
         }
-      },
-    });
+      });
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
   }
 
   checkAuctionTest() {
-    if (this.testCount < this.partyInfo.maximum - 1) {
+    if (this.testCount < 1) {
       this.testCount++;
       return;
     }
@@ -188,14 +182,16 @@ class Dungeon {
   }
 
   // 던전 성공 처리
-  endDungeonSuccess() {}
+  endDungeonSuccess() {
+
+  }
 
   // 던전 실패 처리
   endDungeonFailed() {
     // 던전 실패 패킷
     const packet = {
       success: false,
-    };
+    }
 
     const leaveDungeonPacket = createResponse(
       'dungeon',
@@ -342,8 +338,8 @@ class Dungeon {
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterTrans.posX, 2) +
-        Math.pow(arrowPos.y - monsterTrans.posY, 2) +
-        Math.pow(arrowPos.z - monsterTrans.posZ, 2),
+      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
