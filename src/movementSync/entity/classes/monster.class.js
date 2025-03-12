@@ -67,7 +67,7 @@ export default class Monster extends Entity {
     const behavior = super.getBehavior();
 
     if (this.isDamage) {
-      this.monsterAiBehaviorDAMAGED(userTransform);
+      this.monsterAiBehaviorDAMAGED(user);
     }
 
     if (behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
@@ -212,9 +212,12 @@ export default class Monster extends Entity {
           const targetUser = getUserBySocket(user.getSocket());
           // 1-2. 공격 몬스터 찾기 => this
           // TODO: 몬스터 공격력 계산
-          const damage = Math.max(0, this.atk - user.getDef());
+          const damage = Math.max(0, this.atk - targetUser.getDef());
           // 2. 타겟 유저에게 데미지 주기
           targetUser.getDamage(damage);
+          // 3. 타겟 유저 사망 처리
+          // 4. 파티 전멸 처리
+          // 5. 아이템 소실
           //super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.RETURN);
           this.isAttack = false;
