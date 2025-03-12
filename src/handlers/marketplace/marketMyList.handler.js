@@ -11,24 +11,29 @@ const marketMyListHandler = (socket, payload) => {
   const user = getUserBySocket(socket);
   const inventory = user.inventory.getInventory();
   const data = [];
-  for (let i = (page - 1) * count; i < page * count; i++) {
-    if (!inventory.length <= i) {
-      if (inventory[i] && inventory[i].equipped === 0) {
-        data.push({
-          id: inventory[i].id,
-          price: inventory[i].price,
-          itemType: inventory[i].itemType,
-          name: inventory[i].name,
-          stat: inventory[i].stat,
-          equiped: inventory[i].equiped,
-          rarity: inventory[i].rarity,
-          position: inventory[i].position,
-          imgsrc: inventory[i].imgsrc,
-          quantity: inventory[i].quantity,
-          stackable: inventory[i].stackable,
-          itemId: inventory[i].itemId,
-        });
-      }
+
+  for (let i = (page - 1) * count; data.length <= count; i++) {
+    if (inventory.length <= i) {
+      break;
+    }
+    if (inventory[i] && inventory[i].equipped === 0) {
+      data.push({
+        id: inventory[i].id,
+        price: inventory[i].price,
+        itemType: inventory[i].itemType,
+        name: inventory[i].name,
+        stat: inventory[i].stat,
+        equiped: inventory[i].equiped,
+        rarity: inventory[i].rarity,
+        position: inventory[i].position,
+        imgsrc: inventory[i].imgsrc,
+        quantity: inventory[i].quantity,
+        stackable: inventory[i].stackable,
+        itemId: inventory[i].itemId,
+      });
+    }
+    if (!data.length < count) {
+      break;
     }
   }
   const maxPage = inventory.length / count;
