@@ -338,7 +338,7 @@ export default class MovementSync {
         clearInterval(this.monsterSpawnInterval);
         this.bossCount = 1;
         return;
-      } 
+      }
 
       // 몬스터수 제한
       if (monsters.length >= 5) {
@@ -390,7 +390,7 @@ export default class MovementSync {
     //   this.processMonsterSpawn();
     // }
 
-    this.processMonsterSpawn();
+    //this.processMonsterSpawn();
     this.entityMovement();
   }
 

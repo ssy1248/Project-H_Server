@@ -45,6 +45,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
       monsterId: [],
     };
     const transformInfo = [];
+    //경매 보상 테스트 입니다.
+    //dungeondata.testAuction();
 
     dungeondata.partyInfo.Players.forEach((playerStatus) => {
       let data = dungeondata.playersTransform[playerStatus.playerName];

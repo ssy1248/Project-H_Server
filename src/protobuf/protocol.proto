@@ -966,7 +966,7 @@ message S_ClearBox{
   int32 rarity = 1;
 }
 
-message C_LoootingBox{
+message C_LootingBox{
 
 }
 message S_GetExp{

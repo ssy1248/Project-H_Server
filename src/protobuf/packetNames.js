@@ -118,7 +118,7 @@ export const packetNames = {
     C_BossSkill: 'Google.Protobuf.Protocol.C_BossSkill',
 
     S_ClearBox: 'Google.Protobuf.Protocol.S_ClearBox',
-    C_LoootingBox: 'Google.Protobuf.Protocol.C_LoootingBox',
+    C_LootingBox: 'Google.Protobuf.Protocol.C_LootingBox',
     S_GetExp: 'Google.Protobuf.Protocol.S_GetExp',
   },
 };

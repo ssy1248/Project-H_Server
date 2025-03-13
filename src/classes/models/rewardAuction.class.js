@@ -50,7 +50,7 @@ class RewardAuction {
     }
   }
   randomRarity() {
-    return Math.floor(Math.random() * this.maxRarity) * (rewardRarity + 1);
+    return Math.floor(Math.random() * this.maxRarity) * (this.rewardRarity + 1);
   }
   // 경매 시작
   startAuction() {

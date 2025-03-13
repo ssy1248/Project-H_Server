@@ -127,7 +127,6 @@ class Dungeon {
     this.isGetReward = false;
     // 테스트 용도 두명에 동의 체크용도
     this.testCount = 0;
-    this.testAuction();
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
@@ -135,23 +134,23 @@ class Dungeon {
 
   //테스트 용도입니다.
   testAuction() {
-    if (testCount < 1) {
-      testCount++;
+    if (this.testCount < 1) {
+      this.testCount++;
       return;
     }
     this.endBoxLoot();
   }
   // 다잡고 보상 상자 보여주기
   endBoxLoot() {
-    this.rarity = getRandom(0, 2);
+    this.rarity = this.getRandom(0, 2);
     if (this.rarity > 1) {
-      this.rarity = getRandom(0, 2);
+      this.rarity = this.getRandom(0, 2);
     }
     const packet = createResponse('dungeon', 'S_ClearBox', PACKET_TYPE.S_CLEARBOX, {
       rarity: this.rarity,
     });
     for (let player of this.partyInfo.Players) {
-      player.socket.write(packet);
+      getUserByNickname(player.playerName).userInfo.socket.write(packet);
     }
   }
   //최대 4개로 고정
