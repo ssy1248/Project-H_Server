@@ -126,19 +126,21 @@ class Dungeon {
     this.rarity = 0;
     this.isGetReward = false;
     // 테스트 용도 두명에 동의 체크용도
-    this.testCount = 0;
+    this.outCount = 0;
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
+
+    this.clearPlan = 10;
   }
 
   //테스트 용도입니다.
-  testAuction() {
-    if (this.testCount < 1) {
-      this.testCount++;
+  endCount() {
+    if (this.outCount < 1) {
+      this.outCount++;
       return;
     }
-    this.endBoxLoot();
+    this.deleteDungeon();
   }
   // 다잡고 보상 상자 보여주기
   endBoxLoot() {
@@ -195,6 +197,9 @@ class Dungeon {
       // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
       Object.keys(this.playersTransform).forEach((playerName) => {
         const user = getUserByNickname(playerName);
+        if (!user) {
+          return;
+        }
         const userTransform = findUser('dungeon1', user.userInfo.userId);
         if (user && userTransform && userTransform.currentTransform) {
           this.playersTransform[playerName] = {
