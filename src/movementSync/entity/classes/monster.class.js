@@ -8,7 +8,7 @@ import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp, atk, def, speed) {
-    super(movementId, id, transform);
+    super(movementId, id, "monster",transform);
 
     this.model = model;
     this.name = name;
@@ -155,7 +155,7 @@ export default class Monster extends Entity {
         );
 
         if (spawnDistance <= 0.5) {
-          monsterApplyDamage(this.movementId, this.id, 5);
+          //monsterApplyDamage(this.movementId, this.id, 5);
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
         }
 
@@ -225,7 +225,7 @@ export default class Monster extends Entity {
 
           //userApplyDamage(this.movementId, id, this.id);
         }
-      } 
+      }
     }
 
     this.attackCount--;
@@ -247,11 +247,14 @@ export default class Monster extends Entity {
       this.damageRot = yaw;
       this.currentTransform.rot = this.damageRot;
 
-      // 넉백 각도 
+      // 넉백 각도
       const knockback = movementUtils.Rotation(userTransform, this.currentTransform);
-      const { topLeft, topRight, bottomLeft, bottomRight } = movementUtils.obbBox(1,1,this.currentTransform, knockback.yaw);
-
-
+      const { topLeft, topRight, bottomLeft, bottomRight } = movementUtils.obbBox(
+        1,
+        1,
+        this.currentTransform,
+        knockback.yaw,
+      );
 
       // 넉백 방향이 장애물인 경우 바로 피격 종료.
       // 지금은 테스트라 y축은 냅두는데 테스트 종료후 삭제예정
@@ -261,31 +264,31 @@ export default class Monster extends Entity {
         posX: topLeft.x,
         posY: 0,
         posZ: topLeft.z,
-      })
+      });
 
       testArr.push({
         posX: topRight.x,
         posY: 0,
         posZ: topRight.z,
-      })
+      });
 
       testArr.push({
         posX: bottomLeft.x,
         posY: 0,
         posZ: bottomLeft.z,
-      })
+      });
 
       testArr.push({
         posX: bottomRight.x,
         posY: 0,
         posZ: bottomRight.z,
-      })
+      });
 
-      for(const pos of testArr){
+      for (const pos of testArr) {
         if (A_STER_MANAGER.FIND_OBSTACLE_POSITION(this.movementId, pos)) {
           // console.error("유저 넉백 장애물 불가");
           this.resetDamageState();
-          console.error("[유저 - 넉백 불가]");
+          console.error('[유저 - 넉백 불가]');
           return;
         }
       }

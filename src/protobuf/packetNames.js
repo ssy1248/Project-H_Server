@@ -108,5 +108,13 @@ export const packetNames = {
     C_RangeAttackCollide: 'Google.Protobuf.Protocol.C_RangeAttackCollide',
     S_SkillBuff: 'Google.Protobuf.Protocol.S_SkillBuff',
     C_SKillBuff: 'Google.Protobuf.Protocol.C_SkillBuff',
+
+    S_BossSpawn: 'Google.Protobuf.Protocol.S_BossSpawn',
+    S_BossMove: 'Google.Protobuf.Protocol.S_BossMove',
+    S_BossHit: 'Google.Protobuf.Protocol.S_BossHit',
+    S_BossDie: 'Google.Protobuf.Protocol.S_BossDie',
+    S_BossSkillStart: 'Google.Protobuf.Protocol.S_BossSkillStart',
+    S_BossSkillEnd: 'Google.Protobuf.Protocol.S_BossSkillEnd',
+    C_BossSkill: 'Google.Protobuf.Protocol.C_BossSkill',
   },
 };

@@ -91,8 +91,10 @@ class Match {
               (p) => p.id !== party1.id && p.id !== party2.id,
             );
             console.log(
-              `매칭 완료: 파티 ${party1.id}와 파티 ${party2.id
-              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${party1.partyMembers.length + party2.partyMembers.length
+              `매칭 완료: 파티 ${party1.id}와 파티 ${
+                party2.id
+              } 결합하여 던전 ${dungeonIndex} 입장 (합계: ${
+                party1.partyMembers.length + party2.partyMembers.length
               }).`,
             );
             // 두 파티 중 레벨이 높은 리더를 기준으로 결합하거나 원하는 로직으로 처리

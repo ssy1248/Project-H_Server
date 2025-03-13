@@ -215,7 +215,7 @@ export default class Inventory {
     return copy;
   }
   //다른곳에서 거래 이후 넣어주는 용도 입니다.
-  notAddDB(result, rarity, quantity = 1) {
+  notAddDB(result, quantity = 1) {
     const newItem = {
       id: result.insertId,
       itemId: result.id,
@@ -224,7 +224,7 @@ export default class Inventory {
       price: result.price,
       stat: result.stat,
       rarity: result.rarity,
-      equiped: false,
+      equiped: 0,
       quantity: quantity,
       stackable: result.stackable,
     };
