@@ -30,4 +30,6 @@ export const SQL_QUERIES = {
   // 골드 변경 쿼리문
   UPDATE_ADD_GOLD: 'UPDATE Characters SET gold = gold + ? WHERE id = ?',
   UPDATE_SUBTRACT_GOLD: 'UPDATE Characters SET gold = gold - ? WHERE id = ?',
+  // 경험치 변경 쿼리문
+  UPDATE_EXP: 'UPDATE Characters SET exp = exp + ? WHERE id = ?',
 };

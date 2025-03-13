@@ -198,3 +198,7 @@ export const updateAddGold = async (id, gold) => {
   // 데이터를 반환, 없으면 빈 배열 반환
   return data.length > 0 ? data : [];
 };
+/** 경험치만 변경하는 용도 **/
+export const updateAddExp = async (id, exp) => {
+  await pools.USER_DB.query(SQL_QUERIES.UPDATE_EXP, [exp, id]);
+};

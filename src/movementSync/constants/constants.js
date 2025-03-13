@@ -42,9 +42,8 @@ const CONSTANTS = {
     SKILL_01: 1001,      // 스킬
     SKILL_02: 1002,      // 스킬
     SKILL_03: 1003,      // 스킬
-    SKILL_04: 1003,      // 스킬
-    SKILL_05: 1003,      // 스킬
-    DIE: 1004,           // 사망
+    SKILL_04: 1004,      // 스킬
+    DIE: 1006,           // 사망
   },
 
   UTILS: {

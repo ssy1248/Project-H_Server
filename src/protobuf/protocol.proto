@@ -970,7 +970,7 @@ message C_LoootingBox{
 
 }
 message S_GetExp{
-  int32 Exp = 1;
+  int32 exp = 1;
 }
 
 // 부채꼴
