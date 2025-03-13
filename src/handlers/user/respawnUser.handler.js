@@ -20,7 +20,7 @@ const respawnUserHandler = async (socket) => {
     user.setTransform();
     const userInfo = user.getUserInfo();
     dungeondata.endCount();
-    deleteUser('dungeon1', userInfo.userId);
+    deleteUser(user.inDungeonId, userInfo.userId);
     user.inDungeonId = '';
     spawnUserHandler(socket, { class: user.playerInfo.playerClass });
   } catch (err) {

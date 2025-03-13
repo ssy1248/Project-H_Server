@@ -323,6 +323,11 @@ export default class MovementSync {
 
   // [몬스터 리스폰]
   async processMonsterSpawn() {
+    if (this.monsterSpawnInterval !== null) {
+      clearInterval(this.monsterSpawnInterval);
+      this.monsterSpawnInterval = null; // 타이머 상태를 null로 설정
+    }
+
     this.monsterSpawnInterval = setInterval(async () => {
       const users = Object.values(this.users);
       const monsters = Object.values(this.monsters);
@@ -334,9 +339,10 @@ export default class MovementSync {
       // 보스 생성 (보스 생성 후 몬스터 리스폰 종료.)
       //this.bossCount = 0;
       if (this.bossCount <= 0) {
-        this.addBoss();
+        //this.addBoss();
+        this.isEnd = true;
         clearInterval(this.monsterSpawnInterval);
-        this.bossCount = 1;
+        this.monsterSpawnInterval = null;
         return;
       }
 

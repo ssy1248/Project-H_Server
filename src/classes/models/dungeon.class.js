@@ -2,6 +2,7 @@ import { PACKET_TYPE } from '../../constants/header.js';
 import MovementSync from '../../movementSync/movementSync.class.js';
 import {
   addMovementSync,
+  createMovementSync,
   deleteMovementSync,
   findMovementSync,
   findUser,
@@ -128,10 +129,10 @@ class Dungeon {
     // 테스트 용도 두명에 동의 체크용도
     this.outCount = 0;
 
-    this.movementSync = new MovementSync(this.id, 'dungeon1');
-    addMovementSync(this.id, this.movementSync);
+    this.movementSync = createMovementSync(this.id, 'dungeon1');
 
     this.clearPlan = 10;
+    this.nowClearMonster = 0;
   }
 
   //테스트 용도입니다.
@@ -200,7 +201,7 @@ class Dungeon {
         if (!user) {
           return;
         }
-        const userTransform = findUser('dungeon1', user.userInfo.userId);
+        const userTransform = findUser(this.id, user.userInfo.userId);
         if (user && userTransform && userTransform.currentTransform) {
           this.playersTransform[playerName] = {
             x: userTransform.currentTransform.posX,
@@ -487,7 +488,7 @@ class Dungeon {
   }
 
   broadCastAll(packet) {
-    for (const user of users) {
+    for (const user of this.users) {
       user.userInfo.socket.write(packet);
     }
   }
