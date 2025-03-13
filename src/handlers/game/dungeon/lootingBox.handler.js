@@ -12,10 +12,12 @@ const lootingBoxHandler = async (socket, _) => {
   const item = dungeon.randomAuctionItem();
   const partyInfo = dungeon.partyInfo;
   const rarity = dungeon.rarity;
+
   if (dungeon.isGetReward) {
     return;
   }
   dungeon.isGetReward = true;
+
   // 트랜잭션 추가 예정입니다.
   for (let player of partyInfo.Players) {
     const playerData = getUserById(player.id);
