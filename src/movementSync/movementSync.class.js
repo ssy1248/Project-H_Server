@@ -332,12 +332,16 @@ export default class MovementSync {
       }
 
       // 보스 생성 (보스 생성 후 몬스터 리스폰 종료.)
+      this.bossCount = 0;
       if (this.bossCount <= 0) {
         this.addBoss();
         clearInterval(this.monsterSpawnInterval);
         this.bossCount = 1;
         return;
-      } 
+      } else {
+        clearInterval(this.monsterSpawnInterval);
+        return;
+      }
 
       // 몬스터수 제한
       if (monsters.length >= 5) {
@@ -378,7 +382,7 @@ export default class MovementSync {
       // 브로드 캐스트
       await this.broadcast2(initialResponse);
 
-      // 보스카운터 1 증가.
+      // 보스카운터 1 감소.
       this.bossCount--;
     }, CONSTANTS.ENTITY.MONSTER_SPAWN_INTERVAL);
   }
