@@ -116,5 +116,9 @@ export const packetNames = {
     S_BossSkillStart: 'Google.Protobuf.Protocol.S_BossSkillStart',
     S_BossSkillEnd: 'Google.Protobuf.Protocol.S_BossSkillEnd',
     C_BossSkill: 'Google.Protobuf.Protocol.C_BossSkill',
+
+    S_ClearBox: 'Google.Protobuf.Protocol.S_ClearBox',
+    C_LoootingBox: 'Google.Protobuf.Protocol.C_LoootingBox',
+    S_GetExp: 'Google.Protobuf.Protocol.S_GetExp',
   },
 };
