@@ -32,7 +32,7 @@ const clearUser = async (socket) => {
     if (user.inDungeonId === '') {
       deleteUser('town', userInfo.userId);
     } else {
-      deleteUser('dungeon1', userInfo.userId);
+      deleteUser(user.inDungeonId, userInfo.userId);
     }
 
     // 스폰 되어있는 클라이언트가 종료했을경우.

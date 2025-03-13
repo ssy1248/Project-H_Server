@@ -16,7 +16,6 @@ const initServer = async () => {
 
     // [테스트] 이동동기화생성 - town
     createMovementSync('town', 'town');
-    createMovementSync('dungeon1', 'dungeon1');
 
     // await testAllConnections(pools);
   } catch (e) {

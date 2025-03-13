@@ -12,7 +12,7 @@ export const addDungeonSession = (id, index, users) => {
 export const removeDungeonSession = (id) => {
   const index = dungeonSessions.findIndex((session) => session.id === id);
   if (index !== -1) {
-    return gameSessions.splice(index, 1)[0];
+    return dungeonSessions.splice(index, 1)[0];
   }
 };
 
@@ -36,4 +36,4 @@ export const getDungeonInPlayerName = (playerName) => {
   });
 
   return dungeons;
-}
+};

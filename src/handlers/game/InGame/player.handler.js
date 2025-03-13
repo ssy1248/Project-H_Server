@@ -108,7 +108,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
     return;
   }
 
-  const monster = findMonster('dungeon1', targetId);
+  const monster = findMonster(dungeon.id, targetId);
   if (!monster) {
     console.log('몬스터를 찾을 수 없습니다.');
     console.log(`[${attackerName}] 대상이 없으므로 기본 공격 진행합니다.`);
@@ -185,7 +185,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   // });
 
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  monsterApplyDamage('dungeon1', targetId, dungeon.players[attackerName].normalAttack.damage);
+  monsterApplyDamage(dungeon.id, targetId, dungeon.players[attackerName].normalAttack.damage);
 };
 
 const processRangeAttackHandler = (socket, direction) => {
@@ -325,7 +325,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
   // mp 회복 로직을 추가해야할듯? -> 로그라이크인데 소울류처럼 할거니까 그냥 한게임에 마나 고정?
 
   for (let targetId of targetIds) {
-    const monster = findMonster('dungeon1', targetId);
+    const monster = findMonster(dungeon.id, targetId);
     if (!monster) {
       console.log(`몬스터(${targetId})를 찾을 수 없습니다.`);
       continue;
@@ -343,7 +343,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
     }
 
     // 데미지 적용
-    monsterApplyDamage('dungeon1', targetId, player.skillAttack.damage);
+    monsterApplyDamage(dungeon.id, targetId, player.skillAttack.damage);
   }
 
   // 결과 패킷 생성
@@ -435,7 +435,7 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
   // 해당 유저의 currentTransform 업데이트
   const user = getUserByNickname(requesterName);
   if (user) {
-    const userTransform = findUser('dungeon1', user.userInfo.userId);
+    const userTransform = findUser(user.inDungeonId, user.userInfo.userId);
     if (userTransform) {
       userTransform.currentTransform = {
         posX: finalPosition.x,
@@ -556,7 +556,7 @@ export const processBuffSkillHandler = (socket, attackerName) => {
         currentMp: playerCurrentMp,
       };
       const skillBuffPacket = {
-        skillPayload, 
+        skillPayload,
         success: true,
         message: '스킬 사용을 성공했습니다.',
       };

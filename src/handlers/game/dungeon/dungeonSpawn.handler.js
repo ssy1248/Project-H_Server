@@ -31,8 +31,8 @@ const dungeonSpawnHandler = async (socket, payload) => {
     });
 
     deleteUser('town', userInfo.userId);
-    addUser('dungeon1', socket, userInfo.userId, user.getTransformInfo());
-    addMonster('dungeon1');
+    addUser(dungeondata.id, socket, userInfo.userId, user.getTransformInfo());
+    addMonster(dungeondata.id);
 
     // 나중에 싱크 추가되면 변경
     // for (let player of partyPlayers) {

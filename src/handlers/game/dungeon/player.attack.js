@@ -144,7 +144,7 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
       }
       const dungeon = attackerSessions[0];
 
-      const monster = findMonster('dungeon1', monsterId);
+      const monster = findMonster(dungeon.id, monsterId);
       if (!monster) {
         console.log('몬스터를 찾을 수 없습니다.');
         return;
@@ -196,7 +196,7 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
         );
         socket.write(packet);
 
-        monsterApplyDamage('dungeon1', monsterId, damage);
+        monsterApplyDamage(attackerSessions.id, monsterId, damage);
       } else {
         console.error('몬스터가 멀리 있습니다');
         // 이 부분에 화살이 사라지는 로직 추가?
@@ -359,7 +359,7 @@ export const playerSkillBuff = (socket, packetData) => {
 
     // 현재 일반 공격 쿨타임 (초 단위) 가져오기
     let playerAtkDelaySec = dungeon.players[userNickName].normalAttack.attackCoolTime;
-    Debug.Log("현재 공격 쿨타임: " + playerAtkDelaySec);
+    Debug.Log('현재 공격 쿨타임: ' + playerAtkDelaySec);
 
     // 버프 효과로 쿨타임을 줄일 값 (예: 1초 감소)
     const reductionAmount = 1;
