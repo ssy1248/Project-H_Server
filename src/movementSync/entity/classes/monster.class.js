@@ -8,7 +8,7 @@ import { monsterApplyDamage } from '../../movementSync.manager.js';
 
 export default class Monster extends Entity {
   constructor(movementId, id, transform, model, name, hp, atk, def, speed) {
-    super(movementId, id, "monster",transform);
+    super(movementId, id ,transform);
 
     this.model = model;
     this.name = name;
@@ -109,7 +109,7 @@ export default class Monster extends Entity {
     if (movementUtils.obbCollision(4, 4, this.currentTransform, userTransform)) {
       super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
       A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
-      this.attackCount = 60;
+      this.attackCount = 2000;
     }
 
     // 거리가 1보다 클경우
@@ -129,12 +129,12 @@ export default class Monster extends Entity {
 
     const distance01 = movementUtils.Distance(this.currentTransform, userTransform); // 거리 계산
 
-    if (movementUtils.obbCollision(4, 4, this.currentTransform, userTransform)) {
-      super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
-      A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
+    // if (movementUtils.obbCollision(4, 4, this.currentTransform, userTransform)) {
+    //   super.setBehavior(CONSTANTS.AI_BEHAVIOR.ATTACK);
+    //   A_STER_MANAGER.UPDATE_OBSTACLE(this.movementId, this);
 
-      this.attackCount = 60;
-    }
+    //   this.attackCount = 2000;
+    // }
 
     const aSterPath = super.getASterPath();
 
@@ -196,7 +196,7 @@ export default class Monster extends Entity {
       this.isAttack = false;
     }
 
-    if (this.attackCount === 60) {
+    if (this.attackCount === 2000) {
       // 몬스터 -> 유저 바라보는 rot 계싼
       const { yaw } = movementUtils.Rotation(this.currentTransform, userTransform);
       //console.log('1. rot : ', this.currentTransform.rot);
