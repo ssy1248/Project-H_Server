@@ -1,6 +1,11 @@
 import { PACKET_TYPE } from '../../constants/header.js';
 import MovementSync from '../../movementSync/movementSync.class.js';
-import { addMovementSync, deleteMovementSync, findMovementSync, findUser } from '../../movementSync/movementSync.manager.js';
+import {
+  addMovementSync,
+  deleteMovementSync,
+  findMovementSync,
+  findUser,
+} from '../../movementSync/movementSync.manager.js';
 import { removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
@@ -104,19 +109,21 @@ class Dungeon {
     // 유저 배열
     this.users = users;
     this.alives = users.length;
-    Object.defineProperty(this, "Alives",
-      {
-        get: () => this.alives,
-        set: (value) => {
-          this.alives = value;
-          if (this.alives <= 0) {
-            // 파티 전멸
-            // 던전 종료
-            this.endDungeonFailed();
-            // 
-          }
+    Object.defineProperty(this, 'Alives', {
+      get: () => this.alives,
+      set: (value) => {
+        this.alives = value;
+        if (this.alives <= 0) {
+          // 파티 전멸
+          // 던전 종료
+          this.endDungeonFailed();
+          //
         }
-      });
+      },
+    });
+
+    // 추후 던전 마다 다르게 하드코딩 하거나 매개변수로 받거나
+    this.getExp = 1000;
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
@@ -182,16 +189,14 @@ class Dungeon {
   }
 
   // 던전 성공 처리
-  endDungeonSuccess() {
-
-  }
+  endDungeonSuccess() {}
 
   // 던전 실패 처리
   endDungeonFailed() {
     // 던전 실패 패킷
     const packet = {
       success: false,
-    }
+    };
 
     const leaveDungeonPacket = createResponse(
       'dungeon',
@@ -338,8 +343,8 @@ class Dungeon {
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterTrans.posX, 2) +
-      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
-      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
+        Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+        Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
