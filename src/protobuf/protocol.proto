@@ -105,8 +105,10 @@ enum MsgId {
   S_BOSSSKILLSTART=96;
   S_BOSSSKILLEND=97;
   C_BOSSSKILL=98;
+  S_CLEARBOX =99;
+  C_LOOTINGBOX =100;
+  S_GETEXP =101;
 }
-
 //회원가입 요청
 message C_RegisterRequest {
   string email = 1;
@@ -958,6 +960,17 @@ message C_BossSkill {
     MultiCircleAttack multiCircle = 6;
     CircleArea circles = 7;
   }
+}
+
+message S_ClearBox{
+  int32 rarity = 1;
+}
+
+message C_LoootingBox{
+
+}
+message S_GetExp{
+  int32 Exp = 1;
 }
 
 // 부채꼴

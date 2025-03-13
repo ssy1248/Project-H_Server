@@ -41,10 +41,11 @@ import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
 import reSpawnUserHandler from './user/respawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
-import { playerSkillBuff,  rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import { playerSkillBuff, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
 import userStateHandler from './user/userState.handler.js';
 //import playerRangeAttackHandler from './game/dungeon/player.attack.js';
 import bossSkillHandler from './game/dungeon/bossSkill.handler.js';
+import lootingBoxHandler from './game/dungeon/lootingBox.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -341,9 +342,13 @@ const handlers = {
     protoType: 'user.C_GetUserState',
   },
   [PACKET_TYPE.C_BOSSSKILL]: {
-    handler : bossSkillHandler,
-    protoType : 'dungeon.C_BossSkill',
-  }
+    handler: bossSkillHandler,
+    protoType: 'dungeon.C_BossSkill',
+  },
+  [PACKET_TYPE.C_LOOTINGBOX]: {
+    handler: lootingBoxHandler,
+    protoType: 'dungeon.C_LootingBox',
+  },
 };
 
 export const getHandlerById = (handlerId) => {
