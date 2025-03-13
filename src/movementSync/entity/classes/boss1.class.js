@@ -10,7 +10,7 @@ import Queue from '../../utils/queue.js';
 
 export default class Boss1 extends Entity {
   constructor(movementId, id, transform, model, name, hp) {
-    super(movementId, id, 'boss', transform);
+    super(movementId, id, transform);
 
     this.model = model;
     this.name = name;
@@ -77,7 +77,7 @@ export default class Boss1 extends Entity {
 
     this.updateBossSync(userInfo);
 
-    if(this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE){
+    if (this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE) {
       super.updateTransform();
     }
   }
@@ -98,10 +98,10 @@ export default class Boss1 extends Entity {
             this.boosAiBehaviorSkill('skill_01', userInfo);
             break;
           case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_02:
-            this.boosAiBehaviorSkill( 'skill_02', userInfo);
+            this.boosAiBehaviorSkill('skill_02', userInfo);
             break;
           case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_03:
-            this.boosAiBehaviorSkill( 'skill_03', userInfo);
+            this.boosAiBehaviorSkill('skill_03', userInfo);
             break;
           case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04:
             this.boosAiBehaviorSkill('skill_04', userInfo);
@@ -148,14 +148,11 @@ export default class Boss1 extends Entity {
     if (distance <= 3.5) {
       // 보스 상태가 IDLE 일 경우 스킬 세팅.
       if (this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE) {
-
-        if(!this.isSkill){
+        if (!this.isSkill) {
           this.prepareBossSkill();
           //this.bossBehavior = CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04;
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
         }
-
-        
       }
     } else if (this.behavior === CONSTANTS.AI_BEHAVIOR.IDLE) {
       this.chasePlayer(closestUser.currentTransform);
@@ -190,7 +187,7 @@ export default class Boss1 extends Entity {
 
   // [보스 스킬]
   boosAiBehaviorSkill(type, userInfo) {
-    if(!this.isSkill) {
+    if (!this.isSkill) {
       this.boosAiBehaviorSkill_Start(type, userInfo);
     }
   }
@@ -382,22 +379,22 @@ export default class Boss1 extends Entity {
   // [보스 몬스터 핸들러]
   handleBossSkill(packetData, users) {
     const { type, currentPosition } = packetData;
-    console.log("type: ", type);
+    console.log('type: ', type);
     switch (type.toLowerCase()) {
       case 'skill_01':
-        this.handleRectangleSkillCollision(packetData.rectangle , users, currentPosition);
+        this.handleRectangleSkillCollision(packetData.rectangle, users, currentPosition);
         break;
       case 'skill_02':
-        this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
+        this.handleSectorSkillCollision(packetData.sector, users, currentPosition);
         break;
       case 'skill_03':
-        this.handleMultiCircleSkillCollision(packetData.multiCircle , users, currentPosition);
+        this.handleMultiCircleSkillCollision(packetData.multiCircle, users, currentPosition);
         break;
       case 'skill_04':
-        this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
+        this.handleSectorSkillCollision(packetData.sector, users, currentPosition);
         break;
       case 'skill_05':
-        this.handleCircleSkillCollision(packetData.circles , users, currentPosition);
+        this.handleCircleSkillCollision(packetData.circles, users, currentPosition);
         break;
     }
   }
@@ -413,12 +410,19 @@ export default class Boss1 extends Entity {
       const { center, direction, width, height, length } = rectangle;
 
       // 사각형 만들기
-      const bossRectangle  = movementUtils.BossCreateRectangle(this.currentTransform, center, direction, width, height, length );
+      const bossRectangle = movementUtils.BossCreateRectangle(
+        this.currentTransform,
+        center,
+        direction,
+        width,
+        height,
+        length,
+      );
 
       // 충돌 검사.
       for (const user of users) {
         const userCurrentPosition = user.getTransform();
-        if (movementUtils.BossRectangleCollision(userCurrentPosition, bossRectangle )) {
+        if (movementUtils.BossRectangleCollision(userCurrentPosition, bossRectangle)) {
           const userInfo = getUserById(user.getId());
           const playerStatInfo = userInfo.getPlayerStatInfo();
           const playerHp = playerStatInfo.hp;
@@ -430,8 +434,8 @@ export default class Boss1 extends Entity {
           // console.error("rectangle 정보: ", rectangle);
           // console.log("충돌 사각형 : ", bossRectangle );
           // console.log("유저 포지션 : ", userCurrentPosition);
-          console.log("[유저 충돌함]")
-        } 
+          console.log('[유저 충돌함]');
+        }
       }
 
       // 보스몬스터 스킬 종료
@@ -460,13 +464,13 @@ export default class Boss1 extends Entity {
           // 최소 0으로 설정
           const newHp = Math.max(playerHp - 10, 0);
           userInfo.setHp(newHp);
-          console.error("sector : ", sector);
-          console.error("user : ", userCurrentPosition);
-          console.log("[유저 충돌 - 부채꼴]")
+          console.error('sector : ', sector);
+          console.error('user : ', userCurrentPosition);
+          console.log('[유저 충돌 - 부채꼴]');
         } else {
-          console.error("sector : ", sector);
-          console.error("user : ", userCurrentPosition);
-          console.log("[유저 충돌 안함 - 부채꼴]")
+          console.error('sector : ', sector);
+          console.error('user : ', userCurrentPosition);
+          console.log('[유저 충돌 안함 - 부채꼴]');
         }
       }
 
@@ -478,14 +482,14 @@ export default class Boss1 extends Entity {
   // [스킬 3 - 원(많은)]
   handleMultiCircleSkillCollision(multiCircle, users, currentPosition) {
     if (users.length === 0) return;
-    console.log("multiCircle : ", multiCircle);
+    console.log('multiCircle : ', multiCircle);
 
     if (multiCircle) {
       // 충돌 검사
       for (const user of users) {
         const userCurrentPosition = user.getTransform();
 
-        for (const circle of multiCircle.circles ) {
+        for (const circle of multiCircle.circles) {
           const { center, radius } = circle;
 
           // 충돌 검사 로직 (원 안에 있는지 확인)
@@ -501,9 +505,9 @@ export default class Boss1 extends Entity {
             // 최소 0으로 설정
             const newHp = Math.max(playerHp - 10, 0);
             userInfo.setHp(newHp);
-            console.log("[유저 충돌 - 원]")
+            console.log('[유저 충돌 - 원]');
             break;
-          } 
+          }
         }
       }
 

@@ -32,7 +32,7 @@ const marketMyListHandler = (socket, payload) => {
         itemId: inventory[i].itemId,
       });
     }
-    if (!data.length < count) {
+    if (data.length >= count) {
       break;
     }
   }
