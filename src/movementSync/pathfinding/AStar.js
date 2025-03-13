@@ -132,27 +132,27 @@ export class AStar {
       depth++;
     }
 
-    console.log('A* search completed without reaching the end node.');
+    //console.log('A* search completed without reaching the end node.');
 
     // 여기오는거 같은데 ?
     // 여기 왜오는데!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // 반복문 종료 후, 경로를 찾지 못한 경우
     if (this.openList.isEmpty()) {
-      console.log('❌ 경로를 찾을 수 없습니다. (막혀 있거나 도달 불가능)');
+      //console.log('❌ 경로를 찾을 수 없습니다. (막혀 있거나 도달 불가능)');
     } else if (depth >= this.options.maxDepth) {
-      console.log('⚠️ 탐색이 최대 깊이 제한에 도달하여 중단되었습니다.');
+      //console.log('⚠️ 탐색이 최대 깊이 제한에 도달하여 중단되었습니다.');
     }
 
     // 🔍 디버깅용 추가 로그
-    console.log('🚧 Close List (방문한 노드들):', [...this.closeList]);
+    //console.log('🚧 Close List (방문한 노드들):', [...this.closeList]);
    
 
-    console.error('depth : ', depth);
-    console.log('No valid path found');
-    console.log();
-    console.warn('도착지점 장애물 : ', this.isValid(this.end));
-    console.error(`start: ${this.start}, end: ${this.end}`);
-    console.log();
+    // console.error('depth : ', depth);
+    // console.log('No valid path found');
+    // console.log();
+    // console.warn('도착지점 장애물 : ', this.isValid(this.end));
+    // console.error(`start: ${this.start}, end: ${this.end}`);
+    // console.log();
 
     return null; // 경로 탐색 실패
   }
