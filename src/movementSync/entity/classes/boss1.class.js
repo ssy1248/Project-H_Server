@@ -21,7 +21,6 @@ export default class Boss1 extends Entity {
       skill_2: 1.0,
       skill_3: 1.0,
       skill_4: 1.0,
-      skill_5: 1.0,
     };
 
     this.skillActiveTimes = {
@@ -29,7 +28,6 @@ export default class Boss1 extends Entity {
       skill_2: 1000,
       skill_3: 1000,
       skill_4: 1000,
-      skill_5: 1000,
     };
 
     this.skillCooldown = CONSTANTS.ENTITY.SKILL_COOLDOWN;
@@ -108,10 +106,6 @@ export default class Boss1 extends Entity {
           case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04:
             this.boosAiBehaviorSkill('skill_04', userInfo);
             break;
-          case CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_05:
-            this.boosAiBehaviorSkill( 'skill_05', userInfo);
-            break;
-
           default:
             break;
         }
@@ -156,8 +150,8 @@ export default class Boss1 extends Entity {
       if (this.bossBehavior === CONSTANTS.BOSS_AI_BEHAVIOR.IDLE) {
 
         if(!this.isSkill){
-          //this.prepareBossSkill();
-          this.bossBehavior = CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_01;
+          this.prepareBossSkill();
+          //this.bossBehavior = CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04;
           super.setBehavior(CONSTANTS.AI_BEHAVIOR.IDLE);
         }
 
@@ -348,7 +342,6 @@ export default class Boss1 extends Entity {
       skill_2: CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_02,
       skill_3: CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_03,
       skill_4: CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_04,
-      skill_5: CONSTANTS.BOSS_AI_BEHAVIOR.SKILL_05,
     };
 
     return skillMap[selectedSkill] || CONSTANTS.BOSS_AI_BEHAVIOR.IDLE;
@@ -366,7 +359,7 @@ export default class Boss1 extends Entity {
   // [보스몬스터 데미지].
   bossTakeDamage(damage) {
     const sBossHit = {
-      bossId: bossId,
+      bossId: this.id,
       damage: damage,
     };
 
@@ -398,7 +391,7 @@ export default class Boss1 extends Entity {
         this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
         break;
       case 'skill_03':
-        this.handleMultiCircleSkillCollision(packetData.secmultiCircle , users, currentPosition);
+        this.handleMultiCircleSkillCollision(packetData.multiCircle , users, currentPosition);
         break;
       case 'skill_04':
         this.handleSectorSkillCollision(packetData.sector , users, currentPosition);
@@ -483,15 +476,16 @@ export default class Boss1 extends Entity {
   }
 
   // [스킬 3 - 원(많은)]
-  handleMultiCircleSkillCollision(skill_range, users, currentPosition) {
+  handleMultiCircleSkillCollision(multiCircle, users, currentPosition) {
     if (users.length === 0) return;
+    console.log("multiCircle : ", multiCircle);
 
-    if (skill_range.multiCircle) {
+    if (multiCircle) {
       // 충돌 검사
       for (const user of users) {
         const userCurrentPosition = user.getTransform();
 
-        for (const circle of skill_range.multiCircle.circles) {
+        for (const circle of multiCircle.circles ) {
           const { center, radius } = circle;
 
           // 충돌 검사 로직 (원 안에 있는지 확인)
@@ -507,7 +501,9 @@ export default class Boss1 extends Entity {
             // 최소 0으로 설정
             const newHp = Math.max(playerHp - 10, 0);
             userInfo.setHp(newHp);
-          }
+            console.log("[유저 충돌 - 원]")
+            break;
+          } 
         }
       }
 

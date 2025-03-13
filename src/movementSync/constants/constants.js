@@ -6,7 +6,7 @@ const CONSTANTS = {
   },
 
   ENTITY: {
-    DEFAULT_SPEED: 10, // 기본 이동 속도
+    DEFAULT_SPEED: 4, // 기본 이동 속도
     MONSTER_DETECTION_RANGE: 10, // 몬스터 탐지 범위
     PLAYER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
     MONSTER_HITBOX_SIZE: 1.5, // 플레이어 충돌 크기
@@ -29,22 +29,21 @@ const CONSTANTS = {
   },
 
   AI_BEHAVIOR: {
-    IDLE: 0, // 대기
-    CHASE: 1, // 추격
-    RETREAT: 2, // 후퇴
-    ATTACK: 3, // 공격
-    RETURN: 4, // 복귀
-    DAMAGED: 5, // 공격받는 중
+    IDLE: 0,          // 대기
+    CHASE: 1,         // 추격 
+    RETREAT: 2,       // 후퇴
+    ATTACK: 3,        // 공격
+    RETURN: 4,        // 복귀
+    DAMAGED: 5,       // 공격받는 중
   },
 
   BOSS_AI_BEHAVIOR: {
-    IDLE: 1000, // 대기
-    SKILL_01: 1001, // 스킬
-    SKILL_02: 1002, // 스킬
-    SKILL_03: 1003, // 스킬
-    SKILL_04: 1003, // 스킬
-    SKILL_05: 1003, // 스킬
-    DIE: 1004, // 사망
+    IDLE: 1000,          // 대기
+    SKILL_01: 1001,      // 스킬
+    SKILL_02: 1002,      // 스킬
+    SKILL_03: 1003,      // 스킬
+    SKILL_04: 1004,      // 스킬
+    DIE: 1006,           // 사망
   },
 
   UTILS: {

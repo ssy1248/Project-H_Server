@@ -306,46 +306,27 @@ const bossCheckRectangleCollision = (userPosition, corners) => {
 };
 
 // [보스 - 부채꼴 충돌 검사]
-// [보스 - 부채꼴 충돌 검사]
 const bossCheckSectorCollision = (userPosition, center, direction, radius, angle) => {
-  // 1. 삼각형의 세 점 계산 (부채꼴의 꼭지점)
-  const halfAngle = angle / 2;
-  const angle1 = Math.atan2(direction.z, direction.x) - halfAngle;
-  const angle2 = Math.atan2(direction.z, direction.x) + halfAngle;
+  // 1. 보스 중심에서 유저까지의 거리 계산
+  const dx = userPosition.posX - center.x;
+  const dz = userPosition.posZ - center.z;
+  const distanceSquared = dx * dx + dz * dz;
 
-  const point1 = {
-    x: center.x + radius * Math.cos(angle1),
-    z: center.z + radius * Math.sin(angle1),
-  };
-  const point2 = {
-    x: center.x + radius * Math.cos(angle2),
-    z: center.z + radius * Math.sin(angle2),
-  };
+  // 2. 유저가 반경 내에 있는지 확인
+  if (distanceSquared > radius * radius) {
+    return false; // 반경 바깥이면 충돌 X
+  }
 
-  // 2. 삼각형의 세 점과 유저 위치 비교 (삼각형 내부 검사)
-  const triangleVertices = [center, point1, point2];
-  const isInside = isPointInsideTriangle(userPosition, triangleVertices);
+  // 3. 보스의 방향과 유저 방향의 각도 비교
+  const userAngle = Math.atan2(dz, dx);
+  const bossAngle = Math.atan2(direction.z, direction.x);
+  const angleDiff = Math.abs(userAngle - bossAngle);
 
-  return isInside; // 유저가 삼각형 내부에 있으면 충돌 O
+  // 4. 부채꼴 각도 범위 안에 있는지 확인 (반으로 나눈 각도 비교)
+  return angleDiff <= angle / 2 * (Math.PI / 180);
 };
 
-// 삼각형 내부 점 검사 함수 (벡터 외적 사용)
-const isPointInsideTriangle = (point, triangleVertices) => {
-  const [v0, v1, v2] = triangleVertices;
 
-  const dX1 = v1.x - v0.x;
-  const dZ1 = v1.z - v0.z;
-  const dX2 = v2.x - v0.x;
-  const dZ2 = v2.z - v0.z;
-  const dX3 = point.posX - v0.x;
-  const dZ3 = point.posZ - v0.z;
-
-  const cross1 = dX1 * dZ3 - dZ1 * dX3;
-  const cross2 = dX2 * dZ3 - dZ2 * dX3;
-  const cross3 = dX1 * dZ2 - dZ1 * dX2;
-
-  return (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
-};
 
 const movementUtils = {
   Distance: calculateDistance,
