@@ -9,7 +9,7 @@ export const getAutionItem = async (data) => {
       data.CharId,
       data.itemId,
       data.rarity,
-      false,
+      0,
       1,
       null,
     ]);

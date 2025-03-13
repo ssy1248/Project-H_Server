@@ -101,7 +101,6 @@ class Dungeon {
     this.arrows = {};
 
     this.startArrowMovement();
-    this.testCount = 0;
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
     this._positionUpdateIntervalId = null;
@@ -124,17 +123,53 @@ class Dungeon {
 
     // 추후 던전 마다 다르게 하드코딩 하거나 매개변수로 받거나
     this.getExp = 1000;
+    this.rarity = 0;
+    this.isGetReward = false;
+    // 테스트 용도 두명에 동의 체크용도
+    this.testCount = 0;
+    this.testAuction();
 
     this.movementSync = new MovementSync(this.id, 'dungeon1');
     addMovementSync(this.id, this.movementSync);
   }
 
-  checkAuctionTest() {
-    if (this.testCount < 1) {
-      this.testCount++;
+  //테스트 용도입니다.
+  testAuction() {
+    if (testCount < 1) {
+      testCount++;
       return;
     }
-    new RewardAuction([5, 6], this.partyInfo);
+    this.endBoxLoot();
+  }
+  // 다잡고 보상 상자 보여주기
+  endBoxLoot() {
+    this.rarity = getRandom(0, 2);
+    if (this.rarity > 1) {
+      this.rarity = getRandom(0, 2);
+    }
+    const packet = createResponse('dungeon', 'S_ClearBox', PACKET_TYPE.S_CLEARBOX, {
+      rarity: this.rarity,
+    });
+    for (let player of this.partyInfo.Players) {
+      player.socket.write(packet);
+    }
+  }
+  //최대 4개로 고정
+  randomAuctionItem() {
+    let items = [];
+
+    for (let i = 0; i < 4; i++) {
+      items.push(this.getRandom(3, 9));
+
+      if (!this.getRandom(0, 10) > i * 2) {
+        break;
+      }
+    }
+
+    return items;
+  }
+  getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
