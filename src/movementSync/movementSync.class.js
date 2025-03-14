@@ -341,8 +341,7 @@ export default class MovementSync {
       // 보스 생성 (보스 생성 후 몬스터 리스폰 종료.)
       //this.bossCount = 0;
       if (this.bossCount <= 0) {
-        //this.addBoss();
-        this.isEnd = true;
+        this.addBoss();
         clearInterval(this.monsterSpawnInterval);
         this.monsterSpawnInterval = null;
         return;

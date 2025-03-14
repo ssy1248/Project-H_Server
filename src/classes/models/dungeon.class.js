@@ -131,7 +131,7 @@ class Dungeon {
 
     this.movementSync = createMovementSync(this.id, 'dungeon1');
 
-    this.clearPlan = 4;
+    this.clearPlan = 5;
   }
   monsterDie() {
     if (!this.clearPlan < 1) {
