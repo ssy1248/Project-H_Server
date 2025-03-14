@@ -344,6 +344,13 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
 
     // 데미지 적용
     monsterApplyDamage(dungeon.id, targetId, player.skillAttack.damage);
+    // [보스 몬스터]
+    const user = getUserBySocket(socket);
+    const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, player.skillAttack.damage * 5);
+
+    if (boss) {
+      return console.log('[보스 공격성공]');
+    }
   }
 
   // 결과 패킷 생성
