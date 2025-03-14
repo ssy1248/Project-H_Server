@@ -601,7 +601,6 @@ message S_PlayerAction {
 
 message S_SetPlayerHpData {
   int32 userId = 1;
-
   float hp = 2;
 }
 message S_SetPlayerData {
@@ -610,9 +609,9 @@ message S_SetPlayerData {
 }
 message S_SetMonsterHpData {
   int32 monsterId = 1;
-
   float hp = 2;
 }
+
 // 일반 공격 결과 메시지
 message NormalAttackResult {
   string targetId = 1;// 공격 대상 ID
