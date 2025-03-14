@@ -40,6 +40,10 @@ export default class Boss1 extends Entity {
     this.isSkill = false;
   }
 
+  getTransform() {
+    return this.currentTransform;
+  }
+
   // [보스 몬스터 스폰]
   spawnBossMonster(userInfo) {
     const sBossSpawn = {
@@ -354,7 +358,7 @@ export default class Boss1 extends Entity {
   }
 
   // [보스몬스터 데미지].
-  bossTakeDamage(damage) {
+  bossTakeDamage(damage, userInfo) {
     const sBossHit = {
       bossId: this.id,
       damage: damage,
@@ -366,7 +370,7 @@ export default class Boss1 extends Entity {
   }
 
   // [보스몬스터 사망]
-  bossDie() {
+  bossDie(userInfo) {
     const sBossDie = {
       bossId: this.id,
     };
