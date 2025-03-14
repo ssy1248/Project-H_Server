@@ -113,11 +113,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   // [보스 몬스터]
   const user = getUserBySocket(socket);
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  const boss = bossApplyDamage2(
-    dungeon.id,
-    user.userInfo.userId,
-    1000,
-  );
+  const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, 1000);
   // dungeon.players[attackerName].normalAttack.damage * 5,
 
   if (boss) {
@@ -209,11 +205,11 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   socket.write(packet);
 
   // 모든 결과 브로드캐스팅 - 공격 애니메이션, 사운드
-  // attackerSessions.partyInfo.players.forEach((dungeon) => {
+  dungeon.partyInfo.Players.forEach((player) => {
+    const user = getUserByNickname(player.playerName);
+    user.userInfo.socket.write(packet);
+  });
 
-  // });
-
-  
   monsterApplyDamage(dungeon.id, targetId, dungeon.players[attackerName].normalAttack.damage);
 };
 
