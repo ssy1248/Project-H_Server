@@ -1,10 +1,11 @@
 import marketData from '../../classes/models/marketData.class.js';
 import { PACKET_TYPE } from '../../constants/header.js';
-import { getItemBuyInventoryId, removeItemFromInventory } from '../../db/inventory/inventory.db.js';
+import { getItemBuyInventoryId } from '../../db/inventory/inventory.db.js';
 import { addMarket } from '../../db/marketplace/market.db.js';
 import { getItemSession } from '../../session/item.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+import { addInventoryHandler, removeInventoryHandler } from '../inventory/inventory.handler.js';
 
 const check = async (data) => {
   try {
@@ -25,7 +26,7 @@ const check = async (data) => {
     if (!marketDataTemp) {
       throw new Error('거래 실패입니다!');
     }
-    data.user.inventory.notDropDB(data.inventoryId);
+    const itemData = data.user.inventory.notDropDB(data.inventoryId);
     // 생성까지 완료 해주기
     new marketData(
       {
@@ -38,9 +39,10 @@ const check = async (data) => {
       },
       getItemSession(item.itemId).name,
     );
+
     return createResponse('town', 'S_SellInMarket', PACKET_TYPE.S_SELLINMARKET, {
       success: true,
-      message: '구매에 성공했습니다.',
+      message: '등록에 성공했습니다.',
     });
   } catch (err) {
     return createResponse('town', 'S_SellInMarket', PACKET_TYPE.S_SELLINMARKET, {
@@ -59,6 +61,7 @@ const sellInMarketHandler = async (socket, payload) => {
   }
 
   const packet = await check({ inventoryId, itemId, user, gold });
+  addInventoryHandler(socket);
   //인벤토리에 있는지 확인 필요
   socket.write(packet);
 };
