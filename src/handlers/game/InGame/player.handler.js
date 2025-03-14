@@ -113,13 +113,13 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   // [보스 몬스터]
   const user = getUserBySocket(socket);
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, 1000);
+  const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, dungeon.players[attackerName].normalAttack.damage * 5);
   // dungeon.players[attackerName].normalAttack.damage * 5,
 
   if (boss) {
     const normalAttackResult = {
       targetId,
-      damageDealt: dungeon.players[attackerName].normalAttack.damage,
+      damageDealt: dungeon.players[attackerName].normalAttack.damage * 5,
       useUserName: attackerName,
     };
     const payload = {
