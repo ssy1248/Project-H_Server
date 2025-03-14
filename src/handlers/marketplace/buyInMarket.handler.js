@@ -6,6 +6,7 @@ import { getItemSession } from '../../session/item.session.js';
 import { deletMarketSession, getBuyIdInMarketSession } from '../../session/market.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
+import { addInventoryHandler } from '../inventory/inventory.handler.js';
 
 const check = async (user, marketId) => {
   try {
@@ -42,6 +43,7 @@ const check = async (user, marketId) => {
       },
       marketData.rarity,
     );
+    // 인벤토리에서 보내주는 함수
 
     return createResponse('town', 'S_BuyInMarket', PACKET_TYPE.S_BUYITEMRESPONSE, {
       success: true,
@@ -63,6 +65,7 @@ const buyInMarketHandler = async (socket, payload) => {
     return;
   }
   const packet = await check(user, marketId);
+  addInventoryHandler(socket);
   socket.write(packet);
 };
 

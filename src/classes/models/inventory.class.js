@@ -202,14 +202,14 @@ export default class Inventory {
 
   // 모든 장착한 아이템의 스탯 합을 구하는 함수
   getAllStat() {
-    return this.getEquipment.reduce((acc, item) => acc + item.stat, 0);
+    return this.getEquipment().reduce((acc, item) => acc + item.stat, 0);
   }
 
   // 클래스 기본 스탯에 장비한 모든 스탯을 더한 객체를 반환하는 함수
   addAllStat(playerStatInfo) {
     const copy = { ...playerStatInfo };
     const stat = this.getAllStat();
-    for (const [key, value] of Object.entries(copy)) {
+    for (let [key, value] of Object.entries(copy)) {
       value += stat;
     }
     return copy;
@@ -238,6 +238,6 @@ export default class Inventory {
       // 아이템이 스택 가능한지 확인
       return;
     }
-    if (idx !== -1) this.inventory.splice(idx, 1);
+    if (idx !== -1) return this.inventory.splice(idx, 1);
   }
 }
