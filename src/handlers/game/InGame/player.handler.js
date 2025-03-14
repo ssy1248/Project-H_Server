@@ -1,3 +1,4 @@
+import { PLAYER_CLASS } from '../../../classes/models/player.class.js';
 import { PACKET_TYPE } from '../../../constants/header.js';
 import {
   findMonster,
@@ -108,6 +109,9 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
     return;
   }
 
+  // [보스 몬스터]
+  const user = getUserBySocket(socket);
+
   const monster = findMonster(dungeon.id, targetId);
   if (!monster) {
     console.log('몬스터를 찾을 수 없습니다.');
@@ -185,6 +189,15 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   // });
 
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
+  const boss = bossApplyDamage2(
+    dungeon.id,
+    user.userInfo.userId,
+    dungeon.players[attackerName].normalAttack.damage * 5,
+  );
+
+  if (boss) {
+    return console.log('[보스 공격성공]');
+  }
   monsterApplyDamage(dungeon.id, targetId, dungeon.players[attackerName].normalAttack.damage);
 };
 
@@ -411,17 +424,34 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
   lastdodgeTime[requesterName] = now;
   console.log(`[${requesterName}] 회피 시도!`);
 
+  if (player.playerClass === PLAYER_CLASS.LANCE) {
+    const dodgeResult = {
+      evadedDamage: 20,
+      dodgeDistance: 0,
+      direction: { x: 0, y: 0, z: 0 }, // 제자리이므로 0,0,0
+      finalPosition: dungeon.playersTransform[requesterName], // 변화 없음
+      useUserName: requesterName,
+    };
+
+    const payload = {
+      dodgeResult,
+      success: true,
+      message: '창병은 제자리에서 반격을 시도합니다.',
+    };
+
+    const sPlayerActionPacket = createResponse(
+      'dungeon',
+      'S_PlayerAction',
+      PACKET_TYPE.S_PLAYERACTION,
+      payload,
+    );
+    socket.write(sPlayerActionPacket);
+
+    return; // LANCE는 여기서 종료
+  }
+
   // 플레이어의 서버 현재 위치 -> 이부분에서 업데이트가 안되고 있어서 스폰 위치에서 구르고 보간이 되고있음
   const currentServerPosition = dungeon.playersTransform[requesterName];
-
-  // 클라에서 보낸 현재 좌표 -> 이상함 -> 스폰 위치에서 계속 보내는 위치 같음
-  const basePosition = {
-    x: currentPosition.x,
-    y: currentPosition.y,
-    z: currentPosition.z,
-  };
-
-  // 서버에서 가진 가장 최근 좌표와 클라에서 보낸 현재좌표를 검사해야할듯?
 
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
