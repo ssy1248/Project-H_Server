@@ -108,6 +108,7 @@ enum MsgId {
   S_CLEARBOX =99;
   C_LOOTINGBOX =100;
   S_GETEXP =101;
+  S_GOLD =102;
 }
 //회원가입 요청
 message C_RegisterRequest {
@@ -601,7 +602,6 @@ message S_PlayerAction {
 
 message S_SetPlayerHpData {
   int32 userId = 1;
-
   float hp = 2;
 }
 message S_SetPlayerData {
@@ -610,9 +610,9 @@ message S_SetPlayerData {
 }
 message S_SetMonsterHpData {
   int32 monsterId = 1;
-
   float hp = 2;
 }
+
 // 일반 공격 결과 메시지
 message NormalAttackResult {
   string targetId = 1;// 공격 대상 ID
@@ -1001,6 +1001,9 @@ message MultiCircleAttack {
   repeated CircleArea circles = 1;  // 여러 개의 원 정보
 }
 
+message S_Gold{
+  int32 gold =1;
+}
 
 
 

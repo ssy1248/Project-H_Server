@@ -8,16 +8,17 @@ const userStateHandler = (socket, _) => {
     if (!user) {
       throw new Error('해당 유저가 없습니다.');
     }
+    const userData = user.inventory.addAllStat(user.playerStatInfo);
     const packet = createResponse('user', 'S_SetUserState', PACKET_TYPE.S_SETUSERSTATE, {
       data: {
         level: user.playerInfo.level,
-        hp: user.playerStatInfo.hp,
-        maxHp: user.playerStatInfo.maxHp,
-        mp: user.playerStatInfo.mp,
-        maxMp: user.playerStatInfo.maxMp,
-        atk: user.playerStatInfo.atk,
-        def: user.playerStatInfo.def,
-        speed: user.playerStatInfo.speed,
+        hp: userData.hp,
+        maxHp: userData.maxHp,
+        mp: userData.mp,
+        maxMp: userData.maxMp,
+        atk: userData.atk,
+        def: userData.def,
+        speed: userData.speed,
       },
       exp: user.playerInfo.exp,
     });

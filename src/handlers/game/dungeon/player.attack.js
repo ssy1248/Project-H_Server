@@ -196,6 +196,13 @@ export const rangeAttackImpactHandler = (socket, packetData) => {
         );
         socket.write(packet);
 
+        // [보스 몬스터]
+        const user = getUserBySocket(socket);
+        const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, damage * 5);
+
+        if (boss) {
+          return console.log('[보스 공격성공]');
+        }
         monsterApplyDamage(attackerSessions.id, monsterId, damage);
       } else {
         console.error('몬스터가 멀리 있습니다');

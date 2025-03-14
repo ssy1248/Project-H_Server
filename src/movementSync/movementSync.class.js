@@ -509,7 +509,7 @@ export default class MovementSync {
   }
 
   findBosses() {
-    return this.bosses;
+    return  Object.values(this.bosses);
   }
 
   deleteBoss(id) {

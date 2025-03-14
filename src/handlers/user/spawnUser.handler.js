@@ -12,6 +12,7 @@ import {
   createCharacter,
   insertCharacterStats,
   getCharacterStatsCount,
+  updateAddGold,
 } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -73,6 +74,10 @@ const findOrCreateCharacter = async (userId, charStatId) => {
       await createCharacter(userId, charStatId);
       character = await findCharacterByUserAndStatId(userId, charStatId);
     }
+    
+
+    console.log('charcter',character)
+
     return character;
   } catch (error) {
     console.error('캐릭터 조회/생성 중 에러 발생:', error);
@@ -131,6 +136,24 @@ const syncSpawnedUser = async (socket, user) => {
       storeList: storeItem,
       itemData,
     };
+
+
+    //골드 정보 db에서 플레이어인포에 넣기
+    
+
+
+
+    const playerInfo = user.getPlayerInfo();
+
+    const gold = playerInfo.gold;
+    console.log(gold, 'gold');
+
+    const sGold = {
+      gold: gold,
+    };
+    const goldResponse = createResponse('user', 'S_Gold', PACKET_TYPE.S_GOLD, sGold);
+
+    socket.write(goldResponse);
 
     console.log(
       `유저 아이디 : ${
