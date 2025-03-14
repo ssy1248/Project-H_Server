@@ -27,6 +27,7 @@ export const updateUserLocation = async (x, y, id) => {
 // 케릭터 생성.
 export const createCharacter = async (userId, charStatId) => {
   const [result] = await pools.USER_DB.query(SQL_QUERIES.CREATE_CHARACTER, [userId, charStatId]);
+  
 
   // 해당 테이블의 id값을 반환 (성공여부 확인용)
   return result.insertId;
