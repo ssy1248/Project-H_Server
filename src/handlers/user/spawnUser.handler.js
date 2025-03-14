@@ -12,6 +12,7 @@ import {
   createCharacter,
   insertCharacterStats,
   getCharacterStatsCount,
+  updateAddGold,
 } from '../../db/user/user.db.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { PACKET_TYPE } from '../../constants/header.js';
@@ -72,7 +73,10 @@ const findOrCreateCharacter = async (userId, charStatId) => {
     if (!character) {
       await createCharacter(userId, charStatId);
       character = await findCharacterByUserAndStatId(userId, charStatId);
+      const charcterId = character.id;
+      await updateAddGold(charcterId, 10000);
     }
+
     return character;
   } catch (error) {
     console.error('캐릭터 조회/생성 중 에러 발생:', error);

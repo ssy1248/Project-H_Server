@@ -233,8 +233,12 @@ export const bossApplyDamage2 = (movementSyncId, userId, damage) => {
   const user = findUser(movementSyncId, userId);
   const userTransform = user.getTransform();
 
-  const boss = movementSyncs[movementSyncId].findBosses();
-  const bossTransform = boss[0].getTransform();
+  const findBosses = movementSyncs[movementSyncId].findBosses();
+  if (findBosses.length === 0) {
+    return false;
+  }
+
+  const bossTransform = findBosses[0].getTransform();
 
   const userX = userTransform.posX;
   const userY = userTransform.posY;
@@ -247,19 +251,25 @@ export const bossApplyDamage2 = (movementSyncId, userId, damage) => {
     return false;
   }
 
+
   // 보스체력 업데이트
-  let bossHp = boss[0].getHp();
+  let bossHp = findBosses[0].getBossHp();
   bossHp -= damage;
-  boss[0].setHp(bossHp);
+  findBosses[0].setBossHp(bossHp);
+
+  const users = findUsers(movementSyncId);
 
   // 보스 사망 검증
   if (bossHp <= 0) {
-    boss[0].bossDie();
-    boss[0].deleteBoss(boss[0].id);
+    findBosses[0].bossDie(users);
+    movementSyncs[movementSyncId].deleteBoss(findBosses[0].id);
   } else {
-    boss[0].bossTakeDamage(damage);
+    findBosses[0].bossTakeDamage(damage, users);
   }
+
+  return true;
 };
+
 // [보스 스킬]
 export const handleBossSkill = (movementSyncId, bossId, packetData) => {
   if (!findMovementSync(movementSyncId)) {
