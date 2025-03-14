@@ -350,7 +350,7 @@ const handlers = {
     protoType: 'dungeon.C_LootingBox',
   },
   [PACKET_TYPE.S_GOLD]: {
-    handler: lootingBoxHandler,
+    handler: undefined,
     protoType: 'user.S_Gold',
   },
 };
