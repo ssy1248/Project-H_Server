@@ -1,6 +1,6 @@
 import Skill from "./skill.class.js";
 
-const PLAYER_CLASS = {
+export const PLAYER_CLASS = {
   LANCE: 1,
   ROGUE: 2,
   ARCHER: 3,
