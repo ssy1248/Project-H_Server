@@ -254,16 +254,20 @@ export const bossApplyDamage2 = (movementSyncId, userId, damage) => {
 
   // 보스체력 업데이트
   let bossHp = findBosses[0].getBossHp();
+  console.log("getHp : ", bossHp);
   bossHp -= damage;
+  console.log("setHp : ", bossHp);
   findBosses[0].setBossHp(bossHp);
 
   const users = findUsers(movementSyncId);
 
   // 보스 사망 검증
   if (bossHp <= 0) {
+    console.error("[보스 사망]")
     findBosses[0].bossDie(users);
     movementSyncs[movementSyncId].deleteBoss(findBosses[0].id);
   } else {
+    console.error("[보스 데미지]")
     findBosses[0].bossTakeDamage(damage, users);
   }
 
