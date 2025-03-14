@@ -4,6 +4,7 @@ import {
   findMonster,
   findUser,
   monsterApplyDamage,
+  bossApplyDamage2,
 } from '../../../movementSync/movementSync.manager.js';
 import { getDungeonInPlayerName } from '../../../session/dungeon.session.js';
 import { getUserByNickname, getUserBySocket } from '../../../session/user.session.js';
@@ -111,6 +112,30 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
 
   // [보스 몬스터]
   const user = getUserBySocket(socket);
+  // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
+  const boss = bossApplyDamage2(
+    dungeon.id,
+    user.userInfo.userId,
+    1000,
+  );
+  // dungeon.players[attackerName].normalAttack.damage * 5,
+
+  if (boss) {
+    const normalAttackResult = {
+      targetId,
+      damageDealt: dungeon.players[attackerName].normalAttack.damage,
+      useUserName: attackerName,
+    };
+    const payload = {
+      normalAttackResult,
+      success: true,
+      message: '공격에 성공하였습니다.',
+    };
+
+    const packet = createResponse('dungeon', 'S_PlayerAction', PACKET_TYPE.S_PLAYERACTION, payload);
+    socket.write(packet);
+    return console.log('[보스 공격성공]');
+  }
 
   const monster = findMonster(dungeon.id, targetId);
   if (!monster) {
@@ -188,16 +213,7 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
 
   // });
 
-  // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  const boss = bossApplyDamage2(
-    dungeon.id,
-    user.userInfo.userId,
-    dungeon.players[attackerName].normalAttack.damage * 5,
-  );
-
-  if (boss) {
-    return console.log('[보스 공격성공]');
-  }
+  
   monsterApplyDamage(dungeon.id, targetId, dungeon.players[attackerName].normalAttack.damage);
 };
 
