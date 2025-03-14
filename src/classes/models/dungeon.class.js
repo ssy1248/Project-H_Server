@@ -131,10 +131,15 @@ class Dungeon {
 
     this.movementSync = createMovementSync(this.id, 'dungeon1');
 
-    this.clearPlan = 10;
-    this.nowClearMonster = 0;
+    this.clearPlan = 5;
   }
-
+  monsterDie() {
+    if (!this.clearPlan < 1) {
+      this.clearPlan--;
+      return;
+    }
+    this.endBoxLoot();
+  }
   //테스트 용도입니다.
   endCount() {
     if (this.outCount < 1) {

@@ -9,6 +9,7 @@ import Monster from './entity/classes/monster.class.js';
 import Boss1 from './entity/classes/boss1.class.js';
 import { getUserById, getUserBySocket } from '../session/user.session.js';
 import { v4 as uuidv4 } from 'uuid';
+import { getDungeonSession } from '../session/dungeon.session.js';
 
 /* 
 클래스에 등록된 유저와 몬스터의 좌표를 60프레임 단위로 동기화하는 클래스
@@ -220,7 +221,7 @@ export default class MovementSync {
     const monsterIds = monsters
       .filter((monster) => monster.getIsDie()) // 죽었을경우
       .map((monster) => monster.getId()); // 몬스터 ID만 추출
-
+    const dungeon = getDungeonSession(this.movementId);
     if (monsterIds.length !== 0) {
       const sMonsterDie = {
         monsterId: monsterIds,
@@ -240,6 +241,7 @@ export default class MovementSync {
       );
 
       this.broadcast2(initialResponse);
+      dungeon.monsterDie();
     }
   }
 
@@ -339,8 +341,7 @@ export default class MovementSync {
       // 보스 생성 (보스 생성 후 몬스터 리스폰 종료.)
       //this.bossCount = 0;
       if (this.bossCount <= 0) {
-        //this.addBoss();
-        this.isEnd = true;
+        this.addBoss();
         clearInterval(this.monsterSpawnInterval);
         this.monsterSpawnInterval = null;
         return;
