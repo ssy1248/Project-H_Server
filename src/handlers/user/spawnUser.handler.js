@@ -73,10 +73,6 @@ const findOrCreateCharacter = async (userId, charStatId) => {
     if (!character) {
       await createCharacter(userId, charStatId);
       character = await findCharacterByUserAndStatId(userId, charStatId);
-      const characterId = character.id;
-    
-      // 초기 골드 10000 추가
-      updateAddGold(characterId, 10000);
     }
     
 
