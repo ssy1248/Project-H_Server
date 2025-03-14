@@ -10,6 +10,7 @@ export const packetNames = {
     S_Despawn: 'Google.Protobuf.Protocol.S_Despawn',
     S_SetUserState: 'Google.Protobuf.Protocol.S_SetUserState',
     C_GetUserState: 'Google.Protobuf.Protocol.C_GetUserState',
+    S_Gold :'Google.Protobuf.Protocol.S_Gold',
   },
   town: {
     C_Move: 'Google.Protobuf.Protocol.C_Move',
@@ -120,5 +121,6 @@ export const packetNames = {
     S_ClearBox: 'Google.Protobuf.Protocol.S_ClearBox',
     C_LootingBox: 'Google.Protobuf.Protocol.C_LootingBox',
     S_GetExp: 'Google.Protobuf.Protocol.S_GetExp',
+
   },
 };

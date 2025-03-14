@@ -74,6 +74,7 @@ const findOrCreateCharacter = async (userId, charStatId) => {
       await createCharacter(userId, charStatId);
       character = await findCharacterByUserAndStatId(userId, charStatId);
       const charcterId = character.id;
+      //초기 골드 10000 추가
       await updateAddGold(charcterId, 10000);
     }
 
@@ -135,6 +136,18 @@ const syncSpawnedUser = async (socket, user) => {
       storeList: storeItem,
       itemData,
     };
+
+    const playerInfo = user.getPlayerInfo();
+
+    const gold = playerInfo.gold;
+    console.log(gold, 'gold');
+
+    const sGold = {
+      gold: gold,
+    };
+    const goldResponse = createResponse('user', 'S_Gold', PACKET_TYPE.S_GOLD, sGold);
+
+    socket.write(goldResponse);
 
     console.log(
       `유저 아이디 : ${

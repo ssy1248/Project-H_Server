@@ -108,6 +108,7 @@ enum MsgId {
   S_CLEARBOX =99;
   C_LOOTINGBOX =100;
   S_GETEXP =101;
+  S_GOLD =102;
 }
 //회원가입 요청
 message C_RegisterRequest {
@@ -1000,6 +1001,9 @@ message MultiCircleAttack {
   repeated CircleArea circles = 1;  // 여러 개의 원 정보
 }
 
+message S_Gold{
+  int32 gold =1;
+}
 
 
 

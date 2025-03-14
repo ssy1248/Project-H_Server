@@ -349,6 +349,10 @@ const handlers = {
     handler: lootingBoxHandler,
     protoType: 'dungeon.C_LootingBox',
   },
+  [PACKET_TYPE.S_GOLD]: {
+    handler: undefined,
+    protoType: 'user.S_Gold',
+  },
 };
 
 export const getHandlerById = (handlerId) => {

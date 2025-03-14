@@ -104,4 +104,5 @@ export const PACKET_TYPE = {
   S_CLEARBOX: 99,
   C_LOOTINGBOX: 100,
   S_GETEXP: 101,
+  S_GOLD: 102,
 };
