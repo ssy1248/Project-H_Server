@@ -2,6 +2,7 @@
 
 import { PACKET_TYPE } from '../../constants/header.js';
 import { sellInMarket } from '../../db/marketplace/market.db.js';
+import { getItemSession } from '../../session/item.session.js';
 import { deletMarketSession, getBuyIdInMarketSession } from '../../session/market.session.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
@@ -27,6 +28,21 @@ const check = async (user, marketId) => {
       marketId,
       gold: marketData.price,
     });
+    const data = getItemSession(marketData.itemIndex);
+    user.inventory.notAddDB(
+      {
+        insertId: itemData[0].insertId,
+        id: marketData.itemIndex,
+        itemType: data.itemType,
+        name: data.name,
+        price: data.price,
+        stat: data.stat,
+        rarity: marketData.rarity,
+        stackable: 1,
+      },
+      marketData.rarity,
+    );
+
     return createResponse('town', 'S_BuyInMarket', PACKET_TYPE.S_BUYITEMRESPONSE, {
       success: true,
       message: '구매에 성공했습니다.',

@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // 나중에 log로 기록 처리
 class RewardAuction {
-  constructor(items, partyInfo) {
+  constructor(items, partyInfo, rarity) {
     this.id = uuidv4(); // 새션 용도 고유 id
     this.items = items;
     this.name = ''; // 현재 가장 높게 부른 charId 캐릭터 아이디
@@ -26,6 +26,7 @@ class RewardAuction {
     this.interval = null;
     this.maxRarity = 7; // 6까지
     this.rarity = 1; // 여기서 랜덤으로 지정
+    this.rewardRarity = rarity; // 보상에 대한 레어도임 위의 상위 개념
     addRewardAutionSession(this);
     this.startAuction();
   }
@@ -49,7 +50,7 @@ class RewardAuction {
     }
   }
   randomRarity() {
-    return Math.floor(Math.random() * this.maxRarity);
+    return Math.floor(Math.random() * this.maxRarity) * (this.rewardRarity + 1);
   }
   // 경매 시작
   startAuction() {

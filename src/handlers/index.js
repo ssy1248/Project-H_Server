@@ -1,4 +1,3 @@
-import initialHandler from './user/initial.handler.js';
 import CustomError from '../utils/error/customError.js';
 import { ErrorCodes } from '../utils/error/errorCodes.js';
 import moveHandler from './game/move.handler.js';
@@ -34,12 +33,19 @@ import matchingHandler, { matchStopHandler } from './game/match.handler.js';
 import { handleBuyItem, handleInventoryList, handleSellItem } from './game/shop.handler.js';
 import marketSelectBuyName from './marketplace/marketSelectBuyName.handler.js';
 import enterAuctionBid from './game/enterAuctionBid.handler.js';
-import { processPlayerActionHandler } from './game/InGame/player.handler.js';
+import {
+  processBuffSkillHandler,
+  processPlayerActionHandler,
+} from './game/InGame/player.handler.js';
 import dungeonSpawnHandler from './game/dungeon/dungeonSpawn.handler.js';
 import { ActiveItemRequestHandler } from './inventory/item.handler.js';
-import reSpawnUserHandler from './user/reSpawnUser.handler.js';
-
+import reSpawnUserHandler from './user/respawnUser.handler.js';
 import monsterSyncHandler from './game/dungeon/monsterSync.handler.js';
+import { playerSkillBuff, rangeAttackImpactHandler } from './game/dungeon/player.attack.js';
+import userStateHandler from './user/userState.handler.js';
+//import playerRangeAttackHandler from './game/dungeon/player.attack.js';
+import bossSkillHandler from './game/dungeon/bossSkill.handler.js';
+import lootingBoxHandler from './game/dungeon/lootingBox.handler.js';
 
 const handlers = {
   [PACKET_TYPE.C_REGISTERREQUEST]: {
@@ -71,7 +77,7 @@ const handlers = {
     protoType: 'user.S_Spawn',
   },
   [PACKET_TYPE.S_DESPAWN]: {
-    handler: initialHandler,
+    handler: undefined,
     protoType: 'user.S_Despawn',
   },
   [PACKET_TYPE.C_MOVE]: {
@@ -119,11 +125,11 @@ const handlers = {
     protoType: 'inventory.C_MoveItemRequest',
   },
   [PACKET_TYPE.C_ACTIVEITEMREQUEST]: {
-    handler: ActiveItemRequestHandler, // TODO : 핸들러 연결
+    handler: ActiveItemRequestHandler,
     protoType: 'inventory.C_ActiveItemRequest',
   },
   [PACKET_TYPE.S_ACTIVEITEMREQUEST]: {
-    handler: animationHandler, // TODO : 핸들러 연결
+    handler: animationHandler,
     protoType: 'inventory.S_ActiveItemRequest',
   },
   [PACKET_TYPE.C_PARTYREQUEST]: {
@@ -298,8 +304,51 @@ const handlers = {
   [PACKET_TYPE.C_MONSTERMOVE]: {
     handler: monsterSyncHandler,
     protoType: 'town.C_MonsterMove',
-
-  }
+  },
+  [PACKET_TYPE.S_PLAYERRANGEATTACK]: {
+    handler: undefined,
+    protoType: 'dungeon.S_playerRangeAttck',
+  },
+  [PACKET_TYPE.C_PLAYERRANGEATTACK]: {
+    handler: undefined,
+    protoType: 'dungeon.C_playerRangeAttck',
+  },
+  [PACKET_TYPE.S_RANGEATTACKIMPACT]: {
+    handler: rangeAttackImpactHandler,
+    protoType: 'dungeon.S_rangeAttackImpact',
+  },
+  [PACKET_TYPE.C_RANGEATTACKIMPACT]: {
+    handler: rangeAttackImpactHandler,
+    protoType: 'dungeon.C_rangeAttackImpact',
+  },
+  [PACKET_TYPE.S_RANGEATTACKCOLLIDE]: {
+    handler: undefined,
+    protoType: 'dungeon.S_rangeAttcckCollide',
+  },
+  [PACKET_TYPE.C_RANGEATTACKCOLLIDE]: {
+    handler: undefined,
+    protoType: 'dungeon.C_rangeAttcckCollide',
+  },
+  [PACKET_TYPE.C_SKILLBUFF]: {
+    handler: processBuffSkillHandler,
+    protoType: 'dungeon.C_SkillBuff',
+  },
+  [PACKET_TYPE.S_SKILLBUFF]: {
+    handler: undefined,
+    protoType: 'dungeon.S_SkillBuff',
+  },
+  [PACKET_TYPE.C_GETUSERSTATE]: {
+    handler: userStateHandler,
+    protoType: 'user.C_GetUserState',
+  },
+  [PACKET_TYPE.C_BOSSSKILL]: {
+    handler: bossSkillHandler,
+    protoType: 'dungeon.C_BossSkill',
+  },
+  [PACKET_TYPE.C_LOOTINGBOX]: {
+    handler: lootingBoxHandler,
+    protoType: 'dungeon.C_LootingBox',
+  },
 };
 
 export const getHandlerById = (handlerId) => {

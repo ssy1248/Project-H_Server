@@ -41,11 +41,7 @@ export const addMarket = async (data) => {
   try {
     await connection.beginTransaction();
 
-    await connection.execute(INVENTORY.REMOVE_ITEM_FROM_INVENTORY, [
-      data.inventoryId,
-      data.charId,
-      data.upgrade,
-    ]);
+    await connection.execute(INVENTORY.REMOVE_ITEM_FROM_INVENTORY, [data.inventoryId, data.charId]);
     const marketData = await connection.execute(MARKET.ADD_MARKET_DATA, [
       data.charId,
       data.itemIndex,
@@ -68,14 +64,7 @@ export const cancelMarket = async (data) => {
   const connection = await pools.USER_DB.getConnection();
   try {
     await connection.beginTransaction();
-    const item = await addItemToInventory(
-      data.charId,
-      data.itemId,
-      data.rarity,
-      false,
-      1,
-      null,
-    );
+    const item = await addItemToInventory(data.charId, data.itemId, data.rarity, 0, 1, null);
     await connection.execute(MARKET.REMOVE_MARKET_DATA, [data.makrketId]);
     await connection.commit();
   } catch (err) {

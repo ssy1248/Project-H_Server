@@ -49,7 +49,7 @@ export const broadcastTownAllUsers = (packet) => {
     return user.inDungeonId === '';
   });
   for (let user of userData) {
-    user.userInfo.socket(packet);
+    user.userInfo.socket.write(packet);
   }
 };
 
@@ -59,7 +59,7 @@ export const broadcastTownOtherUsers = (socket, packet) => {
     return user.inDungeonId === '' && user.userInfo.socket !== socket;
   });
   for (let user of userData) {
-    user.userInfo.socket(packet);
+    user.userInfo.socket.write(packet);
   }
 };
 

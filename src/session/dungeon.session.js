@@ -2,8 +2,8 @@ import Dungeon from '../classes/models/dungeon.class.js';
 import { dungeonSessions } from './sessions.js';
 
 //던전 세션 추가
-export const addDungeonSession = (id, index) => {
-  const session = new Dungeon(id, index);
+export const addDungeonSession = (id, index, users) => {
+  const session = new Dungeon(id, index, users);
   dungeonSessions.push(session);
   return session;
 };
@@ -12,7 +12,7 @@ export const addDungeonSession = (id, index) => {
 export const removeDungeonSession = (id) => {
   const index = dungeonSessions.findIndex((session) => session.id === id);
   if (index !== -1) {
-    return gameSessions.splice(index, 1)[0];
+    return dungeonSessions.splice(index, 1)[0];
   }
 };
 
@@ -21,10 +21,10 @@ export const getDungeonSession = (id) => {
   return dungeonSessions.find((session) => session.id === id);
 };
 
-//던전에 있는 유저 찾기 //users 는 사라졌으니 못찾음
+//던전에 있는 유저 찾기
 export const getDungeonUser = (userId) => {
   const dungeons = dungeonSessions.filter((dungeon) => {
-    return dungeon.users.some((user) => user.id === userId);
+    return dungeon.users.some((user) => user.userInfo.userId === userId);
   });
 
   return dungeons;
@@ -36,4 +36,4 @@ export const getDungeonInPlayerName = (playerName) => {
   });
 
   return dungeons;
-}
+};

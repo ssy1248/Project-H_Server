@@ -88,8 +88,27 @@ enum MsgId {
   S_MONSTERHIT = 79;
   S_MONSTERATTCK = 80;
   S_MONSTERDIE = 81;
+  S_PLAYERRANGEATTACK=82;
+  C_PLAYERRANGEATTACK=83;
+  S_RANGEATTACKIMPACT=84;
+  C_RANGEATTACKIMPACT=85;
+  S_RANGEATTACKCOLLIDE=86;
+  C_RANGEATTACKCOLLIDE=87;
+  S_SKILLBUFF=88;
+  C_SKILLBUFF=89;
+  C_GETUSERSTATE=90;
+  S_SETUSERSTATE=91;
+  S_BOSSSPAWN=92;
+  S_BOSSMOVE=93;
+  S_BOSSHIT=94;
+  S_BOSSDIE=95;
+  S_BOSSSKILLSTART=96;
+  S_BOSSSKILLEND=97;
+  C_BOSSSKILL=98;
+  S_CLEARBOX =99;
+  C_LOOTINGBOX =100;
+  S_GETEXP =101;
 }
-
 //회원가입 요청
 message C_RegisterRequest {
   string email = 1;
@@ -384,7 +403,9 @@ message S_EnterDungeon {
 }
 
 // Me
-message S_LeaveDungeon {}
+message S_LeaveDungeon {
+  bool success = 1;
+}
 
 // Me
 message S_ScreenText {
@@ -528,13 +549,14 @@ message C_PlayerAction {
     SkillAttack skillAttack = 2;
     DodgeAction dodgeAction = 3;
     HitAction hitAction = 4;// 피격
+    RangeNormalAttackAction rangeNormalAttackAction = 5; //원거리 일반 공격
   }
 }
 
 // 일반 공격
 message NormalAttack {
   string attackerName = 1;// 공격하는 유저의 이름
-  int32 targetId = 2;// 공격받는 몬스터의 아이디? 혹은 다른방식
+  string targetId = 2;// 공격받는 몬스터의 아이디
   // 필요하다면 위치나 방향, etc.
 }
 
@@ -542,9 +564,7 @@ message NormalAttack {
 message SkillAttack {
   string attackerName = 1;// 공격하는 유저의 이름
   int32 skillId = 2;
-  int32 targetId = 3;
-  int32 currentMp = 4;// 가장 최근의 마나
-  // 혹은 범위 정보, 마나 소모 등
+  repeated string targetId = 3;
 }
 
 // 회피
@@ -556,9 +576,13 @@ message DodgeAction {
 
 // 피격
 message HitAction {
-  int32 attackerId = 1;
+  string attackerId = 1; 
   int32 damage = 2;
   // 상태이상, 크리티컬 여부 등
+}
+
+message RangeNormalAttackAction {
+  Vector direction = 1;
 }
 
 message S_PlayerAction {
@@ -568,10 +592,11 @@ message S_PlayerAction {
     SkillAttackResult skillAttackResult = 2;
     DodgeResult dodgeResult = 3;
     HitResult hitResult = 4;
+    RangeNormalAttackResult rangeNormalAttackResult = 5;
   }
   // 액션 결과 전송의 성공 여부 및 메시지
-  bool success = 5;
-  string message = 6;
+  bool success = 6;
+  string message = 7;
 }
 
 message S_SetPlayerHpData {
@@ -590,7 +615,7 @@ message S_SetMonsterHpData {
 }
 // 일반 공격 결과 메시지
 message NormalAttackResult {
-  int32 targetId = 1;// 공격 대상 ID
+  string targetId = 1;// 공격 대상 ID
   int32 damageDealt = 2;// 입힌 피해량
   string useUserName = 3;// 사용한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
@@ -599,9 +624,8 @@ message NormalAttackResult {
 // 스킬 공격 결과 메시지
 message SkillAttackResult {
   int32 skillId = 1;// 사용한 스킬의 ID
-  int32 targetId = 2;// 공격 대상 ID
-  int32 damageDealt = 3;// 입힌 피해량
-  string useUserName = 4;// 사용한 유저의 닉네임
+  string useUserName = 2;// 사용한 유저의 닉네임
+  int32 currentMp = 3; // 스킬 사용 후 남은 mp
   // 필요한 추가 필드가 있다면 여기에 작성
 }
 
@@ -621,6 +645,19 @@ message HitResult {
   string userName = 3;// 피격당한 유저의 닉네임
   // 필요한 추가 필드가 있다면 여기에 작성
 }
+// 요청
+message C_GetUserState{
+}
+// 정보 보내주기 
+message S_SetUserState{
+  StatInfo data =1;
+  float exp = 2;
+}
+
+message RangeNormalAttackResult {
+  int32 arrowId = 1;
+  string message = 2;
+}
 
 message C_DungeonEnter {
 
@@ -634,7 +671,7 @@ message S_DungeonDeSpawn {
   int32 playerId = 1;// 유저 id
 }
 message C_DungeonExit {
-
+  bool success = 1;
 }
 // 정보 구조체
 
@@ -843,3 +880,128 @@ message S_ShopInventoryList {
   uint32 MaxPage = 1;
   repeated ItemInfo itemdata = 2;
 }
+
+message C_PlayerRangeAttack {
+  repeated uint32 direction = 1; // x,y,z 방향백터
+}
+
+message S_PlayerRangeAttack {
+  uint32 arrowId = 1;
+  string message = 2;
+}
+
+message C_RangeAttackImpact {
+  int32 arrowId = 1;
+  int32 hitObject = 2; // 1 -> 몬스터 2 -> 몬스터 아닌 다른거
+  string monsterId = 3;
+}
+message S_RangeAttackImpact{
+  string monsterId =1;
+  uint32 monsterHp =2;
+  uint32 damage =3;
+  string message=4;
+}
+
+message C_RangeAttackCollide{
+  uint32 arrowId = 1;
+  repeated uint32 collide =2;
+}
+
+message S_RangeAttackCollide{
+  bool success =1;
+  string message =2;
+}
+
+message S_SkillBuff{
+
+}
+
+message C_SkillBuff{
+
+}
+
+// [ 보스몬스터 관련 패킷]
+message S_BossSpawn{
+  string bossId = 1; // 보스 id 
+  int32 hp = 2; // 보스 hp
+  Vector currentPosition = 3; // 보스 스폰 포지션
+}
+
+message S_BossMove{
+  string bossId = 1; 
+  Vector targetPosition = 2;
+}
+
+message S_BossHit{
+  string bossId = 1; 
+  int32 damage = 2;
+}
+
+message S_BossDie{
+  string bossId = 1; 
+}
+
+message S_BossSkillStart{
+  string bossId = 1;
+  string type = 2;
+}
+
+message S_BossSkillEnd{
+  string bossId = 1;
+}
+
+message C_BossSkill {
+  string bossId = 1;
+  string type = 2;
+  Vector currentPosition = 3;
+  oneof skill_range {
+    RectangleArea rectangle = 4;
+    SectorArea sector = 5;
+    MultiCircleAttack multiCircle = 6;
+    CircleArea circles = 7;
+  }
+}
+
+message S_ClearBox{
+  int32 rarity = 1;
+}
+
+message C_LootingBox{
+
+}
+message S_GetExp{
+  int32 exp = 1;
+}
+
+// 부채꼴
+message SectorArea {
+  Vector center = 1;
+  Vector direction = 2;
+  float radius = 3;
+  float angle = 4;
+}
+
+
+// 상자
+message RectangleArea {
+  Vector center = 1;      // 중심 위치
+  Vector direction = 2;   // 바라보는 방향 (forward 벡터)
+  float width = 3;        // 가로 길이
+  float height = 4;       // 세로 길이 (필요하면)
+  float length = 5;       // 세로 또는 깊이 길이
+}
+
+// 원형 
+message CircleArea {
+  Vector center = 1;  // 원의 중심 좌표
+  float radius = 2;   // 반지름
+}
+
+message MultiCircleAttack {
+  repeated CircleArea circles = 1;  // 여러 개의 원 정보
+}
+
+
+
+
+

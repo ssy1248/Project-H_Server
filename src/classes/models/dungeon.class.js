@@ -1,6 +1,16 @@
-import { findUser } from '../../movementSync/movementSync.manager.js';
+import { PACKET_TYPE } from '../../constants/header.js';
+import MovementSync from '../../movementSync/movementSync.class.js';
+import {
+  addMovementSync,
+  createMovementSync,
+  deleteMovementSync,
+  findMovementSync,
+  findUser,
+} from '../../movementSync/movementSync.manager.js';
+import { removeDungeonSession } from '../../session/dungeon.session.js';
 import { searchPartySession } from '../../session/party.session.js';
 import { getUserByNickname } from '../../session/user.session.js';
+import { createResponse } from '../../utils/response/createResponse.js';
 import ArrowPool from '../managers/arrowPool,manager.js';
 import IntervalManager from '../managers/interval.manager.js';
 import Players from './player.class.js';
@@ -28,32 +38,55 @@ import RewardAuction from './rewardAuction.class.js';
 */
 
 class Dungeon {
-  constructor(id, partyInfo) {
+  constructor(id, partyInfo, users) {
     // 던전 고유 아이디
     this.id = id;
+    /*
+    partyInfo: {
+      dungeonIndex,
+      maximum ,
+      partyId,
+      partyLeaderId,
+      partyName,
+      Players = 
+      [
+        {
+          playerName,
+          playerLevel,
+          playerClass,
+          playerFullHp,
+          playerCurHp,
+          playerFullMp,
+          playerCurMp,
+        }
+      ]
+    },
+    */
     // 파티 정보
-    this.partyInfo = partyInfo;
+    this.partyInfo = partyInfo; // => 파티 정보에 user 인스턴스를 추가해서 직접 참조하자
     // 인터벌 매니저
     this.intervalManager = new IntervalManager();
     // 던전 상태 (matching, progress, end)
     this.isState = 'matching';
-    // 몬스터 종류
+    // 몬스터 class를 집어 넣자
     this.monsterId = [];
     // 플레이어 상태 정보
-    this.playerStatus = {};
+    this.playerStatus = {}; // => 플레이어 스탯을 복사해오는데, 그러지 말고 user 인스턴스를 직접 참조하자
     // 플레이어들의 위치 정보 관리 객체
-    this.playersTransform = {};
+    this.playersTransform = {}; // => user 인스턴스를 직접 참조하고, 인스턴스에 있는 transformInfo를 참조하자
 
+    // => user 인스턴스를 직접 참조하고, 인스턴스에 있는 transformInfo를 참조하자
     // 초기 위치 설정
     if (partyInfo.Players && partyInfo.Players.length > 0) {
       let count = 0;
       partyInfo.Players.forEach((playerStatus) => {
         // playerStatus.playerName 또는 playerStatus에 다른 고유 식별자가 있다면 사용
-        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 0, rot: 0 };
+        this.playersTransform[playerStatus.playerName] = { x: count * 2, y: 0.2, z: 2, rot: 0 };
         count++;
       });
     }
 
+    // => Players 클래스의 주석을 참조해주세요
     // 던전 생성 시 플레이어 클래스 생성
     this.players = {};
     if (partyInfo.Players && Array.isArray(partyInfo.Players)) {
@@ -68,42 +101,112 @@ class Dungeon {
     // 화살 정보를 저장할 객체
     this.arrows = {};
 
-    //this.startArrowMovement();
-    this.testCount = 0;
+    this.startArrowMovement();
 
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
     this._positionUpdateIntervalId = null;
-  }
 
-  checkAuctionTest() {
-    if (this.testCount < 1) {
-      this.testCount++;
+    // 유저 배열
+    this.users = users;
+    this.alives = users.length;
+    Object.defineProperty(this, 'Alives', {
+      get: () => this.alives,
+      set: (value) => {
+        this.alives = value;
+        if (this.alives <= 0) {
+          // 파티 전멸
+          // 던전 종료
+          this.endDungeonFailed();
+          //
+        }
+      },
+    });
+
+    // 추후 던전 마다 다르게 하드코딩 하거나 매개변수로 받거나
+    this.getExp = 1000;
+    this.rarity = 0;
+    this.isGetReward = false;
+    // 테스트 용도 두명에 동의 체크용도
+    this.outCount = 0;
+
+    this.movementSync = createMovementSync(this.id, 'dungeon1');
+
+    this.clearPlan = 5;
+  }
+  monsterDie() {
+    if (!this.clearPlan < 1) {
+      this.clearPlan--;
       return;
     }
-    new RewardAuction([5, 6], this.partyInfo);
+    this.endBoxLoot();
   }
+  //테스트 용도입니다.
+  endCount() {
+    if (this.outCount < 1) {
+      this.outCount++;
+      return;
+    }
+    this.deleteDungeon();
+  }
+  // 다잡고 보상 상자 보여주기
+  endBoxLoot() {
+    this.rarity = this.getRandom(0, 2);
+    if (this.rarity > 1) {
+      this.rarity = this.getRandom(0, 2);
+    }
+    const packet = createResponse('dungeon', 'S_ClearBox', PACKET_TYPE.S_CLEARBOX, {
+      rarity: this.rarity,
+    });
+    for (let player of this.partyInfo.Players) {
+      getUserByNickname(player.playerName).userInfo.socket.write(packet);
+    }
+  }
+  //최대 4개로 고정
+  randomAuctionItem() {
+    let items = [];
+
+    for (let i = 0; i < 4; i++) {
+      items.push(this.getRandom(3, 9));
+
+      if (!this.getRandom(0, 10) > i * 2) {
+        break;
+      }
+    }
+
+    return items;
+  }
+  getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   // 던전 내 플레이어 위치 업데이트 함수 -> 던전에서 이동을 할떄 사용을 해줘야 할듯
+  // => 던전에서 movementSync를 생성하고 사용하자
   updatePlayerPosition(playerName, posX, posY, posZ, rot) {
     this.playersTransform[playerName] = { x: posX, y: posY, z: posZ, rot: rot };
   }
 
   // 던전 내 플레이어 위치 가져오기
+  // => 던전에서 movementSync를 생성하고 사용하자
   getPlayerPosition(playerName) {
     return this.playersTransform[playerName] || null;
   }
 
   // 주기적으로 던전 내 모든 플레이어의 위치를 업데이트하는 메서드
+  // => 던전에서 movementSync를 생성하고 사용하자
   startPeriodicPositionUpdates(updateInterval = 10000) {
     // 이미 인터벌이 설정되어 있다면 재설정하지 않음
     if (this._positionUpdateIntervalId) {
       return;
     }
-    
+
     this._positionUpdateIntervalId = setInterval(() => {
       // playersTransform은 플레이어 이름을 key로 갖는 객체입니다.
       Object.keys(this.playersTransform).forEach((playerName) => {
         const user = getUserByNickname(playerName);
-        const userTransform = findUser('dungeon1', user.userInfo.userId);
+        if (!user) {
+          return;
+        }
+        const userTransform = findUser(this.id, user.userInfo.userId);
         if (user && userTransform && userTransform.currentTransform) {
           this.playersTransform[playerName] = {
             x: userTransform.currentTransform.posX,
@@ -111,9 +214,12 @@ class Dungeon {
             z: userTransform.currentTransform.posZ,
             rot: userTransform.currentTransform.rot,
           };
-          console.log(`플레이어 [${playerName}] 위치 갱신 완료:`, this.playersTransform[playerName]);
+          // console.log(
+          //   `플레이어 [${playerName}] 위치 갱신 완료:`,
+          //   this.playersTransform[playerName],
+          // );
         } else {
-          console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
+          //console.warn(`플레이어 [${playerName}]의 정보를 찾을 수 없습니다.`);
         }
       });
     }, updateInterval);
@@ -125,6 +231,41 @@ class Dungeon {
       clearInterval(this._positionUpdateIntervalId);
       this._positionUpdateIntervalId = null;
     }
+  }
+
+  // 던전 성공 처리
+  endDungeonSuccess() {}
+
+  // 던전 실패 처리
+  endDungeonFailed() {
+    // 던전 실패 패킷
+    const packet = {
+      success: false,
+    };
+
+    const leaveDungeonPacket = createResponse(
+      'dungeon',
+      'S_LeaveDungeon',
+      PACKET_TYPE.S_LEAVEDUNGEON,
+      packet,
+    );
+
+    // 던전 실패 메시지 전송
+    this.broadCastAll(leaveDungeonPacket);
+
+    // 모든 유저의 인벤토리 소실
+    this.users.forEach(async (user) => await user.inventory.lost());
+
+    // 던전에 사용되는 movementSync 정지
+    // 즉시 정지해도 되는건가?
+    deleteMovementSync(this.id);
+    this.movementSync = null;
+
+    // 던전 제거
+  }
+
+  deleteDungeon() {
+    removeDungeonSession(this.id);
   }
 
   // 현재 던전에 있는 모든 플레이어의 위치를 반환하는 함수
@@ -210,6 +351,7 @@ class Dungeon {
 
     return arrow.arrowId; // 화살의 ID를 반환
   }
+
   // 화살 이동
   moveArrow(playerName) {
     const arrows = this.arrows[playerName];
@@ -227,38 +369,36 @@ class Dungeon {
 
       arrow.traveledDistance += adjustedSpeed;
 
+      //console.log(`${playerName}의 화살 상태: `, arrows);
+
       // 화살이 최대 이동 거리보다 멀리 갔으면 소멸
       if (arrow.traveledDistance >= arrow.maxDistance) {
         arrows.splice(i, 1); // 화살 삭제
-        console.log(`${playerName}의 화살이 소멸했습니다.`);
+        //console.log(`${playerName}의 화살이 소멸했습니다.`);
         i--; // 인덱스를 하나 감소시켜서 스킵되는 문제 방지
       }
     }
   }
 
   // 특정 몬스터와 화살의 충돌을 확인하는 함수
-  checkArrowCollision(arrow, monster) {
+  checkArrowCollision(arrow, monsterTrans) {
     const arrowPos = arrow.position;
-
-    if (!monster) {
-      return false; // 몬스터가 없다면 충돌하지 않음
-    }
-
-    const monsterPos = monster.position;
+    console.log('충돌 화살 좌표 : ', arrowPos);
 
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
-      Math.pow(arrowPos.x - monsterPos.x, 2) +
-        Math.pow(arrowPos.y - monsterPos.y, 2) +
-        Math.pow(arrowPos.z - monsterPos.z, 2),
+      Math.pow(arrowPos.x - monsterTrans.posX, 2) +
+        Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+        Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
-    const collisionThreshold = 1; // 이 값을 적절히 설정 (예: 1)
+    const collisionThreshold = 5; // 이 값을 적절히 설정 (예: 1)
     if (distance < collisionThreshold) {
       return true; // 충돌 발생
     }
 
+    console.log('distance 거라가 너무 멈', distance);
     return false; // 충돌하지 않음
   }
 
@@ -325,6 +465,7 @@ class Dungeon {
         }
       }
     }, this.arrowMoveIntervalDuration);
+    this.testArrowMovement();
   }
 
   // 인터벌을 멈추는 함수
@@ -337,15 +478,32 @@ class Dungeon {
     return this.arrows;
   }
 
-  // 던전 내 플레이어 상태 업데이트와 함께 화살 생성 관리
-  updatePlayerStatus(playerName, newStatus) {
-    // 상태 업데이트와 함께 화살 생성 처리
-    if (newStatus.playerClass === 'Archer' && !this.arrows[playerName]) {
-      this.createArrow(playerName); // 아처인 경우 화살을 생성
-    }
+  // 임시로 화살을 생성하고 이동을 테스트하는 메서드
+  testArrowMovement(
+    playerName = 'test',
+    position = { x: 0, y: 0, z: 0 },
+    direction = { x: 1, y: 0, z: 0 },
+    speed = 10,
+    maxDistance = 100,
+  ) {
+    // 화살을 생성
+    const arrowId = this.createArrow(playerName, position, direction, speed, maxDistance);
 
-    // 플레이어 상태 업데이트 로직
-    this.playersTransform[playerName] = newStatus;
+    console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
+  }
+
+  broadCastAll(packet) {
+    for (const user of this.users) {
+      user.userInfo.socket.write(packet);
+    }
+  }
+
+  broadcastOther(name, packet) {
+    for (let player of partyInfo.Players) {
+      if (player.playerName !== name) {
+        getUserByNickname(player.playerName).userInfo.socket.write(packet);
+      }
+    }
   }
 }
 

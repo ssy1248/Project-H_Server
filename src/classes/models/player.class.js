@@ -1,3 +1,5 @@
+import Skill from "./skill.class.js";
+
 const PLAYER_CLASS = {
   LANCE: 1,
   ROGUE: 2,
@@ -6,6 +8,9 @@ const PLAYER_CLASS = {
   MAGE: 5,
 };
 
+// 클래스로 구현 하지 말고 전역에서 참조 할 수 있게 하는게 좋을듯
+// 패킷 핸들러처럼 클래스ID - 스킬ID 매핑을 따로 만들어서 관리
+// 아직 스킬은 사용되는 곳이 없으니까 고치려면 지금임
 class Players {
   constructor(partyData) {
     if (!partyData || typeof partyData.playerClass !== 'number') {
@@ -21,33 +26,24 @@ class Players {
         this.normalAttack = {
           attackRange: 4, // 공격 범위 -> 유니티에 원범위를 이걸로 설정
           attackType: 1, // 단일 1 / 범위 2 / 도트딜? 3 / cc 4
-          attackCoolTime: 3, // 기본 공격 쿨타임 (초)
-          damage: 50,
+          attackCoolTime: 1, // 기본 공격 쿨타임 (초)
+          damage: 5,
         };
-        this.skillAttack = {
-          attackRange: 5, // 공격 범위
-          attackType: 1, // 스킬 종류
-          attackCoolTime: 6, // 스킬 쿨타임 (초)
-          damage: 80,
-        };
+        this.skillAttack = new Skill(1, 1, '찌르기', '적을 찌른다.', 1, 10, 5, 10, 3, 0); // type - 1: 단일, 2: 범위, 3: 버프, 4: 디버프
         this.dodge = {
+          // 제자리에서 반격이니 이동거리가 필요가 없네
           dodgeCoolTime: 8, // 회피 쿨타임 (초)
-          dodgeRange: 3, // 회피 이동 거리
+          dodgeRange: 0, // 회피 이동 거리
         };
         break;
       case PLAYER_CLASS.ROGUE:
         this.normalAttack = {
-          attackRange: 6,
+          attackRange: 2,
           attackType: 1,
-          attackCoolTime: 3,
-          damage: 40,
+          attackCoolTime: 1,
+          damage: 10,
         };
-        this.skillAttack = {
-          attackRange: 8,
-          attackType: 3,
-          attackCoolTime: 8.0,
-          damage: 90,
-        };
+        this.skillAttack = new Skill(2, 2, '내려찍기', '범위 내의 적을 내려찍습니다.', 1, 10, 8, 20, 5, 0);
         this.dodge = {
           dodgeCoolTime: 5,
           dodgeRange: 3,
@@ -60,12 +56,8 @@ class Players {
           attackCoolTime: 2,
           damage: 35,
         };
-        this.skillAttack = {
-          attackRange: 12,
-          attackType: 2,
-          attackCoolTime: 7,
-          damage: 60,
-        };
+        // 아이디, 타입, 이름, 설명, 레벨, 쿨타임, 데미지, 마나, 범위, 지속시간
+        this.skillAttack = new Skill(3, 3, '공속증가', '공격 속도를 증가시킵니다.', 1, 0, 10, 15, 0, 5);
         this.dodge = {
           dodgeCoolTime: 5,
           dodgeRange: 3,
@@ -78,12 +70,7 @@ class Players {
           attackCoolTime: 5,
           damage: 50,
         };
-        this.skillAttack = {
-          attackRange: 7,
-          attackType: 4,
-          attackCoolTime: 10,
-          damage: 70,
-        };
+        this.skillAttack = new Skill(4, 3, '신의 축복', '주변 아군 체력을 회복합니다', 1, 0, 20, 20, 10, 0);
         this.dodge = {
           dodgeCoolTime: 10,
           dodgeRange: 3,
@@ -96,12 +83,7 @@ class Players {
           attackCoolTime: 4,
           damage: 50,
         };
-        this.skillAttack = {
-          attackRange: 7,
-          attackType: 3,
-          attackCoolTime: 9,
-          damage: 70,
-        };
+        this.skillAttack = new Skill(5, 4, '저주', '적을 저주합니다', 1, 10, 10, 10, 5, 0);
         this.dodge = {
           dodgeCoolTime: 10,
           dodgeRange: 3,
