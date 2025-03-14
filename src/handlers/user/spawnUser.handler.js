@@ -73,10 +73,14 @@ const findOrCreateCharacter = async (userId, charStatId) => {
     if (!character) {
       await createCharacter(userId, charStatId);
       character = await findCharacterByUserAndStatId(userId, charStatId);
-      const charcterId = character.id;
-      //초기 골드 10000 추가
-      await updateAddGold(charcterId, 10000);
+      const characterId = character.id;
+    
+      // 초기 골드 10000 추가
+      updateAddGold(characterId, 10000);
     }
+    
+
+    console.log('charcter',character)
 
     return character;
   } catch (error) {
@@ -136,6 +140,12 @@ const syncSpawnedUser = async (socket, user) => {
       storeList: storeItem,
       itemData,
     };
+
+
+    //골드 정보 db에서 플레이어인포에 넣기
+    
+
+
 
     const playerInfo = user.getPlayerInfo();
 
