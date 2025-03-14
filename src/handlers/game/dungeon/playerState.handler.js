@@ -9,9 +9,10 @@ export const setPlayerHpHandler = async (playerName) => {
     if (!user) {
       throw new Error('해당 유저가 없습니다.');
     }
+    const userData = user.inventory.addAllStat(user.playerStatInfo);
     return createResponse('dungeon', 'S_SetPlayerHpData', PACKET_TYPE, {
       userId: user.userInfo.userId,
-      hp: user.playerStatInfo.hp,
+      hp: userData.hp,
     });
   } catch (err) {
     console.log(err);
@@ -24,15 +25,16 @@ export const setPlayerstateHandler = async (playerName) => {
     if (!user) {
       throw new Error('해당 유저가 없습니다.');
     }
+    const userData = user.inventory.addAllStat(user.playerStatInfo);
     const playerData = {
       level: user.playerInfo.level,
-      hp: user.playerStatInfo.hp,
-      maxHp: user.playerStatInfo.maxHP,
-      mp: user.playerStatInfo.mp,
-      maxMp: user.playerStatInfo.maxMp,
-      atk: user.playerStatInfo.atk,
-      def: user.playerStatInfo.def,
-      speed: user.playerStatInfo.speed,
+      hp: userData.hp,
+      maxHp: userData.maxHP,
+      mp: userData.mp,
+      maxMp: userData.maxMp,
+      atk: userData.atk,
+      def: userData.def,
+      speed: userData.speed,
     };
     return createResponse('dungeon', 'S_SetPlayerData', PACKET_TYPE, {
       userId: user.userInfo.userId,

@@ -210,7 +210,7 @@ export default class Inventory {
     const copy = { ...playerStatInfo };
     const stat = this.getAllStat();
     for (const [key, value] of Object.entries(copy)) {
-      copy[key] += statUP(key, stat);
+      copy[key] += this.statUP(key, stat);
     }
     return copy;
   }
