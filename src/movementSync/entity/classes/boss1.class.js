@@ -551,6 +551,9 @@ export default class Boss1 extends Entity {
   async broadcast(initialResponse, users) {
     const promises = users.map((user) => {
       const player = getUserById(user.id);
+      if (!player) {
+        return;
+      }
       const userInfo = player.getUserInfo();
       const socket = userInfo.socket;
 
