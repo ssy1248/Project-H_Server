@@ -42,7 +42,6 @@ export const processPlayerActionHandler = (socket, packet) => {
     processDodgeHandler(
       socket,
       packet.dodgeAction.attackerName,
-      packet.dodgeAction.currentPosition,
       packet.dodgeAction.direction,
     );
   } else if (packet.hitAction) {
@@ -56,9 +55,6 @@ export const processPlayerActionHandler = (socket, packet) => {
     console.error('알 수 없는 플레이어 액션');
   }
 };
-
-// 클라에서 원거리 투사체가 어딘가에 부딪혀서 패킷을 보내면 처리할 핸들러
-export const rangeAttackHitHandler = (socket, packet) => {};
 
 /**
  * 실패 패킷을 보내는 함수
@@ -395,7 +391,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
 };
 
 // 클라측에서 회피를 요청할떄 처리할 핸들러
-const processDodgeHandler = (socket, requesterName, currentPosition, direction) => {
+const processDodgeHandler = (socket, requesterName, direction) => {
   // 핸들러에 들어온 현재 시간
   const now = Date.now();
 
@@ -438,9 +434,6 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
 
   if (player.playerClass === PLAYER_CLASS.LANCE) {
     const dodgeResult = {
-      evadedDamage: 20,
-      dodgeDistance: 0,
-      direction: { x: 0, y: 0, z: 0 }, // 제자리이므로 0,0,0
       finalPosition: dungeon.playersTransform[requesterName], // 변화 없음
       useUserName: requesterName,
     };
@@ -464,6 +457,8 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
 
   // 플레이어의 서버 현재 위치 -> 이부분에서 업데이트가 안되고 있어서 스폰 위치에서 구르고 보간이 되고있음
   const currentServerPosition = dungeon.playersTransform[requesterName];
+
+  console.log('현재 좌표 : ', currentServerPosition);
 
   // 클라이언트에서 전송한 dodgeAction의 방향과 이동 거리를 사용하여 최종 좌표 계산
   const finalPosition = {
@@ -504,9 +499,6 @@ const processDodgeHandler = (socket, requesterName, currentPosition, direction) 
   }
 
   const dodgeResult = {
-    evadedDamage: 20, // 회피 효과에 따른 피해 경감
-    dodgeDistance: player.dodge.dodgeRange, // 보낼필요없고
-    direction: direction, // 보낼필요없고
     finalPosition: finalPosition,
     useUserName: requesterName,
   };

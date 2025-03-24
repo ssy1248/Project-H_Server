@@ -187,7 +187,6 @@ const generatePartyId = () => {
 // C_PartyRequest가 날라오면 처리할 핸들러
 // S_PartyResponse
 // 파티 생성
-// 파티 생성 시 던전까지 고르고 생성
 // 파티 생성 시 이름 부적절 검사?
 export const partyHandler = async (socket, payload) => {
   try {
@@ -284,7 +283,6 @@ export const partyInviteHandler = async (socket, payload) => {
 
     // 초대 대상 유저가 이미 어떤 파티에 속해 있는지 검사
     const participaterParties = searchPartyInPlayerSession(participater.userInfo.userId);
-    // 유저 id 9가 포함된 파티를 찾을 수 없습니다.
     if (participaterParties.length > 0) {
       // 이미 파티에 속해 있다면, 같은 파티인지 다른 파티인지 확인
       if (participaterParties[0].id === partyInstance.id) {

@@ -571,8 +571,7 @@ message SkillAttack {
 // 회피
 message DodgeAction {
   string attackerName = 1;       // 사용하는 유저의 이름
-  Vector currentPosition = 2;   // 플레이어의 마지막 위치
-  Vector direction = 3;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
+  Vector direction = 2;         // 플레이어가 바라보는(또는 이동하고자 하는) 방향
 }
 
 // 피격
@@ -631,11 +630,8 @@ message SkillAttackResult {
 
 // 회피(도주) 결과 메시지 -> 이부분 지금 2,3번 필요없어 보임임
 message DodgeResult {
-  int32 evadedDamage = 1;// 회피로 인해 피해를 줄인 양
-  float dodgeDistance = 2;// 회피 이동 거리
-  Vector direction = 3;// 사용자가 요청한 회피 방향
-  Vector finalPosition = 4;// 서버에서 계산한 최종 위치
-  string useUserName = 5;// 사용한 유저의 닉네임
+  Vector finalPosition = 1;// 서버에서 계산한 최종 위치
+  string useUserName = 2;// 사용한 유저의 닉네임
 }
 
 // 피격 결과 메시지
