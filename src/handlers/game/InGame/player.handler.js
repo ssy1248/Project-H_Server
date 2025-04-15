@@ -39,11 +39,7 @@ export const processPlayerActionHandler = (socket, packet) => {
   } else if (packet.dodgeAction) {
     // 회피 처리
     console.log('회피 요청 처리');
-    processDodgeHandler(
-      socket,
-      packet.dodgeAction.attackerName,
-      packet.dodgeAction.direction,
-    );
+    processDodgeHandler(socket, packet.dodgeAction.attackerName, packet.dodgeAction.direction);
   } else if (packet.hitAction) {
     // 피격 처리
     console.log('피격 요청 처리');
@@ -109,7 +105,11 @@ const processAttackHandler = async (socket, attackerName, targetId) => {
   // [보스 몬스터]
   const user = getUserBySocket(socket);
   // 몬스터 히트 패킷 전송 - 히트 패킷이 없으면 몬스터에게 공격 했다라는 함수 호출 후 데미지 계산
-  const boss = bossApplyDamage2(dungeon.id, user.userInfo.userId, dungeon.players[attackerName].normalAttack.damage * 5);
+  const boss = bossApplyDamage2(
+    dungeon.id,
+    user.userInfo.userId,
+    dungeon.players[attackerName].normalAttack.damage * 5,
+  );
   // dungeon.players[attackerName].normalAttack.damage * 5,
 
   if (boss) {
@@ -452,6 +452,18 @@ const processDodgeHandler = (socket, requesterName, direction) => {
     );
     socket.write(sPlayerActionPacket);
 
+    // 데미지를 줘야 하니
+    // 분기도 있어야 할듯? 보스인지 일반 몹인지에 대한
+    // 3) 반격 대미지를 계산하여 몬스터에게 적용
+    // if (monsterId) {
+    //   const monster = findMonster(dungeon.id, monsterId);
+    //   if (monster) {
+    //     // 예: 창병 반격 대미지는 기본 공격력 * 2
+    //     const counterDamage = player.normalAttack.damage * 2;
+    //     monsterApplyDamage(dungeon.id, monsterId, counterDamage);
+    //     console.log(`[LANCE 반격] ${monsterId} 에게 ${counterDamage} 피해!`);
+    //   }
+    // }
     return; // LANCE는 여기서 종료
   }
 
