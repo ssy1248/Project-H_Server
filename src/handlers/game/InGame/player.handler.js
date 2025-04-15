@@ -13,6 +13,7 @@ import { createResponse } from '../../../utils/response/createResponse.js';
 // 상태 객체들: 각 액션별로 독립적인 상태 관리
 const lastAttackTime = {};
 const lastdodgeTime = {};
+const lastSkillTime = {};
 
 //줄어든 쿨타임 넣는것
 const playerCooldowns = {};
@@ -271,7 +272,7 @@ const processRangeAttackHandler = (socket, direction) => {
     const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
     const speed = 1; // 기본 속도 1로 설정 -> 화살 속도를 클라와 서버를 동일시 하면 1로 가능할듯?
     const maxDisatnce = player.normalAttack.attackRange;
-    const arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce);
+    const arrowId = dungeon.createArrow(userNickName, position, direction, speed, maxDisatnce, 0);
 
     // 화살 이동 처리 (Dungeon의 moveArrow 메서드 사용)
     dungeon.moveArrow(userNickName);
@@ -332,6 +333,7 @@ const processSkillAttackHandler = (socket, attackerName, targetIds) => {
       user = player;
     }
   });
+
 
   let playerCurrentMp = user.playerCurMp;
   if (playerCurrentMp < player.skillAttack.cost) {
@@ -617,9 +619,141 @@ export const processBuffSkillHandler = (socket, attackerName) => {
   }
 };
 
+//범위를 지정해서 공격하는 핸들러  
+//다른 것들은 몬스터가 주체이지만 이것은 어디에 좌표를 찍었나가 주요한 점으로
+// 이 좌표를 가지고 원이던지 네모를 만들고 그 범위 안에 있는 몬스터를 찾는 형식으로 만들려고 한다
+const processSkillAreaHandler = (socket, position) => {
+  console.log(`찍힌 좌표 : `, position);
+
+  // 핸들러에 들어온 현재 시간
+  const now = Date.now();
+
+  // 유저 정보 확인
+  const user = getUserBySocket(socket);
+  if (!user) {
+    console.error('공격자를 찾을 수 없습니다.');
+    return;
+  }
+
+  const userNickName = user.userInfo.nickname;
+
+  // 2) 아직 한 번도 공격한 적이 없는 플레이어라면, 기록을 0(또는 과거 시각)으로 초기화
+  if (!lastSkillTime[userNickName]) {
+    lastSkillTime[userNickName] = 0;
+  }
+
+  // 3) 공격자(플레이어)를 던전에서 찾음
+  const attackerSessions = getDungeonInPlayerName(userNickName);
+  if (!attackerSessions || attackerSessions.length === 0) {
+    console.error('던전 세션에서 공격자를 찾을 수 없습니다.');
+    sendActionFailure(socket, '던전 세션에서 공격자를 찾을 수 없습니다.');
+    return;
+  }
+  const dungeon = attackerSessions[0];
+
+  // 던전 내의 플레이어 인스턴스 (객체 형태로 저장되어 있다고 가정)
+  const player = dungeon.players[userNickName];
+  if (!player) {
+    console.error('던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
+    sendActionFailure(socket, '던전 세션 내에서 공격자 인스턴스를 찾을 수 없습니다.');
+    return;
+  }
+
+  // 기본 공격 쿨타임 계산
+  const cooldownMs = player.skillAttack.attackCoolTime * 1000;
+
+  // 쿨타임 감소 값 계산 (cooldownReduction은 `playerSkill`에서 추가됨)
+  const cooldownReduction = playerCooldowns[userNickName] || 0; // 쿨타임 감소 값
+  const nextPossibleTime = lastSkillTime[userNickName] + cooldownMs - cooldownReduction; // 쿨타임 감소 적용
+
+  // 공격 가능 여부 확인
+  if (now < nextPossibleTime) {
+    const remaining = nextPossibleTime - now;
+    console.log(`[${userNickName}] 공격 쿨타임 중! (남은 시간: ${remaining}ms)`);
+    sendActionFailure(socket, `공격 쿨타임 중입니다. 남은 시간: ${remaining}ms`);
+    return;
+  }
+
+  // 갱신: 공격 성공 시각 기록
+  lastSkillTime[userNickName] = now;
+  console.log(`[${userNickName}] 공격 시도!`);
+
+
+  // 이것들은 나중에 player에서 값을 가져오게 바꾸어야 한다.
+  const type = 'circle'; // 범위 타입: 'circle' 또는 'rectangle'
+  const height = 5;
+  const width = 6;
+  const duration = 3000; // 3초 동안 유지 (ms 기준)
+
+  // 던전 클래스의 createSkillArea 호출
+  const skillAreaId = dungeon.createSkillArea(userNickName, position, width, height, duration, type);
+
+  if (!skillAreaId) {
+    console.error('SkillArea 생성 실패');
+    sendActionFailure(socket, '스킬 범위 생성에 실패했습니다.');
+    return;
+  }
+
+  console.log(`SkillArea 생성 완료! ID: ${skillAreaId}`);
+
+
+  //이제 이걸 가지고 skillAreaId는 보내줘야 하고 
+  //범위를 broadcaost로 어떻게 보내줘야 하나 
+
+
+
+
+}
+
 // 클라측에서 힐?을 요청할떄 처리할 핸들러 -> 애매
-const processHealHandler = (socket, healerName, targetName) => {};
+const processHealHandler = (socket, healerName, targetName) => { };
 
 // 클라측에서 피격 요청할떄 처리할 핸들러
 // attackId -> 공격한 몬스터 id / playerName -> 피격당한 플레이어 이름 / damage -> 피격 데미지
-const processHitHandler = (socket, attackId, playerName, damage) => {};
+const processHitHandler = (socket, attackId, playerName, damage) => {
+  // 유저 정보 확인 
+  const user = getUserBySocket(socket);
+  if (!user) {
+    console.error('피격자를 찾을 수 없습니다.');
+    return;
+  }
+
+  const userNickName = user.userInfo.nickname;
+
+  // 현재 던전 정보를 가져옵니다.
+  const attackerSessions = getDungeonInPlayerName(userNickName);
+  if (!attackerSessions || attackerSessions.length === 0) {
+    console.error('던전 세션을 찾을 수 없습니다.');
+    return;
+  }
+  const dungeon = attackerSessions[0];
+
+  const monster = findMonster(dungeon.id, attackId);
+  if (!monster) {
+    console.log('몬스터를 찾을 수 없습니다.');
+    return;
+  }
+  const monsterTrans = monster.getTransform();
+  console.log('공격한 몬스터 좌표 : ', monsterTrans);
+
+  //유저의 위치 가져오기
+  const userPosition = dungeon.playersTransform[userNickName];
+  const position = { x: userPosition.x, y: userPosition.y, z: userPosition.z };
+
+  //위의 유저와 몬스터와의 거리를 계산하여서  공격 범위 확인
+
+  //지금 몬스터와 유저의 거리 
+  const distance = calculateDistance(position, monsterTrans)
+
+  //두개의 차이가 몬스터 공격 범위 보다 크면 에러
+  //몬스터 공격범위 임의로 10 나중에 알면 그것을 가져 와서 바꿀것
+  if (distance > 10) {
+    console.error("몬스터와의 공격 범위에 들어오지 않았습니다.", distance)
+  }
+
+
+
+
+
+
+};
