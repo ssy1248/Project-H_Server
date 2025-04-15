@@ -1,26 +1,22 @@
 class ArrowPool {
-  constructor(poolSize = 300) {
-    this.pool = []; // 이제 풀은 하나의 배열로 관리
+  constructor(poolSize = 100) {
+    this.pool = [];
     this.poolSize = poolSize;
-    this.arrowCounter = 0;
+    this.arrowCounter = 0; // 고유한 화살 ID 카운터
 
-    // 화살을 미리 생성하여 풀에 넣기
+    // 미리 풀에 지정된 개수만큼 화살을 생성해 놓음
     for (let i = 0; i < poolSize; i++) {
-      const type = i % 3; // 0, 1, 2로 타입을 순차적으로 설정
-      this.pool.push(this.createArrow(type)); // 풀에 화살을 넣음
+      this.pool.push(this.createArrow()); // 풀에 화살을 추가
     }
   }
 
-  // 특정 type의 화살을 가져오기
-  getArrow(type) {
-    // 풀에서 해당 타입의 화살을 찾음
-    for (let i = 0; i < this.pool.length; i++) {
-      if (this.pool[i].type === type) {
-        const arrow = this.pool.splice(i, 1)[0]; // 해당 화살을 찾아서 풀에서 제거
-        return arrow;
-      }
+  // 풀에서 화살을 가져오거나 없으면 null 반환
+  getArrow() {
+    if (this.pool.length > 0) {
+      const arrow = this.pool.pop(); // 풀에서 화살을 꺼냄
+      return arrow; // 이미 ID가 부여된 화살을 반환
     }
-    return null; // 해당 타입의 화살이 없으면 null 반환
+    return null; // 풀에 사용 가능한 화살이 없으면 null 반환
   }
 
   // 화살을 풀에 반환
@@ -32,14 +28,14 @@ class ArrowPool {
     arrow.maxDistance = 0;
     arrow.traveledDistance = 0;
 
-    this.pool.push(arrow); // 풀에 반환
+    // 풀에 화살을 반환
+    this.pool.push(arrow);
   }
 
-  // 새 화살 객체 생성 (ID와 type을 미리 부여)
-  createArrow(type) {
+  // 새 화살 객체 생성 (ID를 미리 부여)
+  createArrow() {
     return {
       arrowId: this.arrowCounter++, // 화살 생성 시점에서 ID를 부여
-      type: type, // 화살의 종류를 지정
       position: { x: 0, y: 0, z: 0 },
       direction: { x: 0, y: 0, z: 0 },
       speed: 0,

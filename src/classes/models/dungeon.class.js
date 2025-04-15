@@ -14,7 +14,6 @@ import { createResponse } from '../../utils/response/createResponse.js';
 import ArrowPool from '../managers/arrowPool,manager.js';
 import IntervalManager from '../managers/interval.manager.js';
 import Players from './player.class.js';
-import SkillAreaPool from '../managers/skillAreaPool.manager.js';
 import RewardAuction from './rewardAuction.class.js';
 
 /**
@@ -104,9 +103,6 @@ class Dungeon {
 
     this.startArrowMovement();
 
-    // Skill AoE 풀 초기화 (풀 크기는 필요에 따라 조절 가능)
-    this.skillAreaPool = new SkillAreaPool(100);
-
     // 주기적 위치 업데이트 인터벌 ID (중복 실행 방지를 위해)
     this._positionUpdateIntervalId = null;
 
@@ -137,7 +133,6 @@ class Dungeon {
 
     this.clearPlan = 5;
   }
-
   monsterDie() {
     if (!this.clearPlan < 1) {
       this.clearPlan--;
@@ -239,7 +234,7 @@ class Dungeon {
   }
 
   // 던전 성공 처리
-  endDungeonSuccess() { }
+  endDungeonSuccess() {}
 
   // 던전 실패 처리
   endDungeonFailed() {
@@ -334,8 +329,8 @@ class Dungeon {
   }
 
   // 화살 생성
-  createArrow(playerName, position, direction, speed, maxDistance, type) {
-    const arrow = this.arrowPool.getArrow(type); // 풀에서 화살을 가져옴
+  createArrow(playerName, position, direction, speed, maxDistance) {
+    const arrow = this.arrowPool.getArrow(); // 풀에서 화살을 가져옴
     if (!arrow) {
       console.log('풀에 사용할 수 있는 화살이 없습니다.');
       return null; // 풀에 화살이 없다면 null 반환
@@ -393,8 +388,8 @@ class Dungeon {
     // 두 점 사이의 거리 계산 (유클리드 거리)
     const distance = Math.sqrt(
       Math.pow(arrowPos.x - monsterTrans.posX, 2) +
-      Math.pow(arrowPos.y - monsterTrans.posY, 2) +
-      Math.pow(arrowPos.z - monsterTrans.posZ, 2),
+        Math.pow(arrowPos.y - monsterTrans.posY, 2) +
+        Math.pow(arrowPos.z - monsterTrans.posZ, 2),
     );
 
     // 일정 거리 이하일 경우 충돌로 간주
@@ -495,56 +490,6 @@ class Dungeon {
     const arrowId = this.createArrow(playerName, position, direction, speed, maxDistance);
 
     console.log(`${playerName}의 화살이 생성되었습니다. ID: ${arrowId}`);
-  }
-
-  // 스킬 범위 생성 메서드
-  createSkillArea(casterName, center, width, height, type = 'circle', duration = 3000) {
-    const skillArea = this.skillAreaPool.getSkillArea();
-    if (!skillArea) {
-      console.warn('[Dungeon] 사용 가능한 skillArea가 없습니다.');
-      return null;
-    }
-
-    skillArea.center = center;
-    skillArea.width = width;
-    skillArea.height = height;
-    skillArea.type = type;
-    skillArea.caster = casterName;
-    skillArea.createdAt = Date.now();
-    skillArea.duration = duration;
-
-    // duration 후 반환
-    setTimeout(() => {
-      this.skillAreaPool.returnSkillArea(skillArea);
-    }, duration);
-
-    return skillArea.skillAreaId;
-  }
-
-  //활성화된 전체 스킬 area가져오기 
-  getActiveSkillAreas() {
-    return this.skillAreaPool.getActiveSkillAreas();
-  }
-
-  //  특정 범위 ID로 SkillArea 가져오기
-  getSkillAreaById(id) {
-    return this.skillAreaPool.getSkillAreaById(id);
-  }
-
-
-  isMonsterInSkillAreaById(monster, skillAreaId) {
-    const area = this.skillAreaPool.getSkillAreaById(skillAreaId);
-    if (!area) return false;
-
-    const dx = monster.position.x - area.center.x;
-    const dy = monster.position.y - area.center.y;
-    const dz = monster.position.z - area.center.z;
-
-    return (
-      Math.abs(dx) <= area.width / 2 &&
-      Math.abs(dy) <= area.height / 2 &&
-      Math.abs(dz) <= area.width / 2 // z축은 원형 가정 시 width 사용
-    );
   }
 
   broadCastAll(packet) {
