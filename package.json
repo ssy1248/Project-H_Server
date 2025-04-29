@@ -27,6 +27,7 @@
     "navmesh": "^2.3.1",
     "nodaemon": "^0.0.5",
     "protobufjs": "^6.11.2",
+    "redis": "^4.7.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

@@ -14,31 +14,22 @@ const check = async (data) => {
     if (!item) {
       throw new Error('인벤토리에 없습니다!');
     }
-    const now = new Date(Date.now() + 60 * 60 * 1000);
-    const [marketDataTemp] = await addMarket({
-      charId: data.user.playerInfo.charId,
-      inventoryId: data.inventoryId,
-      itemIndex: item.itemId,
-      upgrade: item.rarity,
-      price: data.gold,
-      endTime: now,
-    });
-    if (!marketDataTemp) {
-      throw new Error('거래 실패입니다!');
+    //보낼 데이터
+    const sendData = {
+      gold: user.playerInfo.gold,
+      marketId,
+      charId: user.playerInfo.charId,
+      senderId: config.redis.id,
+    };
+    //보내기
+    redisClient.rPush('BUY', JSON.stringify(sendData));
+    //받기
+    const result = await redisClient.blPop(`BUY::RES:${config.redis.id}`, 0);
+    const marketData = JSON.parse(result);
+    if (!marketData.isSuccess) {
+      throw new Error();
     }
     const itemData = data.user.inventory.notDropDB(data.inventoryId);
-    // 생성까지 완료 해주기
-    new marketData(
-      {
-        id: marketDataTemp.insertId,
-        charId: data.user.playerInfo.charId,
-        itemIndex: item.itemId,
-        upgrade: item.rarity,
-        price: data.gold,
-        endTime: now,
-      },
-      getItemSession(item.itemId).name,
-    );
 
     return createResponse('town', 'S_SellInMarket', PACKET_TYPE.S_SELLINMARKET, {
       success: true,
