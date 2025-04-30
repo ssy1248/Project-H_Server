@@ -7,12 +7,14 @@ import { createResponse } from '../../utils/response/createResponse.js';
 const marketListHandler = async (socket, payload) => {
   const { page, count } = payload;
   const startIndex = (page - 1) * count;
-  const endIndex = startIndex + count;
+  const endIndex = startIndex + count - 1; // Redis는 endIndex 포함
+
   const keys = await redisClient.lRange('marketList', startIndex, endIndex);
   const marketData = [];
+
   for (let key of keys) {
-    let data = redisClient.hGetAll(key);
-    if (data) {
+    let data = await redisClient.hGetAll(key); // await 추가
+    if (data && Object.keys(data).length > 0) {
       marketData.push({
         marketId: data.id,
         itemId: data.itemIndex,
@@ -24,10 +26,12 @@ const marketListHandler = async (socket, payload) => {
     }
   }
 
-  // 최대 page 가져오기
-  const MaxPage = await redisClient.lLen('marketList');
+  // 최대 page 계산 (총 아이템 수 / 페이지당 갯수, 올림)
+  const totalItems = await redisClient.lLen('marketList');
+  const maxPage = Math.ceil(totalItems / count);
+
   const packet = createResponse('town', 'S_MarketList', PACKET_TYPE.S_MARKETLIST, {
-    maxPage: MaxPage,
+    maxPage: maxPage,
     itemdata: marketData,
   });
 
