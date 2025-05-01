@@ -15,12 +15,12 @@ const marketSelectBuyName = async (socket, payload) => {
     let data = await client.hGetAll(key);
     if (data && Object.keys(data).length > 0) {
       marketData.push({
-        marketId: data.id,
-        itemId: data.itemIndex,
+        marketId: Number(data.id),
+        itemId: Number(data.itemIndex),
         name: data.name,
-        upgrade: data.upgrade,
-        endTime: data.endTime,
-        price: data.price,
+        upgrade: Number(data.upgrade),
+        endTime: new Date(data.endTime),
+        price: Number(data.price),
       });
     }
   }
