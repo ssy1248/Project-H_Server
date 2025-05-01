@@ -7,13 +7,13 @@ import { createResponse } from '../../utils/response/createResponse.js';
 const marketListHandler = async (socket, payload) => {
   const { page, count } = payload;
   const startIndex = (page - 1) * count;
-  const endIndex = startIndex + count - 1; // Redis는 endIndex 포함
+  const endIndex = startIndex + count - 1;
 
   const keys = await redisClient.lRange('marketList', startIndex, endIndex);
   const marketData = [];
 
   for (let key of keys) {
-    let data = await redisClient.hGetAll(key); // await 추가
+    let data = await redisClient.hGetAll(key);
     if (data && Object.keys(data).length > 0) {
       marketData.push({
         marketId: data.id,

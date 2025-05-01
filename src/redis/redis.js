@@ -1,8 +1,13 @@
 import { createClient } from 'redis';
-import { config } from '../config/config';
+import { config } from '../config/config.js';
 
 const redisClient = createClient({
-  url: config.redis.name + config.redis.host + config.redis.port, // 로컬 Redis 서버 연결
+  url: `redis://${config.redis.host}:${config.redis.port}`,
 });
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+
+console.log('레디스 연결 완료');
+await redisClient.connect();
 
 export default redisClient;
