@@ -18,10 +18,10 @@ const check = async (user, marketId) => {
       senderId: config.redis.id,
     };
     //보내기
-    redisClient.rPush('BUY', JSON.stringify(sendData));
+    await redisClient.rPush('BUY', JSON.stringify(sendData));
     //받기
-    const [key, value] = await redisClient.blPop(`BUY::RES:${config.redis.id}`, { EX: 10 });
-    const marketData = JSON.parse(value);
+    const value = await redisClient.blPop(`BUY:RES:${config.redis.id}`, { EX: 10 });
+    const marketData = JSON.parse(value.element);
     if (!marketData.isSuccess) {
       throw new Error();
     }

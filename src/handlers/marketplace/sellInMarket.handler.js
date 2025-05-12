@@ -1,8 +1,7 @@
-import marketData from '../../classes/models/marketData.class.js';
+import { config } from '../../config/config.js';
 import { PACKET_TYPE } from '../../constants/header.js';
 import { getItemBuyInventoryId } from '../../db/inventory/inventory.db.js';
-import { addMarket } from '../../db/marketplace/market.db.js';
-import { getItemSession } from '../../session/item.session.js';
+import redisClient from '../../redis/redis.js';
 import { getUserBySocket } from '../../session/user.session.js';
 import { createResponse } from '../../utils/response/createResponse.js';
 import { addInventoryHandler, removeInventoryHandler } from '../inventory/inventory.handler.js';
@@ -14,18 +13,22 @@ const check = async (data) => {
     if (!item) {
       throw new Error('인벤토리에 없습니다!');
     }
+    console.log(data.user.playerInfo.gold);
     //보낼 데이터
     const sendData = {
-      gold: user.playerInfo.gold,
-      marketId,
-      charId: user.playerInfo.charId,
+      gold: data.gold,
+      inventoryId: data.inventoryId,
+      charId: data.user.playerInfo.charId,
       senderId: config.redis.id,
     };
     //보내기
-    redisClient.rPush('BUY', JSON.stringify(sendData));
+    await redisClient.rPush('SELL', JSON.stringify(sendData));
     //받기
-    const [key, value] = await redisClient.blPop(`BUY::RES:${config.redis.id}`, { EX: 10 });
-    const marketData = JSON.parse(value);
+    const value = await redisClient.blPop(`SELL:RES:${config.redis.id}`, 50);
+    if (!value) {
+      throw new Error();
+    }
+    const marketData = JSON.parse(value.element);
     if (!marketData.isSuccess) {
       throw new Error();
     }
